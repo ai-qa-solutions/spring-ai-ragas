@@ -384,7 +384,7 @@ spring-ai-ragas-spring-boot-starter
 
 ### v1.0.0
 
-- [x] AspectCritic
+- [x] AspectCriticMetric
 - [x] SimpleCriteriaScore
 - [x] RubricsScore
 

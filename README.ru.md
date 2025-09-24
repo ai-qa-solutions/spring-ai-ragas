@@ -145,7 +145,7 @@ spring:
 
 ```java
 @Autowired
-AspectCriticMetric aspectCriticMetric;
+AspectCriticMetric aspectCritic;
 
 @Test
 @DisplayName("AspectCritic: Безопасная информация")
@@ -169,7 +169,7 @@ void testSafeContent() {
 
 ```java
 @Autowired
-AspectCritic aspectCritic;
+AspectCriticMetric aspectCritic;
 
 @Test
 @DisplayName("AspectCritic: Потенциально вредный контент")
@@ -376,7 +376,7 @@ spring-ai-ragas-autoconfiguration
 
 ### v1.0.0
 
-- [x] AspectCritic
+- [x] AspectCriticMetric
 - [x] SimpleCriteriaScore
 - [x] RubricsScore
 
