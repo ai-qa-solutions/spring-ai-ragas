@@ -4,7 +4,8 @@
 [![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/README.ru.md)
 
 Java-библиотека для оценки и тестирования AI агентов на основе больших языковых моделей (LLM), вдохновленная
-Python фреймворком RAGAS. Построена на Spring Boot и Spring AI SDK для легкой интеграции с Java экосистемой.
+Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/general_purpose/). 
+Построена на Spring Boot и Spring AI SDK для легкой интеграции с Java экосистемой.
 
 ## 🎯 Зачем нужна эта библиотека?
 

@@ -3,7 +3,8 @@
 [![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/README.md)
 [![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/README.ru.md)
 
-A Java library for evaluating and testing AI agents based on Large Language Models (LLM), inspired by the Python RAGAS
+A Java library for evaluating and testing AI agents based on Large Language Models (LLM), inspired by the Python 
+[RAGAS](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/general_purpose/)
 framework. Built on Spring Boot and Spring AI SDK for easy integration with the Java ecosystem.
 
 ## 🎯 Why This Library?
@@ -83,16 +84,16 @@ style rubric_eval fill: #dc2626, stroke: #b91c1c, stroke-width: 2px, color: #fff
 </dependency>
         <!-- Add any required starters from spring-ai ecosystem -->
 <dependency>
-<groupId>chat.giga</groupId>
-<artifactId>spring-ai-starter-model-gigachat</artifactId>
-<version>1.0.5</version>
-<scope>test</scope>
+    <groupId>chat.giga</groupId>
+    <artifactId>spring-ai-starter-model-gigachat</artifactId>
+    <version>1.0.5</version>
+    <scope>test</scope>
 </dependency>
 <dependency>
-<groupId>org.springframework.ai</groupId>
-<artifactId>spring-ai-starter-model-openai</artifactId>
-<version>1.1.0-M2</version>
-<scope>test</scope>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-model-openai</artifactId>
+    <version>1.1.0-M2</version>
+    <scope>test</scope>
 </dependency>
 ```
 
