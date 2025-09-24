@@ -1,0 +1,35 @@
+spring:
+  ai:
+    retry: # При большом объеме тестов рекомендуется настроить ретраи под свое API
+      on-http-codes: [ 429 ]
+      on-client-errors: true
+      backoff:
+        initial-interval: 2000ms
+        max-interval: 30000ms
+        multiplier: 2
+    model: # выбор api стартера для работы - openai / gigachat
+      chat: openai
+    gigachat: # параметры подключения к gigachat api
+      auth:
+        unsafe-ssl: true
+        scope: gigachat_api_corp
+        bearer:
+          client-id: ${SPRING_AI_GIGACHAT_CLIENT_ID}
+          client-secret: ${SPRING_AI_GIGACHAT_CLIENT_SECRET}
+      chat:
+        options:
+          model: GigaChat-2-Max
+    openai: # параметры подключения к openrouter
+      base-url: https://openrouter.ai/api
+      api-key: ${OPENROUTER_API_KEY}
+      chat:
+        options:
+          model: x-ai/grok-4-fast:free
+
+
+
+
+
+SPRING_AI_GIGACHAT_CLIENT_ID: f90f533f-d101-4535-94df-2747f41bee56
+SPRING_AI_GIGACHAT_CLIENT_SECRET: 725c9b5f-1f63-42d2-a598-45c3205c82ab
+OPENROUTER_API_KEY: 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
