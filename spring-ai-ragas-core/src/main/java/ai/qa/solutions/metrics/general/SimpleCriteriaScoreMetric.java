@@ -1,20 +1,19 @@
 package ai.qa.solutions.metrics.general;
 
-import ai.qa.solutions.llm.LLMEvaluationService;
 import ai.qa.solutions.metric.AbstractLLMMetric;
 import ai.qa.solutions.metric.MetricOutputType;
 import ai.qa.solutions.sample.SingleTurnSample;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import org.springframework.ai.chat.client.ChatClient;
 
 /**
  * SimpleCriteriaScore Metric - Continuous scoring based on simple criteria
  * Updated to use structured output with inner DTO
  */
 public class SimpleCriteriaScoreMetric extends AbstractLLMMetric {
+    private final ChatClient chatClient;
     private String definition;
     private double minScore = 0.0;
     private double maxScore = 5.0;
@@ -22,29 +21,22 @@ public class SimpleCriteriaScoreMetric extends AbstractLLMMetric {
     /**
      * Response DTO for SimpleCriteriaScore metric evaluation
      */
-    public static record Response(
-            @JsonPropertyDescription("The evaluation criteria that was used to score the response")
-            String criteria,
-            @JsonPropertyDescription("Numerical score within the specified range (e.g., 0-5) based on how well the response meets the criteria")
-            Double score,
-            @JsonPropertyDescription("Detailed explanation of why this specific score was assigned, including analysis of strengths and weaknesses")
-            String reasoning
-    ) {
+    public record Response(
+            @JsonPropertyDescription("The evaluation criteria that was used to score the response") String criteria,
+            @JsonPropertyDescription(
+                            "Numerical score within the specified range (e.g., 0-5) based on how well the response meets the criteria")
+                    Double score,
+            @JsonPropertyDescription(
+                            "Detailed explanation of why this specific score was assigned, including analysis of strengths and weaknesses")
+                    String reasoning) {
         public Double getNormalizedScore() {
             return score != null ? score : 0.0;
         }
     }
 
-    public SimpleCriteriaScoreMetric() {
-        super("simple_criteria_score", MetricOutputType.DISCRETE,
-                Set.of("user_input", "response", "reference"));
-        initializePromptTemplate();
-    }
-
-    public SimpleCriteriaScoreMetric(String name, String definition, LLMEvaluationService llmService) {
-        super(name, MetricOutputType.DISCRETE, Set.of("user_input", "response", "reference"));
-        this.definition = definition;
-        this.llmService = llmService;
+    public SimpleCriteriaScoreMetric(final ChatClient chatClient) {
+        super("simple_criteria_score", MetricOutputType.DISCRETE, Set.of("user_input", "response", "reference"));
+        this.chatClient = chatClient;
         initializePromptTemplate();
     }
 
@@ -58,7 +50,8 @@ public class SimpleCriteriaScoreMetric extends AbstractLLMMetric {
     }
 
     private void initializePromptTemplate() {
-        this.promptTemplate = """
+        this.promptTemplate =
+                """
             Evaluate the AI response based on the given criteria and score it accordingly.
 
             Evaluation Criteria: {definition}
@@ -92,27 +85,15 @@ public class SimpleCriteriaScoreMetric extends AbstractLLMMetric {
     }
 
     @Override
-    protected Double parseScore(String llmResponse) {
-        // This method is now deprecated in favor of structured output
-        throw new UnsupportedOperationException(
-                "Use singleTurnScore() method instead, which uses structured output"
-        );
-    }
-
-    @Override
     public Double singleTurnScore(SingleTurnSample sample) {
         validateSample(sample);
         String prompt = buildPrompt(sample);
-        Response response = llmService.evaluateWithStructuredOutput(prompt, Response.class);
-        return response.getNormalizedScore();
+        return chatClient.prompt(prompt).call().entity(Response.class).getNormalizedScore();
     }
 
     @Override
     public CompletableFuture<Double> singleTurnScoreAsync(SingleTurnSample sample) {
-        validateSample(sample);
-        String prompt = buildPrompt(sample);
-        return llmService.evaluateWithStructuredOutputAsync(prompt, Response.class)
-                .thenApply(Response::getNormalizedScore);
+        return CompletableFuture.supplyAsync(() -> singleTurnScore(sample));
     }
 
     /**
@@ -121,15 +102,13 @@ public class SimpleCriteriaScoreMetric extends AbstractLLMMetric {
     public Response getDetailedResponse(SingleTurnSample sample) {
         validateSample(sample);
         String prompt = buildPrompt(sample);
-        return llmService.evaluateWithStructuredOutput(prompt, Response.class);
+        return chatClient.prompt(prompt).call().entity(Response.class);
     }
 
     /**
      * Get detailed evaluation response asynchronously
      */
     public CompletableFuture<Response> getDetailedResponseAsync(SingleTurnSample sample) {
-        validateSample(sample);
-        String prompt = buildPrompt(sample);
-        return llmService.evaluateWithStructuredOutputAsync(prompt, Response.class);
+        return CompletableFuture.supplyAsync(() -> getDetailedResponse(sample));
     }
 }

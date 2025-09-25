@@ -1,29 +1,12 @@
 package ai.qa.solutions.metrics.general;
 
-import ai.qa.solutions.llm.LLMEvaluationService;
 import ai.qa.solutions.metric.AbstractLLMMetric;
 import ai.qa.solutions.metric.MetricOutputType;
 import ai.qa.solutions.sample.SingleTurnSample;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.Set;
-
-/**
- * AspectCritic Metric - Binary evaluation based on predefined aspects
- * Based on Ragas AspectCritic implementation
- */
-import ai.qa.solutions.llm.LLMEvaluationService;
-import ai.qa.solutions.metric.AbstractLLMMetric;
-import ai.qa.solutions.metric.MetricOutputType;
-import ai.qa.solutions.sample.SingleTurnSample;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import org.springframework.ai.chat.client.ChatClient;
 
 /**
  * AspectCritic Metric - Binary evaluation based on predefined aspects
@@ -32,37 +15,26 @@ import java.util.concurrent.CompletableFuture;
 public class AspectCriticMetric extends AbstractLLMMetric {
     private String definition;
     private int strictness = 3; // Default strictness level
+    private final ChatClient chatClient;
 
     /**
      * Response DTO for AspectCritic metric evaluation
      */
-    public static record Response(
-            @JsonProperty("criteria")
+    public record Response(
             @JsonPropertyDescription("The specific evaluation criteria that was applied to assess the response")
-            String criteria,
-
-            @JsonProperty("verdict")
+                    String criteria,
             @JsonPropertyDescription("Boolean verdict: true if the response meets the criteria, false otherwise")
-            Boolean verdict,
-
-            @JsonProperty("reasoning")
+                    Boolean verdict,
             @JsonPropertyDescription("Detailed explanation and justification for the verdict decision")
-            String reasoning
-    ) {
+                    String reasoning) {
         public Double getScore() {
             return verdict != null && verdict ? 1.0 : 0.0;
         }
     }
 
-    public AspectCriticMetric() {
+    public AspectCriticMetric(final ChatClient chatClient) {
         super("aspect_critic", MetricOutputType.BINARY, Set.of("user_input", "response"));
-        initializePromptTemplate();
-    }
-
-    public AspectCriticMetric(String name, String definition, LLMEvaluationService llmService) {
-        super(name, MetricOutputType.BINARY, Set.of("user_input", "response"));
-        this.definition = definition;
-        this.llmService = llmService;
+        this.chatClient = chatClient;
         initializePromptTemplate();
     }
 
@@ -78,7 +50,8 @@ public class AspectCriticMetric extends AbstractLLMMetric {
     }
 
     private void initializePromptTemplate() {
-        this.promptTemplate = """
+        this.promptTemplate =
+                """
             Given a user input and an AI response, evaluate whether the response meets the specified criteria.
 
             Criteria: {definition}
@@ -113,27 +86,15 @@ public class AspectCriticMetric extends AbstractLLMMetric {
     }
 
     @Override
-    protected Double parseScore(String llmResponse) {
-        // This method is now deprecated in favor of structured output
-        throw new UnsupportedOperationException(
-                "Use singleTurnScore() method instead, which uses structured output"
-        );
-    }
-
-    @Override
     public Double singleTurnScore(SingleTurnSample sample) {
         validateSample(sample);
         String prompt = buildPrompt(sample);
-        Response response = llmService.evaluateWithStructuredOutput(prompt, Response.class);
-        return response.getScore();
+        return chatClient.prompt(prompt).call().entity(Response.class).getScore();
     }
 
     @Override
     public CompletableFuture<Double> singleTurnScoreAsync(SingleTurnSample sample) {
-        validateSample(sample);
-        String prompt = buildPrompt(sample);
-        return llmService.evaluateWithStructuredOutputAsync(prompt, Response.class)
-                .thenApply(Response::getScore);
+        return CompletableFuture.supplyAsync(() -> singleTurnScore(sample));
     }
 
     /**
@@ -142,15 +103,13 @@ public class AspectCriticMetric extends AbstractLLMMetric {
     public Response getDetailedResponse(SingleTurnSample sample) {
         validateSample(sample);
         String prompt = buildPrompt(sample);
-        return llmService.evaluateWithStructuredOutput(prompt, Response.class);
+        return chatClient.prompt(prompt).call().entity(Response.class);
     }
 
     /**
      * Get detailed evaluation response asynchronously
      */
     public CompletableFuture<Response> getDetailedResponseAsync(SingleTurnSample sample) {
-        validateSample(sample);
-        String prompt = buildPrompt(sample);
-        return llmService.evaluateWithStructuredOutputAsync(prompt, Response.class);
+        return CompletableFuture.supplyAsync(() -> getDetailedResponse(sample));
     }
 }
