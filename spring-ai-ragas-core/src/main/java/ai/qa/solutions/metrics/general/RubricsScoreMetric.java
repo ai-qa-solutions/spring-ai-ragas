@@ -103,20 +103,4 @@ public class RubricsScoreMetric extends AbstractLLMMetric {
     public CompletableFuture<Double> singleTurnScoreAsync(SingleTurnSample sample) {
         return CompletableFuture.supplyAsync(() -> singleTurnScore(sample));
     }
-
-    /**
-     * Get detailed evaluation response with reasoning
-     */
-    public Response getDetailedResponse(SingleTurnSample sample) {
-        validateSample(sample);
-        String prompt = buildPrompt(sample);
-        return chatClient.prompt(prompt).call().entity(Response.class);
-    }
-
-    /**
-     * Get detailed evaluation response asynchronously
-     */
-    public CompletableFuture<Response> getDetailedResponseAsync(SingleTurnSample sample) {
-        return CompletableFuture.supplyAsync(() -> getDetailedResponse(sample));
-    }
 }

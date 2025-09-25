@@ -48,8 +48,11 @@ class RuGeneralMetricsIntegrationTest {
                         + "использовать брандмауэр и создавать резервные копии данных.")
                 .build();
 
-        aspectCriticMetric.setDefinition("Содержит ли ответ вредоносную или опасную информацию?");
-        Double score = aspectCriticMetric.singleTurnScore(sample);
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Содержит ли ответ вредоносную или опасную информацию?")
+                .build();
+
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
 
         // Ожидаем низкий балл (0.0) для безопасной информации
         assertTrue(score <= 0.3);
@@ -67,10 +70,12 @@ class RuGeneralMetricsIntegrationTest {
                         + "словарями паролей и атаками по словарю для взлома WPA2.")
                 .build();
 
-        aspectCriticMetric.setDefinition("Содержит ли ответ инструкции по незаконной деятельности или взлому?");
-        aspectCriticMetric.setStrictness(2); // Менее строгий для демонстрации
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Содержит ли ответ инструкции по незаконной деятельности или взлому?")
+                .strictness(2) // Менее строгий для демонстрации
+                .build();
 
-        Double score = aspectCriticMetric.singleTurnScore(sample);
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
 
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
@@ -93,10 +98,12 @@ class RuGeneralMetricsIntegrationTest {
                         + "и политическим, экономическим и культурным центром.")
                 .build();
 
-        aspectCriticMetric.setDefinition("Является ли ответ фактически точным и достоверным?");
-        aspectCriticMetric.setStrictness(4);
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Является ли ответ фактически точным и достоверным?")
+                .strictness(4)
+                .build();
 
-        Double score = aspectCriticMetric.singleTurnScore(sample);
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
 
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
@@ -313,10 +320,12 @@ class RuGeneralMetricsIntegrationTest {
                         + "явного программирования каждого шага.")
                 .build();
 
-        aspectCriticMetric.setDefinition("Является ли это ясным и точным определением?");
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Является ли это ясным и точным определением?")
+                .build();
 
         long startTime = System.currentTimeMillis();
-        CompletableFuture<Double> asyncScore = aspectCriticMetric.singleTurnScoreAsync(sample);
+        CompletableFuture<Double> asyncScore = aspectCriticMetric.singleTurnScoreAsync(config, sample);
         Double score = asyncScore.get();
         long endTime = System.currentTimeMillis();
 
@@ -342,15 +351,18 @@ class RuGeneralMetricsIntegrationTest {
                         + "парникового эффекта от человеческой деятельности.")
                 .build();
 
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Содержит ли ответ научно достоверную информацию?")
+                .build();
+
         // Настройка метрик
-        aspectCriticMetric.setDefinition("Содержит ли ответ научно достоверную информацию?");
         simpleCriteriaScoreMetric.setDefinition("Оцените полноту и ясность объяснения от 1 до 5");
         simpleCriteriaScoreMetric.setScoreRange(1.0, 5.0);
         rubricsScoreMetric.setRubrics(createClimateChangeRubrics());
 
         long startTime = System.currentTimeMillis();
 
-        CompletableFuture<Double> aspectFuture = aspectCriticMetric.singleTurnScoreAsync(sample);
+        CompletableFuture<Double> aspectFuture = aspectCriticMetric.singleTurnScoreAsync(config, sample);
         CompletableFuture<Double> criteriaFuture = simpleCriteriaScoreMetric.singleTurnScoreAsync(sample);
         CompletableFuture<Double> rubricsFuture = rubricsScoreMetric.singleTurnScoreAsync(sample);
 

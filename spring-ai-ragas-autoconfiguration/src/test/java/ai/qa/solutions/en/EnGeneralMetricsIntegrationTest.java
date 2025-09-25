@@ -32,14 +32,14 @@ class EnGeneralMetricsIntegrationTest {
 
     @Test
     void testAspectCriticIntegration() {
-        SingleTurnSample sample = SingleTurnSample.builder()
-                .userInput("What is the capital of France?")
-                .response("The capital of France is Paris.")
-                .build();
-
-        aspectCriticMetric.setDefinition("Is the response factually accurate?");
-
-        Double score = aspectCriticMetric.singleTurnScore(sample);
+        Double score = aspectCriticMetric.singleTurnScore(
+                AspectCriticMetric.AspectCriticConfig.builder()
+                        .definition("Is the response factually accurate?")
+                        .build(),
+                SingleTurnSample.builder()
+                        .userInput("What is the capital of France?")
+                        .response("The capital of France is Paris.")
+                        .build());
         assertNotNull(score);
         assertTrue(score >= 0.0 && score <= 1.0);
     }
@@ -87,13 +87,15 @@ class EnGeneralMetricsIntegrationTest {
     void testAsyncEvaluation() throws Exception {
         SingleTurnSample sample = SingleTurnSample.builder()
                 .userInput("What is machine learning?")
-                .response(
-                        "Machine learning is a subset of artificial intelligence that enables computers to learn and improve from experience without being explicitly programmed.")
+                .response("Machine learning is a subset of artificial intelligence that enables "
+                        + "computers to learn and improve from experience without being explicitly programmed.")
                 .build();
 
-        aspectCriticMetric.setDefinition("Is this a clear and accurate definition?");
+        final AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is this a clear and accurate definition?")
+                .build();
 
-        CompletableFuture<Double> asyncScore = aspectCriticMetric.singleTurnScoreAsync(sample);
+        CompletableFuture<Double> asyncScore = aspectCriticMetric.singleTurnScoreAsync(config, sample);
         Double score = asyncScore.get();
 
         assertNotNull(score);
