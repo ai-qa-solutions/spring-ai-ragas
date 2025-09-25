@@ -16,8 +16,8 @@ public class RagEvalAutoConfiguration {
 
     @Bean
     public LLMEvaluationService llmEvaluationService(
-            final ChatClient.Builder chatClientBuilder, final ObjectMapper objectMapper) {
-        return new LLMEvaluationService(chatClientBuilder, objectMapper);
+            final ChatClient.Builder chatClientBuilder) {
+        return new LLMEvaluationService(chatClientBuilder);
     }
 
     @Bean
