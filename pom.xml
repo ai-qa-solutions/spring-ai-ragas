@@ -4,6 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <name>Spring AI RAGAS</name>
+    <description>Spring AI integration for RAGAS framework</description>
+    <url>https://github.com/ai-qa-solutions/spring-ai-ragas</url>
+
+    <scm>
+        <url>https://github.com/ai-qa-solutions/spring-ai-ragas</url>
+        <connection>scm:git:https://github.com/ai-qa-solutions/spring-ai-ragas.git</connection>
+    </scm>
+
     <licenses>
         <license>
             <name>MIT License</name>
@@ -54,7 +63,7 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>ai.qa.solutions</groupId>
+                <groupId>io.github.ai-qa-solutions</groupId>
                 <artifactId>spring-ai-ragas-core</artifactId>
                 <version>${project.version}</version>
             </dependency>

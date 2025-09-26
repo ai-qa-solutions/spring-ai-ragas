@@ -25,7 +25,3 @@ spring:
       chat:
         options:
           model: x-ai/grok-4-fast:free
-
-SPRING_AI_GIGACHAT_CLIENT_ID: f90f533f-d101-4535-94df-2747f41bee56
-SPRING_AI_GIGACHAT_CLIENT_SECRET: 725c9b5f-1f63-42d2-a598-45c3205c82ab
-OPENROUTER_API_KEY: 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
