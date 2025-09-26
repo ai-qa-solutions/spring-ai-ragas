@@ -76,7 +76,7 @@ style rubric_eval fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#ffffff
 
 ```xml
 <dependency>
-    <groupId>ai.qa.solutions</groupId>
+    <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-spring-boot-starter</artifactId>
     <version>1.0.0</version>
     <scope>test</scope>

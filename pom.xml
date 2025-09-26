@@ -4,6 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Simeshin Artem</name>
+            <email>a.simeshin@gmail.com</email>
+            <url>https://github.com/a-simeshin</url>
+        </developer>
+    </developers>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -11,7 +27,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>ai.qa.solutions</groupId>
+    <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>

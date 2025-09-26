@@ -77,23 +77,23 @@ style rubric_eval fill: #dc2626, stroke: #b91c1c, stroke-width: 2px, color: #fff
 ```xml
 
 <dependency>
-    <groupId>ai.qa.solutions</groupId>
+    <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-spring-boot-starter</artifactId>
     <version>1.0.0</version>
     <scope>test</scope>
 </dependency>
         <!-- Add any required starters from spring-ai ecosystem -->
 <dependency>
-<groupId>chat.giga</groupId>
-<artifactId>spring-ai-starter-model-gigachat</artifactId>
-<version>1.0.5</version>
-<scope>test</scope>
+    <groupId>chat.giga</groupId>
+    <artifactId>spring-ai-starter-model-gigachat</artifactId>
+    <version>1.0.5</version>
+    <scope>test</scope>
 </dependency>
 <dependency>
-<groupId>org.springframework.ai</groupId>
-<artifactId>spring-ai-starter-model-openai</artifactId>
-<version>1.1.0-M2</version>
-<scope>test</scope>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-model-openai</artifactId>
+    <version>1.1.0-M2</version>
+    <scope>test</scope>
 </dependency>
 ```
 
