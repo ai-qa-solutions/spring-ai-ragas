@@ -1,7 +1,6 @@
 package ai.qa.solutions.metric;
 
 import ai.qa.solutions.sample.EvaluationSample;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -9,12 +8,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface Metric {
     String getName();
-
-    MetricType getType();
-
-    MetricOutputType getOutputType();
-
-    Set<String> getRequiredColumns();
 
     Double score(EvaluationSample sample);
 

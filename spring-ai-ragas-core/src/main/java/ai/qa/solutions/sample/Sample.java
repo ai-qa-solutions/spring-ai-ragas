@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Represents a single-turn interaction sample
  */
-public class SingleTurnSample implements EvaluationSample {
+public class Sample implements EvaluationSample {
     private final String userInput;
     private final List<String> retrievedContexts;
     private final String response;
@@ -14,7 +14,7 @@ public class SingleTurnSample implements EvaluationSample {
     private final Map<String, String> rubric;
     private final Map<String, Object> metadata;
 
-    public SingleTurnSample(
+    public Sample(
             String userInput,
             List<String> retrievedContexts,
             String response,
@@ -72,8 +72,8 @@ public class SingleTurnSample implements EvaluationSample {
             return this;
         }
 
-        public SingleTurnSample build() {
-            return new SingleTurnSample(userInput, retrievedContexts, response, reference, rubric, metadata);
+        public Sample build() {
+            return new Sample(userInput, retrievedContexts, response, reference, rubric, metadata);
         }
     }
 

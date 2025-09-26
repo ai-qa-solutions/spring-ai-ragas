@@ -1,22 +1,70 @@
 package ai.qa.solutions.metrics.general;
 
-import ai.qa.solutions.metric.AbstractLLMMetric;
-import ai.qa.solutions.metric.MetricOutputType;
-import ai.qa.solutions.sample.SingleTurnSample;
+import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 
 /**
  * SimpleCriteriaScore Metric - Continuous scoring based on simple criteria
- * Updated to use structured output with inner DTO
+ * Updated to use structured output with inner DTO and stateless design
  */
-public class SimpleCriteriaScoreMetric extends AbstractLLMMetric {
+public class SimpleCriteriaScoreMetric {
     private final ChatClient chatClient;
-    private String definition;
-    private double minScore = 0.0;
-    private double maxScore = 5.0;
+    private final String promptTemplate;
+
+    public SimpleCriteriaScoreMetric(final ChatClient chatClient) {
+        this.chatClient = chatClient;
+        this.promptTemplate =
+                """
+                Evaluate the AI response based on the given criteria and score it accordingly.
+
+                Evaluation Criteria: {definition}
+
+                User Input: {user_input}
+                AI Response: {response}
+                Reference Answer: {reference}
+
+                Instructions:
+                1. Compare the AI response with the reference answer
+                2. Evaluate based on the specified criteria: {definition}
+                3. Provide a score between {min_score} and {max_score}
+                4. Higher scores indicate better alignment with the criteria
+                5. Provide detailed reasoning for your score
+
+                Respond with a JSON object containing:
+                - criteria: The evaluation criteria being applied
+                - score: A numerical score between {min_score} and {max_score}
+                - reasoning: Your detailed explanation for the score
+                """;
+    }
+
+    public Double singleTurnScore(final SimpleCriteriaConfig config, final Sample sample) {
+        return chatClient
+                .prompt(PromptTemplate.builder()
+                        .template(this.promptTemplate)
+                        .variables(Map.of(
+                                "definition", config.definition,
+                                "min_score", config.minScore.toString(),
+                                "max_score", config.maxScore.toString(),
+                                "user_input", sample.getUserInput(),
+                                "response", sample.getResponse(),
+                                "reference", sample.getReference() != null ? sample.getReference() : ""))
+                        .build()
+                        .create())
+                .call()
+                .entity(Response.class)
+                .getNormalizedScore();
+    }
+
+    public CompletableFuture<Double> singleTurnScoreAsync(SimpleCriteriaConfig config, Sample sample) {
+        return CompletableFuture.supplyAsync(() -> singleTurnScore(config, sample));
+    }
 
     /**
      * Response DTO for SimpleCriteriaScore metric evaluation
@@ -34,65 +82,25 @@ public class SimpleCriteriaScoreMetric extends AbstractLLMMetric {
         }
     }
 
-    public SimpleCriteriaScoreMetric(final ChatClient chatClient) {
-        super("simple_criteria_score", MetricOutputType.DISCRETE, Set.of("user_input", "response", "reference"));
-        this.chatClient = chatClient;
-        initializePromptTemplate();
-    }
+    @Data
+    @Builder
+    public static class SimpleCriteriaConfig {
+        @NonNull
+        private String definition;
 
-    public void setDefinition(String definition) {
-        this.definition = definition;
-    }
+        @Builder.Default
+        private Double minScore = 0.0;
 
-    public void setScoreRange(double minScore, double maxScore) {
-        this.minScore = minScore;
-        this.maxScore = maxScore;
-    }
+        @Builder.Default
+        private Double maxScore = 5.0;
 
-    private void initializePromptTemplate() {
-        this.promptTemplate =
-                """
-            Evaluate the AI response based on the given criteria and score it accordingly.
-
-            Evaluation Criteria: {definition}
-
-            User Input: {user_input}
-            AI Response: {response}
-            Reference Answer: {reference}
-
-            Instructions:
-            1. Compare the AI response with the reference answer
-            2. Evaluate based on the specified criteria: {definition}
-            3. Provide a score between {min_score} and {max_score}
-            4. Higher scores indicate better alignment with the criteria
-            5. Provide detailed reasoning for your score
-            """;
-    }
-
-    @Override
-    protected String buildPrompt(SingleTurnSample sample) {
-        if (definition == null || definition.trim().isEmpty()) {
-            throw new IllegalStateException("Definition must be set before scoring");
+        @SuppressWarnings("unused")
+        public void setScoreRange(double minScore, double maxScore) {
+            if (minScore >= maxScore) {
+                throw new IllegalArgumentException("minScore must be less than maxScore");
+            }
+            this.minScore = minScore;
+            this.maxScore = maxScore;
         }
-
-        return promptTemplate
-                .replace("{definition}", definition)
-                .replace("{user_input}", sample.getUserInput())
-                .replace("{response}", sample.getResponse())
-                .replace("{reference}", sample.getReference() != null ? sample.getReference() : "")
-                .replace("{min_score}", String.valueOf(minScore))
-                .replace("{max_score}", String.valueOf(maxScore));
-    }
-
-    @Override
-    public Double singleTurnScore(SingleTurnSample sample) {
-        validateSample(sample);
-        String prompt = buildPrompt(sample);
-        return chatClient.prompt(prompt).call().entity(Response.class).getNormalizedScore();
-    }
-
-    @Override
-    public CompletableFuture<Double> singleTurnScoreAsync(SingleTurnSample sample) {
-        return CompletableFuture.supplyAsync(() -> singleTurnScore(sample));
     }
 }
