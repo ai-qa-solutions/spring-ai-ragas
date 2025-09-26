@@ -1,6 +1,6 @@
 package ai.qa.solutions.metric;
 
-import ai.qa.solutions.sample.EvaluationSample;
+import ai.qa.solutions.sample.Sample;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 public interface Metric {
     String getName();
 
-    Double score(EvaluationSample sample);
+    Double score(Sample sample);
 
-    CompletableFuture<Double> scoreAsync(EvaluationSample sample);
+    CompletableFuture<Double> scoreAsync(Sample sample);
 }
