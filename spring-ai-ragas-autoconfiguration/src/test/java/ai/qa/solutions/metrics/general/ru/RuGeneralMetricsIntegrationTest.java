@@ -1,4 +1,4 @@
-package ai.qa.solutions.ru;
+package ai.qa.solutions.metrics.general.ru;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
