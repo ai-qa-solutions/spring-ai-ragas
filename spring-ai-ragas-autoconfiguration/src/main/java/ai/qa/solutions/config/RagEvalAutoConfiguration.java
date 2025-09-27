@@ -3,6 +3,7 @@ package ai.qa.solutions.config;
 import ai.qa.solutions.metrics.general.AspectCriticMetric;
 import ai.qa.solutions.metrics.general.RubricsScoreMetric;
 import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
+import ai.qa.solutions.metrics.retrieval.ContextEntityRecallMetric;
 import ai.qa.solutions.metrics.retrieval.ContextPrecisionMetric;
 import ai.qa.solutions.metrics.retrieval.ContextRecallMetric;
 import org.springframework.ai.chat.client.ChatClient;
@@ -37,5 +38,10 @@ public class RagEvalAutoConfiguration {
     @Bean
     public ContextRecallMetric contextRecallMetric(final ChatClient.Builder chatClientBuilder) {
         return new ContextRecallMetric(chatClientBuilder.build());
+    }
+
+    @Bean
+    public ContextEntityRecallMetric contextEntityRecallMetric(final ChatClient.Builder chatClientBuilder) {
+        return new ContextEntityRecallMetric(chatClientBuilder.build());
     }
 }
