@@ -19,9 +19,11 @@ spring:
       chat:
         options:
           model: GigaChat-2-Max
+          temperature: 0.0
     openai: # параметры подключения к openrouter
       base-url: https://openrouter.ai/api
       api-key: ${OPENROUTER_API_KEY}
       chat:
         options:
-          model: deepseek/deepseek-chat-v3.1:free
+          model: deepseek/deepseek-v3.2-exp
+          temperature: 0.0

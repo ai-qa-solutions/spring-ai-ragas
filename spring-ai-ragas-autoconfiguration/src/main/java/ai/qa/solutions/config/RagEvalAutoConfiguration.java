@@ -6,7 +6,9 @@ import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
 import ai.qa.solutions.metrics.retrieval.ContextEntityRecallMetric;
 import ai.qa.solutions.metrics.retrieval.ContextPrecisionMetric;
 import ai.qa.solutions.metrics.retrieval.ContextRecallMetric;
+import ai.qa.solutions.metrics.retrieval.NoiseSensitivityMetric;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,5 +45,11 @@ public class RagEvalAutoConfiguration {
     @Bean
     public ContextEntityRecallMetric contextEntityRecallMetric(final ChatClient.Builder chatClientBuilder) {
         return new ContextEntityRecallMetric(chatClientBuilder.build());
+    }
+
+    @Bean
+    public NoiseSensitivityMetric noiseSensitivityMetric(final ChatClient.Builder chatClientBuilder) {
+        return new NoiseSensitivityMetric(
+                chatClientBuilder.defaultAdvisors(new SimpleLoggerAdvisor()).build());
     }
 }

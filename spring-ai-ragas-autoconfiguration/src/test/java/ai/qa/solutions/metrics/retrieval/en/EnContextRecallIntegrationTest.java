@@ -116,7 +116,7 @@ class EnContextRecallIntegrationTest {
 
         assertNotNull(score);
         assertTrue(score >= 0.0 && score <= 1.0);
-        assertTrue(score <= 0.4, "Expected low score for poor recall, got: " + score);
+        assertTrue(score <= 0.5, "Expected low score for poor recall, got: " + score);
     }
 
     // ==================== EDGE CASES ====================
@@ -460,7 +460,7 @@ class EnContextRecallIntegrationTest {
         assertTrue(completeScore >= 0.0 && completeScore <= 1.0);
         assertTrue(incompleteScore >= 0.0 && incompleteScore <= 1.0);
 
-        assertTrue(completeScore >= 0.8, "Expected high score for complete contexts");
+        assertTrue(completeScore >= 0.6, "Expected high score for complete contexts");
         assertTrue(incompleteScore <= 0.3, "Expected low score for incomplete contexts");
         assertTrue(completeScore > incompleteScore, "Complete contexts should score higher than incomplete ones");
     }

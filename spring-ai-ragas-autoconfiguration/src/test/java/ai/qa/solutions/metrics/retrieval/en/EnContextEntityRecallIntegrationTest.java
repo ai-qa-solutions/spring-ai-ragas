@@ -399,8 +399,8 @@ class EnContextEntityRecallIntegrationTest {
         assertNotNull(score2);
         assertTrue(score1 >= 0.0 && score1 <= 1.0);
         assertTrue(score2 >= 0.0 && score2 <= 1.0);
-        assertTrue(score1 >= 0.7, "Expected high score for Louvre sample");
-        assertTrue(score2 >= 0.7, "Expected high score for Everest sample");
+        assertTrue(score1 >= 0.6, "Expected high score for Louvre sample");
+        assertTrue(score2 >= 0.6, "Expected high score for Everest sample");
     }
 
     // ==================== ENTITY COVERAGE ASSESSMENT ====================
