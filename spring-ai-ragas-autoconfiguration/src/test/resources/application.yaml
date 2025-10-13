@@ -8,7 +8,7 @@ spring:
         max-interval: 30000ms
         multiplier: 2
     model: # выбор api стартера для работы - openai / gigachat
-      chat: openai
+      chat: gigachat
     gigachat: # параметры подключения к gigachat api
       auth:
         unsafe-ssl: true
@@ -25,5 +25,5 @@ spring:
       api-key: ${OPENROUTER_API_KEY}
       chat:
         options:
-          model: deepseek/deepseek-v3.2-exp
+          model: anthropic/claude-sonnet-4.5
           temperature: 0.0

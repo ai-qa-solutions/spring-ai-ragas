@@ -17,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @SuppressWarnings("LoggingSimilarMessage")
 @DisplayName("Noise Sensitivity Metric Integration Tests - English")
-@SpringBootTest(classes = EnNoiseSensitivityIntegrationFakeDataTest.EnNoiseSensitivityTestConfiguration.class)
-class EnNoiseSensitivityIntegrationFakeDataTest {
+@SpringBootTest(classes = EnNoiseSensitivityIntegrationTest.EnNoiseSensitivityTestConfiguration.class)
+class EnNoiseSensitivityIntegrationTest {
 
     @Configuration
     public static class EnNoiseSensitivityTestConfiguration {}

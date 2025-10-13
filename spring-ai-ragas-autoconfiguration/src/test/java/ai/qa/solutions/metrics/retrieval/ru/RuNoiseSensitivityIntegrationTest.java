@@ -17,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @SuppressWarnings("LoggingSimilarMessage")
 @DisplayName("Тесты метрики чувствительности к шуму - Русский язык (фиктивные данные)")
-@SpringBootTest(classes = RuNoiseSensitivityIntegrationFakeDataTest.RuNoiseSensitivityTestConfiguration.class)
-class RuNoiseSensitivityIntegrationFakeDataTest {
+@SpringBootTest(classes = RuNoiseSensitivityIntegrationTest.RuNoiseSensitivityTestConfiguration.class)
+class RuNoiseSensitivityIntegrationTest {
 
     @Configuration
     public static class RuNoiseSensitivityTestConfiguration {}

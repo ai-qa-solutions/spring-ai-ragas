@@ -2,11 +2,9 @@ package ai.qa.solutions.metrics.retrieval;
 
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -31,28 +29,30 @@ public class NoiseSensitivityMetric {
     public NoiseSensitivityMetric(final ChatClient chatClient) {
         this.chatClient = chatClient;
 
-        this.systemPrompt = """
+        this.systemPrompt =
+                """
                 You are a context-only evaluation system with NO access to external knowledge.
-                
+
                 CRITICAL: You must evaluate statements SOLELY based on the provided context.
                 - If context says "X is Y", treat that as the ONLY truth for this evaluation
                 - Completely ignore what you know about the real world
                 - If context contradicts reality, use the context as truth
-                
+
                 Example: If context says "Paris is in Germany" and statement says "Paris, Germany" - this is TRUE because they match.
-                
+
                 Your ONLY job: Does the statement match what the context says? Yes = true, No = false.
-                
+
                 Respond ONLY with valid JSON in the exact format requested.
                 """;
 
-        this.statementGeneratorPrompt = """
-                Given a question and an answer, create a list of statements that are present in the answer. 
+        this.statementGeneratorPrompt =
+                """
+                Given a question and an answer, create a list of statements that are present in the answer.
                 Each statement should be atomic, meaning it contains only one piece of information.
-                
+
                 Question: {question}
                 Answer: {answer}
-                
+
                 Instructions:
                 1. Break down the answer into individual, atomic statements
                 2. Each statement should be a complete, standalone assertion
@@ -60,27 +60,28 @@ public class NoiseSensitivityMetric {
                 4. Focus on factual claims that can be verified
                 5. Maintain the original meaning from the answer
                 6. Do not add information not present in the answer
-                
+
                 Respond with a JSON object containing:
                 - statements: A list of atomic statements extracted from the answer
                 """;
 
-        this.statementFaithfulnessPrompt = """
+        this.statementFaithfulnessPrompt =
+                """
                 IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.
-                
+
                 Context: {context}
                 Statements: {statements}
-                
+
                 CRITICAL INSTRUCTIONS - READ CAREFULLY:
-                
+
                 YOU MUST COMPLETELY IGNORE ALL REAL-WORLD KNOWLEDGE FOR THIS EVALUATION.
-                
+
                 CRITICAL: Evaluate ONLY using the context provided above. DO NOT use information from any previous contexts you may have seen.
                 Each evaluation is independent. Forget all previous contexts.
-                
+
                 This is a test environment. The context contains deliberately wrong information to test system behavior.
                 Your job is NOT to correct facts, but to check if statements match the context.
-                
+
                 EVALUATION RULES (MANDATORY):
                 1. Pretend you have complete amnesia about real-world facts AND previous contexts
                 2. The ONLY truth for this evaluation is what THIS SPECIFIC context states
@@ -90,28 +91,28 @@ public class NoiseSensitivityMetric {
                 6. Compare word-by-word and fact-by-fact against THIS context ONLY
                 7. Even if reality contradicts the context, use ONLY this context as your source of truth
                 8. If the context is about a different topic than the statement, verdict: FALSE
-                
+
                 EXAMPLES OF CORRECT EVALUATION:
                 - Context: "The tower is in Paris, capital of Germany"
                   Statement: "It is located in Paris, Germany"
                   Verdict: TRUE (both say Paris + Germany, they match)
-                
+
                 - Context: "Built in 1899"
                   Statement: "Built in 1889"
                   Verdict: FALSE (1899 ≠ 1889, they don't match)
-                
+
                 - Context: "The tower was designed by Gustav"
                   Statement: "It is located in Paris, France"
                   Verdict: FALSE (location not mentioned in this context)
-                
+
                 For EACH statement:
                 Step 1: What EXACTLY does THIS context say? (not what you remember from before)
                 Step 2: Does the statement match what THIS context says (word-for-word, fact-for-fact)?
                 Step 3: Is there ANY detail that contradicts or isn't mentioned in THIS context?
                 Step 4: Verdict: TRUE only if EVERYTHING in the statement matches THIS context. FALSE if ANY part differs or is missing.
-                
+
                 DO NOT let your knowledge of real-world facts OR previous contexts influence your verdict. Each evaluation is completely independent.
-                
+
                 Respond with a JSON object containing:
                    - verdicts: A list of verdicts for each statement, where each verdict contains:
                    - statement: The original statement
@@ -159,8 +160,10 @@ public class NoiseSensitivityMetric {
                 return 0.0;
             }
 
-            log.debug("Extracted {} statements from reference, {} from response",
-                    referenceStatements.size(), responseStatements.size());
+            log.debug(
+                    "Extracted {} statements from reference, {} from response",
+                    referenceStatements.size(),
+                    responseStatements.size());
 
             // Step 2: Evaluate faithfulness of statements against contexts and reference
             FaithfulnessResults faithfulnessResults = evaluateStatementFaithfulness(
@@ -182,8 +185,7 @@ public class NoiseSensitivityMetric {
     private List<String> decomposeIntoStatements(String question, String answer) {
         final Map<String, Object> variables = Map.of(
                 "question", question,
-                "answer", answer
-        );
+                "answer", answer);
 
         StatementsResponse statementsResponse = chatClient
                 .mutate()
@@ -236,11 +238,7 @@ public class NoiseSensitivityMetric {
             }
         }
 
-        return new FaithfulnessResults(
-                groundTruthToAnswer,
-                retrievedToGroundTruth,
-                retrievedToAnswer
-        );
+        return new FaithfulnessResults(groundTruthToAnswer, retrievedToGroundTruth, retrievedToAnswer);
     }
 
     private boolean[][] evaluateStatementsAs2D(List<String> statements, String context) {
@@ -260,12 +258,10 @@ public class NoiseSensitivityMetric {
             return List.of();
         }
 
-        final Map<String, Object> variables = Map.of(
-                "context", context,
-                "statements", String.join("\n", statements)
-        );
+        final Map<String, Object> variables = Map.of("context", context, "statements", String.join("\n", statements));
 
-        FaithfulnessVerdictsResponse verdictsResponse = chatClient.mutate()
+        FaithfulnessVerdictsResponse verdictsResponse = chatClient
+                .mutate()
                 .build()
                 .prompt(PromptTemplate.builder()
                         .template(statementFaithfulnessPrompt)
@@ -287,8 +283,7 @@ public class NoiseSensitivityMetric {
 
         // Handle case where LLM returns fewer verdicts than statements
         if (results.size() != statements.size()) {
-            log.warn("Expected {} verdicts but got {}. Padding with false.",
-                    statements.size(), results.size());
+            log.warn("Expected {} verdicts but got {}. Padding with false.", statements.size(), results.size());
             // Pad with false if needed
             if (results.size() < statements.size()) {
                 Boolean[] padded = new Boolean[statements.size()];
@@ -408,49 +403,38 @@ public class NoiseSensitivityMetric {
      * Data structure to hold faithfulness evaluation results
      */
     private record FaithfulnessResults(
-            boolean[][] groundTruthToAnswer,      // Shape: (1, num_response_statements)
-            boolean[][] retrievedToGroundTruth,   // Shape: (num_reference_statements, num_contexts)
-            boolean[][] retrievedToAnswer         // Shape: (num_response_statements, num_contexts)
-    ) {
-    }
+            boolean[][] groundTruthToAnswer, // Shape: (1, num_response_statements)
+            boolean[][] retrievedToGroundTruth, // Shape: (num_reference_statements, num_contexts)
+            boolean[][] retrievedToAnswer // Shape: (num_response_statements, num_contexts)
+            ) {}
 
     /**
      * Response DTO for statement decomposition
      */
     public record StatementsResponse(
-            @JsonPropertyDescription("List of atomic statements extracted from the answer")
-            List<String> statements
-    ) {
-    }
+            @JsonPropertyDescription("List of atomic statements extracted from the answer") List<String> statements) {}
 
     /**
      * Response DTO for individual statement verdict
      */
     public record StatementVerdict(
-            @JsonPropertyDescription("The original statement")
-            String statement,
+            @JsonPropertyDescription("The original statement") String statement,
             @JsonPropertyDescription("True if the statement can be inferred from context, false otherwise")
-            Boolean verdict,
-            @JsonPropertyDescription("Explanation for the verdict")
-            String reason
-    ) {
-    }
+                    Boolean verdict,
+            @JsonPropertyDescription("Explanation for the verdict") String reason) {}
 
     /**
      * Response DTO for statement faithfulness evaluation
      */
     public record FaithfulnessVerdictsResponse(
-            @JsonPropertyDescription("List of verdicts for each statement")
-            List<StatementVerdict> verdicts
-    ) {
-    }
+            @JsonPropertyDescription("List of verdicts for each statement") List<StatementVerdict> verdicts) {}
 
     /**
      * Noise sensitivity evaluation mode
      */
     public enum NoiseSensitivityMode {
-        RELEVANT,   // Measures errors from relevant retrieved contexts
-        IRRELEVANT  // Measures errors from irrelevant retrieved contexts
+        RELEVANT, // Measures errors from relevant retrieved contexts
+        IRRELEVANT // Measures errors from irrelevant retrieved contexts
     }
 
     @Data
