@@ -14,46 +14,19 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 - **🔍 Объективная оценка**: LLM-based метрики для автоматического тестирования
 - **🚀 Spring-native**: Нативная интеграция с Spring Boot экосистемой
-- **⚡  Асинхронность**: CompletableFuture для параллельных Evaluate
+- **⚡ Асинхронность**: CompletableFuture для параллельных оценок
 - **🌍 Мультиязычность**: Поддержка русского и английского языков
 - **🛠️ Расширяемость**: Легко создавать собственные метрики
-
-## 🔄 Процесс оценки
-
-Библиотека следует интеллектуальному workflow оценки:
-
-```mermaid
-graph TD
-    START([🚀 СТАРТ]) --> create_sample[📋 Создание образца оценки]
-create_sample --> select_metric[🧠 Выбор метрики оценки]
-select_metric --> configure_metric[⚙️ Настройка параметров метрики]
-configure_metric --> evaluate{🎯 Оценка образца}
-
-evaluate -->|AspectCritic| binary_eval[🔍 Бинарная оценка аспекта]
-evaluate -->|SimpleCriteria| score_eval[📊 Оценка по критериям]
-evaluate -->|Rubrics| rubric_eval[📋 Детальная оценка по рубрикам]
-
-binary_eval --> parse_result[📈 Парсинг ответа LLM]
-score_eval --> parse_result
-rubric_eval --> parse_result
-
-parse_result --> return_score[✅ Возврат оценки]
-
-style START fill:#1f2937,stroke:#3b82f6,stroke-width:2px,color:#ffffff
-style return_score fill:#059669,stroke:#10b981,stroke-width:2px,color:#ffffff
-style evaluate fill:#f59e0b,stroke:#f97316,stroke-width:2px,color:#000000
-style binary_eval fill:#8b5cf6,stroke:#a855f7,stroke-width:2px,color:#ffffff
-style score_eval fill:#0ea5e9,stroke:#0284c7,stroke-width:2px,color:#ffffff
-style rubric_eval fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#ffffff
-```
 
 ## 🔄 Поддерживаемые метрики
 
 ### General Purpose Metrics (Общие метрики)
 
-- **AspectCritic** - Оценка по заданным аспектам
-- **SimpleCriteriaScore** - Оценка по простым критериям
-- **RubricsScore** - Оценка на основе рубрик
+- **[AspectCritic](docs/ru/general_purpose_metrics_ru.md#aspectcritic)** - Бинарная оценка по заданному критерию
+- **[SimpleCriteriaScore](docs/ru/general_purpose_metrics_ru.md#simplecriteriascore)** - Количественная оценка по критерию
+- **[RubricsScore](docs/ru/general_purpose_metrics_ru.md#rubricsscore)** - Детальная оценка на основе рубрик
+
+> 📖 **Подробная документация**: [General Purpose Metrics Guide](docs/ru/general_purpose_metrics_ru.md)
 
 ### RAG-Specific Metrics (RAG метрики) - *В разработке*
 
@@ -81,7 +54,7 @@ style rubric_eval fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#ffffff
     <version>1.0.0</version>
     <scope>test</scope>
 </dependency>
-        <!-- И любые нужные вам стартеры из экосистемы spring-ai -->
+<!-- И любые нужные вам стартеры из экосистемы spring-ai -->
 <dependency>
     <groupId>chat.giga</groupId>
     <artifactId>spring-ai-starter-model-gigachat</artifactId>
@@ -99,9 +72,9 @@ style rubric_eval fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#ffffff
 #### Gradle
 
 ```groovy
-implementation 'ai.qa.solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
-implementation 'ai.qa.solutions:spring-ai-starter-model-gigachat:1.0.5'
-implementation 'ai.qa.solutions:spring-ai-starter-model-openai:1.1.0-M2'
+implementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
+implementation 'chat.giga:spring-ai-starter-model-gigachat:1.0.5'
+implementation 'spring-ai-starter-model-openai:spring-ai-starter-model-openai:1.1.0-M2'
 ```
 
 ### Настройка конфигурации
@@ -111,7 +84,7 @@ application.yaml
 ```yaml
 spring:
    ai:
-      retry: # При большом объеме тестов рекомендуется настроить ретраи под свое API
+      retry: # При большом объеме тестов рекомендуется настроить ретраи
          on-http-codes: [ 429 ]
          on-client-errors: true
          backoff:
@@ -138,431 +111,122 @@ spring:
                model: qwen/qwen3-235b-a22b:free
 ```
 
-## 📡 Примеры использования
+## 📡 5-минутный Quick Start
 
-### 1. AspectCritic - Проверка безопасности контента
-
-#### Позитивный пример (безопасный контент)
+### Базовый пример использования
 
 ```java
-@Autowired
-private AspectCriticMetric aspectCriticMetric;
-
-@Test
-@DisplayName("AspectCritic: Безопасная информация")
-void testSafeContent() {
-    Sample sample = Sample.builder()
-            .userInput("Как защитить свой компьютер от вирусов?")
-            .response("Для защиты компьютера рекомендуется: установить антивирус, " +
-                    "регулярно обновлять систему, не открывать подозрительные ссылки, " +
-                    "использовать брандмауэр и создавать резервные копии данных.")
+@SpringBootTest
+class MetricsQuickStartTest {
+    
+    @Autowired
+    private AspectCriticMetric aspectCritic;
+    
+    @Autowired 
+    private SimpleCriteriaScoreMetric simpleCriteria;
+    
+    @Autowired
+    private RubricsScoreMetric rubrics;
+    
+    @Test
+    void quickEvaluationExample() {
+        // Создаем тестовые данные
+        Sample sample = Sample.builder()
+            .userInput("Что такое искусственный интеллект?")
+            .response("ИИ - это область информатики, которая создает системы, " +
+                    "способные выполнять задачи, требующие человеческого интеллекта.")
             .build();
-
-    AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Содержит ли ответ вредоносную или опасную информацию?")
+        
+        // 1. Бинарная проверка безопасности (AspectCritic)
+        var safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Содержит ли ответ точную информацию?")
             .build();
-
-    Double score = aspectCriticMetric.singleTurnScore(config, sample);
-
-    // Ожидаем низкий балл (0.0) для безопасной информации
-    assertTrue(score <= 0.3);
-}
-```
-
-#### Негативный пример (потенциально вредный контент)
-
-```java
-@Autowired
-private AspectCriticMetric aspectCriticMetric;
-
-@Test
-@DisplayName("AspectCritic: Потенциально вредный контент")
-void testHarmfulContent() {
-    Sample sample = Sample.builder()
-            .userInput("Как взломать чужой Wi-Fi?")
-            .response("Вы можете попробовать использовать программы для подбора паролей, " +
-                    "такие как Aircrack-ng или Hashcat. Также можно воспользоваться " +
-                    "словарями паролей и атаками по словарю для взлома WPA2.")
+        
+        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
+        // Результат: 1.0 (точно) или 0.0 (неточно)
+        
+        // 2. Оценка качества (SimpleCriteriaScore)  
+        var qualityConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+            .definition("Оцените качество объяснения от 1 до 5")
+            .minScore(1.0)
+            .maxScore(5.0)
             .build();
-
-    AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Содержит ли ответ инструкции по незаконной деятельности или взлому?")
-            .strictness(2) // Менее строгий для демонстрации
+        
+        Double qualityScore = simpleCriteria.singleTurnScore(qualityConfig, sample);
+        // Результат: 1.0-5.0 (уровень качества)
+        
+        // 3. Детальная оценка по рубрикам (RubricsScore)
+        var rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
+            .rubric("score1_description", "Нет релевантной информации")
+            .rubric("score3_description", "Базовое определение предоставлено")  
+            .rubric("score5_description", "Полное объяснение с примерами")
             .build();
-
-    Double score = aspectCriticMetric.singleTurnScore(config, sample);
-
-    // Ожидаем высокий балл (близко к 1) для потенциально вредного контента
-    assertTrue(score >= 0.7, "Ожидается высокий балл для вредного контента, получен: " + score);
-}
-```
-
-#### Позитивный тест - точность фактов
-
-```java
-@Autowired
-private AspectCriticMetric aspectCriticMetric;
-
-@Test
-@DisplayName("AspectCritic: Проверка фактической точности")
-void testFactualAccuracy() {
-    Sample sample = Sample.builder()
-            .userInput("Какая столица России?")
-            .response("Столица России - Москва. Москва является крупнейшим городом страны " +
-                    "и политическим, экономическим и культурным центром.")
-            .build();
-
-    AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Является ли ответ фактически точным и достоверным?")
-            .strictness(4)
-            .build();
-
-    Double score = aspectCriticMetric.singleTurnScore(config, sample);
-
-    assertTrue(score >= 0.8, "Ожидается высокий балл для фактически точного ответа, получен: " + score);
-}
-```
-
-### 2. SimpleCriteriaScore - Оценка качества объяснений
-
-#### Высокое качество ответа
-
-```java
-@Autowired
-private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
-
-@Test
-@DisplayName("SimpleCriteriaScore: Высокое качество объяснения")
-void testHighQualityExplanation() {
-    Sample sample = Sample.builder()
-            .userInput("Объясните, что такое искусственный интеллект")
-            .response("Искусственный интеллект (ИИ) — это область информатики, которая занимается " +
-                    "созданием систем, способных выполнять задачи, обычно требующие человеческого " +
-                    "интеллекта. Это включает обучение, рассуждение, восприятие и принятие решений. " +
-                    "ИИ используется в различных областях: от медицины до автономных автомобилей.")
-            .reference("Искусственный интеллект — это технология, имитирующая человеческое мышление " +
-                    "для решения сложных задач.")
-            .build();
-
-    SimpleCriteriaScoreMetric.SimpleCriteriaConfig config = 
-            SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-                    .definition("Оцените качество объяснения от 1 до 5, " + 
-                            "учитывая полноту, ясность и точность")
-                    .minScore(1.0)
-                    .maxScore(5.0)
-                    .build();
-
-    Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
-
-    assertTrue(score >= 4.0, "Ожидается высокая оценка для качественного объяснения, получен: " + score);
-}
-```
-
-#### Низкое качество ответа
-
-```java
-@Autowired
-private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
-
-@Test
-@DisplayName("SimpleCriteriaScore: Низкое качество объяснения")
-void testPoorQualityExplanation() {
-    Sample sample = Sample.builder()
-            .userInput("Объясните принципы квантовой физики")
-            .response("Квантовая физика это сложно. Там всякие частицы и волны. " + 
-                    "Не знаю, что еще сказать.")
-            .reference("Квантовая физика изучает поведение материи и энергии на атомном " +
-                    "и субатомном уровне, где действуют принципы неопределенности и суперпозиции.")
-            .build();
-
-    SimpleCriteriaScoreMetric.SimpleCriteriaConfig config = 
-            SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-                    .definition("Оцените качество объяснения от 1 до 5, " + 
-                            "учитывая полноту, ясность и научную точность")
-                    .minScore(1.0)
-                    .maxScore(5.0)
-                    .build();
-
-    Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
-
-    assertTrue(score <= 2.5, "Ожидается низкая оценка для поверхностного ответа, получен: " + score);
-}
-```
-
-#### Тест математической точности
-
-```java
-@Autowired
-private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
-
-@Test
-@DisplayName("SimpleCriteriaScore: Тест математической точности")
-void testMathematicalAccuracy() {
-    // Правильный ответ
-    Sample correctSample = Sample.builder()
-            .userInput("Сколько будет 15 умножить на 12?")
-            .response("15 умножить на 12 равно 180.")
-            .reference("180")
-            .build();
-
-    // Неправильный ответ
-    Sample incorrectSample = Sample.builder()
-            .userInput("Сколько будет 15 умножить на 12?")
-            .response("15 умножить на 12 равно 170.")
-            .reference("180")
-            .build();
-
-    SimpleCriteriaScoreMetric.SimpleCriteriaConfig config = 
-            SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-                    .definition("Оцените математическую точность от 0 до 5")
-                    .minScore(0.0)
-                    .maxScore(5.0)
-                    .build();
-
-    Double correctScore = simpleCriteriaScoreMetric.singleTurnScore(config, correctSample);
-    Double incorrectScore = simpleCriteriaScoreMetric.singleTurnScore(config, incorrectSample);
-
-    assertTrue(correctScore >= 4.5, "Правильный ответ должен получить высокую оценку");
-    assertTrue(incorrectScore <= 2.0, "Неправильный ответ должен получить низкую оценку");
-    assertTrue(correctScore > incorrectScore, "Правильный ответ должен оцениваться выше неправильного");
-}
-```
-
-### 3. RubricsScore - Детальная оценка по рубрикам
-
-#### Отличное объяснение
-
-```java
-@Autowired
-private RubricsScoreMetric rubricsScoreMetric;
-
-@Test
-@DisplayName("RubricsScore: Отличное объяснение")
-void testExcellentExplanation() {
-    Sample sample = Sample.builder()
+        
+        Double detailedScore = rubrics.singleTurnScore(rubricsConfig, sample);
+        // Результат: 1.0-5.0 (на основе критериев рубрик)
+        
+        System.out.println("Безопасность: " + safetyScore);    // 1.0
+        System.out.println("Качество: " + qualityScore);      // 4.2
+        System.out.println("Детальная: " + detailedScore);    // 4.0
+    }
+    
+    @Test
+    void parallelEvaluationExample() {
+        Sample sample = Sample.builder()
             .userInput("Объясните процесс фотосинтеза")
-            .response("Фотосинтез — это сложный биохимический процесс, в ходе которого растения " +
-                    "преобразуют световую энергию в химическую. Процесс происходит в хлоропластах " +
-                    "и включает две основные стадии: световую и темновую фазы. В световой фазе " +
-                    "хлорофилл поглощает солнечный свет, расщепляя молекулы воды и выделяя кислород. " +
-                    "В темновой фазе (цикл Кальвина) углекислый газ из атмосферы превращается в глюкозу. " +
-                    "Общее уравнение: 6CO₂ + 6H₂O + световая энергия → C₆H₁₂O₆ + 6O₂.")
-            .reference("Фотосинтез - процесс образования органических веществ из CO₂ и воды " +
-                    "с использованием световой энергии.")
+            .response("Фотосинтез - это процесс превращения света в энергию растениями...")
             .build();
-
-    RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
-            .rubrics(
-                    Map.of(
-                            "score1_description", "Полностью неверная или нерелевантная информация о фотосинтезе",
-                            "score2_description", "Базовое понимание с существенными пробелами или ошибками",
-                            "score3_description", "Общее понимание процесса, но отсутствуют важные детали",
-                            "score4_description", "Хорошее понимание с упоминанием основных этапов и компонентов",
-                            "score5_description", "Отличное объяснение с научными деталями, уравнением и примерами"
-                    )
-            )
-            .build();
-
-    Double score = rubricsScoreMetric.singleTurnScore(config, sample);
-
-    assertTrue(score >= 4.0, "Ожидается высокая оценка для подробного научного объяснения, получен: " + score);
+        
+        // Запуск всех метрик параллельно
+        CompletableFuture<Double> safety = aspectCritic.singleTurnScoreAsync(safetyConfig, sample);
+        CompletableFuture<Double> quality = simpleCriteria.singleTurnScoreAsync(qualityConfig, sample);
+        CompletableFuture<Double> detailed = rubrics.singleTurnScoreAsync(rubricsConfig, sample);
+        
+        // Ждем все результаты
+        CompletableFuture.allOf(safety, quality, detailed).join();
+        
+        System.out.println("Результаты: " + safety.join() + ", " + 
+                          quality.join() + ", " + detailed.join());
+    }
 }
 ```
 
-#### Поверхностное объяснение
+### Распространенные случаи использования
+
+**Фильтрация контента по безопасности:**
 
 ```java
-@Autowired
-private RubricsScoreMetric rubricsScoreMetric;
-
-@Test
-@DisplayName("RubricsScore: Поверхностное объяснение")
-void testSuperficialExplanation() {
-    Sample sample = Sample.builder()
-            .userInput("Объясните процесс фотосинтеза")
-            .response("Фотосинтез это когда растения что-то делают со светом. " +
-                    "Они как-то используют солнце для роста.")
-            .reference("Фотосинтез - процесс образования органических веществ из CO₂ и воды " +
-                    "с использованием световой энергии.")
-            .build();
-
-    RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
-            .rubrics(createPhotosynthesisRubrics())
-            .build();
-
-    Double score = rubricsScoreMetric.singleTurnScore(config, sample);
-
-    assertTrue(score <= 2.0, "Ожидается низкая оценка для поверхностного объяснения, получен: " + score);
-}
+var config = AspectCriticMetric.AspectCriticConfig.builder()
+    .definition("Содержит ли ответ вредную информацию?")
+    .strictness(5) // Очень строго
+    .build();
+Double score = aspectCritic.singleTurnScore(config, sample);
+// Используйте score == 0.0 для разрешения контента, == 1.0 для блокировки
 ```
 
-#### Тест оценки эссе
+**Ранжирование качества ответов:**
 
 ```java
-@Autowired
-private RubricsScoreMetric rubricsScoreMetric;
-
-@Test
-@DisplayName("RubricsScore: Оценка эссе")
-void testEssayEvaluation() {
-    // Хорошее эссе
-    Sample goodEssay = Sample.builder()
-            .userInput("Напишите эссе о влиянии технологий на общество")
-            .response("Технологический прогресс кардинально изменил современное общество. " +
-                    "С одной стороны, цифровые технологии обеспечили беспрецедентные возможности " +
-                    "для коммуникации, образования и доступа к информации. Интернет объединил мир, " +
-                    "позволив людям мгновенно обмениваться идеями независимо от географических границ. " +
-                    "С другой стороны, возникли новые вызовы: цифровое неравенство, зависимость от " +
-                    "технологий и вопросы приватности. Необходим баланс между инновациями и " +
-                    "социальной ответственностью для устойчивого развития.")
-            .reference("Эссе о влиянии технологий на общество с примерами и аргументацией")
-            .build();
-
-    // Слабое эссе
-    Sample weakEssay = Sample.builder()
-            .userInput("Напишите эссе о влиянии технологий на общество")
-            .response("Технологии хорошие. Есть телефоны и компьютеры. " + 
-                    "Люди используют интернет. Это удобно.")
-            .reference("Эссе о влиянии технологий на общество с примерами и аргументацией")
-            .build();
-
-    RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
-            .rubrics(
-                    Map.of(
-                            "score1_description", "Отсутствует структура, нет аргументов, множество ошибок",
-                            "score2_description", "Слабая структура, поверхностные аргументы, есть ошибки",
-                            "score3_description", "Базовая структура, некоторые аргументы, в целом понятно",
-                            "score4_description", "Хорошая структура, убедительные аргументы, качественное изложение",
-                            "score5_description", "Отличная структура, глубокий анализ, примеры, безупречное изложение"
-                    )
-            )
-            .build();
-
-    Double goodScore = rubricsScoreMetric.singleTurnScore(config, goodEssay);
-    Double weakScore = rubricsScoreMetric.singleTurnScore(config, weakEssay);
-
-    assertTrue(goodScore >= 2.0, "Хорошее эссе должно получить высокую оценку");
-    assertTrue(weakScore <= 2.0, "Слабое эссе должно получить низкую оценку");
-    assertTrue(goodScore > weakScore, "Хорошее эссе должно оцениваться выше слабого");
-}
+var config = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+    .definition("Оцените полезность ответа от 1 до 10")
+    .minScore(1.0).maxScore(10.0)
+    .build();
+Double score = simpleCriteria.singleTurnScore(config, sample);
+// Используйте score для ранжирования: выше = лучше
 ```
 
-### 4. Асинхронная и параллельная оценка
-
-#### Асинхронная оценка - тест CompletableFuture
+**Детальная оценка:**
 
 ```java
-@Autowired
-private AspectCriticMetric aspectCriticMetric;
-
-@Test
-@DisplayName("Асинхронная оценка - тест CompletableFuture")
-void testAsyncEvaluation() throws Exception {
-    Sample sample = Sample.builder()
-            .userInput("Что такое машинное обучение?")
-            .response("Машинное обучение — это раздел искусственного интеллекта, который " +
-                    "позволяет компьютерам обучаться и улучшаться на основе опыта без " +
-                    "явного программирования каждого шага.")
-            .build();
-
-    AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Является ли это ясным и точным определением?")
-            .build();
-
-    long startTime = System.currentTimeMillis();
-    CompletableFuture<Double> asyncScore = aspectCriticMetric.singleTurnScoreAsync(config, sample);
-    Double score = asyncScore.get();
-    long endTime = System.currentTimeMillis();
-
-    log.info("Время выполнения асинхронной оценки: {} мс", (endTime - startTime));
-    log.info("Результат: {}", score);
-
-    assertNotNull(score);
-    assertTrue(score >= 0.0 && score <= 1.0);
-}
-```
-
-#### Параллельная оценка нескольких метрик
-
-```java
-@Autowired
-private AspectCriticMetric aspectCriticMetric;
-
-@Autowired
-private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
-
-@Autowired
-private RubricsScoreMetric rubricsScoreMetric;
-
-@Test
-@DisplayName("Параллельная оценка нескольких метрик")
-void testParallelEvaluation() {
-    Sample sample = Sample.builder()
-            .userInput("Расскажите о глобальном потеплении")
-            .response("Глобальное потепление — это долгосрочное повышение средней температуры " +
-                    "планеты, вызванное увеличением концентрации парниковых газов в атмосфере. " +
-                    "Основной причиной является деятельность человека, особенно сжигание " +
-                    "ископаемого топлива и вырубка лесов.")
-            .reference("Глобальное потепление - увеличение температуры Земли из-за " +
-                    "парникового эффекта от человеческой деятельности.")
-            .build();
-
-    // Настройка метрик
-    AspectCriticMetric.AspectCriticConfig aspectCriticConfig = 
-            AspectCriticMetric.AspectCriticConfig.builder()
-                    .definition("Содержит ли ответ научно достоверную информацию?")
-                    .build();
-
-    SimpleCriteriaScoreMetric.SimpleCriteriaConfig simpleCriteriaConfig =
-            SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-                    .definition("Оцените полноту и ясность объяснения от 1 до 5")
-                    .minScore(1.0)
-                    .maxScore(5.0)
-                    .build();
-
-    RubricsScoreMetric.RubricsConfig rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
-            .rubrics(
-                    Map.of(
-                            "score1_description", "Неверная или отсутствующая информация о климате",
-                            "score2_description", "Поверхностное понимание без научного обоснования",
-                            "score3_description", "Базовое понимание причин и последствий",
-                            "score4_description", "Хорошее объяснение с научными фактами",
-                            "score5_description", "Комплексное понимание с данными и примерами"
-                    )
-            )
-            .build();
-
-    long startTime = System.currentTimeMillis();
-
-    CompletableFuture<Double> aspectFuture = aspectCriticMetric.singleTurnScoreAsync(aspectCriticConfig, sample);
-    CompletableFuture<Double> criteriaFuture =
-            simpleCriteriaScoreMetric.singleTurnScoreAsync(simpleCriteriaConfig, sample);
-    CompletableFuture<Double> rubricsFuture = rubricsScoreMetric.singleTurnScoreAsync(rubricsConfig, sample);
-
-    // Ждем завершения всех оценок
-    CompletableFuture<Void> allFutures = CompletableFuture.allOf(aspectFuture, criteriaFuture, rubricsFuture);
-
-    allFutures.join();
-    long endTime = System.currentTimeMillis();
-
-    Double aspectScore = aspectFuture.join();
-    Double criteriaScore = criteriaFuture.join();
-    Double rubricsScore = rubricsFuture.join();
-
-    log.info("Время параллельного выполнения: {} мс", (endTime - startTime));
-    log.info("AspectCritic: {}", aspectScore);
-    log.info("SimpleCriteria: {}", criteriaScore);
-    log.info("Rubrics: {}", rubricsScore);
-
-    assertNotNull(aspectScore);
-    assertNotNull(criteriaScore);
-    assertNotNull(rubricsScore);
-
-    // Все метрики должны показать хорошие результаты для качественного ответа
-    assertTrue(aspectScore >= 0.7, "Ожидается высокая достоверность");
-    assertTrue(criteriaScore >= 3.5, "Ожидается хорошая полнота объяснения");
-    assertTrue(rubricsScore >= 3.0, "Ожидается хорошая оценка по рубрикам");
-}
+var config = RubricsScoreMetric.RubricsConfig.builder()
+    .rubric("score1_description", "Неверная или отсутствующая информация")
+    .rubric("score2_description", "Базовое понимание, есть пробелы")
+    .rubric("score3_description", "Хорошее понимание, незначительные проблемы") 
+    .rubric("score4_description", "Очень хорошее объяснение")
+    .rubric("score5_description", "Отличный, исчерпывающий ответ")
+    .build();
+Double score = rubrics.singleTurnScore(config, sample);
+// Предоставляет детальную обратную связь на основе уровней рубрик
 ```
 
 ## ⚙️ Расширенные возможности
@@ -602,6 +266,33 @@ public class ToxicityDetectionMetric extends AbstractLLMMetric {
 }
 ```
 
+### Batch оценка больших датасетов
+
+```java
+@Service
+public class BatchEvaluationService {
+    
+    @Autowired
+    private AspectCriticMetric aspectCritic;
+    
+    public List<Double> evaluateBatch(List<Sample> samples) {
+        var config = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Является ли ответ полезным и точным?")
+            .build();
+        
+        List<CompletableFuture<Double>> futures = samples.stream()
+            .map(sample -> aspectCritic.singleTurnScoreAsync(config, sample))
+            .collect(Collectors.toList());
+        
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        
+        return futures.stream()
+            .map(CompletableFuture::join)
+            .collect(Collectors.toList());
+    }
+}
+```
+
 ## 🏗️ Архитектура
 
 ### Основные компоненты
@@ -625,9 +316,50 @@ spring-ai-ragas-spring-boot-starter
 
 ## 🗺️ Roadmap
 
-### v1.0.0
+### v1.0.0 ✅
 
 - [x] AspectCriticMetric
 - [x] SimpleCriteriaScore
 - [x] RubricsScore
+- [x] Spring Boot автоконфигурация
+- [ ] Асинхронная поддержка
+
+### v1.1.0 🔄
+
+- [ ] RAG-специфичные метрики (Faithfulness, ContextRelevance)
+
+## 🤝 Участие в разработке
+
+Мы приветствуем вклад сообщества! См. [CONTRIBUTING.md](CONTRIBUTING.md) для получения подробной информации.
+
+### Быстрый старт для разработчиков
+
+```bash
+git clone https://github.com/ai-qa-solutions/spring-ai-ragas.git
+cd spring-ai-ragas
+mvn clean install
+```
+
+### Запуск тестов
+
+```bash
+# Установите переменные окружения
+export SPRING_AI_GIGACHAT_CLIENT_ID=your_client_id
+export SPRING_AI_GIGACHAT_CLIENT_SECRET=your_client_secret
+
+# Или используйте OpenAI/OpenRouter
+export OPENROUTER_API_KEY=your_api_key
+
+# Запуск тестов
+mvn test
+```
+
+## 📄 Лицензия
+
+Этот проект лицензирован под лицензией Apache License 2.0 - см. файл [LICENSE](LICENSE) для подробностей.
+
+## 🙏 Благодарности
+
+- [RAGAS](https://github.com/explodinggradients/ragas) - Идея, примеры реализации
+- [Spring AI](https://spring.io/projects/spring-ai) - Основа для интеграции LLM
 
