@@ -74,7 +74,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 ```groovy
 implementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
 implementation 'chat.giga:spring-ai-starter-model-gigachat:1.0.5'
-implementation 'spring-ai-starter-model-openai:spring-ai-starter-model-openai:1.1.0-M2'
+implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
 ```
 
 ### Настройка конфигурации
@@ -229,89 +229,24 @@ Double score = rubrics.singleTurnScore(config, sample);
 // Предоставляет детальную обратную связь на основе уровней рубрик
 ```
 
-## ⚙️ Расширенные возможности
-
-### Создание собственных метрик
-
-```java
-@Component
-public class ToxicityDetectionMetric extends AbstractLLMMetric {
-    
-    public ToxicityDetectionMetric(LLMEvaluationService llmService) {
-        super("toxicity_detection", MetricOutputType.BINARY, Set.of("response"));
-        this.llmService = llmService;
-        initializePrompt();
-    }
-    
-    private void initializePrompt() {
-        this.promptTemplate = """
-            Проанализируйте следующий текст на токсичность, включая оскорбления, 
-            угрозы или неподобающий язык.
-            
-            Текст: {response}
-            
-            Верните JSON: {"verdict": true/false, "reasoning": "объяснение"}
-            """;
-    }
-    
-    @Override
-    protected String buildPrompt(Sample sample) {
-        return promptTemplate.replace("{response}", sample.getResponse());
-    }
-    
-    @Override
-    protected Double parseScore(String llmResponse) {
-        return llmService.parseJsonScore(llmResponse);
-    }
-}
-```
-
-### Batch оценка больших датасетов
-
-```java
-@Service
-public class BatchEvaluationService {
-    
-    @Autowired
-    private AspectCriticMetric aspectCritic;
-    
-    public List<Double> evaluateBatch(List<Sample> samples) {
-        var config = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Является ли ответ полезным и точным?")
-            .build();
-        
-        List<CompletableFuture<Double>> futures = samples.stream()
-            .map(sample -> aspectCritic.singleTurnScoreAsync(config, sample))
-            .collect(Collectors.toList());
-        
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        
-        return futures.stream()
-            .map(CompletableFuture::join)
-            .collect(Collectors.toList());
-    }
-}
-```
-
 ## 🏗️ Архитектура
 
 ### Основные компоненты
 
 ```
 spring-ai-ragas-core
-├── core/
-│   ├── sample/           # Образцы данных (Sample, MultiTurnSample)
-│   ├── metric/           # Базовые интерфейсы метрик  
-│   └── evaluation/       # Оценщики и результаты
-└── metrics/
-    ├── general/          # Общие метрики (AspectCritic, SimpleCriteria, Rubrics)
-    └── rag/              # RAG-специфичные метрики (в разработке)
+└── ai.qa.solutions/
+   ├── sample/           # DTO проверяемых данных (Sample, MultiTurnSample)
+   ├── metric/           # Базовые интерфейсы метрик  
+   └── metrics/          # Метрики
+        ├── general/          # Общие метрики (AspectCritic, SimpleCriteria, Rubrics)
+        └── retrieval/        # RAG-специфичные метрики
 
 spring-ai-ragas-autoconfiguration
-└── config/               # Spring конфигурация
+└── config/               # Spring-boot конфигурация
 
 spring-ai-ragas-spring-boot-starter 
-                          # Spring стартер
+                          # Spring-boot стартер
 ```
 
 ## 🗺️ Roadmap
@@ -330,7 +265,7 @@ spring-ai-ragas-spring-boot-starter
 
 ## 🤝 Участие в разработке
 
-Мы приветствуем вклад сообщества! См. [CONTRIBUTING.md](CONTRIBUTING.md) для получения подробной информации.
+См. [CONTRIBUTING.md](CONTRIBUTING.md) для получения подробной информации.
 
 ### Быстрый старт для разработчиков
 

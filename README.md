@@ -74,7 +74,7 @@ subjective. Spring AI RAGAS solves these problems:
 ```groovy
 implementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
 implementation 'chat.giga:spring-ai-starter-model-gigachat:1.0.5'
-implementation 'spring-ai-starter-model-openai:spring-ai-starter-model-openai:1.1.0-M2'
+implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
 ```
 
 ### Configuration
@@ -229,90 +229,18 @@ Double score = rubrics.singleTurnScore(config, sample);
 // Provides detailed feedback based on rubric levels
 ```
 
-## ⚙️ Advanced Features
-
-### Creating Custom Metrics
-
-```java
-@Component
-public class ToxicityDetectionMetric extends AbstractLLMMetric {
-
-    public ToxicityDetectionMetric(LLMEvaluationService llmService) {
-        super("toxicity_detection", MetricOutputType.BINARY, Set.of("response"));
-        this.llmService = llmService;
-        initializePrompt();
-    }
-
-    private void initializePrompt() {
-        this.promptTemplate = """
-                Analyze the following text for toxicity including hate speech,
-                threats, or inappropriate language.
-                
-                Text: {response}
-                
-                Return JSON: {"verdict": true/false, "reasoning": "explanation"}
-                """;
-    }
-
-    @Override
-    protected String buildPrompt(Sample sample) {
-        return promptTemplate.replace("{response}", sample.getResponse());
-    }
-
-    @Override
-    protected Double parseScore(String llmResponse) {
-        return llmService.parseJsonScore(llmResponse);
-    }
-}
-```
-
-### Batch Evaluation for Large Datasets
-
-```java
-@Service
-public class BatchEvaluationService {
-    
-    @Autowired
-    private AspectCriticMetric aspectCritic;
-    
-    public List<Double> evaluateBatch(List<Sample> samples) {
-        var config = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Is the response helpful and accurate?")
-            .build();
-        
-        List<CompletableFuture<Double>> futures = samples.stream()
-            .map(sample -> aspectCritic.singleTurnScoreAsync(config, sample))
-            .collect(Collectors.toList());
-        
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        
-        return futures.stream()
-            .map(CompletableFuture::join)
-            .collect(Collectors.toList());
-    }
-}
-```
-
-## 📚 Documentation
-
-- **[General Purpose Metrics](docs/general-metrics-en.md)** - Comprehensive guide to AspectCritic, SimpleCriteriaScore, RubricsScore
-- **[Creating Custom Metrics](docs/custom-metrics-en.md)** - How to build your own evaluation metrics *(under development)*
-- **[Best Practices](docs/best-practices-en.md)** - Usage recommendations *(under development)*
-- **[API Reference](docs/api-reference.md)** - Complete API documentation *(under development)*
-
 ## 🏗️ Architecture
 
 ### Core Components
 
 ```
 spring-ai-ragas-core
-├── core/
-│   ├── sample/           # Data samples (Sample, MultiTurnSample)
-│   ├── metric/           # Base metric interfaces  
-│   └── evaluation/       # Evaluators and results
-└── metrics/
-    ├── general/          # General metrics (AspectCritic, SimpleCriteria, Rubrics)
-    └── rag/              # RAG-specific metrics (under development)
+└── ai.qa.solutions/
+   ├── sample/           # DTO data samples (Sample, MultiTurnSample)
+   ├── metric/           # Base metric interfaces  
+   └── metrics/          # Evaluators and results
+        ├── general/          # General metrics (AspectCritic, SimpleCriteria, Rubrics)
+        └── retrieval/        # RAG-specific metrics
 
 spring-ai-ragas-autoconfiguration
 └── config/               # Spring Boot configuration
