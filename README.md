@@ -28,12 +28,16 @@ subjective. Spring AI RAGAS solves these problems:
 
 > 📖 **Detailed Documentation**: [General Purpose Metrics Guide](docs/en/general_purpose_metrics_en.md)
 
-### RAG-Specific Metrics - *Under Development*
+### Retrieval Metrics
 
-- **Faithfulness** - Factual accuracy of responses
-- **ContextRelevance** - Relevance of context
-- **AnswerRelevance** - Relevance of answers
-- **ContextRecall** - Completeness of retrieved context
+- **[ContextEntityRecall](docs/en/retrieval_metrics_en.md#contextentityrecall)** - Entity coverage in retrieved contexts
+- **[ContextPrecision](docs/en/retrieval_metrics_en.md#contextprecision)** - Precision of retrieved context ranking
+- **[ContextRecall](docs/en/retrieval_metrics_en.md#contextrecall)** - Completeness of retrieved information
+- **[Faithfulness](docs/en/retrieval_metrics_en.md#faithfulness)** - Factual consistency with retrieved contexts
+- **[NoiseSensitivity](docs/en/retrieval_metrics_en.md#noisesensitivity)** - Robustness to irrelevant contexts
+- **[ResponseRelevancy](docs/ru/retrieval_metrics_ru.md#responserelevancy)** - Response semantic relevance for the context
+
+> 📖 **Detailed Documentation**: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 
 ## 🚀 Quick Start
 
@@ -111,7 +115,7 @@ spring:
           model: qwen/qwen3-235b-a22b:free
 ```
 
-## 📡 5-Minute Quick Start
+## 📡 5-Minute quick example
 
 ### Basic Usage Example
 
@@ -256,16 +260,12 @@ spring-ai-ragas-spring-boot-starter
 - [x] AspectCriticMetric
 - [x] SimpleCriteriaScore
 - [x] RubricsScore
-- [x] Spring Boot auto-configuration
-- [ ] Asynchronous support
-
-### v1.1.0 🔄
-
-- [ ] RAG-specific metrics (Faithfulness, ContextRelevance)
-
-## 🤝 Contributing
-
-We welcome contributions from the community! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+- [x] ContextEntityRecall
+- [x] ContextPrecision
+- [x] ContextRecall
+- [x] Faithfulness
+- [x] NoiseSensitivity
+- [x] ResponseRelevancy
 
 ### Developer Quick Start
 

@@ -28,12 +28,16 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 > 📖 **Подробная документация**: [General Purpose Metrics Guide](docs/ru/general_purpose_metrics_ru.md)
 
-### RAG-Specific Metrics (RAG метрики) - *В разработке*
+### Метрики извлечения (Retrieval Metrics)
 
-- **Faithfulness** - Фактическая точность ответов
-- **ContextRelevance** - Релевантность контекста
-- **AnswerRelevance** - Релевантность ответов
-- **ContextRecall** - Полнота извлеченного контекста
+- **[ContextEntityRecall](docs/ru/retrieval_metrics_ru.md#contextentityrecall)** - Покрытие сущностей в найденных контекстах
+- **[ContextPrecision](docs/ru/retrieval_metrics_ru.md#contextprecision)** - Точность ранжирования найденных контекстов
+- **[ContextRecall](docs/ru/retrieval_metrics_ru.md#contextrecall)** - Полнота найденной информации
+- **[Faithfulness](docs/ru/retrieval_metrics_ru.md#faithfulness)** - Фактическая согласованность с найденными контекстами
+- **[NoiseSensitivity](docs/ru/retrieval_metrics_ru.md#noisesensitivity)** - Устойчивость к нерелевантным контекстам
+- **[ResponseRelevancy](docs/ru/retrieval_metrics_ru.md#responserelevancy)** - Семантическая схожесть запроса и ответа
+
+> 📖 **Подробная документация**: [Руководство по метрикам извлечения](docs/ru/retrieval_metrics_ru.md)
 
 ## 🚀 Быстрый старт
 
@@ -111,7 +115,7 @@ spring:
                model: qwen/qwen3-235b-a22b:free
 ```
 
-## 📡 5-минутный Quick Start
+## 📡 5-минутный пример
 
 ### Базовый пример использования
 
@@ -256,16 +260,12 @@ spring-ai-ragas-spring-boot-starter
 - [x] AspectCriticMetric
 - [x] SimpleCriteriaScore
 - [x] RubricsScore
-- [x] Spring Boot автоконфигурация
-- [ ] Асинхронная поддержка
-
-### v1.1.0 🔄
-
-- [ ] RAG-специфичные метрики (Faithfulness, ContextRelevance)
-
-## 🤝 Участие в разработке
-
-См. [CONTRIBUTING.md](CONTRIBUTING.md) для получения подробной информации.
+- [x] ContextEntityRecall
+- [x] ContextPrecision
+- [x] ContextRecall
+- [x] Faithfulness
+- [x] NoiseSensitivity
+- [x] ResponseRelevancy
 
 ### Быстрый старт для разработчиков
 

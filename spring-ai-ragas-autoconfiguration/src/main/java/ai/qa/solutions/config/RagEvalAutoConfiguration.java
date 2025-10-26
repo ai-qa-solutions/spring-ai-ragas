@@ -4,7 +4,9 @@ import ai.qa.solutions.metrics.general.AspectCriticMetric;
 import ai.qa.solutions.metrics.general.RubricsScoreMetric;
 import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
 import ai.qa.solutions.metrics.retrieval.*;
+import java.util.List;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,5 +53,11 @@ public class RagEvalAutoConfiguration {
     @Bean
     public FaithfulnessMetric faithfulnessMetric(final ChatClient.Builder chatClientBuilder) {
         return new FaithfulnessMetric(chatClientBuilder.build());
+    }
+
+    @Bean
+    public ResponseRelevancyMetric responseRelevancyMetric(
+            final ChatClient.Builder chatClientBuilder, final List<EmbeddingModel> embeddingModels) {
+        return new ResponseRelevancyMetric(chatClientBuilder.build(), embeddingModels.get(0));
     }
 }
