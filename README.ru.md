@@ -35,7 +35,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 - **[ContextRecall](docs/ru/retrieval_metrics_ru.md#contextrecall)** - Полнота найденной информации
 - **[Faithfulness](docs/ru/retrieval_metrics_ru.md#faithfulness)** - Фактическая согласованность с найденными контекстами
 - **[NoiseSensitivity](docs/ru/retrieval_metrics_ru.md#noisesensitivity)** - Устойчивость к нерелевантным контекстам
-- **[ResponseRelevancy](docs/ru/retrieval_metrics_ru.md#responserelevancy)** - Семантическая схожесть запроса и ответа
+- **[ResponseRelevancy](docs/ru/retrieval/ResponseRelevancy.md)** - Семантическая схожесть запроса и ответа
 
 > 📖 **Подробная документация**: [Руководство по метрикам извлечения](docs/ru/retrieval_metrics_ru.md)
 

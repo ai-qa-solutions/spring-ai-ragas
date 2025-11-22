@@ -35,7 +35,7 @@ subjective. Spring AI RAGAS solves these problems:
 - **[ContextRecall](docs/en/retrieval_metrics_en.md#contextrecall)** - Completeness of retrieved information
 - **[Faithfulness](docs/en/retrieval_metrics_en.md#faithfulness)** - Factual consistency with retrieved contexts
 - **[NoiseSensitivity](docs/en/retrieval_metrics_en.md#noisesensitivity)** - Robustness to irrelevant contexts
-- **[ResponseRelevancy](docs/ru/retrieval_metrics_ru.md#responserelevancy)** - Response semantic relevance for the context
+- **[ResponseRelevancy](docs/en/retrieval/ResponseRelevancy.md)** - Response semantic relevance for the context
 
 > 📖 **Detailed Documentation**: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 
