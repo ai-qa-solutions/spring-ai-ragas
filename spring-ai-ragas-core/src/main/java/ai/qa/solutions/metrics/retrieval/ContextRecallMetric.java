@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -16,35 +19,38 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * Measures how many statements in the reference answer can be attributed to the retrieved contexts
  */
 @Slf4j
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContextRecallMetric {
+    public static final String DEFAULT_CONTEXT_RECALL_PROMPT =
+            """
+                    Given a question, context, and a reference answer, analyze each sentence in the reference answer and classify if the sentence can be attributed to the given context or not. Use only 'Yes' (1) or 'No' (0) as a binary classification.
+
+                    Question: {question}
+                    Context: {context}
+                    Reference Answer: {reference_answer}
+
+                    Instructions:
+                    1. Break down the reference answer into individual sentences
+                    2. For each sentence, determine if it can be attributed to the provided context
+                    3. A sentence is attributable (1) if the information can be found or inferred from the context
+                    4. A sentence is not attributable (0) if the information is not present in the context
+                    5. Be strict in your evaluation - only mark as attributable if there is clear supporting evidence
+                    6. Consider paraphrases and semantically equivalent information as supporting evidence
+
+                    Respond with a JSON object containing:
+                    - classifications: A list of classification objects, each containing:
+                      - statement: The individual sentence from the reference answer
+                      - reason: Detailed explanation for the classification
+                      - attributed: 1 if the statement can be attributed to the context, 0 otherwise
+                    """;
+
+    @NonNull
     private final ChatClient chatClient;
-    private final String contextRecallPrompt;
 
-    public ContextRecallMetric(final ChatClient chatClient) {
-        this.chatClient = chatClient;
-        this.contextRecallPrompt =
-                """
-                        Given a question, context, and a reference answer, analyze each sentence in the reference answer and classify if the sentence can be attributed to the given context or not. Use only 'Yes' (1) or 'No' (0) as a binary classification.
-
-                        Question: {question}
-                        Context: {context}
-                        Reference Answer: {reference_answer}
-
-                        Instructions:
-                        1. Break down the reference answer into individual sentences
-                        2. For each sentence, determine if it can be attributed to the provided context
-                        3. A sentence is attributable (1) if the information can be found or inferred from the context
-                        4. A sentence is not attributable (0) if the information is not present in the context
-                        5. Be strict in your evaluation - only mark as attributable if there is clear supporting evidence
-                        6. Consider paraphrases and semantically equivalent information as supporting evidence
-
-                        Respond with a JSON object containing:
-                        - classifications: A list of classification objects, each containing:
-                          - statement: The individual sentence from the reference answer
-                          - reason: Detailed explanation for the classification
-                          - attributed: 1 if the statement can be attributed to the context, 0 otherwise
-                        """;
-    }
+    @NonNull
+    @Builder.Default
+    private final String contextRecallPrompt = DEFAULT_CONTEXT_RECALL_PROMPT;
 
     public Double singleTurnScore(final ContextRecallConfig config, final Sample sample) {
         // Validate required inputs

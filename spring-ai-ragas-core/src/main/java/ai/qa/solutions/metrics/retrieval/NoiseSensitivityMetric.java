@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -20,33 +23,27 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * to the retrieved contexts (relevant or irrelevant based on mode).
  */
 @Slf4j
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class NoiseSensitivityMetric {
-    private final ChatClient chatClient;
-    private final String statementGeneratorPrompt;
-    private final String statementFaithfulnessPrompt;
-    private final String systemPrompt;
+    public static final String DEFAULT_SYSTEM_PROMPT =
+            """
+            You are a context-only evaluation system with NO access to external knowledge.
 
-    public NoiseSensitivityMetric(final ChatClient chatClient) {
-        this.chatClient = chatClient;
+            CRITICAL: You must evaluate statements SOLELY based on the provided context.
+            - If context says "X is Y", treat that as the ONLY truth for this evaluation
+            - Completely ignore what you know about the real world
+            - If context contradicts reality, use the context as truth
 
-        this.systemPrompt =
-                """
-                You are a context-only evaluation system with NO access to external knowledge.
+            Example: If context says "Paris is in Germany" and statement says "Paris, Germany" - this is TRUE because they match.
 
-                CRITICAL: You must evaluate statements SOLELY based on the provided context.
-                - If context says "X is Y", treat that as the ONLY truth for this evaluation
-                - Completely ignore what you know about the real world
-                - If context contradicts reality, use the context as truth
+            Your ONLY job: Does the statement match what the context says? Yes = true, No = false.
 
-                Example: If context says "Paris is in Germany" and statement says "Paris, Germany" - this is TRUE because they match.
+            Respond ONLY with valid JSON in the exact format requested.
+            """;
 
-                Your ONLY job: Does the statement match what the context says? Yes = true, No = false.
-
-                Respond ONLY with valid JSON in the exact format requested.
-                """;
-
-        this.statementGeneratorPrompt =
-                """
+    public static final String DEFAULT_STATEMENT_GENERATOR_PROMPT =
+            """
                 Given a question and an answer, create a list of statements that are present in the answer.
                 Each statement should be atomic, meaning it contains only one piece of information.
 
@@ -65,9 +62,9 @@ public class NoiseSensitivityMetric {
                 - statements: A list of atomic statements extracted from the answer
                 """;
 
-        this.statementFaithfulnessPrompt =
-                """
-                IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.
+    public static final String DEFAULT_STATEMENT_FAITHFULNESS_PROMPT =
+            """
+            IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.
 
                 Context: {context}
                 Statements: {statements}
@@ -118,8 +115,22 @@ public class NoiseSensitivityMetric {
                    - statement: The original statement
                    - verdict: true if the ENTIRE statement matches THIS context exactly, false otherwise
                    - reason: Explanation comparing statement to THIS context (not to real-world facts or previous contexts)
-                """;
-    }
+            """;
+
+    @NonNull
+    private final ChatClient chatClient;
+
+    @NonNull
+    @Builder.Default
+    private final String statementGeneratorPrompt = DEFAULT_STATEMENT_GENERATOR_PROMPT;
+
+    @NonNull
+    @Builder.Default
+    private final String statementFaithfulnessPrompt = DEFAULT_STATEMENT_FAITHFULNESS_PROMPT;
+
+    @NonNull
+    @Builder.Default
+    private final String systemPrompt = DEFAULT_SYSTEM_PROMPT;
 
     public Double singleTurnScore(final NoiseSensitivityConfig config, final Sample sample) {
         // Validate required inputs

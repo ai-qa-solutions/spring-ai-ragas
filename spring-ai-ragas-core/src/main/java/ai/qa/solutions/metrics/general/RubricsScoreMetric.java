@@ -4,6 +4,8 @@ import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -15,35 +17,38 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * RubricsScore Metric - Detailed rubric-based evaluation
  * Updated to use structured output with inner DTO and stateless design
  */
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class RubricsScoreMetric {
+    public static final String DEFAULT_PROMPT_TEMPLATE =
+            """
+            Evaluate the AI response using the provided detailed rubrics.
+
+            User Input: {user_input}
+            AI Response: {response}
+            Reference Answer: {reference}
+
+            Evaluation Rubrics:
+            {rubrics}
+
+            Instructions:
+            1. Compare the AI response with the reference answer
+            2. Evaluate the response against each rubric level
+            3. Select the rubric level that best describes the response quality
+            4. Provide the corresponding score and detailed reasoning
+
+            Respond with a JSON object containing:
+            - score: The numerical score (integer) corresponding to the selected rubric level
+            - rubric_level: The key of the selected rubric (e.g., "score3_description")
+            - reasoning: Your detailed explanation for the score selection
+            """;
+
+    @NonNull
     private final ChatClient chatClient;
-    private final String promptTemplate;
 
-    public RubricsScoreMetric(final ChatClient chatClient) {
-        this.chatClient = chatClient;
-        this.promptTemplate =
-                """
-                Evaluate the AI response using the provided detailed rubrics.
-
-                User Input: {user_input}
-                AI Response: {response}
-                Reference Answer: {reference}
-
-                Evaluation Rubrics:
-                {rubrics}
-
-                Instructions:
-                1. Compare the AI response with the reference answer
-                2. Evaluate the response against each rubric level
-                3. Select the rubric level that best describes the response quality
-                4. Provide the corresponding score and detailed reasoning
-
-                Respond with a JSON object containing:
-                - score: The numerical score (integer) corresponding to the selected rubric level
-                - rubric_level: The key of the selected rubric (e.g., "score3_description")
-                - reasoning: Your detailed explanation for the score selection
-                """;
-    }
+    @NonNull
+    @Builder.Default
+    private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
     public Double singleTurnScore(final RubricsConfig config, final Sample sample) {
         return chatClient

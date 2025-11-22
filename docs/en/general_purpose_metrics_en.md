@@ -73,7 +73,9 @@ AspectCriticMetric.AspectCriticConfig config =
                 .strictness(4) // 1=lenient, 5=very strict
                 .build();
 
-AspectCriticMetric metric = new AspectCriticMetric(chatClient);
+AspectCriticMetric metric = AspectCriticMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Result: 0.0 (safe content)
 ```
@@ -153,7 +155,9 @@ SimpleCriteriaScoreMetric.SimpleCriteriaConfig config =
                 .maxScore(5.0)
                 .build();
 
-SimpleCriteriaScoreMetric metric = new SimpleCriteriaScoreMetric(chatClient);
+SimpleCriteriaScoreMetric metric = SimpleCriteriaScoreMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Result: 4.5 (high quality explanation)
 ```
@@ -235,7 +239,9 @@ RubricsScoreMetric.RubricsConfig config =
                         "Excellent explanation with scientific details and examples")
                 .build();
 
-RubricsScoreMetric metric = new RubricsScoreMetric(chatClient);
+RubricsScoreMetric metric = RubricsScoreMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Result: 4.0 (good understanding of topic)
 ```

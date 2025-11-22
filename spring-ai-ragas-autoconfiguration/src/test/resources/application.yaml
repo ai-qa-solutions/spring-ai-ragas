@@ -20,10 +20,20 @@ spring:
         options:
           model: GigaChat-2-Max
           temperature: 0.0
+      embedding:
+        options:
+          model: EmbeddingsGigaR
+          dimensions: 1024
     openai: # параметры подключения к openrouter
       base-url: https://openrouter.ai/api
       api-key: ${OPENROUTER_API_KEY}
       chat:
         options:
-          model: x-ai/grok-4-fast
+          model: google/gemini-2.5-flash
           temperature: 0.0
+      embedding:
+        base-url: https://openrouter.ai/api
+        api-key: ${OPENROUTER_API_KEY}
+        options:
+          model: openai/text-embedding-3-small
+          dimensions: 1024

@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -17,51 +20,57 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * Automatically chooses between reference-based or response-based evaluation based on available data
  */
 @Slf4j
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContextPrecisionMetric {
+    public static final String DEFAULT_WITH_REFERENCE_PROMPT =
+            """
+            Given a user query, reference answer, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the reference answer.
+
+            User Query: {user_input}
+            Reference Answer: {reference}
+            Retrieved Context Chunk: {context_chunk}
+
+            Instructions:
+            1. Analyze if the context chunk contains information that is relevant to providing the reference answer
+            2. Use the reference answer as the gold standard for what constitutes a complete and correct response
+            3. A chunk is relevant if it contains information that supports or contributes to the reference answer
+            4. Be strict in your evaluation - only mark as relevant if the chunk genuinely helps answer the query as indicated by the reference
+
+            Respond with a JSON object containing:
+            - relevant: true if the context chunk is relevant to answering the user query based on the reference, false otherwise
+            - reasoning: Your detailed explanation for why the chunk is or isn't relevant
+            """;
+
+    public static final String DEFAULT_WITHOUT_REFERENCE_PROMPT =
+            """
+            Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.
+
+            User Query: {user_input}
+            AI Response: {response}
+            Retrieved Context Chunk: {context_chunk}
+
+            Instructions:
+            1. Analyze if the context chunk contains information that is relevant to answering the user query
+            2. Consider the AI response as guidance for what constitutes a relevant answer
+            3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response
+            4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query
+
+            Respond with a JSON object containing:
+            - relevant: true if the context chunk is relevant to answering the user query, false otherwise
+            - reasoning: Your detailed explanation for why the chunk is or isn't relevant
+            """;
+
+    @NonNull
     private final ChatClient chatClient;
-    private final String withReferencePrompt;
-    private final String withoutReferencePrompt;
 
-    public ContextPrecisionMetric(final ChatClient chatClient) {
-        this.chatClient = chatClient;
-        this.withReferencePrompt =
-                """
-                Given a user query, reference answer, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the reference answer.
+    @NonNull
+    @Builder.Default
+    private final String withReferencePrompt = DEFAULT_WITH_REFERENCE_PROMPT;
 
-                User Query: {user_input}
-                Reference Answer: {reference}
-                Retrieved Context Chunk: {context_chunk}
-
-                Instructions:
-                1. Analyze if the context chunk contains information that is relevant to providing the reference answer
-                2. Use the reference answer as the gold standard for what constitutes a complete and correct response
-                3. A chunk is relevant if it contains information that supports or contributes to the reference answer
-                4. Be strict in your evaluation - only mark as relevant if the chunk genuinely helps answer the query as indicated by the reference
-
-                Respond with a JSON object containing:
-                - relevant: true if the context chunk is relevant to answering the user query based on the reference, false otherwise
-                - reasoning: Your detailed explanation for why the chunk is or isn't relevant
-                """;
-
-        this.withoutReferencePrompt =
-                """
-                Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.
-
-                User Query: {user_input}
-                AI Response: {response}
-                Retrieved Context Chunk: {context_chunk}
-
-                Instructions:
-                1. Analyze if the context chunk contains information that is relevant to answering the user query
-                2. Consider the AI response as guidance for what constitutes a relevant answer
-                3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response
-                4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query
-
-                Respond with a JSON object containing:
-                - relevant: true if the context chunk is relevant to answering the user query, false otherwise
-                - reasoning: Your detailed explanation for why the chunk is or isn't relevant
-                """;
-    }
+    @NonNull
+    @Builder.Default
+    private final String withoutReferencePrompt = DEFAULT_WITHOUT_REFERENCE_PROMPT;
 
     public Double singleTurnScore(final ContextPrecisionConfig config, final Sample sample) {
         List<String> retrievedContexts = sample.getRetrievedContexts();

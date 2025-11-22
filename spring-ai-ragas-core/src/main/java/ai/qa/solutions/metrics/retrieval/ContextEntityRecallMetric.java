@@ -7,8 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -21,43 +24,46 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * historical QA, etc., where entity coverage is crucial for evaluating retrieval mechanisms.
  */
 @Slf4j
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ContextEntityRecallMetric {
+    public static final String DEFAULT_ENTITY_EXTRACTION_PROMPT =
+            """
+                    Given a text, extract unique entities without repetition. Ensure you consider different forms or mentions of the same entity as a single entity.
+
+                    Text: {text}
+
+                    Instructions:
+                    1. Extract all named entities including:
+                       - Person names (e.g., "Albert Einstein", "Napoleon")
+                       - Place names (e.g., "Paris", "Eiffel Tower", "France")
+                       - Organizations (e.g., "UNESCO", "European Union")
+                       - Dates and times (e.g., "1889", "July 16, 1969", "7th century BC")
+                       - Events (e.g., "World War II", "Apollo 11 mission")
+                       - Products/objects (e.g., "iPhone", "Great Wall of China")
+                       - Numbers and measurements (e.g., "21,196 kilometers", "50,000 spectators")
+                    2. Avoid duplicates - treat different forms of the same entity as one
+                    3. Focus on factual, concrete entities rather than abstract concepts
+                    4. Include proper nouns, specific dates, numbers, and measurable quantities
+                    5. Exclude common words, pronouns, and generic terms
+
+                    Examples:
+                    - "The Eiffel Tower, located in Paris, France, was completed in 1889 for the World's Fair."
+                      Entities: ["Eiffel Tower", "Paris", "France", "1889", "World's Fair"]
+
+                    - "Neil Armstrong and Buzz Aldrin landed on the Moon during Apollo 11 on July 16, 1969."
+                      Entities: ["Neil Armstrong", "Buzz Aldrin", "Moon", "Apollo 11", "July 16, 1969"]
+
+                    Respond with a JSON object containing:
+                    - entities: A list of unique entities extracted from the text
+                    """;
+
+    @NonNull
     private final ChatClient chatClient;
-    private final String entityExtractionPrompt;
 
-    public ContextEntityRecallMetric(final ChatClient chatClient) {
-        this.chatClient = chatClient;
-        this.entityExtractionPrompt =
-                """
-                        Given a text, extract unique entities without repetition. Ensure you consider different forms or mentions of the same entity as a single entity.
-
-                        Text: {text}
-
-                        Instructions:
-                        1. Extract all named entities including:
-                           - Person names (e.g., "Albert Einstein", "Napoleon")
-                           - Place names (e.g., "Paris", "Eiffel Tower", "France")
-                           - Organizations (e.g., "UNESCO", "European Union")
-                           - Dates and times (e.g., "1889", "July 16, 1969", "7th century BC")
-                           - Events (e.g., "World War II", "Apollo 11 mission")
-                           - Products/objects (e.g., "iPhone", "Great Wall of China")
-                           - Numbers and measurements (e.g., "21,196 kilometers", "50,000 spectators")
-                        2. Avoid duplicates - treat different forms of the same entity as one
-                        3. Focus on factual, concrete entities rather than abstract concepts
-                        4. Include proper nouns, specific dates, numbers, and measurable quantities
-                        5. Exclude common words, pronouns, and generic terms
-
-                        Examples:
-                        - "The Eiffel Tower, located in Paris, France, was completed in 1889 for the World's Fair."
-                          Entities: ["Eiffel Tower", "Paris", "France", "1889", "World's Fair"]
-
-                        - "Neil Armstrong and Buzz Aldrin landed on the Moon during Apollo 11 on July 16, 1969."
-                          Entities: ["Neil Armstrong", "Buzz Aldrin", "Moon", "Apollo 11", "July 16, 1969"]
-
-                        Respond with a JSON object containing:
-                        - entities: A list of unique entities extracted from the text
-                        """;
-    }
+    @NonNull
+    @Builder.Default
+    private final String entityExtractionPrompt = DEFAULT_ENTITY_EXTRACTION_PROMPT;
 
     public Double singleTurnScore(final ContextEntityRecallConfig config, final Sample sample) {
         // Validate required inputs

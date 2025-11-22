@@ -78,7 +78,9 @@ Sample sample = Sample.builder()
 ContextEntityRecallMetric.ContextEntityRecallConfig config = 
         ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build();
 
-ContextEntityRecallMetric metric = new ContextEntityRecallMetric(chatClient);
+ContextEntityRecallMetric metric = ContextEntityRecallMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Результат: ~0.9 (высокое покрытие сущностей)
 ```
@@ -153,7 +155,9 @@ ContextPrecisionMetric.ContextPrecisionConfig config =
                 .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
                 .build();
 
-ContextPrecisionMetric metric = new ContextPrecisionMetric(chatClient);
+ContextPrecisionMetric metric = ContextPrecisionMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Результат: ~0.6 (хорошие релевантные фрагменты ранжированы выше)
 ```
@@ -230,7 +234,9 @@ Sample sample = Sample.builder()
 ContextRecallMetric.ContextRecallConfig config = 
         ContextRecallMetric.ContextRecallConfig.builder().build();
 
-ContextRecallMetric metric = new ContextRecallMetric(chatClient);
+ContextRecallMetric metric = ContextRecallMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Результат: ~0.95 (почти все утверждения поддержаны)
 ```
@@ -288,7 +294,9 @@ Sample sample = Sample.builder()
                 "Первый Суперкубок состоялся 15 января 1967 года в Лос-Анджелесском мемориальном колизее."))
         .build();
 
-FaithfulnessMetric metric = new FaithfulnessMetric(chatClient);
+FaithfulnessMetric metric = FaithfulnessMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(sample);
 // Результат: 1.0 (полностью верный ответ)
 ```
@@ -356,7 +364,9 @@ NoiseSensitivityMetric.NoiseSensitivityConfig config =
                 .mode(NoiseSensitivityMetric.NoiseSensitivityMode.RELEVANT)
                 .build();
 
-NoiseSensitivityMetric metric = new NoiseSensitivityMetric(chatClient);
+NoiseSensitivityMetric metric = NoiseSensitivityMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Результат: ~0.1 (низкая чувствительность, хорошая устойчивость)
 ```
@@ -433,7 +443,10 @@ Sample completeSample = Sample.builder()
 ResponseRelevancyMetric.ResponseRelevancyConfig config = 
         ResponseRelevancyMetric.ResponseRelevancyConfig.defaultConfig();
 
-ResponseRelevancyMetric metric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+ResponseRelevancyMetric metric = ResponseRelevancyMetric.builder()
+        .chatClient(chatClient)
+        .embeddingModel(embeddingModel)
+        .build();
 Double score = metric.singleTurnScore(config, completeSample);
 // Результат: ~0.95 (высокая релевантность, полный ответ)
 
@@ -725,35 +738,48 @@ public class RAGEvaluationPipeline {
     
     public RAGEvaluationResult evaluateRAGSystem(Sample sample) {
         // 1. Оценка покрытия сущностей
-        ContextEntityRecallMetric entityMetric = new ContextEntityRecallMetric(chatClient);
+        ContextEntityRecallMetric entityMetric = ContextEntityRecallMetric.builder()
+            .chatClient(chatClient)
+            .build();
         Double entityScore = entityMetric.singleTurnScore(
             ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build(), sample);
         
         // 2. Оценка точности извлечения
-        ContextPrecisionMetric precisionMetric = new ContextPrecisionMetric(chatClient);
+        ContextPrecisionMetric precisionMetric = ContextPrecisionMetric.builder()
+            .chatClient(chatClient)
+            .build();
         Double precisionScore = precisionMetric.singleTurnScore(
             ContextPrecisionMetric.ContextPrecisionConfig.builder()
                 .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
                 .build(), sample);
         
         // 3. Оценка полноты информации
-        ContextRecallMetric recallMetric = new ContextRecallMetric(chatClient);
+        ContextRecallMetric recallMetric = ContextRecallMetric.builder()
+            .chatClient(chatClient)
+            .build();
         Double recallScore = recallMetric.singleTurnScore(
             ContextRecallMetric.ContextRecallConfig.builder().build(), sample);
         
         // 4. Оценка верности ответа
-        FaithfulnessMetric faithfulnessMetric = new FaithfulnessMetric(chatClient);
+        FaithfulnessMetric faithfulnessMetric = FaithfulnessMetric.builder()
+            .chatClient(chatClient)
+            .build();
         Double faithfulnessScore = faithfulnessMetric.singleTurnScore(sample);
         
         // 5. Оценка чувствительности к шуму
-        NoiseSensitivityMetric sensitivityMetric = new NoiseSensitivityMetric(chatClient);
+        NoiseSensitivityMetric sensitivityMetric = NoiseSensitivityMetric.builder()
+            .chatClient(chatClient)
+            .build();
         Double sensitivityScore = sensitivityMetric.singleTurnScore(
             NoiseSensitivityMetric.NoiseSensitivityConfig.builder()
                 .mode(NoiseSensitivityMetric.NoiseSensitivityMode.RELEVANT)
                 .build(), sample);
         
         // 6. Оценка релевантности ответа
-        ResponseRelevancyMetric relevancyMetric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+        ResponseRelevancyMetric relevancyMetric = ResponseRelevancyMetric.builder()
+            .chatClient(chatClient)
+            .embeddingModel(embeddingModel)
+            .build();
         Double relevancyScore = relevancyMetric.singleTurnScore(
             ResponseRelevancyMetric.ResponseRelevancyConfig.defaultConfig(), sample);
         
@@ -796,8 +822,12 @@ public class RetrievalComparison {
             .retrievedContexts(semanticContexts).build();
         
         // Сравнение с использованием множественных метрик
-        ContextRecallMetric recallMetric = new ContextRecallMetric(chatClient);
-        ContextPrecisionMetric precisionMetric = new ContextPrecisionMetric(chatClient);
+        ContextRecallMetric recallMetric = ContextRecallMetric.builder()
+            .chatClient(chatClient)
+            .build();
+        ContextPrecisionMetric precisionMetric = ContextPrecisionMetric.builder()
+            .chatClient(chatClient)
+            .build();
         
         // Оценка обеих стратегий
         Map<String, Double> strategyAScores = Map.of(
@@ -840,7 +870,9 @@ public class DomainSpecificEvaluation {
             .build();
         
         // Фокус на покрытии сущностей для туризма
-        ContextEntityRecallMetric entityMetric = new ContextEntityRecallMetric(chatClient);
+        ContextEntityRecallMetric entityMetric = ContextEntityRecallMetric.builder()
+            .chatClient(chatClient)
+            .build();
         Double entityScore = entityMetric.singleTurnScore(
             ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build(), 
             tourismSample);
@@ -857,7 +889,10 @@ public class ChatbotEvaluation {
     
     // Оценка релевантности ответов чат-бота
     public void evaluateChatbotResponses() {
-        ResponseRelevancyMetric relevancyMetric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+        ResponseRelevancyMetric relevancyMetric = ResponseRelevancyMetric.builder()
+            .chatClient(chatClient)
+            .embeddingModel(embeddingModel)
+            .build();
         
         // Тест 1: Полный релевантный ответ
         Sample fullAnswerSample = Sample.builder()
@@ -917,7 +952,10 @@ public class ChatbotEvaluation {
     
     // Оценка с настройкой количества вопросов
     public void evaluateWithCustomConfig() {
-        ResponseRelevancyMetric relevancyMetric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+        ResponseRelevancyMetric relevancyMetric = ResponseRelevancyMetric.builder()
+            .chatClient(chatClient)
+            .embeddingModel(embeddingModel)
+            .build();
         
         Sample sample = Sample.builder()
             .userInput("Объясните, что такое машинное обучение")

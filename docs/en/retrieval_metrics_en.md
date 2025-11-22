@@ -85,7 +85,9 @@ Sample sample = Sample.builder()
 ContextEntityRecallMetric.ContextEntityRecallConfig config =
         ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build();
 
-ContextEntityRecallMetric metric = new ContextEntityRecallMetric(chatClient);
+ContextEntityRecallMetric metric = ContextEntityRecallMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Result: ~0.9 (high entity coverage)
 ```
@@ -165,7 +167,9 @@ ContextPrecisionMetric.ContextPrecisionConfig config =
                 .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
                 .build();
 
-ContextPrecisionMetric metric = new ContextPrecisionMetric(chatClient);
+ContextPrecisionMetric metric = ContextPrecisionMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Result: ~0.6 (good relevant chunks ranked higher)
 ```
@@ -247,7 +251,9 @@ Sample sample = Sample.builder()
 ContextRecallMetric.ContextRecallConfig config =
         ContextRecallMetric.ContextRecallConfig.builder().build();
 
-ContextRecallMetric metric = new ContextRecallMetric(chatClient);
+ContextRecallMetric metric = ContextRecallMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Result: ~0.95 (almost all statements supported)
 ```
@@ -309,7 +315,9 @@ Sample sample = Sample.builder()
                 "The first Super Bowl was held on January 15, 1967, at the Los Angeles Memorial Coliseum."))
         .build();
 
-FaithfulnessMetric metric = new FaithfulnessMetric(chatClient);
+FaithfulnessMetric metric = FaithfulnessMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(sample);
 // Result: 1.0 (perfectly faithful response)
 ```
@@ -381,7 +389,9 @@ NoiseSensitivityMetric.NoiseSensitivityConfig config =
                 .mode(NoiseSensitivityMetric.NoiseSensitivityMode.RELEVANT)
                 .build();
 
-NoiseSensitivityMetric metric = new NoiseSensitivityMetric(chatClient);
+NoiseSensitivityMetric metric = NoiseSensitivityMetric.builder()
+        .chatClient(chatClient)
+        .build();
 Double score = metric.singleTurnScore(config, sample);
 // Result: ~0.1 (low sensitivity, good robustness)
 ```
@@ -460,7 +470,10 @@ Sample completeSample = Sample.builder()
 ResponseRelevancyMetric.ResponseRelevancyConfig config = 
         ResponseRelevancyMetric.ResponseRelevancyConfig.defaultConfig();
 
-ResponseRelevancyMetric metric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+ResponseRelevancyMetric metric = ResponseRelevancyMetric.builder()
+        .chatClient(chatClient)
+        .embeddingModel(embeddingModel)
+        .build();
 Double score = metric.singleTurnScore(config, completeSample);
 // Result: ~0.95 (high relevance, complete answer)
 
@@ -770,35 +783,48 @@ public class RAGEvaluationPipeline {
 
     public RAGEvaluationResult evaluateRAGSystem(Sample sample) {
         // 1. Entity coverage evaluation
-        ContextEntityRecallMetric entityMetric = new ContextEntityRecallMetric(chatClient);
+        ContextEntityRecallMetric entityMetric = ContextEntityRecallMetric.builder()
+                .chatClient(chatClient)
+                .build();
         Double entityScore = entityMetric.singleTurnScore(
                 ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build(), sample);
 
         // 2. Retrieval precision evaluation
-        ContextPrecisionMetric precisionMetric = new ContextPrecisionMetric(chatClient);
+        ContextPrecisionMetric precisionMetric = ContextPrecisionMetric.builder()
+                .chatClient(chatClient)
+                .build();
         Double precisionScore = precisionMetric.singleTurnScore(
                 ContextPrecisionMetric.ContextPrecisionConfig.builder()
                         .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
                         .build(), sample);
 
         // 3. Information completeness evaluation
-        ContextRecallMetric recallMetric = new ContextRecallMetric(chatClient);
+        ContextRecallMetric recallMetric = ContextRecallMetric.builder()
+                .chatClient(chatClient)
+                .build();
         Double recallScore = recallMetric.singleTurnScore(
                 ContextRecallMetric.ContextRecallConfig.builder().build(), sample);
 
         // 4. Response faithfulness evaluation
-        FaithfulnessMetric faithfulnessMetric = new FaithfulnessMetric(chatClient);
+        FaithfulnessMetric faithfulnessMetric = FaithfulnessMetric.builder()
+                .chatClient(chatClient)
+                .build();
         Double faithfulnessScore = faithfulnessMetric.singleTurnScore(sample);
 
         // 5. Noise sensitivity evaluation
-        NoiseSensitivityMetric sensitivityMetric = new NoiseSensitivityMetric(chatClient);
+        NoiseSensitivityMetric sensitivityMetric = NoiseSensitivityMetric.builder()
+                .chatClient(chatClient)
+                .build();
         Double sensitivityScore = sensitivityMetric.singleTurnScore(
                 NoiseSensitivityMetric.NoiseSensitivityConfig.builder()
                         .mode(NoiseSensitivityMetric.NoiseSensitivityMode.RELEVANT)
                         .build(), sample);
 
         // 6. Response relevance evaluation
-        ResponseRelevancyMetric relevancyMetric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+        ResponseRelevancyMetric relevancyMetric = ResponseRelevancyMetric.builder()
+                .chatClient(chatClient)
+                .embeddingModel(embeddingModel)
+                .build();
         Double relevancyScore = relevancyMetric.singleTurnScore(
                 ResponseRelevancyMetric.ResponseRelevancyConfig.defaultConfig(), sample);
 
@@ -841,8 +867,12 @@ public class RetrievalComparison {
                 .retrievedContexts(semanticContexts).build();
 
         // Compare using multiple metrics
-        ContextRecallMetric recallMetric = new ContextRecallMetric(chatClient);
-        ContextPrecisionMetric precisionMetric = new ContextPrecisionMetric(chatClient);
+        ContextRecallMetric recallMetric = ContextRecallMetric.builder()
+                .chatClient(chatClient)
+                .build();
+        ContextPrecisionMetric precisionMetric = ContextPrecisionMetric.builder()
+                .chatClient(chatClient)
+                .build();
 
         // Evaluate both strategies
         Map<String, Double> strategyAScores = Map.of(
@@ -885,7 +915,9 @@ public class DomainSpecificEvaluation {
                 .build();
 
         // Focus on entity coverage for tourism
-        ContextEntityRecallMetric entityMetric = new ContextEntityRecallMetric(chatClient);
+        ContextEntityRecallMetric entityMetric = ContextEntityRecallMetric.builder()
+                .chatClient(chatClient)
+                .build();
         Double entityScore = entityMetric.singleTurnScore(
                 ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build(),
                 tourismSample);
@@ -902,7 +934,10 @@ public class ChatbotEvaluation {
     
     // Evaluate chatbot response relevance
     public void evaluateChatbotResponses() {
-        ResponseRelevancyMetric relevancyMetric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+        ResponseRelevancyMetric relevancyMetric = ResponseRelevancyMetric.builder()
+                .chatClient(chatClient)
+                .embeddingModel(embeddingModel)
+                .build();
         
         // Test 1: Complete relevant answer
         Sample fullAnswerSample = Sample.builder()
@@ -962,7 +997,10 @@ public class ChatbotEvaluation {
     
     // Evaluation with custom configuration
     public void evaluateWithCustomConfig() {
-        ResponseRelevancyMetric relevancyMetric = new ResponseRelevancyMetric(chatClient, embeddingModel);
+        ResponseRelevancyMetric relevancyMetric = ResponseRelevancyMetric.builder()
+                .chatClient(chatClient)
+                .embeddingModel(embeddingModel)
+                .build();
         
         Sample sample = Sample.builder()
             .userInput("Explain what machine learning is")

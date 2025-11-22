@@ -4,6 +4,8 @@ import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -14,34 +16,37 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * AspectCritic Metric - Binary evaluation based on predefined aspects
  * Updated to use structured output with inner DTO
  */
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class AspectCriticMetric {
+    public static final String DEFAULT_PROMPT_TEMPLATE =
+            """
+                    Given a user input and an AI response, evaluate whether the response meets the specified criteria.
+
+                    Criteria: {definition}
+
+                    User Input: {user_input}
+
+                    AI Response: {response}
+
+                    Instructions:
+                    1. Carefully analyze the AI response against the given criteria
+                    2. Consider the context provided by the user input
+                    3. Apply a strictness level of {strictness} (1=lenient, 5=very strict)
+                    4. Provide your evaluation with the criteria, verdict (true/false), and detailed reasoning
+
+                    Respond with a JSON object containing:
+                    - criteria: The evaluation criteria being applied
+                    - verdict: true if the response meets the criteria, false otherwise
+                    - reasoning: Your detailed explanation for the verdict
+                    """;
+
+    @NonNull
     private final ChatClient chatClient;
-    private final String promptTemplate;
 
-    public AspectCriticMetric(final ChatClient chatClient) {
-        this.chatClient = chatClient;
-        this.promptTemplate =
-                """
-                        Given a user input and an AI response, evaluate whether the response meets the specified criteria.
-
-                        Criteria: {definition}
-
-                        User Input: {user_input}
-
-                        AI Response: {response}
-
-                        Instructions:
-                        1. Carefully analyze the AI response against the given criteria
-                        2. Consider the context provided by the user input
-                        3. Apply a strictness level of {strictness} (1=lenient, 5=very strict)
-                        4. Provide your evaluation with the criteria, verdict (true/false), and detailed reasoning
-
-                        Respond with a JSON object containing:
-                        - criteria: The evaluation criteria being applied
-                        - verdict: true if the response meets the criteria, false otherwise
-                        - reasoning: Your detailed explanation for the verdict
-                        """;
-    }
+    @NonNull
+    @Builder.Default
+    private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
     public Double singleTurnScore(final AspectCriticConfig config, final Sample sample) {
         return chatClient

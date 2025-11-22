@@ -4,6 +4,8 @@ import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -14,35 +16,38 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * SimpleCriteriaScore Metric - Continuous scoring based on simple criteria
  * Updated to use structured output with inner DTO and stateless design
  */
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class SimpleCriteriaScoreMetric {
+    public static final String DEFAULT_PROMPT_TEMPLATE =
+            """
+            Evaluate the AI response based on the given criteria and score it accordingly.
+
+            Evaluation Criteria: {definition}
+
+            User Input: {user_input}
+            AI Response: {response}
+            Reference Answer: {reference}
+
+            Instructions:
+            1. Compare the AI response with the reference answer
+            2. Evaluate based on the specified criteria: {definition}
+            3. Provide a score between {min_score} and {max_score}
+            4. Higher scores indicate better alignment with the criteria
+            5. Provide detailed reasoning for your score
+
+            Respond with a JSON object containing:
+            - criteria: The evaluation criteria being applied
+            - score: A numerical score between {min_score} and {max_score}
+            - reasoning: Your detailed explanation for the score
+            """;
+
+    @NonNull
     private final ChatClient chatClient;
-    private final String promptTemplate;
 
-    public SimpleCriteriaScoreMetric(final ChatClient chatClient) {
-        this.chatClient = chatClient;
-        this.promptTemplate =
-                """
-                Evaluate the AI response based on the given criteria and score it accordingly.
-
-                Evaluation Criteria: {definition}
-
-                User Input: {user_input}
-                AI Response: {response}
-                Reference Answer: {reference}
-
-                Instructions:
-                1. Compare the AI response with the reference answer
-                2. Evaluate based on the specified criteria: {definition}
-                3. Provide a score between {min_score} and {max_score}
-                4. Higher scores indicate better alignment with the criteria
-                5. Provide detailed reasoning for your score
-
-                Respond with a JSON object containing:
-                - criteria: The evaluation criteria being applied
-                - score: A numerical score between {min_score} and {max_score}
-                - reasoning: Your detailed explanation for the score
-                """;
-    }
+    @NonNull
+    @Builder.Default
+    private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
     public Double singleTurnScore(final SimpleCriteriaConfig config, final Sample sample) {
         return chatClient

@@ -17,47 +17,66 @@ public class RagEvalAutoConfiguration {
 
     @Bean
     public AspectCriticMetric aspectCriticMetric(final ChatClient.Builder chatClientBuilder) {
-        return new AspectCriticMetric(chatClientBuilder.build());
+        return AspectCriticMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public SimpleCriteriaScoreMetric simpleCriteriaScoreMetric(final ChatClient.Builder chatClientBuilder) {
-        return new SimpleCriteriaScoreMetric(chatClientBuilder.build());
+        return SimpleCriteriaScoreMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public RubricsScoreMetric rubricsScoreMetric(final ChatClient.Builder chatClientBuilder) {
-        return new RubricsScoreMetric(chatClientBuilder.build());
+        return RubricsScoreMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public ContextPrecisionMetric contextPrecisionMetric(final ChatClient.Builder chatClientBuilder) {
-        return new ContextPrecisionMetric(chatClientBuilder.build());
+        return ContextPrecisionMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public ContextRecallMetric contextRecallMetric(final ChatClient.Builder chatClientBuilder) {
-        return new ContextRecallMetric(chatClientBuilder.build());
+        return ContextRecallMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public ContextEntityRecallMetric contextEntityRecallMetric(final ChatClient.Builder chatClientBuilder) {
-        return new ContextEntityRecallMetric(chatClientBuilder.build());
+        return ContextEntityRecallMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public NoiseSensitivityMetric noiseSensitivityMetric(final ChatClient.Builder chatClientBuilder) {
-        return new NoiseSensitivityMetric(chatClientBuilder.build());
+        return NoiseSensitivityMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public FaithfulnessMetric faithfulnessMetric(final ChatClient.Builder chatClientBuilder) {
-        return new FaithfulnessMetric(chatClientBuilder.build());
+        return FaithfulnessMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .build();
     }
 
     @Bean
     public ResponseRelevancyMetric responseRelevancyMetric(
             final ChatClient.Builder chatClientBuilder, final List<EmbeddingModel> embeddingModels) {
-        return new ResponseRelevancyMetric(chatClientBuilder.build(), embeddingModels.get(0));
+        return ResponseRelevancyMetric.builder()
+                .chatClient(chatClientBuilder.build())
+                .embeddingModel(embeddingModels.get(0))
+                .build();
     }
 }

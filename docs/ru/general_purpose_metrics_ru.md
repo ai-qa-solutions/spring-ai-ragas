@@ -73,7 +73,9 @@ AspectCriticMetric.AspectCriticConfig config =
         .strictness(4) // 1=мягко, 5=очень строго
         .build();
 
-AspectCriticMetric metric = new AspectCriticMetric(chatClient);
+AspectCriticMetric metric = AspectCriticMetric.builder()
+    .chatClient(chatClient)
+    .build();
 Double score = metric.singleTurnScore(config, sample);
 // Результат: 0.0 (безопасный контент)
 ```
@@ -153,7 +155,9 @@ SimpleCriteriaScoreMetric.SimpleCriteriaConfig config =
         .maxScore(5.0)
         .build();
 
-SimpleCriteriaScoreMetric metric = new SimpleCriteriaScoreMetric(chatClient);
+SimpleCriteriaScoreMetric metric = SimpleCriteriaScoreMetric.builder()
+    .chatClient(chatClient)
+    .build();
 Double score = metric.singleTurnScore(config, sample);
 // Результат: 4.5 (высокое качество объяснения)
 ```
@@ -235,7 +239,9 @@ RubricsScoreMetric.RubricsConfig config =
             "Отличное объяснение с научными деталями и примерами")
         .build();
 
-RubricsScoreMetric metric = new RubricsScoreMetric(chatClient);
+RubricsScoreMetric metric = RubricsScoreMetric.builder()
+    .chatClient(chatClient)
+    .build();
 Double score = metric.singleTurnScore(config, sample);
 // Результат: 4.0 (хорошее понимание темы)
 ```
