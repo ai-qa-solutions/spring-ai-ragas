@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.retrieval;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
@@ -22,7 +23,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 @Slf4j
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ContextPrecisionMetric {
+public class ContextPrecisionMetric implements Metric<ContextPrecisionMetric.ContextPrecisionConfig> {
     public static final String DEFAULT_WITH_REFERENCE_PROMPT =
             """
             Given a user query, reference answer, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the reference answer.
@@ -177,7 +178,7 @@ public class ContextPrecisionMetric {
 
     @Data
     @Builder
-    public static class ContextPrecisionConfig {
+    public static class ContextPrecisionConfig implements MetricConfiguration {
         /**
          * Evaluation strategy for LLM-based evaluation
          * If null, will auto-detect based on available data (reference preferred over response)

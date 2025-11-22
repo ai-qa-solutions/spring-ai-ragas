@@ -6,10 +6,14 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Base interface for all metrics
  */
-public interface Metric {
-    String getName();
+public interface Metric<T extends Metric.MetricConfiguration> {
+    default String getName() {
+        return getClass().getSimpleName();
+    }
 
-    Double score(Sample sample);
+    Double singleTurnScore(T metricConfiguration, Sample sample);
 
-    CompletableFuture<Double> scoreAsync(Sample sample);
+    CompletableFuture<Double> singleTurnScoreAsync(T metricConfiguration, Sample sample);
+
+    interface MetricConfiguration {}
 }

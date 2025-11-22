@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.general;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.Map;
@@ -18,7 +19,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  */
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class SimpleCriteriaScoreMetric {
+public class SimpleCriteriaScoreMetric implements Metric<SimpleCriteriaScoreMetric.SimpleCriteriaConfig> {
     public static final String DEFAULT_PROMPT_TEMPLATE =
             """
             Evaluate the AI response based on the given criteria and score it accordingly.
@@ -89,7 +90,7 @@ public class SimpleCriteriaScoreMetric {
 
     @Data
     @Builder
-    public static class SimpleCriteriaConfig {
+    public static class SimpleCriteriaConfig implements MetricConfiguration {
         @NonNull
         private String definition;
 

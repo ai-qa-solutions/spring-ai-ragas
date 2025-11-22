@@ -8,7 +8,7 @@ spring:
         max-interval: 30000ms
         multiplier: 2
     model: # выбор api стартера для работы - openai / gigachat
-      chat: gigachat
+      chat: openai
     gigachat: # параметры подключения к gigachat api
       auth:
         unsafe-ssl: true

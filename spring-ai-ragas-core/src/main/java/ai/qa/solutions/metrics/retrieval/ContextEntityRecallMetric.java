@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.retrieval;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.HashSet;
@@ -26,7 +27,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 @Slf4j
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ContextEntityRecallMetric {
+public class ContextEntityRecallMetric implements Metric<ContextEntityRecallMetric.ContextEntityRecallConfig> {
     public static final String DEFAULT_ENTITY_EXTRACTION_PROMPT =
             """
                     Given a text, extract unique entities without repetition. Ensure you consider different forms or mentions of the same entity as a single entity.
@@ -161,5 +162,5 @@ public class ContextEntityRecallMetric {
 
     @Data
     @Builder
-    public static class ContextEntityRecallConfig {}
+    public static class ContextEntityRecallConfig implements MetricConfiguration {}
 }

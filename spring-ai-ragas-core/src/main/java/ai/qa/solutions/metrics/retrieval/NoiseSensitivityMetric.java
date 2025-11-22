@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.retrieval;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
@@ -25,7 +26,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 @Slf4j
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class NoiseSensitivityMetric {
+public class NoiseSensitivityMetric implements Metric<NoiseSensitivityMetric.NoiseSensitivityConfig> {
     public static final String DEFAULT_SYSTEM_PROMPT =
             """
             You are a context-only evaluation system with NO access to external knowledge.
@@ -450,7 +451,7 @@ public class NoiseSensitivityMetric {
 
     @Data
     @Builder
-    public static class NoiseSensitivityConfig {
+    public static class NoiseSensitivityConfig implements MetricConfiguration {
         /**
          * Evaluation mode for noise sensitivity
          * RELEVANT: measures errors from relevant contexts

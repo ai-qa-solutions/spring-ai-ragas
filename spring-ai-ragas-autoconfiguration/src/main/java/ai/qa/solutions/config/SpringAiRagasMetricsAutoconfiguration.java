@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(RagEvalProperties.class)
-public class RagEvalAutoConfiguration {
+@EnableConfigurationProperties(SpringAiRagasMetricsProperties.class)
+public class SpringAiRagasMetricsAutoconfiguration {
 
     @Bean
     public AspectCriticMetric aspectCriticMetric(final ChatClient.Builder chatClientBuilder) {

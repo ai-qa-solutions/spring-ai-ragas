@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.retrieval;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
@@ -21,7 +22,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 @Slf4j
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ContextRecallMetric {
+public class ContextRecallMetric implements Metric<ContextRecallMetric.ContextRecallConfig> {
     public static final String DEFAULT_CONTEXT_RECALL_PROMPT =
             """
                     Given a question, context, and a reference answer, analyze each sentence in the reference answer and classify if the sentence can be attributed to the given context or not. Use only 'Yes' (1) or 'No' (0) as a binary classification.
@@ -143,5 +144,5 @@ public class ContextRecallMetric {
 
     @Data
     @Builder
-    public static class ContextRecallConfig {}
+    public static class ContextRecallConfig implements MetricConfiguration {}
 }

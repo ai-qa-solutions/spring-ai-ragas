@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.retrieval;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
@@ -21,7 +22,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 @Slf4j
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class FaithfulnessMetric {
+public class FaithfulnessMetric implements Metric<FaithfulnessMetric.FaithfulnessConfig> {
     public static final String DEFAULT_STATEMENT_GENERATOR_TEMPLATE =
             """
                     Given a question and an answer, analyze the complexity of each sentence in the answer.
@@ -214,7 +215,7 @@ public class FaithfulnessMetric {
 
     @Data
     @Builder
-    public static class FaithfulnessConfig {
+    public static class FaithfulnessConfig implements MetricConfiguration {
         // Placeholder for future configuration options
         // Can be extended with parameters like:
         // - Custom prompts

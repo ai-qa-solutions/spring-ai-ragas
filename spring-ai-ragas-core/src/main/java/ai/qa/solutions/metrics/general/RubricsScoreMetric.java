@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.general;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.Map;
@@ -19,7 +20,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  */
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class RubricsScoreMetric {
+public class RubricsScoreMetric implements Metric<RubricsScoreMetric.RubricsConfig> {
     public static final String DEFAULT_PROMPT_TEMPLATE =
             """
             Evaluate the AI response using the provided detailed rubrics.
@@ -111,7 +112,7 @@ public class RubricsScoreMetric {
 
     @Data
     @Builder
-    public static class RubricsConfig {
+    public static class RubricsConfig implements MetricConfiguration {
         @NonNull
         @Singular
         private Map<String, String> rubrics;

@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.general;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.Map;
@@ -18,7 +19,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  */
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class AspectCriticMetric {
+public class AspectCriticMetric implements Metric<AspectCriticMetric.AspectCriticConfig> {
     public static final String DEFAULT_PROMPT_TEMPLATE =
             """
                     Given a user input and an AI response, evaluate whether the response meets the specified criteria.
@@ -68,7 +69,7 @@ public class AspectCriticMetric {
                 .getScore();
     }
 
-    public CompletableFuture<Double> singleTurnScoreAsync(AspectCriticConfig config, Sample sample) {
+    public CompletableFuture<Double> singleTurnScoreAsync(final AspectCriticConfig config, Sample sample) {
         return CompletableFuture.supplyAsync(() -> singleTurnScore(config, sample));
     }
 
@@ -89,7 +90,7 @@ public class AspectCriticMetric {
 
     @Data
     @Builder
-    public static class AspectCriticConfig {
+    public static class AspectCriticConfig implements MetricConfiguration {
         @NonNull
         private String definition;
 

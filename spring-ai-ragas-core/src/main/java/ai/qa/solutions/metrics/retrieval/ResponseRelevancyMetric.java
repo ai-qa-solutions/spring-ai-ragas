@@ -1,5 +1,6 @@
 package ai.qa.solutions.metrics.retrieval;
 
+import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
@@ -78,7 +79,7 @@ import org.springframework.ai.embedding.EmbeddingResponse;
 @Getter
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ResponseRelevancyMetric {
+public class ResponseRelevancyMetric implements Metric<ResponseRelevancyMetric.ResponseRelevancyConfig> {
 
     /**
      * Default prompt template for generating questions from response.
@@ -555,7 +556,7 @@ public class ResponseRelevancyMetric {
      */
     @Data
     @Builder
-    public static class ResponseRelevancyConfig {
+    public static class ResponseRelevancyConfig implements MetricConfiguration {
         /**
          * Number of artificial questions to generate from the response for similarity comparison.
          * <p>
