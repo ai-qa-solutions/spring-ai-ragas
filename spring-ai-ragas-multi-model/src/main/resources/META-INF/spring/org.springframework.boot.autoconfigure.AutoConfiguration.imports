@@ -1,2 +1,3 @@
 ai.qa.solutions.chatclient.ChatClientAutoConfiguration
 ai.qa.solutions.embedding.EmbeddingModelAutoConfiguration
+ai.qa.solutions.execution.MultiModelExecutorAutoconfiguration

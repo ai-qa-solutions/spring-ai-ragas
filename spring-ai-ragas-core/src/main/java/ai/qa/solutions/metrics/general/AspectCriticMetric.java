@@ -1,8 +1,11 @@
 package ai.qa.solutions.metrics.general;
 
+import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.MultiModelExecutor.ExecutionRequest;
 import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.AccessLevel;
@@ -10,16 +13,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import org.springframework.ai.chat.client.ChatClient;
+import lombok.Singular;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 
 /**
- * AspectCritic Metric - Binary evaluation based on predefined aspects
- * Updated to use structured output with inner DTO
+ * AspectCritic Metric - Binary evaluation based on predefined aspects.
+ * <p>
+ * Uses {@link MultiModelExecutor} for parallel execution across multiple models
+ * with support for listeners and custom aggregation strategies.
  */
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class AspectCriticMetric implements Metric<AspectCriticMetric.AspectCriticConfig> {
+
     public static final String DEFAULT_PROMPT_TEMPLATE =
             """
                     Given a user input and an AI response, evaluate whether the response meets the specified criteria.
@@ -42,16 +48,33 @@ public class AspectCriticMetric implements Metric<AspectCriticMetric.AspectCriti
                     - reasoning: Your detailed explanation for the verdict
                     """;
 
-    @NonNull
-    private final ChatClient chatClient;
-
-    @NonNull
     @Builder.Default
     private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
+    private final MultiModelExecutor executor;
+
+    @Override
     public Double singleTurnScore(final AspectCriticConfig config, final Sample sample) {
-        // Build prompt
-        String prompt = PromptTemplate.builder()
+        return singleTurnScoreAsync(config, sample).join();
+    }
+
+    @Override
+    public CompletableFuture<Double> singleTurnScoreAsync(final AspectCriticConfig config, final Sample sample) {
+        final String prompt = renderPrompt(config, sample);
+
+        return executor.execute(ExecutionRequest.<Response>builder()
+                .metricName(getName())
+                .prompt(prompt)
+                .responseType(Response.class)
+                .scoreExtractor(Response::getScore)
+                .metadata(Map.of(
+                        "sample", sample,
+                        "config", config))
+                .build());
+    }
+
+    private String renderPrompt(final AspectCriticConfig config, final Sample sample) {
+        return PromptTemplate.builder()
                 .template(this.promptTemplate)
                 .variables(Map.of(
                         "definition",
@@ -64,15 +87,6 @@ public class AspectCriticMetric implements Metric<AspectCriticMetric.AspectCriti
                         sample.getResponse()))
                 .build()
                 .render();
-
-        // Call LLM
-        Response response = chatClient.prompt(prompt).call().entity(Response.class);
-
-        return response.getScore();
-    }
-
-    public CompletableFuture<Double> singleTurnScoreAsync(final AspectCriticConfig config, Sample sample) {
-        return CompletableFuture.supplyAsync(() -> singleTurnScore(config, sample));
     }
 
     /**
@@ -93,6 +107,9 @@ public class AspectCriticMetric implements Metric<AspectCriticMetric.AspectCriti
     @Data
     @Builder
     public static class AspectCriticConfig implements MetricConfiguration {
+        @Singular
+        private List<String> models;
+
         @NonNull
         private String definition;
 

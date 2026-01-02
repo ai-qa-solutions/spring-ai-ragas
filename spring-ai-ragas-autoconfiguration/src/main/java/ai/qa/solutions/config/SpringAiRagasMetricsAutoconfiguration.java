@@ -1,5 +1,6 @@
 package ai.qa.solutions.config;
 
+import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.metrics.general.AspectCriticMetric;
 import ai.qa.solutions.metrics.general.RubricsScoreMetric;
 import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
@@ -21,10 +22,8 @@ import org.springframework.context.annotation.Configuration;
 public class SpringAiRagasMetricsAutoconfiguration {
 
     @Bean
-    public AspectCriticMetric aspectCriticMetric(final ChatClient.Builder chatClientBuilder) {
-        return AspectCriticMetric.builder()
-                .chatClient(chatClientBuilder.build())
-                .build();
+    public AspectCriticMetric aspectCriticMetric(final MultiModelExecutor executor) {
+        return AspectCriticMetric.builder().executor(executor).build();
     }
 
     @Bean

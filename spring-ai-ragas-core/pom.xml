@@ -20,6 +20,11 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.github.ai-qa-solutions</groupId>
+            <artifactId>spring-ai-ragas-multi-model</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
