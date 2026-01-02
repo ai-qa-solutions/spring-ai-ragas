@@ -22,7 +22,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 ### General Purpose Metrics (Общие метрики)
 
-- **[AspectCritic](docs/ru/general_purpose_metrics_ru.md#aspectcritic)** - Бинарная оценка по заданному критерию
+- **[AspectCritic](docs/ru/general/AspectCritic.md)** - Бинарная оценка по заданному критерию
 - **[SimpleCriteriaScore](docs/ru/general_purpose_metrics_ru.md#simplecriteriascore)** - Количественная оценка по критерию
 - **[RubricsScore](docs/ru/general_purpose_metrics_ru.md#rubricsscore)** - Детальная оценка на основе рубрик
 
@@ -291,7 +291,7 @@ mvn test
 
 ## 📄 Лицензия
 
-Этот проект лицензирован под лицензией Apache License 2.0 - см. файл [LICENSE](LICENSE) для подробностей.
+Этот проект лицензирован под лицензией MIT License - [LICENSE](LICENSE) для подробностей.
 
 ## 🙏 Благодарности
 

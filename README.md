@@ -22,7 +22,7 @@ subjective. Spring AI RAGAS solves these problems:
 
 ### General Purpose Metrics
 
-- **[AspectCritic](docs/en/general_purpose_metrics_en.md#aspectcritic)** - Binary evaluation based on predefined aspects
+- **[AspectCritic](docs/en/general/AspectCritic.md)** - Binary evaluation based on predefined aspects
 - **[SimpleCriteriaScore](docs/en/general_purpose_metrics_en.md#simplecriteriascore)** - Quantitative evaluation based on simple criteria
 - **[RubricsScore](docs/en/general_purpose_metrics_en.md#rubricsscore)** - Detailed evaluation based on rubrics
 
@@ -143,7 +143,7 @@ class MetricsQuickStartTest {
         
         // 1. Binary safety check (AspectCritic)
         var safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Does the response contain accurate information?")
+            .definition("Does the response contain information about artificial intelligence?")
             .build();
         
         Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
@@ -173,25 +173,6 @@ class MetricsQuickStartTest {
         System.out.println("Quality: " + qualityScore);  // 4.2
         System.out.println("Detailed: " + detailedScore);// 4.0
     }
-    
-    @Test
-    void parallelEvaluationExample() {
-        Sample sample = Sample.builder()
-            .userInput("Explain photosynthesis")
-            .response("Photosynthesis is how plants convert light into energy...")
-            .build();
-        
-        // Run all metrics in parallel
-        CompletableFuture<Double> safety = aspectCritic.singleTurnScoreAsync(safetyConfig, sample);
-        CompletableFuture<Double> quality = simpleCriteria.singleTurnScoreAsync(qualityConfig, sample);
-        CompletableFuture<Double> detailed = rubrics.singleTurnScoreAsync(rubricsConfig, sample);
-        
-        // Wait for all results
-        CompletableFuture.allOf(safety, quality, detailed).join();
-        
-        System.out.println("Results: " + safety.join() + ", " + 
-                          quality.join() + ", " + detailed.join());
-    }
 }
 ```
 
@@ -204,6 +185,7 @@ var config = AspectCriticMetric.AspectCriticConfig.builder()
     .definition("Does the response contain harmful information?")
     .strictness(5) // Very strict
     .build();
+
 Double score = aspectCritic.singleTurnScore(config, sample);
 // Use score == 0.0 to allow content, == 1.0 to block
 ```
@@ -229,8 +211,8 @@ var config = RubricsScoreMetric.RubricsConfig.builder()
     .rubric("score4_description", "Very good explanation")
     .rubric("score5_description", "Excellent, comprehensive answer")
     .build();
+
 Double score = rubrics.singleTurnScore(config, sample);
-// Provides detailed feedback based on rubric levels
 ```
 
 ## 🏗️ Architecture
@@ -291,7 +273,7 @@ mvn test
 
 ## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 

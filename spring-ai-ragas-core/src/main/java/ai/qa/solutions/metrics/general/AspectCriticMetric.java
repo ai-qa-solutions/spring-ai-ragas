@@ -50,23 +50,25 @@ public class AspectCriticMetric implements Metric<AspectCriticMetric.AspectCriti
     private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
     public Double singleTurnScore(final AspectCriticConfig config, final Sample sample) {
-        return chatClient
-                .prompt(PromptTemplate.builder()
-                        .template(this.promptTemplate)
-                        .variables(Map.of(
-                                "definition",
-                                config.definition,
-                                "strictness",
-                                config.strictness,
-                                "user_input",
-                                sample.getUserInput(),
-                                "response",
-                                sample.getResponse()))
-                        .build()
-                        .create())
-                .call()
-                .entity(Response.class)
-                .getScore();
+        // Build prompt
+        String prompt = PromptTemplate.builder()
+                .template(this.promptTemplate)
+                .variables(Map.of(
+                        "definition",
+                        config.definition,
+                        "strictness",
+                        config.strictness,
+                        "user_input",
+                        sample.getUserInput(),
+                        "response",
+                        sample.getResponse()))
+                .build()
+                .render();
+
+        // Call LLM
+        Response response = chatClient.prompt(prompt).call().entity(Response.class);
+
+        return response.getScore();
     }
 
     public CompletableFuture<Double> singleTurnScoreAsync(final AspectCriticConfig config, Sample sample) {

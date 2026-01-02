@@ -1,0 +1,2 @@
+ai.qa.solutions.chatclient.ChatClientAutoConfiguration
+ai.qa.solutions.embedding.EmbeddingModelAutoConfiguration

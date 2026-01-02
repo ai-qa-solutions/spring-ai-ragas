@@ -106,6 +106,7 @@ public class ContextEntityRecallMetric implements Metric<ContextEntityRecallMetr
         return CompletableFuture.supplyAsync(() -> singleTurnScore(config, sample));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private Set<String> extractEntities(String text) {
         final Map<String, Object> variables = Map.of("text", text);
 

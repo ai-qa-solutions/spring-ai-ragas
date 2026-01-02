@@ -51,6 +51,7 @@ public class RubricsScoreMetric implements Metric<RubricsScoreMetric.RubricsConf
     @Builder.Default
     private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
+    @SuppressWarnings("DataFlowIssue")
     public Double singleTurnScore(final RubricsConfig config, final Sample sample) {
         return chatClient
                 .prompt(PromptTemplate.builder()
@@ -76,7 +77,7 @@ public class RubricsScoreMetric implements Metric<RubricsScoreMetric.RubricsConf
             throw new IllegalStateException("Rubrics must be provided");
         }
 
-        StringBuilder rubricsText = new StringBuilder();
+        final StringBuilder rubricsText = new StringBuilder();
         rubrics.entrySet().stream()
                 .sorted(Map.Entry.<String, String>comparingByKey())
                 .forEach(entry -> {

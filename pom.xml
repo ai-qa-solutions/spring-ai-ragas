@@ -32,7 +32,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version>
+        <version>3.5.7</version>
         <relativePath/>
     </parent>
 
@@ -45,6 +45,7 @@
         <module>spring-ai-ragas-core</module>
         <module>spring-ai-ragas-autoconfiguration</module>
         <module>spring-ai-ragas-spring-boot-starter</module>
+        <module>spring-ai-ragas-multi-model</module>
     </modules>
 
     <properties>
@@ -76,6 +77,12 @@
                 <artifactId>spring-ai-ragas-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.github.ai-qa-solutions</groupId>
+                <artifactId>spring-ai-ragas-multi-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>chat.giga</groupId>
                 <artifactId>spring-ai-starter-model-gigachat</artifactId>
@@ -170,10 +177,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.3</version>
                 <configuration>
                     <testFailureIgnore>false</testFailureIgnore>
                     <argLine>
+                        -XX:+EnableDynamicAgentLoading
                         -Dfile.encoding=${project.build.sourceEncoding}
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                     </argLine>

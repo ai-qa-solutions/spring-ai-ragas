@@ -119,6 +119,7 @@ public class ContextPrecisionMetric implements Metric<ContextPrecisionMetric.Con
         return EvaluationStrategy.RESPONSE_BASED;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private Boolean isContextRelevant(EvaluationStrategy strategy, Sample sample, String contextChunk) {
         final String template =
                 strategy == EvaluationStrategy.REFERENCE_BASED ? this.withReferencePrompt : this.withoutReferencePrompt;

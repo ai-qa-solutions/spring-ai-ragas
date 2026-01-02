@@ -216,6 +216,7 @@ public class NoiseSensitivityMetric implements Metric<NoiseSensitivityMetric.Noi
                 : List.of();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private FaithfulnessResults evaluateStatementFaithfulness(
             List<String> referenceStatements,
             List<String> responseStatements,
@@ -309,6 +310,7 @@ public class NoiseSensitivityMetric implements Metric<NoiseSensitivityMetric.Noi
         return results;
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private Double calculateNoiseSensitivity(FaithfulnessResults results, NoiseSensitivityMode mode) {
         boolean[][] groundTruthToAnswer = results.groundTruthToAnswer();
         boolean[][] retrievedToGroundTruth = results.retrievedToGroundTruth();
@@ -338,8 +340,8 @@ public class NoiseSensitivityMetric implements Metric<NoiseSensitivityMetric.Noi
         boolean[] relevantRetrieved = new boolean[numContexts];
         for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
             boolean hasRelevantStatement = false;
-            for (int gtStatementIdx = 0; gtStatementIdx < retrievedToGroundTruth.length; gtStatementIdx++) {
-                if (retrievedToGroundTruth[gtStatementIdx][contextIdx]) {
+            for (boolean[] booleans : retrievedToGroundTruth) {
+                if (booleans[contextIdx]) {
                     hasRelevantStatement = true;
                     break;
                 }

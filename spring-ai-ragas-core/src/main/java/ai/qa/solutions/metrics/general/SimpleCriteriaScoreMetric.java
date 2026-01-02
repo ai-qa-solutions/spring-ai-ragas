@@ -50,6 +50,7 @@ public class SimpleCriteriaScoreMetric implements Metric<SimpleCriteriaScoreMetr
     @Builder.Default
     private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
+    @SuppressWarnings("DataFlowIssue")
     public Double singleTurnScore(final SimpleCriteriaConfig config, final Sample sample) {
         return chatClient
                 .prompt(PromptTemplate.builder()
