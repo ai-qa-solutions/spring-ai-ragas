@@ -221,6 +221,132 @@ class EnRubricsScoreMetricIntegrationTest {
         assertTrue(scoreWithAllModels >= 1.0 && scoreWithAllModels <= 5.0, "Score should be valid (1-5 range)");
     }
 
+    @Test
+    @DisplayName("RubricsScore: Customer Support RAG - Response quality evaluation")
+    void testRubricsScore_CustomerSupportRAG() {
+        log.info("=== RubricsScore: Customer Support RAG ===");
+
+        // Excellent support response
+        Sample excellentSupport = Sample.builder()
+                .userInput("I can't log into my account. It keeps saying 'invalid credentials'.")
+                .response("I understand how frustrating this must be. Let's resolve your login issue together. "
+                        + "First, try resetting your password using the 'Forgot Password?' link on the login page. "
+                        + "If that doesn't help, check if Caps Lock is on and try clearing your browser cache and cookies. "
+                        + "If the problem persists, our technical support team can verify your account status - "
+                        + "please contact us at support@company.com or call 1-800-555-1234. We're here to help!")
+                .reference("Password reset: use 'Forgot Password?' link. Check Caps Lock. "
+                        + "Clear cache/cookies. Contact support@company.com if issue persists.")
+                .build();
+
+        // Poor support response
+        Sample poorSupport = Sample.builder()
+                .userInput("I can't log into my account. It keeps saying 'invalid credentials'.")
+                .response("You probably entered the wrong password. Try again.")
+                .reference("Password reset: use 'Forgot Password?' link. Check Caps Lock. "
+                        + "Clear cache/cookies. Contact support@company.com if issue persists.")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createCustomerSupportRubrics())
+                .build();
+
+        Double excellentScore = rubricsScoreMetric.singleTurnScore(config, excellentSupport);
+        Double poorScore = rubricsScoreMetric.singleTurnScore(config, poorSupport);
+
+        log.info("Excellent support response score: {}", excellentScore);
+        log.info("Poor support response score: {}", poorScore);
+
+        assertTrue(excellentScore >= 4.0, "Empathetic and complete support response should score high");
+        assertTrue(poorScore <= 2.0, "Unhelpful and incomplete support response should score low");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Technical Documentation RAG - Accuracy and completeness")
+    void testRubricsScore_TechnicalDocumentation() {
+        log.info("=== RubricsScore: Technical Documentation RAG ===");
+
+        // Accurate and complete technical answer
+        Sample accurateTechnical = Sample.builder()
+                .userInput("How do I set up Redis caching in Spring Boot 3.x?")
+                .response("To configure Redis caching in Spring Boot 3.x:\n"
+                        + "1. Add dependencies: spring-boot-starter-data-redis and spring-boot-starter-cache\n"
+                        + "2. In application.yml, specify: spring.redis.host=localhost, spring.redis.port=6379\n"
+                        + "3. Enable caching with @EnableCaching annotation on your main class\n"
+                        + "4. Configure RedisCacheManager with TTL: RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10))\n"
+                        + "5. Use annotations @Cacheable, @CacheEvict on your methods\n"
+                        + "Example: @Cacheable(value = \"users\", key = \"#id\")")
+                .reference("Redis in Spring Boot 3: add redis and cache dependencies, configure host/port, "
+                        + "enable @EnableCaching, configure RedisCacheManager with TTL")
+                .build();
+
+        // Incomplete technical answer
+        Sample incompleteTechnical = Sample.builder()
+                .userInput("How do I set up Redis caching in Spring Boot 3.x?")
+                .response("You need to add Redis dependencies and configure Spring Boot. "
+                        + "Then you can use Redis for caching data.")
+                .reference("Redis in Spring Boot 3: add redis and cache dependencies, configure host/port, "
+                        + "enable @EnableCaching, configure RedisCacheManager with TTL")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createTechnicalDocumentationRubrics())
+                .build();
+
+        Double accurateScore = rubricsScoreMetric.singleTurnScore(config, accurateTechnical);
+        Double incompleteScore = rubricsScoreMetric.singleTurnScore(config, incompleteTechnical);
+
+        log.info("Accurate technical answer score: {}", accurateScore);
+        log.info("Incomplete technical answer score: {}", incompleteScore);
+
+        assertTrue(accurateScore >= 4.0, "Detailed technical answer with code examples should score high");
+        assertTrue(incompleteScore <= 2.5, "Vague and incomplete technical answer should score low");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Medical Information RAG - Safety and reliability")
+    void testRubricsScore_MedicalInformation() {
+        log.info("=== RubricsScore: Medical Information RAG ===");
+
+        // Safe and responsible medical information
+        Sample safeMedical = Sample.builder()
+                .userInput("I have a persistent headache for 3 days. What should I do?")
+                .response(
+                        "Persistent headaches lasting several days can have various causes, from tension and dehydration "
+                                + "to more serious conditions. General measures that may help include: staying hydrated, getting adequate rest, "
+                                + "managing stress, and avoiding triggers like bright lights or loud noises. Over-the-counter pain relievers "
+                                + "(following package instructions) may provide temporary relief. However, it's important to consult with "
+                                + "a healthcare professional for proper evaluation, especially if the headache is severe, accompanied by other "
+                                + "symptoms (fever, vision changes, neck stiffness), or doesn't improve. This information is for general "
+                                + "educational purposes only and should not replace professional medical advice.")
+                .reference(
+                        "Persistent headaches: stay hydrated, rest, manage stress. OTC pain relievers may help. "
+                                + "Consult healthcare professional for evaluation, especially if severe or with other symptoms.")
+                .build();
+
+        // Unsafe medical advice
+        Sample unsafeMedical = Sample.builder()
+                .userInput("I have a persistent headache for 3 days. What should I do?")
+                .response("It's just a headache, nothing serious. Take some painkillers and you'll be fine. "
+                        + "If it doesn't go away in a week or two, then maybe see a doctor.")
+                .reference(
+                        "Persistent headaches: stay hydrated, rest, manage stress. OTC pain relievers may help. "
+                                + "Consult healthcare professional for evaluation, especially if severe or with other symptoms.")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createMedicalInformationRubrics())
+                .build();
+
+        Double safeScore = rubricsScoreMetric.singleTurnScore(config, safeMedical);
+        Double unsafeScore = rubricsScoreMetric.singleTurnScore(config, unsafeMedical);
+
+        log.info("Safe medical information score: {}", safeScore);
+        log.info("Unsafe medical advice score: {}", unsafeScore);
+
+        assertTrue(safeScore >= 4.0, "Safe and responsible medical information should score high");
+        assertTrue(unsafeScore <= 2.0, "Unsafe medical advice should score low");
+    }
+
     // ==================== HELPER METHODS ====================
 
     private Map<String, String> createPhotosynthesisRubrics() {
@@ -253,5 +379,47 @@ class EnRubricsScoreMetricIntegrationTest {
                 "Well-structured code with good practices, error handling, and some documentation",
                 "score5_description",
                 "Excellent code with best practices, comprehensive error handling, documentation, and efficiency");
+    }
+
+    private Map<String, String> createCustomerSupportRubrics() {
+        return Map.of(
+                "score1_description",
+                "Rude or dismissive tone, no helpful guidance, ignores customer issue",
+                "score2_description",
+                "Basic acknowledgment but incomplete steps, lacks empathy or alternative contact options",
+                "score3_description",
+                "Polite response with some troubleshooting steps, but missing key information or alternatives",
+                "score4_description",
+                "Empathetic tone, complete troubleshooting steps, clear instructions, provides contact options",
+                "score5_description",
+                "Excellent empathy, comprehensive step-by-step guidance, multiple contact options, professional and supportive tone");
+    }
+
+    private Map<String, String> createTechnicalDocumentationRubrics() {
+        return Map.of(
+                "score1_description",
+                "Incorrect technical information, no concrete steps, missing version details",
+                "score2_description",
+                "Vague guidance with some correct information but lacks specific implementation details",
+                "score3_description",
+                "General technical steps provided, but missing code examples or specific class names",
+                "score4_description",
+                "Accurate technical steps with version numbers, some code examples, proper sequence",
+                "score5_description",
+                "Complete technical accuracy, version-specific details, code examples, class names, correct implementation sequence");
+    }
+
+    private Map<String, String> createMedicalInformationRubrics() {
+        return Map.of(
+                "score1_description",
+                "Dangerous medical advice, dismisses serious symptoms, no healthcare professional recommendation",
+                "score2_description",
+                "Generic suggestions without safety disclaimers or urgency assessment",
+                "score3_description",
+                "Basic health information with some safety notes, but lacks clear professional consultation advice",
+                "score4_description",
+                "Balanced information, identifies when to seek medical help, includes safety disclaimers",
+                "score5_description",
+                "Comprehensive health information, clear urgency assessment, strong professional consultation recommendation, explicit educational disclaimer");
     }
 }
