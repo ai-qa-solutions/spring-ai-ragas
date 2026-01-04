@@ -142,6 +142,9 @@ public class MultiModelExecutor {
      * <p>
      * This variant allows overriding the default aggregator for a specific execution,
      * useful when different metrics require different aggregation approaches.
+     * <p>
+     * If the request contains a custom list of model IDs, only those models will be used.
+     * Otherwise, all models from the {@link ChatClientStore} will be invoked.
      *
      * @param request    execution request containing the prompt and score extraction logic
      * @param aggregator score aggregation strategy to use for this execution
@@ -151,10 +154,25 @@ public class MultiModelExecutor {
      *                               or if all model executions fail
      */
     public <R> CompletableFuture<Double> execute(final ExecutionRequest<R> request, final ScoreAggregator aggregator) {
-        final List<String> modelIds = chatClientStore.getModelIds();
+        // Use custom model list if provided, otherwise use all models from store
+        final List<String> modelIds =
+                (request.getModelIds() != null && !request.getModelIds().isEmpty())
+                        ? request.getModelIds()
+                        : chatClientStore.getModelIds();
+
         if (modelIds.isEmpty()) {
             return CompletableFuture.failedFuture(new IllegalStateException("No models configured in ChatClientStore"));
         }
+
+        // Notify listeners before all executions start
+        final BatchExecutionContext batchContext = BatchExecutionContext.builder()
+                .metricName(request.getMetricName())
+                .prompt(request.getPrompt())
+                .modelIds(modelIds)
+                .metadata(request.getMetadata())
+                .build();
+
+        notifyBeforeAllExecutions(batchContext);
 
         final List<CompletableFuture<ModelExecutionResult>> futures = modelIds.stream()
                 .map(modelId -> executeOnModel(modelId, request))
@@ -194,14 +212,7 @@ public class MultiModelExecutor {
                     final Double score = request.getScoreExtractor().apply(response);
                     return ModelExecutionResult.success(context, score, response);
                 })
-                .exceptionally(ex -> {
-                    log.warn(
-                            "Model {} execution failed for metric {}: {}",
-                            modelId,
-                            request.getMetricName(),
-                            ex.getMessage());
-                    return ModelExecutionResult.failure(context, ex);
-                })
+                .exceptionally(ex -> ModelExecutionResult.failure(context, ex))
                 .whenComplete((result, ex) -> {
                     if (result != null) {
                         notifyAfterExecution(result);
@@ -241,14 +252,6 @@ public class MultiModelExecutor {
 
         final double aggregatedScore = aggregator.aggregate(successfulScores);
 
-        log.info(
-                "Metric {} aggregated from {}/{} models using {}: {}",
-                request.getMetricName(),
-                successfulScores.size(),
-                results.size(),
-                aggregator.getName(),
-                aggregatedScore);
-
         final AggregatedExecutionResult aggregatedResult = AggregatedExecutionResult.builder()
                 .metricName(request.getMetricName())
                 .results(results)
@@ -259,6 +262,27 @@ public class MultiModelExecutor {
         notifyAfterAggregation(aggregatedResult);
 
         return aggregatedScore;
+    }
+
+    /**
+     * Notifies all registered listeners before all model executions start.
+     * <p>
+     * Exceptions from listeners are caught and logged to prevent disruption.
+     *
+     * @param context the batch execution context
+     */
+    private void notifyBeforeAllExecutions(final BatchExecutionContext context) {
+        for (final ModelExecutionListener listener : listeners) {
+            try {
+                listener.beforeAllExecutions(context);
+            } catch (Exception e) {
+                log.error(
+                        "Listener {} failed in beforeAllExecutions: {}",
+                        listener.getClass().getSimpleName(),
+                        e.getMessage(),
+                        e);
+            }
+        }
     }
 
     /**
@@ -375,6 +399,16 @@ public class MultiModelExecutor {
          * to obtain the final metric score.
          */
         Function<R, Double> scoreExtractor;
+
+        /**
+         * Optional list of specific model IDs to execute on.
+         * <p>
+         * If provided and not empty, execution will be limited to only these models.
+         * If null or empty, all models from the {@link ChatClientStore} will be used.
+         * This allows metrics to override the default behavior and execute on a subset of models.
+         */
+        @lombok.Builder.Default
+        List<String> modelIds = List.of();
 
         /**
          * Additional metadata to be passed to execution listeners.

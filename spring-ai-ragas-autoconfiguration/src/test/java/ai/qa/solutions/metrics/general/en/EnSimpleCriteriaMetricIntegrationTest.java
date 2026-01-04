@@ -6,12 +6,7 @@ import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
 import ai.qa.solutions.sample.Sample;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +16,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @SuppressWarnings("LoggingSimilarMessage")
 @DisplayName("Integration tests for general purpose metrics with English examples")
-@SpringBootTest(classes = SimpleCriteriaMetricIntegrationTest.GeneralMetricsIntegrationTestConfiguration.class)
-class SimpleCriteriaMetricIntegrationTest {
+@SpringBootTest(classes = EnSimpleCriteriaMetricIntegrationTest.GeneralMetricsIntegrationTestConfiguration.class)
+class EnSimpleCriteriaMetricIntegrationTest {
 
     @Configuration
     public static class GeneralMetricsIntegrationTestConfiguration {}
@@ -30,19 +25,9 @@ class SimpleCriteriaMetricIntegrationTest {
     @Autowired
     private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
 
-    @Autowired(required = false)
-    private OpenAiApi openAiApi;
-
-    @Autowired
-    private ChatClient.Builder chatClientBuilder;
-
-    @ParameterizedTest
-    @MethodSource("ai.qa.solutions.metrics.ModelsProvider#models")
+    @Test
     @DisplayName("SimpleCriteriaScore: Positive test - high quality response")
-    void testSimpleCriteriaScorePositive_HighQuality(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testSimpleCriteriaScorePositive_HighQuality() {
         log.info("=== SimpleCriteriaScore: Positive test ===");
 
         Sample sample = Sample.builder()
@@ -62,19 +47,7 @@ class SimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        SimpleCriteriaScoreMetric simpleCriteriaScoreMetricWithModel = simpleCriteriaScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, sample);
-
-        log.info("Model: {}", model);
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
         log.info("Question: {}", sample.getUserInput());
         log.info("Response: {}", sample.getResponse());
         log.info("Reference: {}", sample.getReference());
@@ -84,13 +57,9 @@ class SimpleCriteriaMetricIntegrationTest {
         assertTrue(score >= 4.0, "Expected high score for quality explanation, got: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("ai.qa.solutions.metrics.ModelsProvider#models")
+    @Test
     @DisplayName("SimpleCriteriaScore: Negative test - low quality response")
-    void testSimpleCriteriaScoreNegative_PoorQuality(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testSimpleCriteriaScoreNegative_PoorQuality() {
         log.info("=== SimpleCriteriaScore: Negative test ===");
 
         Sample sample = Sample.builder()
@@ -108,19 +77,7 @@ class SimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        SimpleCriteriaScoreMetric simpleCriteriaScoreMetricWithModel = simpleCriteriaScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, sample);
-
-        log.info("Model: {}", model);
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
         log.info("Question: {}", sample.getUserInput());
         log.info("Response: {}", sample.getResponse());
         log.info("Reference: {}", sample.getReference());
@@ -130,13 +87,9 @@ class SimpleCriteriaMetricIntegrationTest {
         assertTrue(score <= 2.5, "Expected low score for superficial answer, got: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("ai.qa.solutions.metrics.ModelsProvider#models")
+    @Test
     @DisplayName("SimpleCriteriaScore: Mathematical accuracy test")
-    void testSimpleCriteriaScore_MathAccuracy(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testSimpleCriteriaScore_MathAccuracy() {
         log.info("=== SimpleCriteriaScore: Mathematical accuracy ===");
 
         // Correct answer
@@ -159,20 +112,8 @@ class SimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        SimpleCriteriaScoreMetric simpleCriteriaScoreMetricWithModel = simpleCriteriaScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double correctScore = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, correctSample);
-        Double incorrectScore = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, incorrectSample);
-
-        log.info("Model: {}", model);
+        Double correctScore = simpleCriteriaScoreMetric.singleTurnScore(config, correctSample);
+        Double incorrectScore = simpleCriteriaScoreMetric.singleTurnScore(config, incorrectSample);
         log.info("Correct answer - score: {}", correctScore);
         log.info("Incorrect answer - score: {}", incorrectScore);
 
@@ -180,13 +121,9 @@ class SimpleCriteriaMetricIntegrationTest {
         assertTrue(incorrectScore <= 2.0, "Incorrect answer should receive low score");
     }
 
-    @ParameterizedTest
-    @MethodSource("ai.qa.solutions.metrics.ModelsProvider#models")
+    @Test
     @DisplayName("SimpleCriteriaScore: Relevance evaluation")
-    void testSimpleCriteriaScore_Relevance(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testSimpleCriteriaScore_Relevance() {
         log.info("=== SimpleCriteriaScore: Relevance evaluation ===");
 
         // Relevant answer
@@ -210,20 +147,8 @@ class SimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        SimpleCriteriaScoreMetric simpleCriteriaScoreMetricWithModel = simpleCriteriaScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double relevantScore = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, relevantSample);
-        Double irrelevantScore = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, irrelevantSample);
-
-        log.info("Model: {}", model);
+        Double relevantScore = simpleCriteriaScoreMetric.singleTurnScore(config, relevantSample);
+        Double irrelevantScore = simpleCriteriaScoreMetric.singleTurnScore(config, irrelevantSample);
         log.info("Relevant answer score: {}", relevantScore);
         log.info("Irrelevant answer score: {}", irrelevantScore);
 

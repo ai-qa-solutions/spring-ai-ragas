@@ -121,10 +121,7 @@ public class AsciiRenderBarsAuto {
         b.width(width).height(height);
 
         b.element(new Rectangle(0, 0, width, height));
-        b.element(new Line(new Point(labelsX + labelsW, topPad), new Point(labelsX + labelsW, height - 2)));
-
-        final int avgX = valueToX(avg, min, max, barsX0, barsW);
-        b.element(new Line(new Point(avgX, topPad), new Point(avgX, height - 2)));
+        // Vertical separator line and average value line removed to eliminate ● symbols
 
         final String minLabel = fmt(min);
         final String maxLabel = fmt(max);
@@ -140,12 +137,11 @@ public class AsciiRenderBarsAuto {
             b.element(new Label(lbl, labelsX, y, labelsW));
 
             final int xVal = valueToX(it.value, min, max, barsX0, barsW);
-            final int xStart = barsX0;
-            if (xVal >= xStart) {
-                b.element(new Line(new Point(xStart, y), new Point(xVal, y), '█'));
+            if (xVal >= barsX0) {
+                b.element(new Line(new Point(barsX0, y), new Point(xVal, y), '█'));
             } else {
-                // Handle rounding edge case where xVal < xStart - just render a point at xStart
-                b.element(new Line(new Point(xStart, y), new Point(xStart, y), '█'));
+                // Handle rounding edge case where xVal < barsX0 - just render a point at barsX0
+                b.element(new Line(new Point(barsX0, y), new Point(barsX0, y), '█'));
             }
 
             // Display numeric value to the right of the bar (within right boundary)
@@ -203,7 +199,7 @@ public class AsciiRenderBarsAuto {
         if (w <= 0) return "";
         if (s == null) return "";
         if (s.length() <= w) return s;
-        if (w <= 1) return s.substring(0, w);
+        if (w == 1) return s.substring(0, w);
         return s.substring(0, Math.max(0, w - 1)) + "…";
     }
 

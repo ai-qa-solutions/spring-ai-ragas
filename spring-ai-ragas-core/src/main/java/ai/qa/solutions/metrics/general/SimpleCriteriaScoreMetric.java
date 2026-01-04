@@ -1,8 +1,11 @@
 package ai.qa.solutions.metrics.general;
 
+import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.MultiModelExecutor.ExecutionRequest;
 import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.AccessLevel;
@@ -10,12 +13,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import org.springframework.ai.chat.client.ChatClient;
+import lombok.Singular;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 
 /**
- * SimpleCriteriaScore Metric - Continuous scoring based on simple criteria
- * Updated to use structured output with inner DTO and stateless design
+ * SimpleCriteriaScore Metric - Continuous scoring based on simple criteria.
+ * <p>
+ * Uses {@link MultiModelExecutor} for parallel execution across multiple models
+ * with support for listeners and custom aggregation strategies.
  */
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,34 +48,44 @@ public class SimpleCriteriaScoreMetric implements Metric<SimpleCriteriaScoreMetr
             - reasoning: Your detailed explanation for the score
             """;
 
-    @NonNull
-    private final ChatClient chatClient;
-
-    @NonNull
     @Builder.Default
     private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
-    @SuppressWarnings("DataFlowIssue")
+    private final MultiModelExecutor executor;
+
+    @Override
     public Double singleTurnScore(final SimpleCriteriaConfig config, final Sample sample) {
-        return chatClient
-                .prompt(PromptTemplate.builder()
-                        .template(this.promptTemplate)
-                        .variables(Map.of(
-                                "definition", config.definition,
-                                "min_score", config.minScore.toString(),
-                                "max_score", config.maxScore.toString(),
-                                "user_input", sample.getUserInput(),
-                                "response", sample.getResponse(),
-                                "reference", sample.getReference() != null ? sample.getReference() : ""))
-                        .build()
-                        .create())
-                .call()
-                .entity(Response.class)
-                .getNormalizedScore();
+        return singleTurnScoreAsync(config, sample).join();
     }
 
-    public CompletableFuture<Double> singleTurnScoreAsync(SimpleCriteriaConfig config, Sample sample) {
-        return CompletableFuture.supplyAsync(() -> singleTurnScore(config, sample));
+    @Override
+    public CompletableFuture<Double> singleTurnScoreAsync(final SimpleCriteriaConfig config, final Sample sample) {
+        final String prompt = renderPrompt(config, sample);
+
+        return executor.execute(ExecutionRequest.<Response>builder()
+                .metricName(getName())
+                .prompt(prompt)
+                .responseType(Response.class)
+                .scoreExtractor(Response::getNormalizedScore)
+                .modelIds(config.models != null ? config.models : List.of())
+                .metadata(Map.of(
+                        "sample", sample,
+                        "config", config))
+                .build());
+    }
+
+    private String renderPrompt(final SimpleCriteriaConfig config, final Sample sample) {
+        return PromptTemplate.builder()
+                .template(this.promptTemplate)
+                .variables(Map.of(
+                        "definition", config.definition,
+                        "min_score", config.minScore.toString(),
+                        "max_score", config.maxScore.toString(),
+                        "user_input", sample.getUserInput(),
+                        "response", sample.getResponse(),
+                        "reference", sample.getReference() != null ? sample.getReference() : ""))
+                .build()
+                .render();
     }
 
     /**
@@ -92,6 +107,9 @@ public class SimpleCriteriaScoreMetric implements Metric<SimpleCriteriaScoreMetr
     @Data
     @Builder
     public static class SimpleCriteriaConfig implements MetricConfiguration {
+        @Singular
+        private List<String> models;
+
         @NonNull
         private String definition;
 

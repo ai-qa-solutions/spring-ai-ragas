@@ -21,6 +21,19 @@ package ai.qa.solutions.execution;
 public interface ModelExecutionListener {
 
     /**
+     * Called before all model executions start.
+     * <p>
+     * This method is invoked once per batch execution, before any individual
+     * model calls are made. It provides visibility into the complete execution
+     * plan including the prompt and all models that will be invoked.
+     *
+     * @param context batch execution context with request details and model list
+     */
+    default void beforeAllExecutions(final BatchExecutionContext context) {
+        // No-op by default
+    }
+
+    /**
      * Called before a model execution starts.
      *
      * @param context execution context with request details

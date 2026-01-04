@@ -192,7 +192,6 @@
                     <systemPropertyVariables>
                         <allure.results.directory>target/allure-results</allure.results.directory>
                     </systemPropertyVariables>
-                    <!-- Запускает все *Test.java, кроме *IT.java -->
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>

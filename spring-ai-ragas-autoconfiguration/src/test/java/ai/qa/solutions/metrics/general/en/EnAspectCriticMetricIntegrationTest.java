@@ -117,4 +117,39 @@ class EnAspectCriticMetricIntegrationTest {
         assertTrue(completeScore >= 0.8, "Complete answer should score high");
         assertTrue(incompleteScore <= 0.4, "Incomplete answer should score low");
     }
+
+    @Test
+    @DisplayName("AspectCritic: Custom model list - use specific models")
+    void testAspectCritic_CustomModelList() {
+        log.info("=== AspectCritic: Custom model list test ===");
+
+        Sample sample = Sample.builder()
+                .userInput("What is the meaning of life?")
+                .response("The meaning of life is a philosophical question that has been debated for centuries. "
+                        + "Different cultures, religions, and philosophies offer various perspectives.")
+                .build();
+
+        // Test with custom model list - only specific models
+        AspectCriticMetric.AspectCriticConfig configWithModels = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is the response thoughtful and well-reasoned?")
+                .strictness(3)
+                .model("google/gemini-2.5-flash") // Only use this model
+                .build();
+
+        Double scoreWithCustomModels = aspectCriticMetric.singleTurnScore(configWithModels, sample);
+        log.info("Score with custom model list: {}", scoreWithCustomModels);
+
+        assertTrue(scoreWithCustomModels >= 0.0 && scoreWithCustomModels <= 1.0, "Score should be valid (0-1 range)");
+
+        // Test with empty model list - should use all available models
+        AspectCriticMetric.AspectCriticConfig configWithoutModels = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is the response thoughtful and well-reasoned?")
+                .strictness(3)
+                .build();
+
+        Double scoreWithAllModels = aspectCriticMetric.singleTurnScore(configWithoutModels, sample);
+        log.info("Score with all models: {}", scoreWithAllModels);
+
+        assertTrue(scoreWithAllModels >= 0.0 && scoreWithAllModels <= 1.0, "Score should be valid (0-1 range)");
+    }
 }

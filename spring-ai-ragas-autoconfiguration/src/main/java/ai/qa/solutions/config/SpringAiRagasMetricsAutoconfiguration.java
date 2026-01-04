@@ -27,17 +27,13 @@ public class SpringAiRagasMetricsAutoconfiguration {
     }
 
     @Bean
-    public SimpleCriteriaScoreMetric simpleCriteriaScoreMetric(final ChatClient.Builder chatClientBuilder) {
-        return SimpleCriteriaScoreMetric.builder()
-                .chatClient(chatClientBuilder.build())
-                .build();
+    public SimpleCriteriaScoreMetric simpleCriteriaScoreMetric(final MultiModelExecutor executor) {
+        return SimpleCriteriaScoreMetric.builder().executor(executor).build();
     }
 
     @Bean
-    public RubricsScoreMetric rubricsScoreMetric(final ChatClient.Builder chatClientBuilder) {
-        return RubricsScoreMetric.builder()
-                .chatClient(chatClientBuilder.build())
-                .build();
+    public RubricsScoreMetric rubricsScoreMetric(final MultiModelExecutor executor) {
+        return RubricsScoreMetric.builder().executor(executor).build();
     }
 
     @Bean

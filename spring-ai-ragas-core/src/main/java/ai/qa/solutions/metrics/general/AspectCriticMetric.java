@@ -67,6 +67,7 @@ public class AspectCriticMetric implements Metric<AspectCriticMetric.AspectCriti
                 .prompt(prompt)
                 .responseType(Response.class)
                 .scoreExtractor(Response::getScore)
+                .modelIds(config.models != null ? config.models : List.of())
                 .metadata(Map.of(
                         "sample", sample,
                         "config", config))

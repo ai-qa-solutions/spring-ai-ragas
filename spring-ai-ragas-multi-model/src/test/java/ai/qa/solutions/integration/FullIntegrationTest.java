@@ -106,7 +106,7 @@ class FullIntegrationTest {
         final String prompt = "What is 2+2? Answer with just the number.";
 
         final List<String> modelIds =
-                List.of("google/gemini-2.5-flash", "anthropic/claude-4.5-haiku", "openai/gpt-4o-mini");
+                List.of("google/gemini-2.5-flash", "anthropic/claude-haiku-4.5", "openai/gpt-4o-mini");
 
         final List<String> responses = modelIds.stream()
                 .map(modelId -> chatClientStore.get(modelId))

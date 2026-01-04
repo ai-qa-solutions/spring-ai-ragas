@@ -40,14 +40,14 @@ spring:
         # Efficient tier
         - { id: google/gemini-2.5-flash }
         - { id: google/gemini-2.0-flash-001 }
-        - { id: anthropic/claude-4.5-haiku }
+        - { id: anthropic/claude-haiku-4.5 }
         - { id: openai/gpt-4o-mini }
         - { id: deepseek/deepseek-v3.2 }
         - { id: openai/gpt-oss-120b }
         # Open-source
-        - { id: qwen/qwen3-coder-480b-a35b-instruct }
+        - { id: qwen/qwen3-coder }
         - { id: meta-llama/llama-3.3-70b-instruct }
-        - { id: qwen/qwen3-235b-instruct }
+        - { id: qwen/qwen3-235b-a22b-2507 }
         - { id: deepseek/deepseek-r1 }
         # Specialized models
         - { id: x-ai/grok-code-fast-1 }
@@ -75,5 +75,3 @@ spring:
   threads:
     virtual:
       enabled: true
-
-OPENROUTER_API_KEY: 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

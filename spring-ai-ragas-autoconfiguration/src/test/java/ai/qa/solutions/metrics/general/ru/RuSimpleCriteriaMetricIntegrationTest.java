@@ -5,16 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
 import ai.qa.solutions.sample.Sample;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,49 +20,15 @@ import org.springframework.context.annotation.Configuration;
 @SpringBootTest(classes = RuSimpleCriteriaMetricIntegrationTest.GeneralMetricsIntegrationTestConfiguration.class)
 class RuSimpleCriteriaMetricIntegrationTest {
 
-    public static Stream<Arguments> models() {
-        return Stream.of(
-                Arguments.of("x-ai/grok-code-fast-1"),
-                Arguments.of("x-ai/grok-4.1-fast"),
-                Arguments.of("google/gemini-2.5-flash"),
-                Arguments.of("google/gemini-2.5-pro"),
-                Arguments.of("minimax/minimax-m2"),
-                Arguments.of("anthropic/claude-sonnet-4.5"),
-                Arguments.of("anthropic/claude-haiku-4.5"),
-                Arguments.of("deepseek/deepseek-chat-v3-0324"),
-                Arguments.of("deepseek/deepseek-chat-v3.1"),
-                Arguments.of("qwen/qwen3-235b-a22b-2507"),
-                Arguments.of("qwen/qwen3-coder-30b-a3b-instruct"),
-                Arguments.of("z-ai/glm-4.6"),
-                Arguments.of("openai/gpt-5-mini"),
-                Arguments.of("openai/gpt-5.1"),
-                Arguments.of("openai/gpt-4o-mini"),
-                Arguments.of("openai/gpt-oss-120b"),
-                Arguments.of("openai/gpt-oss-20b"),
-                Arguments.of("GigaChat-2"),
-                Arguments.of("GigaChat-2-Pro"),
-                Arguments.of("GigaChat-2-Max"));
-    }
-
     @Configuration
     public static class GeneralMetricsIntegrationTestConfiguration {}
 
     @Autowired
     private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
 
-    @Autowired(required = false)
-    private OpenAiApi openAiApi;
-
-    @Autowired
-    private ChatClient.Builder chatClientBuilder;
-
-    @ParameterizedTest
-    @MethodSource("models")
+    @Test
     @DisplayName("SimpleCriteriaScore: Позитивный тест - высокое качество ответа")
-    void testSimpleCriteriaScorePositive_HighQuality(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testSimpleCriteriaScorePositive_HighQuality() {
         log.info("=== SimpleCriteriaScore: Позитивный тест ===");
 
         Sample sample = Sample.builder()
@@ -88,19 +47,7 @@ class RuSimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        SimpleCriteriaScoreMetric simpleCriteriaScoreMetricWithModel = simpleCriteriaScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, sample);
-
-        log.info("Модель: {}", model);
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
         log.info("Эталон: {}", sample.getReference());
@@ -111,13 +58,9 @@ class RuSimpleCriteriaMetricIntegrationTest {
         assertTrue(score >= 4.0, "Ожидается высокая оценка для качественного объяснения, получен: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("models")
+    @Test
     @DisplayName("SimpleCriteriaScore: Негативный тест - низкое качество ответа")
-    void testSimpleCriteriaScoreNegative_PoorQuality(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testSimpleCriteriaScoreNegative_PoorQuality() {
         log.info("=== SimpleCriteriaScore: Негативный тест ===");
 
         Sample sample = Sample.builder()
@@ -133,19 +76,7 @@ class RuSimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        SimpleCriteriaScoreMetric simpleCriteriaScoreMetricWithModel = simpleCriteriaScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, sample);
-
-        log.info("Модель: {}", model);
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
         log.info("Эталон: {}", sample.getReference());
@@ -156,13 +87,9 @@ class RuSimpleCriteriaMetricIntegrationTest {
         assertTrue(score <= 2.5, "Ожидается низкая оценка для поверхностного ответа, получен: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("models")
+    @Test
     @DisplayName("SimpleCriteriaScore: Тест математической точности")
-    void testSimpleCriteriaScore_MathAccuracy(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testSimpleCriteriaScore_MathAccuracy() {
         log.info("=== SimpleCriteriaScore: Математическая точность ===");
 
         // Правильный ответ
@@ -185,25 +112,13 @@ class RuSimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        SimpleCriteriaScoreMetric simpleCriteriaScoreMetricWithModel = simpleCriteriaScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double correctScore = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, correctSample);
-        log.info("Модель: {}", model);
+        Double correctScore = simpleCriteriaScoreMetric.singleTurnScore(config, correctSample);
         log.info("Вопрос: {}", correctSample.getUserInput());
         log.info("Ответ: {}", correctSample.getResponse());
         log.info("Эталон: {}", correctSample.getReference());
         log.info("Оценка качества: {} (1-5 шкала)", correctScore);
 
-        Double incorrectScore = simpleCriteriaScoreMetricWithModel.singleTurnScore(config, incorrectSample);
-        log.info("Модель: {}", model);
+        Double incorrectScore = simpleCriteriaScoreMetric.singleTurnScore(config, incorrectSample);
         log.info("Вопрос: {}", incorrectSample.getUserInput());
         log.info("Ответ: {}", incorrectSample.getResponse());
         log.info("Эталон: {}", incorrectSample.getReference());

@@ -1,35 +1,34 @@
 # Spring AI Multi-Model Support
 
 <!-- TOC -->
-
 * [Spring AI Multi-Model Support](#spring-ai-multi-model-support)
-    * [Features](#features)
-    * [Installation](#installation)
-    * [Quick Start](#quick-start)
-        * [1. Configure Your Models](#1-configure-your-models)
-        * [2. Use in Your Code](#2-use-in-your-code)
-            * [Chat Models](#chat-models)
-            * [Embedding Models](#embedding-models)
-    * [Configuration Reference](#configuration-reference)
-        * [Chat Models Configuration](#chat-models-configuration)
-        * [Embedding Models Configuration](#embedding-models-configuration)
-    * [Advanced Usage](#advanced-usage)
-        * [Working with OpenRouter (Multiple AI Providers)](#working-with-openrouter-multiple-ai-providers)
-        * [Custom Options Per Model](#custom-options-per-model)
-        * [Error Handling](#error-handling)
-    * [API Reference](#api-reference)
-        * [ChatClientStore](#chatclientstore)
-        * [EmbeddingModelStore](#embeddingmodelstore)
-    * [How It Works](#how-it-works)
-        * [Chat Models](#chat-models-1)
-        * [Embedding Models](#embedding-models-1)
-    * [Examples](#examples)
-        * [Use Case: Multi-Model Chat Comparison](#use-case-multi-model-chat-comparison)
-        * [Use Case: RAG with Multiple Embedding Models](#use-case-rag-with-multiple-embedding-models)
-    * [Complete Working Example](#complete-working-example)
-        * [application.yml](#applicationyml)
-        * [Spring Boot Application](#spring-boot-application)
-        * [Service Example](#service-example)
+  * [Features](#features)
+  * [Installation](#installation)
+  * [Quick Start](#quick-start)
+    * [1. Configure Your Models](#1-configure-your-models)
+    * [2. Use in Your Code](#2-use-in-your-code)
+      * [Chat Models](#chat-models)
+      * [Embedding Models](#embedding-models)
+  * [Configuration Reference](#configuration-reference)
+    * [Chat Models Configuration](#chat-models-configuration)
+    * [Embedding Models Configuration](#embedding-models-configuration)
+  * [Advanced Usage](#advanced-usage)
+    * [Working with OpenRouter (Multiple AI Providers)](#working-with-openrouter-multiple-ai-providers)
+    * [Custom Options Per Model](#custom-options-per-model)
+    * [Error Handling](#error-handling)
+  * [API Reference](#api-reference)
+    * [ChatClientStore](#chatclientstore)
+    * [EmbeddingModelStore](#embeddingmodelstore)
+  * [How It Works](#how-it-works)
+    * [Chat Models](#chat-models-1)
+    * [Embedding Models](#embedding-models-1)
+  * [Examples](#examples)
+    * [Use Case: Multi-Model Chat Comparison](#use-case-multi-model-chat-comparison)
+    * [Use Case: RAG with Multiple Embedding Models](#use-case-rag-with-multiple-embedding-models)
+  * [Complete Working Example](#complete-working-example)
+    * [application.yml](#applicationyml)
+    * [Spring Boot Application](#spring-boot-application)
+    * [Service Example](#service-example)
 
 <!-- TOC -->
 
@@ -210,7 +209,7 @@ public class EmbeddingService {
 
 ### Chat Models Configuration
 
-| Property                                            | Type    | Default | Description                                                                      |
+|                      Property                       |  Type   | Default |                                   Description                                    |
 |-----------------------------------------------------|---------|---------|----------------------------------------------------------------------------------|
 | `spring.ai.chat-models.default-options.temperature` | Double  | 0.0     | Default temperature for all models (0.0 = deterministic, higher = more creative) |
 | `spring.ai.chat-models.default-options.max-tokens`  | Integer | 1000    | Default maximum tokens in response                                               |
@@ -220,7 +219,7 @@ public class EmbeddingService {
 
 ### Embedding Models Configuration
 
-| Property                                                | Type    | Default | Description                              |
+|                        Property                         |  Type   | Default |               Description                |
 |---------------------------------------------------------|---------|---------|------------------------------------------|
 | `spring.ai.embedding-models.default-options.dimensions` | Integer | 1024    | Default vector dimensions for all models |
 | `spring.ai.embedding-models.list[].id`                  | String  | -       | **Required**. Unique model identifier    |
@@ -342,7 +341,7 @@ public class SafeChatService {
 
 Thread-safe store for managing multiple ChatClient instances.
 
-| Method                             | Description                                                                |
+|               Method               |                                Description                                 |
 |------------------------------------|----------------------------------------------------------------------------|
 | `ChatClient get(String modelId)`   | Get ChatClient by model ID. Throws `IllegalArgumentException` if not found |
 | `ChatClient getDefault()`          | Get the default ChatClient configured by Spring AI                         |
@@ -355,7 +354,7 @@ Thread-safe store for managing multiple ChatClient instances.
 
 Thread-safe store for managing multiple EmbeddingModel instances.
 
-| Method                               | Description                                                                    |
+|                Method                |                                  Description                                   |
 |--------------------------------------|--------------------------------------------------------------------------------|
 | `EmbeddingModel get(String modelId)` | Get EmbeddingModel by model ID. Throws `IllegalArgumentException` if not found |
 | `EmbeddingModel getDefault()`        | Get the default EmbeddingModel configured by Spring AI                         |
@@ -875,18 +874,23 @@ public class ConcurrentExecutionService {
 1. **Auto-Configuration**: `ChatClientAutoConfiguration` detects Spring AI's `ChatClient.Builder` and your YAML
    configuration
 2. **Model Creation**: For each model in `spring.ai.chat-models.list`, a separate `ChatClient` is created with:
-    - Model-specific ID
-    - Individual or default options (temperature, max tokens, top-p)
-    - SimpleLoggerAdvisor for logging
+   - **Independent Configuration**: The builder is cloned for each model to ensure isolated configuration
+   - Model-specific ID
+   - Individual or default options (temperature, max tokens, top-p)
+   - SimpleLoggerAdvisor for logging
 3. **Store Initialization**: All clients are registered in `ChatClientStore` for thread-safe access
+
+> **Important**: Each `ChatClient` has its own independent configuration. The builder is cloned before configuring
+> each model to prevent configuration sharing between different models. This ensures that each model uses its own
+> specified parameters (model ID, temperature, max tokens, etc.) and produces unique results.
 
 ### Embedding Models
 
 1. **Auto-Configuration**: `EmbeddingModelAutoConfiguration` detects the default `EmbeddingModel` bean
 2. **Factory Pattern**: `EmbeddingModelFactory` creates delegating wrappers that:
-    - Use a single API connection
-    - Override model ID and dimensions per request
-    - Merge options at runtime
+   - Use a single API connection
+   - Override model ID and dimensions per request
+   - Merge options at runtime
 3. **Store Initialization**: All models are registered in `EmbeddingModelStore`
 
 ## Examples

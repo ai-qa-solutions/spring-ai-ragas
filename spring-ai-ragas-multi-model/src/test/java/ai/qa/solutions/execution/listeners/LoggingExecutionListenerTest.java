@@ -1,7 +1,6 @@
 package ai.qa.solutions.execution.listeners;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 import ai.qa.solutions.execution.AggregatedExecutionResult;
 import ai.qa.solutions.execution.ModelExecutionContext;
@@ -46,8 +45,8 @@ class LoggingExecutionListenerTest {
     class BeforeExecution {
 
         @Test
-        @DisplayName("Should log before execution at DEBUG level")
-        void shouldLogBeforeExecutionAtDebugLevel() {
+        @DisplayName("Should be silent (no-op)")
+        void shouldBeSilent() {
             // Given
             final ModelExecutionContext context = ModelExecutionContext.builder()
                     .executionId("test-id-123")
@@ -59,17 +58,9 @@ class LoggingExecutionListenerTest {
             // When
             listener.beforeExecution(context);
 
-            // Then
+            // Then - should not log anything
             final List<ILoggingEvent> logEvents = listAppender.list;
-            assertThat(logEvents).hasSize(1);
-
-            final ILoggingEvent event = logEvents.get(0);
-            assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
-            assertThat(event.getFormattedMessage())
-                    .contains("AspectCritic")
-                    .contains("gpt-4")
-                    .contains("test-id-123")
-                    .contains("Starting execution");
+            assertThat(logEvents).isEmpty();
         }
     }
 
@@ -78,8 +69,8 @@ class LoggingExecutionListenerTest {
     class AfterExecution {
 
         @Test
-        @DisplayName("Should log successful execution at DEBUG level")
-        void shouldLogSuccessfulExecutionAtDebugLevel() {
+        @DisplayName("Should be silent for successful execution")
+        void shouldBeSilentForSuccessfulExecution() {
             // Given
             final ModelExecutionContext context = ModelExecutionContext.builder()
                     .modelId("claude-3")
@@ -92,22 +83,14 @@ class LoggingExecutionListenerTest {
             // When
             listener.afterExecution(result);
 
-            // Then
+            // Then - should not log anything (silent during execution)
             final List<ILoggingEvent> logEvents = listAppender.list;
-            assertThat(logEvents).hasSize(1);
-
-            final ILoggingEvent event = logEvents.get(0);
-            assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
-            assertThat(event.getFormattedMessage())
-                    .contains("Faithfulness")
-                    .contains("claude-3")
-                    .contains("completed")
-                    .contains("0.85");
+            assertThat(logEvents).isEmpty();
         }
 
         @Test
-        @DisplayName("Should log failed execution at WARN level")
-        void shouldLogFailedExecutionAtWarnLevel() {
+        @DisplayName("Should be silent for failed execution")
+        void shouldBeSilentForFailedExecution() {
             // Given
             final ModelExecutionContext context = ModelExecutionContext.builder()
                     .modelId("model-1")
@@ -121,17 +104,9 @@ class LoggingExecutionListenerTest {
             // When
             listener.afterExecution(result);
 
-            // Then
+            // Then - should not log anything (failures shown in final report)
             final List<ILoggingEvent> logEvents = listAppender.list;
-            assertThat(logEvents).hasSize(1);
-
-            final ILoggingEvent event = logEvents.get(0);
-            assertThat(event.getLevel()).isEqualTo(Level.WARN);
-            assertThat(event.getFormattedMessage())
-                    .contains("TestMetric")
-                    .contains("model-1")
-                    .contains("failed")
-                    .contains("Connection timeout");
+            assertThat(logEvents).isEmpty();
         }
     }
 
@@ -143,11 +118,7 @@ class LoggingExecutionListenerTest {
         @DisplayName("Should log aggregation results at INFO level")
         void shouldLogAggregationResultsAtInfoLevel() {
             // Given
-            final ModelExecutionContext context = ModelExecutionContext.builder()
-                    .modelId("model-1")
-                    .metricName("TestMetric")
-                    .prompt("test")
-                    .build();
+            final ModelExecutionContext context = createContextWithTime("model-1");
 
             final ModelExecutionResult result = ModelExecutionResult.success(context, 0.75, "response");
 
@@ -169,7 +140,6 @@ class LoggingExecutionListenerTest {
             assertThat(event.getLevel()).isEqualTo(Level.INFO);
             assertThat(event.getFormattedMessage())
                     .contains("TestMetric")
-                    .contains("Aggregation complete")
                     .contains("0.75")
                     .contains("AVERAGE");
         }
@@ -178,17 +148,8 @@ class LoggingExecutionListenerTest {
         @DisplayName("Should include success rate in log")
         void shouldIncludeSuccessRateInLog() {
             // Given
-            final ModelExecutionContext context1 = ModelExecutionContext.builder()
-                    .modelId("model-1")
-                    .metricName("TestMetric")
-                    .prompt("test")
-                    .build();
-
-            final ModelExecutionContext context2 = ModelExecutionContext.builder()
-                    .modelId("model-2")
-                    .metricName("TestMetric")
-                    .prompt("test")
-                    .build();
+            final ModelExecutionContext context1 = createContextWithTime("model-1");
+            final ModelExecutionContext context2 = createContextWithTime("model-2");
 
             final ModelExecutionResult success = ModelExecutionResult.success(context1, 0.8, "response");
             final ModelExecutionResult failure = ModelExecutionResult.failure(context2, new RuntimeException());
@@ -205,12 +166,12 @@ class LoggingExecutionListenerTest {
 
             // Then
             final ILoggingEvent event = listAppender.list.get(0);
-            assertThat(event.getFormattedMessage()).contains("success=1/2");
+            assertThat(event.getFormattedMessage()).contains("Success: 1/2");
         }
 
         @Test
-        @DisplayName("Should log DEBUG when no successful scores")
-        void shouldLogDebugWhenNoSuccessfulScores() {
+        @DisplayName("Should log WARN when no successful scores")
+        void shouldLogWarnWhenNoSuccessfulScores() {
             // Given
             final ModelExecutionContext context = ModelExecutionContext.builder()
                     .modelId("model-1")
@@ -234,11 +195,12 @@ class LoggingExecutionListenerTest {
             final List<ILoggingEvent> allEvents = listAppender.list;
             assertThat(allEvents).isNotEmpty();
 
-            final boolean hasDebugMessage = allEvents.stream()
-                    .anyMatch(e -> e.getLevel() == Level.DEBUG
-                            && e.getFormattedMessage().contains("No successful scores"));
+            final boolean hasWarnMessage = allEvents.stream()
+                    .anyMatch(e -> e.getLevel() == Level.WARN
+                            && e.getFormattedMessage().contains("All")
+                            && e.getFormattedMessage().contains("models failed"));
 
-            assertThat(hasDebugMessage).isTrue();
+            assertThat(hasWarnMessage).isTrue();
         }
     }
 
@@ -265,8 +227,8 @@ class LoggingExecutionListenerTest {
         @DisplayName("Should render ASCII chart for successful results")
         void shouldRenderAsciiChartForSuccessfulResults() {
             // Given
-            final ModelExecutionContext context1 = createContext("model-1");
-            final ModelExecutionContext context2 = createContext("model-2");
+            final ModelExecutionContext context1 = createContextWithTime("model-1");
+            final ModelExecutionContext context2 = createContextWithTime("model-2");
 
             final ModelExecutionResult result1 = ModelExecutionResult.success(context1, 0.7, "resp1");
             final ModelExecutionResult result2 = ModelExecutionResult.success(context2, 0.9, "resp2");
@@ -286,19 +248,27 @@ class LoggingExecutionListenerTest {
                     .filter(e -> e.getLevel() == Level.INFO)
                     .toList();
 
-            assertThat(infoEvents).hasSizeGreaterThanOrEqualTo(2); // Summary + chart
+            assertThat(infoEvents).hasSizeGreaterThanOrEqualTo(1);
 
-            // Check that chart header is logged
-            final boolean hasChartLog =
-                    infoEvents.stream().anyMatch(e -> e.getFormattedMessage().contains("Scores by model"));
+            // Check that the log contains TestMetric
+            final boolean hasTestMetric =
+                    infoEvents.stream().anyMatch(e -> e.getFormattedMessage().contains("TestMetric"));
 
-            assertThat(hasChartLog).isTrue();
+            assertThat(hasTestMetric).isTrue();
         }
     }
 
     // ========== Helper Methods ==========
 
     private ModelExecutionContext createContext(final String modelId) {
+        return ModelExecutionContext.builder()
+                .modelId(modelId)
+                .metricName("TestMetric")
+                .prompt("test prompt")
+                .build();
+    }
+
+    private ModelExecutionContext createContextWithTime(final String modelId) {
         return ModelExecutionContext.builder()
                 .modelId(modelId)
                 .metricName("TestMetric")

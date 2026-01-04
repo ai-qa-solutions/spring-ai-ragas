@@ -6,16 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import ai.qa.solutions.metrics.general.RubricsScoreMetric;
 import ai.qa.solutions.sample.Sample;
 import java.util.Map;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,49 +21,15 @@ import org.springframework.context.annotation.Configuration;
 @SpringBootTest(classes = RuRubricsScroreMetricIntegrationTest.GeneralMetricsIntegrationTestConfiguration.class)
 class RuRubricsScroreMetricIntegrationTest {
 
-    public static Stream<Arguments> models() {
-        return Stream.of(
-                Arguments.of("x-ai/grok-code-fast-1"),
-                Arguments.of("x-ai/grok-4.1-fast"),
-                Arguments.of("google/gemini-2.5-flash"),
-                Arguments.of("google/gemini-2.5-pro"),
-                Arguments.of("minimax/minimax-m2"),
-                Arguments.of("anthropic/claude-sonnet-4.5"),
-                Arguments.of("anthropic/claude-haiku-4.5"),
-                Arguments.of("deepseek/deepseek-chat-v3-0324"),
-                Arguments.of("deepseek/deepseek-chat-v3.1"),
-                Arguments.of("qwen/qwen3-235b-a22b-2507"),
-                Arguments.of("qwen/qwen3-coder-30b-a3b-instruct"),
-                Arguments.of("z-ai/glm-4.6"),
-                Arguments.of("openai/gpt-5-mini"),
-                Arguments.of("openai/gpt-5.1"),
-                Arguments.of("openai/gpt-4o-mini"),
-                Arguments.of("openai/gpt-oss-120b"),
-                Arguments.of("openai/gpt-oss-20b"),
-                Arguments.of("GigaChat-2"),
-                Arguments.of("GigaChat-2-Pro"),
-                Arguments.of("GigaChat-2-Max"));
-    }
-
     @Configuration
     public static class GeneralMetricsIntegrationTestConfiguration {}
 
     @Autowired
     private RubricsScoreMetric rubricsScoreMetric;
 
-    @Autowired(required = false)
-    private OpenAiApi openAiApi;
-
-    @Autowired
-    private ChatClient.Builder chatClientBuilder;
-
-    @ParameterizedTest
-    @MethodSource("models")
+    @Test
     @DisplayName("RubricsScore: Позитивный тест - отличное объяснение")
-    void testRubricsScorePositive_ExcellentExplanation(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testRubricsScorePositive_ExcellentExplanation() {
         log.info("=== RubricsScore: Позитивный тест ===");
 
         Sample sample = Sample.builder()
@@ -89,17 +48,7 @@ class RuRubricsScroreMetricIntegrationTest {
                 .rubrics(createPhotosynthesisRubrics())
                 .build();
 
-        RubricsScoreMetric rubricsScoreMetricWithModel = rubricsScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = rubricsScoreMetricWithModel.singleTurnScore(config, sample);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
 
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
@@ -110,13 +59,9 @@ class RuRubricsScroreMetricIntegrationTest {
         assertTrue(score >= 4.0, "Ожидается высокая оценка для подробного научного объяснения, получен: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("models")
+    @Test
     @DisplayName("RubricsScore: Негативный тест - поверхностное объяснение")
-    void testRubricsScoreNegative_SuperficialExplanation(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testRubricsScoreNegative_SuperficialExplanation() {
         log.info("=== RubricsScore: Негативный тест ===");
 
         Sample sample = Sample.builder()
@@ -131,17 +76,7 @@ class RuRubricsScroreMetricIntegrationTest {
                 .rubrics(createPhotosynthesisRubrics())
                 .build();
 
-        RubricsScoreMetric rubricsScoreMetricWithModel = rubricsScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = rubricsScoreMetricWithModel.singleTurnScore(config, sample);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
 
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
@@ -152,13 +87,9 @@ class RuRubricsScroreMetricIntegrationTest {
         assertTrue(score <= 2.0, "Ожидается низкая оценка для поверхностного объяснения, получен: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("models")
+    @Test
     @DisplayName("RubricsScore: Тест оценки эссе")
-    void testRubricsScore_EssayEvaluation(String model) {
-        if (openAiApi == null && model.contains("/")) return;
-        if (openAiApi != null && !model.contains("/")) return;
-
+    void testRubricsScore_EssayEvaluation() {
         log.info("=== RubricsScore: Оценка эссе ===");
 
         // Хорошее эссе
@@ -185,25 +116,14 @@ class RuRubricsScroreMetricIntegrationTest {
                 .rubrics(createEssayRubrics())
                 .build();
 
-        RubricsScoreMetric rubricsScoreMetricWithModel = rubricsScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double goodScore = rubricsScoreMetricWithModel.singleTurnScore(config, goodEssay);
-        Double weakScore = rubricsScoreMetricWithModel.singleTurnScore(config, weakEssay);
+        Double goodScore = rubricsScoreMetric.singleTurnScore(config, goodEssay);
+        Double weakScore = rubricsScoreMetric.singleTurnScore(config, weakEssay);
 
         log.info("Хорошее эссе - оценка: {}", goodScore);
         log.info("Слабое эссе - оценка: {}", weakScore);
 
-        assertTrue(goodScore >= 2.0, "Хорошее эссе должно получить высокую оценку");
+        assertTrue(goodScore >= 3.0, "Хорошее эссе должно получить высокую оценку");
         assertTrue(weakScore <= 2.0, "Слабое эссе должно получить низкую оценку");
-        assertTrue(goodScore > weakScore, "Хорошее эссе должно оцениваться выше слабого");
     }
 
     // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================

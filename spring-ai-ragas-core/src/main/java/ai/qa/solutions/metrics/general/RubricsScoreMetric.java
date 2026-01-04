@@ -1,8 +1,11 @@
 package ai.qa.solutions.metrics.general;
 
+import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.MultiModelExecutor.ExecutionRequest;
 import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.AccessLevel;
@@ -11,12 +14,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.Singular;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 
 /**
- * RubricsScore Metric - Detailed rubric-based evaluation
- * Updated to use structured output with inner DTO and stateless design
+ * RubricsScore Metric - Detailed rubric-based evaluation.
+ * <p>
+ * Uses {@link MultiModelExecutor} for parallel execution across multiple models
+ * with support for listeners and custom aggregation strategies.
  */
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,16 +31,15 @@ public class RubricsScoreMetric implements Metric<RubricsScoreMetric.RubricsConf
 
             User Input: {user_input}
             AI Response: {response}
-            Reference Answer: {reference}
+            {reference}
 
             Evaluation Rubrics:
             {rubrics}
 
             Instructions:
-            1. Compare the AI response with the reference answer
-            2. Evaluate the response against each rubric level
-            3. Select the rubric level that best describes the response quality
-            4. Provide the corresponding score and detailed reasoning
+            1. Evaluate the AI response against each rubric level based on its quality
+            2. Select the rubric level that best describes the response quality
+            3. Provide the corresponding score and detailed reasoning
 
             Respond with a JSON object containing:
             - score: The numerical score (integer) corresponding to the selected rubric level
@@ -44,32 +47,49 @@ public class RubricsScoreMetric implements Metric<RubricsScoreMetric.RubricsConf
             - reasoning: Your detailed explanation for the score selection
             """;
 
-    @NonNull
-    private final ChatClient chatClient;
-
-    @NonNull
     @Builder.Default
     private final String promptTemplate = DEFAULT_PROMPT_TEMPLATE;
 
-    @SuppressWarnings("DataFlowIssue")
+    private final MultiModelExecutor executor;
+
+    @Override
     public Double singleTurnScore(final RubricsConfig config, final Sample sample) {
-        return chatClient
-                .prompt(PromptTemplate.builder()
-                        .template(this.promptTemplate)
-                        .variables(Map.of(
-                                "user_input", sample.getUserInput(),
-                                "response", sample.getResponse(),
-                                "reference", sample.getReference() != null ? sample.getReference() : "",
-                                "rubrics", buildRubricsText(config.rubrics)))
-                        .build()
-                        .create())
-                .call()
-                .entity(Response.class)
-                .getNormalizedScore();
+        return singleTurnScoreAsync(config, sample).join();
     }
 
-    public CompletableFuture<Double> singleTurnScoreAsync(RubricsConfig config, Sample sample) {
-        return CompletableFuture.supplyAsync(() -> singleTurnScore(config, sample));
+    @Override
+    public CompletableFuture<Double> singleTurnScoreAsync(final RubricsConfig config, final Sample sample) {
+        final String prompt = renderPrompt(config, sample);
+
+        return executor.execute(ExecutionRequest.<Response>builder()
+                .metricName(getName())
+                .prompt(prompt)
+                .responseType(Response.class)
+                .scoreExtractor(Response::getNormalizedScore)
+                .modelIds(config.models != null ? config.models : List.of())
+                .metadata(Map.of("sample", sample, "config", config))
+                .build());
+    }
+
+    private String renderPrompt(final RubricsConfig config, final Sample sample) {
+        String referenceText = "";
+        if (sample.getReference() != null && !sample.getReference().isEmpty()) {
+            referenceText = "Reference Context: " + sample.getReference();
+        }
+
+        return PromptTemplate.builder()
+                .template(this.promptTemplate)
+                .variables(Map.of(
+                        "user_input",
+                        sample.getUserInput(),
+                        "response",
+                        sample.getResponse(),
+                        "reference",
+                        referenceText,
+                        "rubrics",
+                        buildRubricsText(config.rubrics)))
+                .build()
+                .render();
     }
 
     private String buildRubricsText(Map<String, String> rubrics) {
@@ -114,6 +134,9 @@ public class RubricsScoreMetric implements Metric<RubricsScoreMetric.RubricsConf
     @Data
     @Builder
     public static class RubricsConfig implements MetricConfiguration {
+        @Singular
+        private List<String> models;
+
         @NonNull
         @Singular
         private Map<String, String> rubrics;

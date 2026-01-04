@@ -7,12 +7,7 @@ import ai.qa.solutions.sample.Sample;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @SuppressWarnings("LoggingSimilarMessage")
 @DisplayName("Integration tests for general purpose metrics with English examples")
-@SpringBootTest(classes = RubricsScoreMetricIntegrationTest.GeneralMetricsIntegrationTestConfiguration.class)
-class RubricsScoreMetricIntegrationTest {
+@SpringBootTest(classes = EnRubricsScoreMetricIntegrationTest.GeneralMetricsIntegrationTestConfiguration.class)
+class EnRubricsScoreMetricIntegrationTest {
 
     @Configuration
     public static class GeneralMetricsIntegrationTestConfiguration {}
@@ -31,16 +26,9 @@ class RubricsScoreMetricIntegrationTest {
     @Autowired
     private RubricsScoreMetric rubricsScoreMetric;
 
-    @Autowired(required = false)
-    private OpenAiApi openAiApi;
-
-    @Autowired
-    private ChatClient.Builder chatClientBuilder;
-
-    @ParameterizedTest
-    @MethodSource("ai.qa.solutions.metrics.ModelsProvider#models")
+    @Test
     @DisplayName("RubricsScore: Positive test - excellent explanation")
-    void testRubricsScorePositive_ExcellentExplanation(String model) {
+    void testRubricsScorePositive_ExcellentExplanation() {
         log.info("=== RubricsScore: Positive test ===");
 
         Sample sample = Sample.builder()
@@ -59,17 +47,7 @@ class RubricsScoreMetricIntegrationTest {
                 .rubrics(createPhotosynthesisRubrics())
                 .build();
 
-        RubricsScoreMetric rubricsScoreMetricWithModel = rubricsScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = rubricsScoreMetricWithModel.singleTurnScore(config, sample);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
 
         log.info("Question: {}", sample.getUserInput());
         log.info("Response: {}", sample.getResponse());
@@ -79,10 +57,9 @@ class RubricsScoreMetricIntegrationTest {
         assertTrue(score >= 4.0, "Expected high score for detailed scientific explanation, got: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("models")
+    @Test
     @DisplayName("RubricsScore: Negative test - superficial explanation")
-    void testRubricsScoreNegative_SuperficialExplanation(String model) {
+    void testRubricsScoreNegative_SuperficialExplanation() {
         log.info("=== RubricsScore: Negative test ===");
 
         Sample sample = Sample.builder()
@@ -97,17 +74,7 @@ class RubricsScoreMetricIntegrationTest {
                 .rubrics(createPhotosynthesisRubrics())
                 .build();
 
-        RubricsScoreMetric rubricsScoreMetricWithModel = rubricsScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double score = rubricsScoreMetricWithModel.singleTurnScore(config, sample);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
 
         log.info("Question: {}", sample.getUserInput());
         log.info("Response: {}", sample.getResponse());
@@ -117,22 +84,34 @@ class RubricsScoreMetricIntegrationTest {
         assertTrue(score <= 2.0, "Expected low score for superficial explanation, got: " + score);
     }
 
-    @ParameterizedTest
-    @MethodSource("ai.qa.solutions.metrics.ModelsProvider#models")
+    @Test
     @DisplayName("RubricsScore: Essay evaluation test")
-    void testRubricsScore_EssayEvaluation(String model) {
+    void testRubricsScore_EssayEvaluation() {
         log.info("=== RubricsScore: Essay evaluation ===");
 
         // Good essay
         Sample goodEssay = Sample.builder()
                 .userInput("Write an essay about the impact of technology on society")
-                .response("Technological progress has fundamentally transformed modern society. "
-                        + "On one hand, digital technologies have provided unprecedented opportunities "
-                        + "for communication, education, and access to information. The Internet has connected "
-                        + "the world, allowing people to instantly exchange ideas regardless of geographical boundaries."
-                        + "On the other hand, new challenges have emerged: digital inequality, technology dependence, "
-                        + "and privacy concerns. A balance between innovation and social responsibility is necessary"
-                        + "for sustainable development.")
+                .response("Technological progress has fundamentally transformed modern society in profound ways. "
+                        + "On the positive side, digital technologies have created unprecedented opportunities for "
+                        + "global connectivity and knowledge sharing. For example, platforms like Coursera and Khan Academy "
+                        + "have democratized education, enabling millions of learners worldwide to access high-quality courses "
+                        + "from top universities. The Internet has revolutionized communication through tools like video conferencing, "
+                        + "social media, and instant messaging, breaking down geographical barriers and fostering cross-cultural dialogue. "
+                        + "Moreover, technological innovations in healthcare, such as telemedicine and AI-assisted diagnostics, "
+                        + "have improved patient outcomes and expanded access to medical services in remote areas.\n\n"
+                        + "However, these advances come with significant challenges that society must address. Digital inequality "
+                        + "remains a pressing issue, as evidenced by the fact that nearly 3 billion people still lack internet access. "
+                        + "Technology dependence has given rise to mental health concerns, including increased rates of anxiety "
+                        + "and depression linked to excessive screen time and social media use. Privacy concerns have intensified "
+                        + "with data breaches at major corporations like Facebook and Equifax exposing millions of users' personal information. "
+                        + "Additionally, the spread of misinformation and the algorithmic amplification of divisive content pose threats "
+                        + "to democratic discourse and social cohesion.\n\n"
+                        + "In conclusion, while technology offers immense potential for human progress, realizing this potential requires "
+                        + "a thoughtful balance between innovation and social responsibility. Policymakers, tech companies, and civil society "
+                        + "must collaborate to ensure equitable access, protect user privacy, promote digital literacy, and create ethical "
+                        + "frameworks that prioritize human well-being over profit. Only through such comprehensive efforts can we harness "
+                        + "technology's transformative power for sustainable and inclusive development.")
                 .reference("Essay about the impact of technology on society with examples and arguments")
                 .build();
 
@@ -148,18 +127,8 @@ class RubricsScoreMetricIntegrationTest {
                 .rubrics(createEssayRubrics())
                 .build();
 
-        RubricsScoreMetric rubricsScoreMetricWithModel = rubricsScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double goodScore = rubricsScoreMetricWithModel.singleTurnScore(config, goodEssay);
-        Double weakScore = rubricsScoreMetricWithModel.singleTurnScore(config, weakEssay);
+        Double goodScore = rubricsScoreMetric.singleTurnScore(config, goodEssay);
+        Double weakScore = rubricsScoreMetric.singleTurnScore(config, weakEssay);
 
         log.info("Good essay score: {}", goodScore);
         log.info("Weak essay score: {}", weakScore);
@@ -168,10 +137,9 @@ class RubricsScoreMetricIntegrationTest {
         assertTrue(weakScore <= 2.0, "Weak essay should receive low score");
     }
 
-    @ParameterizedTest
-    @MethodSource("ai.qa.solutions.metrics.ModelsProvider#models")
+    @Test
     @DisplayName("RubricsScore: Code quality evaluation")
-    void testRubricsScore_CodeQuality(String model) {
+    void testRubricsScore_CodeQuality() {
         log.info("=== RubricsScore: Code quality evaluation ===");
 
         // Well-written code
@@ -207,24 +175,50 @@ class RubricsScoreMetricIntegrationTest {
                 .rubrics(createCodeQualityRubrics())
                 .build();
 
-        RubricsScoreMetric rubricsScoreMetricWithModel = rubricsScoreMetric.toBuilder()
-                .chatClient(chatClientBuilder
-                        .defaultAdvisors(new SimpleLoggerAdvisor())
-                        .defaultOptions(ChatOptions.builder()
-                                .model(model)
-                                .temperature(0.0)
-                                .build())
-                        .build())
-                .build();
-
-        Double goodScore = rubricsScoreMetricWithModel.singleTurnScore(config, goodCode);
-        Double poorScore = rubricsScoreMetricWithModel.singleTurnScore(config, poorCode);
+        Double goodScore = rubricsScoreMetric.singleTurnScore(config, goodCode);
+        Double poorScore = rubricsScoreMetric.singleTurnScore(config, poorCode);
 
         log.info("Good code score: {}", goodScore);
         log.info("Poor code score: {}", poorScore);
 
         assertTrue(goodScore >= 4.0, "Well-written code should score high");
         assertTrue(poorScore <= 3.0, "Poor code should score lower");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Custom model list - use specific models")
+    void testRubricsScore_CustomModelList() {
+        log.info("=== RubricsScore: Custom model list test ===");
+
+        Sample sample = Sample.builder()
+                .userInput("What are the benefits of exercise?")
+                .response(
+                        "Regular exercise provides numerous health benefits including improved cardiovascular "
+                                + "health, stronger muscles and bones, better mental health, weight management, "
+                                + "and reduced risk of chronic diseases. It also boosts energy levels and improves sleep quality.")
+                .reference("Benefits of regular physical activity for health")
+                .build();
+
+        // Test with custom model list - only specific model
+        RubricsScoreMetric.RubricsConfig configWithModels = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createPhotosynthesisRubrics())
+                .model("google/gemini-2.5-flash") // Only use this model
+                .build();
+
+        Double scoreWithCustomModels = rubricsScoreMetric.singleTurnScore(configWithModels, sample);
+        log.info("Score with custom model list: {}", scoreWithCustomModels);
+
+        assertTrue(scoreWithCustomModels >= 1.0 && scoreWithCustomModels <= 5.0, "Score should be valid (1-5 range)");
+
+        // Test with empty model list - should use all available models
+        RubricsScoreMetric.RubricsConfig configWithoutModels = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createPhotosynthesisRubrics())
+                .build();
+
+        Double scoreWithAllModels = rubricsScoreMetric.singleTurnScore(configWithoutModels, sample);
+        log.info("Score with all models: {}", scoreWithAllModels);
+
+        assertTrue(scoreWithAllModels >= 1.0 && scoreWithAllModels <= 5.0, "Score should be valid (1-5 range)");
     }
 
     // ==================== HELPER METHODS ====================

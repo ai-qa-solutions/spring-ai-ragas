@@ -3,6 +3,7 @@ package ai.qa.solutions.execution;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -375,13 +376,139 @@ class MultiModelExecutorTest {
         }
     }
 
+    @Nested
+    @DisplayName("Custom Model List")
+    class CustomModelList {
+
+        @Test
+        @DisplayName("Should execute only on specified models when custom list provided")
+        void shouldExecuteOnlyOnSpecifiedModels() {
+            // Given
+            setupMockModels(Map.of(
+                    "model-1", 0.8,
+                    "model-2", 1.0,
+                    "model-3", 0.6,
+                    "model-4", 0.9));
+
+            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
+                    .metricName("TestMetric")
+                    .prompt("test prompt")
+                    .responseType(TestResponse.class)
+                    .scoreExtractor(TestResponse::score)
+                    .modelIds(List.of("model-1", "model-3")) // Only use these two models
+                    .build();
+
+            // When
+            Double result = executor.execute(request).join();
+
+            // Then - should average only model-1 (0.8) and model-3 (0.6)
+            assertThat(result).isCloseTo(0.7, org.assertj.core.api.Assertions.within(0.001));
+        }
+
+        @Test
+        @DisplayName("Should use all models when custom list is empty")
+        void shouldUseAllModelsWhenCustomListIsEmpty() {
+            // Given
+            setupMockModels(Map.of(
+                    "model-1", 0.8,
+                    "model-2", 1.0,
+                    "model-3", 0.6));
+
+            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
+                    .metricName("TestMetric")
+                    .prompt("test prompt")
+                    .responseType(TestResponse.class)
+                    .scoreExtractor(TestResponse::score)
+                    .modelIds(List.of()) // Empty list - should use all models
+                    .build();
+
+            // When
+            Double result = executor.execute(request).join();
+
+            // Then - should average all three models
+            assertThat(result).isCloseTo(0.8, org.assertj.core.api.Assertions.within(0.001));
+        }
+
+        @Test
+        @DisplayName("Should use all models when custom list is null")
+        void shouldUseAllModelsWhenCustomListIsNull() {
+            // Given
+            setupMockModels(Map.of(
+                    "model-1", 0.8,
+                    "model-2", 1.0,
+                    "model-3", 0.6));
+
+            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
+                    .metricName("TestMetric")
+                    .prompt("test prompt")
+                    .responseType(TestResponse.class)
+                    .scoreExtractor(TestResponse::score)
+                    .modelIds(null) // Null list - should use all models
+                    .build();
+
+            // When
+            Double result = executor.execute(request).join();
+
+            // Then - should average all three models
+            assertThat(result).isCloseTo(0.8, org.assertj.core.api.Assertions.within(0.001));
+        }
+
+        @Test
+        @DisplayName("Should execute on single model when only one specified")
+        void shouldExecuteOnSingleModelWhenOnlyOneSpecified() {
+            // Given
+            setupMockModels(Map.of(
+                    "model-1", 0.8,
+                    "model-2", 1.0,
+                    "model-3", 0.6));
+
+            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
+                    .metricName("TestMetric")
+                    .prompt("test prompt")
+                    .responseType(TestResponse.class)
+                    .scoreExtractor(TestResponse::score)
+                    .modelIds(List.of("model-2")) // Only model-2
+                    .build();
+
+            // When
+            Double result = executor.execute(request).join();
+
+            // Then - should return only model-2 score
+            assertThat(result).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should work with custom aggregator and custom model list")
+        void shouldWorkWithCustomAggregatorAndCustomModelList() {
+            // Given
+            setupMockModels(Map.of(
+                    "model-1", 0.5,
+                    "model-2", 0.7,
+                    "model-3", 0.9));
+
+            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
+                    .metricName("TestMetric")
+                    .prompt("test prompt")
+                    .responseType(TestResponse.class)
+                    .scoreExtractor(TestResponse::score)
+                    .modelIds(List.of("model-1", "model-3")) // 0.5 and 0.9
+                    .build();
+
+            // When - Use MAX aggregator
+            Double result = executor.execute(request, ScoreAggregator.MAX).join();
+
+            // Then - should return max of 0.5 and 0.9
+            assertThat(result).isEqualTo(0.9);
+        }
+    }
+
     // ========== Helper Methods ==========
 
     private void setupMockModels(Map<String, Double> modelScores) {
-        when(chatClientStore.getModelIds()).thenReturn(new ArrayList<>(modelScores.keySet()));
+        lenient().when(chatClientStore.getModelIds()).thenReturn(new ArrayList<>(modelScores.keySet()));
         modelScores.forEach((modelId, score) -> {
             ChatClient client = createMockClientWithScore(score);
-            when(chatClientStore.get(modelId)).thenReturn(client);
+            lenient().when(chatClientStore.get(modelId)).thenReturn(client);
         });
     }
 
@@ -390,9 +517,9 @@ class MultiModelExecutorTest {
         ChatClient.CallResponseSpec callSpec = mock(ChatClient.CallResponseSpec.class);
         ChatClient.ChatClientRequestSpec requestSpec = mock(ChatClient.ChatClientRequestSpec.class);
 
-        when(client.prompt(any(String.class))).thenReturn(requestSpec);
-        when(requestSpec.call()).thenReturn(callSpec);
-        when(callSpec.entity(TestResponse.class)).thenReturn(new TestResponse(score));
+        lenient().when(client.prompt(any(String.class))).thenReturn(requestSpec);
+        lenient().when(requestSpec.call()).thenReturn(callSpec);
+        lenient().when(callSpec.entity(TestResponse.class)).thenReturn(new TestResponse(score));
 
         return client;
     }

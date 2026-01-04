@@ -70,6 +70,10 @@ public class ChatClientAutoConfiguration {
      * <p>
      * If individual options are not specified for the model, {@code defaultOptions}
      * from the general configuration are used.
+     * <p>
+     * IMPORTANT: The builder is cloned before configuration to ensure each ChatClient
+     * has its own independent configuration. Without cloning, all clients would share
+     * the same mutable builder state, causing all models to use the last configured options.
      *
      * @param builder base ChatClient builder
      * @param modelConfig specific model configuration
@@ -84,7 +88,9 @@ public class ChatClientAutoConfiguration {
         final ChatModelProperties.ModelOptions options =
                 modelConfig.getOptions() != null ? modelConfig.getOptions() : properties.getDefaultOptions();
 
-        return builder.defaultAdvisors(new SimpleLoggerAdvisor())
+        // Clone the builder to avoid sharing mutable state between different ChatClients
+        return builder.clone()
+                .defaultAdvisors(new SimpleLoggerAdvisor())
                 .defaultOptions(ChatOptions.builder()
                         .model(modelConfig.getId())
                         .temperature(options.getTemperature())
