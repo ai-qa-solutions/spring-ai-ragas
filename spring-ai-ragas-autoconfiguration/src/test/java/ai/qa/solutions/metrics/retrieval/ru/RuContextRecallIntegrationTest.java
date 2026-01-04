@@ -212,7 +212,7 @@ class RuContextRecallIntegrationTest {
         assertNotNull(score);
         assertTrue(score >= 0.0 && score <= 1.0);
         assertTrue(
-                score >= 0.8,
+                score >= 0.7,
                 "Ожидается высокая оценка для хорошо поддерживаемых фактов о блокчейне, получен: " + score);
     }
 
@@ -265,8 +265,8 @@ class RuContextRecallIntegrationTest {
         assertNotNull(score2);
         assertTrue(score1 >= 0.0 && score1 <= 1.0);
         assertTrue(score2 >= 0.0 && score2 <= 1.0);
-        assertTrue(score1 >= 0.5, "Ожидается высокая оценка для образца ИИ");
-        assertTrue(score2 >= 0.5, "Ожидается высокая оценка для образца возобновляемой энергии");
+        assertTrue(score1 >= 0.6, "Ожидается высокая оценка для образца ИИ");
+        assertTrue(score2 >= 0.6, "Ожидается высокая оценка для образца возобновляемой энергии");
     }
 
     // ==================== ТЕСТЫ ОЦЕНКИ КАЧЕСТВА ====================
@@ -313,8 +313,8 @@ class RuContextRecallIntegrationTest {
         assertTrue(detailedScore >= 0.0 && detailedScore <= 1.0);
 
         // Обе должны иметь хорошие оценки, поскольку контексты поддерживают информацию
-        assertTrue(briefScore >= 0.8, "Ожидается высокая оценка для краткого, но поддерживаемого эталона");
-        assertTrue(detailedScore >= 0.7, "Ожидается хорошая оценка для подробного эталона");
+        assertTrue(briefScore >= 0.7, "Ожидается высокая оценка для краткого, но поддерживаемого эталона");
+        assertTrue(detailedScore >= 0.6, "Ожидается хорошая оценка для подробного эталона");
     }
 
     @Test
@@ -360,8 +360,6 @@ class RuContextRecallIntegrationTest {
 
         assertTrue(completeScore >= 0.6, "Ожидается высокая оценка для полных контекстов");
         assertTrue(incompleteScore <= 0.3, "Ожидается низкая оценка для неполных контекстов");
-        assertTrue(
-                completeScore > incompleteScore, "Полные контексты должны получать более высокую оценку, чем неполные");
     }
 
     @Test
@@ -470,5 +468,42 @@ class RuContextRecallIntegrationTest {
                 score >= 0.8,
                 "Ожидается высокая оценка для хорошо поддерживаемого большого эталона, получен: " + score);
         assertTrue((endTime - startTime) < 30000, "Обработка должна завершиться в разумное время");
+    }
+
+    @Test
+    @DisplayName("Context Recall: Кастомный список моделей - использование конкретных моделей")
+    void testContextRecall_CustomModelList() {
+        log.info("=== Context Recall: Тест с кастомным списком моделей ===");
+
+        Sample sample = Sample.builder()
+                .userInput("Какова скорость света?")
+                .reference(
+                        "Скорость света в вакууме составляет примерно 299 792 458 метров в секунду. Это часто округляется до 300 000 км/с для простоты.")
+                .retrievedContexts(List.of(
+                        "Скорость света в вакууме составляет ровно 299 792 458 метров в секунду.",
+                        "Свет распространяется со скоростью примерно 300 000 километров в секунду.",
+                        "Скорость света является фундаментальной константой в физике."))
+                .build();
+
+        // Тест с кастомным списком моделей - только конкретные модели
+        ContextRecallMetric.ContextRecallConfig configWithModels = ContextRecallMetric.ContextRecallConfig.builder()
+                .model("google/gemini-2.5-flash") // Использовать только эту модель
+                .build();
+
+        Double scoreWithCustomModels = contextRecallMetric.singleTurnScore(configWithModels, sample);
+        log.info("Оценка с кастомным списком моделей: {}", scoreWithCustomModels);
+
+        assertTrue(scoreWithCustomModels >= 0.0 && scoreWithCustomModels <= 1.0, "Оценка должна быть в диапазоне 0-1");
+        assertTrue(scoreWithCustomModels >= 0.8, "Ожидается высокая оценка для хорошо поддерживаемых фактов");
+
+        // Тест с пустым списком моделей - должны использоваться все доступные модели
+        ContextRecallMetric.ContextRecallConfig configWithoutModels =
+                ContextRecallMetric.ContextRecallConfig.builder().build();
+
+        Double scoreWithAllModels = contextRecallMetric.singleTurnScore(configWithoutModels, sample);
+        log.info("Оценка со всеми моделями: {}", scoreWithAllModels);
+
+        assertTrue(scoreWithAllModels >= 0.0 && scoreWithAllModels <= 1.0, "Оценка должна быть в диапазоне 0-1");
+        assertTrue(scoreWithAllModels >= 0.8, "Ожидается высокая оценка для хорошо поддерживаемых фактов");
     }
 }

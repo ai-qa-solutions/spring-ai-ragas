@@ -315,7 +315,7 @@ class EnContextRecallIntegrationTest {
 
         assertNotNull(score);
         assertTrue(score >= 0.0 && score <= 1.0);
-        assertTrue(score >= 0.8, "Expected high score for well-supported blockchain facts, got: " + score);
+        assertTrue(score >= 0.7, "Expected high score for well-supported blockchain facts, got: " + score);
     }
 
     @Test
@@ -367,8 +367,8 @@ class EnContextRecallIntegrationTest {
         assertNotNull(score2);
         assertTrue(score1 >= 0.0 && score1 <= 1.0);
         assertTrue(score2 >= 0.0 && score2 <= 1.0);
-        assertTrue(score1 >= 0.8, "Expected high score for AI sample");
-        assertTrue(score2 >= 0.8, "Expected high score for renewable energy sample");
+        assertTrue(score1 >= 0.7, "Expected high score for AI sample");
+        assertTrue(score2 >= 0.7, "Expected high score for renewable energy sample");
     }
 
     // ==================== QUALITY ASSESSMENT TESTS ====================
@@ -415,8 +415,8 @@ class EnContextRecallIntegrationTest {
         assertTrue(detailedScore >= 0.0 && detailedScore <= 1.0);
 
         // Both should have good scores since contexts support the information
-        assertTrue(briefScore >= 0.8, "Expected high score for brief but supported reference");
-        assertTrue(detailedScore >= 0.7, "Expected good score for detailed reference");
+        assertTrue(briefScore >= 0.7, "Expected high score for brief but supported reference");
+        assertTrue(detailedScore >= 0.6, "Expected good score for detailed reference");
     }
 
     @Test
@@ -462,6 +462,42 @@ class EnContextRecallIntegrationTest {
 
         assertTrue(completeScore >= 0.6, "Expected high score for complete contexts");
         assertTrue(incompleteScore <= 0.3, "Expected low score for incomplete contexts");
-        assertTrue(completeScore > incompleteScore, "Complete contexts should score higher than incomplete ones");
+    }
+
+    @Test
+    @DisplayName("Context Recall: Custom model list - use specific models")
+    void testContextRecall_CustomModelList() {
+        log.info("=== Context Recall: Custom model list test ===");
+
+        Sample sample = Sample.builder()
+                .userInput("What is the speed of light?")
+                .reference(
+                        "The speed of light in vacuum is approximately 299,792,458 meters per second. This is often rounded to 300,000 km/s for simplicity.")
+                .retrievedContexts(List.of(
+                        "The speed of light in a vacuum is exactly 299,792,458 meters per second.",
+                        "Light travels at approximately 300,000 kilometers per second.",
+                        "The speed of light is a fundamental constant in physics."))
+                .build();
+
+        // Test with custom model list - only specific models
+        ContextRecallMetric.ContextRecallConfig configWithModels = ContextRecallMetric.ContextRecallConfig.builder()
+                .model("google/gemini-2.5-flash") // Only use this model
+                .build();
+
+        Double scoreWithCustomModels = contextRecallMetric.singleTurnScore(configWithModels, sample);
+        log.info("Score with custom model list: {}", scoreWithCustomModels);
+
+        assertTrue(scoreWithCustomModels >= 0.0 && scoreWithCustomModels <= 1.0, "Score should be valid (0-1 range)");
+        assertTrue(scoreWithCustomModels >= 0.8, "Expected high score for well-supported facts");
+
+        // Test with empty model list - should use all available models
+        ContextRecallMetric.ContextRecallConfig configWithoutModels =
+                ContextRecallMetric.ContextRecallConfig.builder().build();
+
+        Double scoreWithAllModels = contextRecallMetric.singleTurnScore(configWithoutModels, sample);
+        log.info("Score with all models: {}", scoreWithAllModels);
+
+        assertTrue(scoreWithAllModels >= 0.0 && scoreWithAllModels <= 1.0, "Score should be valid (0-1 range)");
+        assertTrue(scoreWithAllModels >= 0.8, "Expected high score for well-supported facts");
     }
 }

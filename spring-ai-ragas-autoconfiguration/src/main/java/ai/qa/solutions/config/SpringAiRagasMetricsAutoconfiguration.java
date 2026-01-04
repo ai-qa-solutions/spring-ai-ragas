@@ -44,10 +44,8 @@ public class SpringAiRagasMetricsAutoconfiguration {
     }
 
     @Bean
-    public ContextRecallMetric contextRecallMetric(final ChatClient.Builder chatClientBuilder) {
-        return ContextRecallMetric.builder()
-                .chatClient(chatClientBuilder.build())
-                .build();
+    public ContextRecallMetric contextRecallMetric(final MultiModelExecutor executor) {
+        return ContextRecallMetric.builder().executor(executor).build();
     }
 
     @Bean

@@ -1,5 +1,7 @@
 package ai.qa.solutions.metrics.retrieval;
 
+import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.MultiModelExecutor.ExecutionRequest;
 import ai.qa.solutions.metric.Metric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
@@ -10,14 +12,16 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
+import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 
 /**
- * Context Recall Metric - LLM-based evaluation of retriever's ability to retrieve all relevant information
- * Measures how many statements in the reference answer can be attributed to the retrieved contexts
+ * Context Recall Metric - LLM-based evaluation of retriever's ability to retrieve all relevant information.
+ * <p>
+ * Measures how many statements in the reference answer can be attributed to the retrieved contexts.
+ * Uses {@link MultiModelExecutor} for parallel execution across multiple models
+ * with support for listeners and custom aggregation strategies.
  */
 @Slf4j
 @Builder(toBuilder = true)
@@ -46,84 +50,80 @@ public class ContextRecallMetric implements Metric<ContextRecallMetric.ContextRe
                       - attributed: 1 if the statement can be attributed to the context, 0 otherwise
                     """;
 
-    @NonNull
-    private final ChatClient chatClient;
-
-    @NonNull
     @Builder.Default
     private final String contextRecallPrompt = DEFAULT_CONTEXT_RECALL_PROMPT;
 
+    private final MultiModelExecutor executor;
+
+    @Override
     public Double singleTurnScore(final ContextRecallConfig config, final Sample sample) {
+        return singleTurnScoreAsync(config, sample).join();
+    }
+
+    @Override
+    public CompletableFuture<Double> singleTurnScoreAsync(final ContextRecallConfig config, final Sample sample) {
         // Validate required inputs
-        String reference = sample.getReference();
+        final String reference = sample.getReference();
         if (reference == null || reference.trim().isEmpty()) {
             log.warn("No reference provided for Context Recall evaluation - this metric requires a reference answer");
-            return 0.0;
+            return CompletableFuture.completedFuture(0.0);
         }
 
-        List<String> retrievedContexts = sample.getRetrievedContexts();
+        final List<String> retrievedContexts = sample.getRetrievedContexts();
         if (retrievedContexts == null || retrievedContexts.isEmpty()) {
             log.warn("No retrieved contexts provided for Context Recall evaluation");
-            return 0.0;
+            return CompletableFuture.completedFuture(0.0);
         }
 
-        String userInput = sample.getUserInput();
+        final String userInput = sample.getUserInput();
         if (userInput == null || userInput.trim().isEmpty()) {
             log.warn("No user input provided for Context Recall evaluation");
-            return 0.0;
+            return CompletableFuture.completedFuture(0.0);
         }
 
         log.debug("Computing LLM-based context recall evaluation");
 
-        // Classify each statement in the reference answer
-        ContextRecallClassifications classifications =
-                classifyReferenceStatements(userInput, String.join("\n\n", retrievedContexts), reference);
+        final String prompt = renderPrompt(userInput, retrievedContexts, reference);
 
-        if (classifications.classifications() == null
+        return executor.execute(ExecutionRequest.<ContextRecallClassifications>builder()
+                .metricName(getName())
+                .prompt(prompt)
+                .responseType(ContextRecallClassifications.class)
+                .scoreExtractor(this::calculateContextRecall)
+                .modelIds(config.models != null ? config.models : List.of())
+                .metadata(Map.of(
+                        "sample", sample,
+                        "config", config))
+                .build());
+    }
+
+    private String renderPrompt(final String question, final List<String> retrievedContexts, final String reference) {
+        return PromptTemplate.builder()
+                .template(this.contextRecallPrompt)
+                .variables(Map.of(
+                        "question", question,
+                        "context", String.join("\n\n", retrievedContexts),
+                        "reference_answer", reference))
+                .build()
+                .render();
+    }
+
+    private Double calculateContextRecall(final ContextRecallClassifications classifications) {
+        if (classifications == null
+                || classifications.classifications() == null
                 || classifications.classifications().isEmpty()) {
             log.warn("No classifications returned from LLM");
             return 0.0;
         }
 
-        log.debug(
-                "Classified {} statements from reference answer",
-                classifications.classifications().size());
+        final List<ContextRecallClassification> classificationList = classifications.classifications();
+        log.debug("Classified {} statements from reference answer", classificationList.size());
 
-        // Calculate recall as the fraction of statements that are attributable
-        return calculateContextRecall(classifications.classifications());
-    }
-
-    public CompletableFuture<Double> singleTurnScoreAsync(ContextRecallConfig config, Sample sample) {
-        return CompletableFuture.supplyAsync(() -> singleTurnScore(config, sample));
-    }
-
-    private ContextRecallClassifications classifyReferenceStatements(
-            String question, String context, String referenceAnswer) {
-        final Map<String, Object> variables = Map.of(
-                "question", question,
-                "context", context,
-                "reference_answer", referenceAnswer);
-
-        return chatClient
-                .prompt(PromptTemplate.builder()
-                        .template(contextRecallPrompt)
-                        .variables(variables)
-                        .build()
-                        .create())
-                .call()
-                .entity(ContextRecallClassifications.class);
-    }
-
-    private Double calculateContextRecall(List<ContextRecallClassification> classifications) {
-        if (classifications.isEmpty()) {
-            return 0.0;
-        }
-
-        long attributedStatements = classifications.stream()
+        final long attributedStatements = classificationList.stream()
                 .mapToInt(ContextRecallClassification::attributed)
                 .sum();
 
-        return (double) attributedStatements / classifications.size();
+        return (double) attributedStatements / classificationList.size();
     }
 
     /**
@@ -144,5 +144,8 @@ public class ContextRecallMetric implements Metric<ContextRecallMetric.ContextRe
 
     @Data
     @Builder
-    public static class ContextRecallConfig implements MetricConfiguration {}
+    public static class ContextRecallConfig implements MetricConfiguration {
+        @Singular
+        private List<String> models;
+    }
 }
