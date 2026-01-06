@@ -88,12 +88,11 @@ class RuRubricsScoreMetricIntegrationTest {
     }
 
     @Test
-    @DisplayName("RubricsScore: Тест оценки эссе")
-    void testRubricsScore_EssayEvaluation() {
-        log.info("=== RubricsScore: Оценка эссе ===");
+    @DisplayName("RubricsScore: Оценка эссе - хорошее эссе")
+    void testRubricsScore_EssayEvaluation_GoodEssay() {
+        log.info("=== RubricsScore: Оценка эссе - хорошее эссе ===");
 
-        // Хорошее эссе
-        Sample goodEssay = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Напишите эссе о влиянии технологий на общество")
                 .response("Технологический прогресс кардинально изменил современное общество. "
                         + "С одной стороны, цифровые технологии обеспечили беспрецедентные возможности "
@@ -105,8 +104,22 @@ class RuRubricsScoreMetricIntegrationTest {
                 .reference("Эссе о влиянии технологий на общество с примерами и аргументацией")
                 .build();
 
-        // Слабое эссе
-        Sample weakEssay = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createEssayRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Хорошее эссе - оценка: {}", score);
+
+        assertTrue(score >= 3.0, "Хорошее эссе должно получить высокую оценку");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Оценка эссе - слабое эссе")
+    void testRubricsScore_EssayEvaluation_WeakEssay() {
+        log.info("=== RubricsScore: Оценка эссе - слабое эссе ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Напишите эссе о влиянии технологий на общество")
                 .response("Технологии хорошие. Есть телефоны и компьютеры. " + "Люди используют интернет. Это удобно.")
                 .reference("Эссе о влиянии технологий на общество с примерами и аргументацией")
@@ -116,23 +129,18 @@ class RuRubricsScoreMetricIntegrationTest {
                 .rubrics(createEssayRubrics())
                 .build();
 
-        Double goodScore = rubricsScoreMetric.singleTurnScore(config, goodEssay);
-        Double weakScore = rubricsScoreMetric.singleTurnScore(config, weakEssay);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Слабое эссе - оценка: {}", score);
 
-        log.info("Хорошее эссе - оценка: {}", goodScore);
-        log.info("Слабое эссе - оценка: {}", weakScore);
-
-        assertTrue(goodScore >= 3.0, "Хорошее эссе должно получить высокую оценку");
-        assertTrue(weakScore <= 2.0, "Слабое эссе должно получить низкую оценку");
+        assertTrue(score <= 2.0, "Слабое эссе должно получить низкую оценку");
     }
 
     @Test
-    @DisplayName("RubricsScore: RAG для службы поддержки - Оценка качества ответа")
-    void testRubricsScore_CustomerSupportRAG() {
-        log.info("=== RubricsScore: RAG для службы поддержки ===");
+    @DisplayName("RubricsScore: RAG для службы поддержки - отличный ответ")
+    void testRubricsScore_CustomerSupportRAG_ExcellentResponse() {
+        log.info("=== RubricsScore: RAG для службы поддержки - отличный ответ ===");
 
-        // Отличный ответ службы поддержки
-        Sample excellentSupport = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Не могу войти в личный кабинет. Постоянно выдаёт ошибку 'неверные учетные данные'.")
                 .response(
                         "Понимаю, насколько это может быть неприятно. Давайте решим проблему со входом вместе. "
@@ -144,8 +152,22 @@ class RuRubricsScoreMetricIntegrationTest {
                         + "Очистите кэш/куки. Обратитесь в support@company.ru если проблема сохраняется.")
                 .build();
 
-        // Плохой ответ службы поддержки
-        Sample poorSupport = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createCustomerSupportRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Оценка отличного ответа поддержки: {}", score);
+
+        assertTrue(score >= 4.0, "Эмпатичный и полный ответ службы поддержки должен получить высокую оценку");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: RAG для службы поддержки - плохой ответ")
+    void testRubricsScore_CustomerSupportRAG_PoorResponse() {
+        log.info("=== RubricsScore: RAG для службы поддержки - плохой ответ ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Не могу войти в личный кабинет. Постоянно выдаёт ошибку 'неверные учетные данные'.")
                 .response("Вы, наверное, неправильно ввели пароль. Попробуйте еще раз.")
                 .reference("Сброс пароля: используйте ссылку 'Забыли пароль?'. Проверьте Caps Lock. "
@@ -156,23 +178,18 @@ class RuRubricsScoreMetricIntegrationTest {
                 .rubrics(createCustomerSupportRubrics())
                 .build();
 
-        Double excellentScore = rubricsScoreMetric.singleTurnScore(config, excellentSupport);
-        Double poorScore = rubricsScoreMetric.singleTurnScore(config, poorSupport);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Оценка плохого ответа поддержки: {}", score);
 
-        log.info("Оценка отличного ответа поддержки: {}", excellentScore);
-        log.info("Оценка плохого ответа поддержки: {}", poorScore);
-
-        assertTrue(excellentScore >= 4.0, "Эмпатичный и полный ответ службы поддержки должен получить высокую оценку");
-        assertTrue(poorScore <= 2.0, "Неполезный и неполный ответ службы поддержки должен получить низкую оценку");
+        assertTrue(score <= 2.0, "Неполезный и неполный ответ службы поддержки должен получить низкую оценку");
     }
 
     @Test
-    @DisplayName("RubricsScore: Технический помощник - Точность и полнота")
-    void testRubricsScore_TechnicalAssistant() {
-        log.info("=== RubricsScore: Технический помощник ===");
+    @DisplayName("RubricsScore: Технический помощник - точный ответ")
+    void testRubricsScore_TechnicalAssistant_AccurateResponse() {
+        log.info("=== RubricsScore: Технический помощник - точный ответ ===");
 
-        // Точный и полный технический ответ
-        Sample accurateTechnical = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Как настроить Redis для кэширования в Spring Boot 3.x?")
                 .response("Для настройки Redis кэширования в Spring Boot 3.x:\n"
                         + "1. Добавьте зависимости: spring-boot-starter-data-redis и spring-boot-starter-cache\n"
@@ -185,8 +202,22 @@ class RuRubricsScoreMetricIntegrationTest {
                         + "включить @EnableCaching, настроить RedisCacheManager с TTL")
                 .build();
 
-        // Неполный технический ответ
-        Sample incompleteTechnical = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createTechnicalDocumentationRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Оценка точного технического ответа: {}", score);
+
+        assertTrue(score >= 4.0, "Подробный технический ответ с примерами кода должен получить высокую оценку");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Технический помощник - неполный ответ")
+    void testRubricsScore_TechnicalAssistant_IncompleteResponse() {
+        log.info("=== RubricsScore: Технический помощник - неполный ответ ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Как настроить Redis для кэширования в Spring Boot 3.x?")
                 .response("Нужно добавить зависимости Redis и настроить Spring Boot. "
                         + "Потом можно использовать Redis для кэширования данных.")
@@ -198,23 +229,18 @@ class RuRubricsScoreMetricIntegrationTest {
                 .rubrics(createTechnicalDocumentationRubrics())
                 .build();
 
-        Double accurateScore = rubricsScoreMetric.singleTurnScore(config, accurateTechnical);
-        Double incompleteScore = rubricsScoreMetric.singleTurnScore(config, incompleteTechnical);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Оценка неполного технического ответа: {}", score);
 
-        log.info("Оценка точного технического ответа: {}", accurateScore);
-        log.info("Оценка неполного технического ответа: {}", incompleteScore);
-
-        assertTrue(accurateScore >= 4.0, "Подробный технический ответ с примерами кода должен получить высокую оценку");
-        assertTrue(incompleteScore <= 2.5, "Расплывчатый и неполный технический ответ должен получить низкую оценку");
+        assertTrue(score <= 2.5, "Расплывчатый и неполный технический ответ должен получить низкую оценку");
     }
 
     @Test
-    @DisplayName("RubricsScore: Юридическая консультация - Безопасность и корректность")
-    void testRubricsScore_LegalConsultation() {
-        log.info("=== RubricsScore: Юридическая консультация ===");
+    @DisplayName("RubricsScore: Юридическая консультация - безопасный ответ")
+    void testRubricsScore_LegalConsultation_SafeResponse() {
+        log.info("=== RubricsScore: Юридическая консультация - безопасный ответ ===");
 
-        // Безопасный и корректный юридический ответ
-        Sample safeLegal = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Работодатель задерживает зарплату уже 2 недели. Что мне делать?")
                 .response(
                         "Задержка заработной платы является нарушением трудового законодательства РФ. "
@@ -228,8 +254,22 @@ class RuRubricsScoreMetricIntegrationTest {
                         + "обращение в трудинспекцию, право на компенсацию. Консультация юриста рекомендуется.")
                 .build();
 
-        // Небезопасный юридический ответ
-        Sample unsafeLegal = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createLegalConsultationRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Оценка безопасного юридического ответа: {}", score);
+
+        assertTrue(score >= 4.0, "Безопасный юридический ответ со ссылками на законы должен получить высокую оценку");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Юридическая консультация - небезопасный ответ")
+    void testRubricsScore_LegalConsultation_UnsafeResponse() {
+        log.info("=== RubricsScore: Юридическая консультация - небезопасный ответ ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Работодатель задерживает зарплату уже 2 недели. Что мне делать?")
                 .response("Просто увольняйтесь и подавайте в суд на максимальную компенсацию. "
                         + "Вы точно выиграете дело и получите большие деньги.")
@@ -241,17 +281,11 @@ class RuRubricsScoreMetricIntegrationTest {
                 .rubrics(createLegalConsultationRubrics())
                 .build();
 
-        Double safeScore = rubricsScoreMetric.singleTurnScore(config, safeLegal);
-        Double unsafeScore = rubricsScoreMetric.singleTurnScore(config, unsafeLegal);
-
-        log.info("Оценка безопасного юридического ответа: {}", safeScore);
-        log.info("Оценка небезопасного юридического ответа: {}", unsafeScore);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Оценка небезопасного юридического ответа: {}", score);
 
         assertTrue(
-                safeScore >= 4.0, "Безопасный юридический ответ со ссылками на законы должен получить высокую оценку");
-        assertTrue(
-                unsafeScore <= 2.0,
-                "Небезопасный юридический ответ с категоричными советами должен получить низкую оценку");
+                score <= 2.0, "Небезопасный юридический ответ с категоричными советами должен получить низкую оценку");
     }
 
     // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================

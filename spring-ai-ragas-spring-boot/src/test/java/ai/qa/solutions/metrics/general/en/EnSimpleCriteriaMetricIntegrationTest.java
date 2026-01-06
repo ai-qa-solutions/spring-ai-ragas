@@ -51,10 +51,10 @@ class EnSimpleCriteriaMetricIntegrationTest {
         log.info("Question: {}", sample.getUserInput());
         log.info("Response: {}", sample.getResponse());
         log.info("Reference: {}", sample.getReference());
-        log.info("Quality score: {} (1-5 scale)", score);
+        log.info("Normalized score: {} (0-1 scale)", score);
 
-        assertTrue(score >= 1.0 && score <= 5.0);
-        assertTrue(score >= 4.0, "Expected high score for quality explanation, got: " + score);
+        assertTrue(score >= 0.0 && score <= 1.0, "Score must be normalized to [0, 1] range");
+        assertTrue(score >= 0.75, "Expected high normalized score for quality explanation, got: " + score);
     }
 
     @Test
@@ -81,26 +81,41 @@ class EnSimpleCriteriaMetricIntegrationTest {
         log.info("Question: {}", sample.getUserInput());
         log.info("Response: {}", sample.getResponse());
         log.info("Reference: {}", sample.getReference());
-        log.info("Quality score: {} (1-5 scale)", score);
+        log.info("Normalized score: {} (0-1 scale)", score);
 
-        assertTrue(score >= 1.0 && score <= 5.0);
-        assertTrue(score <= 2.5, "Expected low score for superficial answer, got: " + score);
+        assertTrue(score >= 0.0 && score <= 1.0, "Score must be normalized to [0, 1] range");
+        assertTrue(score <= 0.4, "Expected low normalized score for superficial answer, got: " + score);
     }
 
     @Test
-    @DisplayName("SimpleCriteriaScore: Mathematical accuracy test")
-    void testSimpleCriteriaScore_MathAccuracy() {
-        log.info("=== SimpleCriteriaScore: Mathematical accuracy ===");
+    @DisplayName("SimpleCriteriaScore: Mathematical accuracy - correct answer")
+    void testSimpleCriteriaScore_MathAccuracy_CorrectAnswer() {
+        log.info("=== SimpleCriteriaScore: Mathematical accuracy - correct answer ===");
 
-        // Correct answer
-        Sample correctSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("What is 15 multiplied by 12?")
                 .response("15 multiplied by 12 equals 180.")
                 .reference("180")
                 .build();
 
-        // Incorrect answer
-        Sample incorrectSample = Sample.builder()
+        SimpleCriteriaScoreMetric.SimpleCriteriaConfig config = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                .definition("Rate the mathematical accuracy from 0 to 5")
+                .minScore(0.0)
+                .maxScore(5.0)
+                .build();
+
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+        log.info("Correct answer - normalized score: {}", score);
+
+        assertTrue(score >= 0.9, "Correct answer should receive high normalized score (>=0.9)");
+    }
+
+    @Test
+    @DisplayName("SimpleCriteriaScore: Mathematical accuracy - incorrect answer")
+    void testSimpleCriteriaScore_MathAccuracy_IncorrectAnswer() {
+        log.info("=== SimpleCriteriaScore: Mathematical accuracy - incorrect answer ===");
+
+        Sample sample = Sample.builder()
                 .userInput("What is 15 multiplied by 12?")
                 .response("15 multiplied by 12 equals 170.")
                 .reference("180")
@@ -112,30 +127,42 @@ class EnSimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        Double correctScore = simpleCriteriaScoreMetric.singleTurnScore(config, correctSample);
-        Double incorrectScore = simpleCriteriaScoreMetric.singleTurnScore(config, incorrectSample);
-        log.info("Correct answer - score: {}", correctScore);
-        log.info("Incorrect answer - score: {}", incorrectScore);
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+        log.info("Incorrect answer - normalized score: {}", score);
 
-        assertTrue(correctScore >= 4.5, "Correct answer should receive high score");
-        assertTrue(incorrectScore <= 2.0, "Incorrect answer should receive low score");
+        assertTrue(score <= 0.4, "Incorrect answer should receive low normalized score (<=0.4)");
     }
 
     @Test
-    @DisplayName("SimpleCriteriaScore: Relevance evaluation")
-    void testSimpleCriteriaScore_Relevance() {
-        log.info("=== SimpleCriteriaScore: Relevance evaluation ===");
+    @DisplayName("SimpleCriteriaScore: Relevance - relevant answer")
+    void testSimpleCriteriaScore_Relevance_RelevantAnswer() {
+        log.info("=== SimpleCriteriaScore: Relevance - relevant answer ===");
 
-        // Relevant answer
-        Sample relevantSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("How does photosynthesis work?")
                 .response("Photosynthesis is the process by which plants convert light energy into chemical energy."
                         + "Using sunlight, water, and carbon dioxide, plants produce glucose and release oxygen.")
                 .reference("Plants use light to make food from CO2 and water")
                 .build();
 
-        // Irrelevant answer
-        Sample irrelevantSample = Sample.builder()
+        SimpleCriteriaScoreMetric.SimpleCriteriaConfig config = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                .definition("Rate how relevant the response is to the question from 0 to 5")
+                .minScore(0.0)
+                .maxScore(5.0)
+                .build();
+
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+        log.info("Relevant answer - normalized score: {}", score);
+
+        assertTrue(score >= 0.8, "Relevant answer should have high normalized score (>=0.8)");
+    }
+
+    @Test
+    @DisplayName("SimpleCriteriaScore: Relevance - irrelevant answer")
+    void testSimpleCriteriaScore_Relevance_IrrelevantAnswer() {
+        log.info("=== SimpleCriteriaScore: Relevance - irrelevant answer ===");
+
+        Sample sample = Sample.builder()
                 .userInput("How does photosynthesis work?")
                 .response("Plants are important for the environment. They provide oxygen and food for many animals.")
                 .reference("Plants use light to make food from CO2 and water")
@@ -147,12 +174,9 @@ class EnSimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        Double relevantScore = simpleCriteriaScoreMetric.singleTurnScore(config, relevantSample);
-        Double irrelevantScore = simpleCriteriaScoreMetric.singleTurnScore(config, irrelevantSample);
-        log.info("Relevant answer score: {}", relevantScore);
-        log.info("Irrelevant answer score: {}", irrelevantScore);
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+        log.info("Irrelevant answer - normalized score: {}", score);
 
-        assertTrue(relevantScore >= 4.0, "Relevant answer should score high");
-        assertTrue(irrelevantScore <= 2.5, "Irrelevant answer should score low");
+        assertTrue(score <= 0.5, "Irrelevant answer should have low normalized score (<=0.5)");
     }
 }

@@ -84,12 +84,11 @@ class EnAspectCriticMetricIntegrationTest {
     }
 
     @Test
-    @DisplayName("AspectCritic: Completeness evaluation")
-    void testAspectCritic_Completeness() {
-        log.info("=== AspectCritic: Completeness evaluation ===");
+    @DisplayName("AspectCritic: Completeness - complete answer")
+    void testAspectCritic_Completeness_CompleteAnswer() {
+        log.info("=== AspectCritic: Completeness - complete answer ===");
 
-        // Complete answer
-        Sample completeSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("What are the primary colors?")
                 .response("The primary colors depend on the context. In traditional art (subtractive color mixing), "
                         + "the primary colors are red, yellow, and blue. These cannot be created by mixing other "
@@ -97,31 +96,40 @@ class EnAspectCriticMetricIntegrationTest {
                         + "mixing), the primary colors are red, green, and blue (RGB).")
                 .build();
 
-        // Incomplete answer
-        Sample incompleteSample = Sample.builder()
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Does the response list at least three primary colors and provide basic explanation?")
+                .build();
+
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+        log.info("Complete answer score: {}", score);
+
+        assertTrue(score >= 0.8, "Complete answer should score high");
+    }
+
+    @Test
+    @DisplayName("AspectCritic: Completeness - incomplete answer")
+    void testAspectCritic_Completeness_IncompleteAnswer() {
+        log.info("=== AspectCritic: Completeness - incomplete answer ===");
+
+        Sample sample = Sample.builder()
                 .userInput("What are the primary colors?")
                 .response("Red and blue.")
                 .build();
 
         AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
                 .definition("Does the response list at least three primary colors and provide basic explanation?")
-                .strictness(3)
                 .build();
 
-        Double completeScore = aspectCriticMetric.singleTurnScore(config, completeSample);
-        Double incompleteScore = aspectCriticMetric.singleTurnScore(config, incompleteSample);
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+        log.info("Incomplete answer score: {}", score);
 
-        log.info("Complete answer score: {}", completeScore);
-        log.info("Incomplete answer score: {}", incompleteScore);
-
-        assertTrue(completeScore >= 0.8, "Complete answer should score high");
-        assertTrue(incompleteScore <= 0.4, "Incomplete answer should score low");
+        assertTrue(score <= 0.4, "Incomplete answer should score low");
     }
 
     @Test
-    @DisplayName("AspectCritic: Custom model list - use specific models")
-    void testAspectCritic_CustomModelList() {
-        log.info("=== AspectCritic: Custom model list test ===");
+    @DisplayName("AspectCritic: Custom model list - specific model")
+    void testAspectCritic_CustomModelList_SpecificModel() {
+        log.info("=== AspectCritic: Custom model list - specific model ===");
 
         Sample sample = Sample.builder()
                 .userInput("What is the meaning of life?")
@@ -129,27 +137,35 @@ class EnAspectCriticMetricIntegrationTest {
                         + "Different cultures, religions, and philosophies offer various perspectives.")
                 .build();
 
-        // Test with custom model list - only specific models
-        AspectCriticMetric.AspectCriticConfig configWithModels = AspectCriticMetric.AspectCriticConfig.builder()
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
                 .definition("Is the response thoughtful and well-reasoned?")
-                .strictness(3)
-                .model("google/gemini-2.5-flash") // Only use this model
+                .model("google/gemini-2.5-flash")
                 .build();
 
-        Double scoreWithCustomModels = aspectCriticMetric.singleTurnScore(configWithModels, sample);
-        log.info("Score with custom model list: {}", scoreWithCustomModels);
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+        log.info("Score with custom model: {}", score);
 
-        assertTrue(scoreWithCustomModels >= 0.0 && scoreWithCustomModels <= 1.0, "Score should be valid (0-1 range)");
+        assertTrue(score >= 0.0 && score <= 1.0, "Score should be valid (0-1 range)");
+    }
 
-        // Test with empty model list - should use all available models
-        AspectCriticMetric.AspectCriticConfig configWithoutModels = AspectCriticMetric.AspectCriticConfig.builder()
-                .definition("Is the response thoughtful and well-reasoned?")
-                .strictness(3)
+    @Test
+    @DisplayName("AspectCritic: Custom model list - all models")
+    void testAspectCritic_CustomModelList_AllModels() {
+        log.info("=== AspectCritic: Custom model list - all models ===");
+
+        Sample sample = Sample.builder()
+                .userInput("What is the meaning of life?")
+                .response("The meaning of life is a philosophical question that has been debated for centuries. "
+                        + "Different cultures, religions, and philosophies offer various perspectives.")
                 .build();
 
-        Double scoreWithAllModels = aspectCriticMetric.singleTurnScore(configWithoutModels, sample);
-        log.info("Score with all models: {}", scoreWithAllModels);
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is the response thoughtful and well-reasoned?")
+                .build();
 
-        assertTrue(scoreWithAllModels >= 0.0 && scoreWithAllModels <= 1.0, "Score should be valid (0-1 range)");
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+        log.info("Score with all models: {}", score);
+
+        assertTrue(score >= 0.0 && score <= 1.0, "Score should be valid (0-1 range)");
     }
 }

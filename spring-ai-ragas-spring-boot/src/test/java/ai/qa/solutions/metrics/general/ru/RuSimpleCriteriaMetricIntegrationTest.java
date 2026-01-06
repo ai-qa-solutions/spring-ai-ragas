@@ -52,11 +52,13 @@ class RuSimpleCriteriaMetricIntegrationTest {
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
         log.info("Эталон: {}", sample.getReference());
-        log.info("Оценка качества: {} (1-5 шкала)", score);
+        log.info("Нормализованная оценка: {} (0-1 шкала)", score);
 
         assertNotNull(score);
-        assertTrue(score >= 1.0 && score <= 5.0);
-        assertTrue(score >= 4.0, "Ожидается высокая оценка для качественного объяснения, получен: " + score);
+        assertTrue(score >= 0.0 && score <= 1.0, "Оценка должна быть нормализована в диапазон [0, 1]");
+        assertTrue(
+                score >= 0.75,
+                "Ожидается высокая нормализованная оценка для качественного объяснения, получен: " + score);
     }
 
     @Test
@@ -81,27 +83,46 @@ class RuSimpleCriteriaMetricIntegrationTest {
         log.info("Вопрос: {}", sample.getUserInput());
         log.info("Ответ: {}", sample.getResponse());
         log.info("Эталон: {}", sample.getReference());
-        log.info("Оценка качества: {} (1-5 шкала)", score);
+        log.info("Нормализованная оценка: {} (0-1 шкала)", score);
 
         assertNotNull(score);
-        assertTrue(score >= 1.0 && score <= 5.0);
-        assertTrue(score <= 2.5, "Ожидается низкая оценка для поверхностного ответа, получен: " + score);
+        assertTrue(score >= 0.0 && score <= 1.0, "Оценка должна быть нормализована в диапазон [0, 1]");
+        assertTrue(
+                score <= 0.4, "Ожидается низкая нормализованная оценка для поверхностного ответа, получен: " + score);
     }
 
     @Test
-    @DisplayName("SimpleCriteriaScore: Тест математической точности")
-    void testSimpleCriteriaScore_MathAccuracy() {
-        log.info("=== SimpleCriteriaScore: Математическая точность ===");
+    @DisplayName("SimpleCriteriaScore: Математическая точность - правильный ответ")
+    void testSimpleCriteriaScore_MathAccuracy_CorrectAnswer() {
+        log.info("=== SimpleCriteriaScore: Математическая точность - правильный ответ ===");
 
-        // Правильный ответ
-        Sample correctSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Сколько будет 15 умножить на 12?")
                 .response("15 умножить на 12 равно 180.")
                 .reference("180")
                 .build();
 
-        // Неправильный ответ
-        Sample incorrectSample = Sample.builder()
+        SimpleCriteriaScoreMetric.SimpleCriteriaConfig config = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                .definition("Оцените математическую точность от 0 до 5")
+                .minScore(0.0)
+                .maxScore(5.0)
+                .build();
+
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+        log.info("Вопрос: {}", sample.getUserInput());
+        log.info("Ответ: {}", sample.getResponse());
+        log.info("Эталон: {}", sample.getReference());
+        log.info("Нормализованная оценка: {} (0-1 шкала)", score);
+
+        assertTrue(score >= 0.9, "Правильный ответ должен получить высокую нормализованную оценку (>=0.9)");
+    }
+
+    @Test
+    @DisplayName("SimpleCriteriaScore: Математическая точность - неправильный ответ")
+    void testSimpleCriteriaScore_MathAccuracy_IncorrectAnswer() {
+        log.info("=== SimpleCriteriaScore: Математическая точность - неправильный ответ ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Сколько будет 15 умножить на 12?")
                 .response("15 умножить на 12 равно 170.")
                 .reference("180")
@@ -113,23 +134,12 @@ class RuSimpleCriteriaMetricIntegrationTest {
                 .maxScore(5.0)
                 .build();
 
-        Double correctScore = simpleCriteriaScoreMetric.singleTurnScore(config, correctSample);
-        log.info("Вопрос: {}", correctSample.getUserInput());
-        log.info("Ответ: {}", correctSample.getResponse());
-        log.info("Эталон: {}", correctSample.getReference());
-        log.info("Оценка качества: {} (1-5 шкала)", correctScore);
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+        log.info("Вопрос: {}", sample.getUserInput());
+        log.info("Ответ: {}", sample.getResponse());
+        log.info("Эталон: {}", sample.getReference());
+        log.info("Нормализованная оценка: {} (0-1 шкала)", score);
 
-        Double incorrectScore = simpleCriteriaScoreMetric.singleTurnScore(config, incorrectSample);
-        log.info("Вопрос: {}", incorrectSample.getUserInput());
-        log.info("Ответ: {}", incorrectSample.getResponse());
-        log.info("Эталон: {}", incorrectSample.getReference());
-        log.info("Оценка качества: {} (1-5 шкала)", incorrectScore);
-
-        log.info("Правильный ответ - оценка: {}", correctScore);
-        log.info("Неправильный ответ - оценка: {}", incorrectScore);
-
-        assertTrue(correctScore >= 4.5, "Правильный ответ должен получить высокую оценку");
-        assertTrue(incorrectScore <= 2.0, "Неправильный ответ должен получить низкую оценку");
-        assertTrue(correctScore > incorrectScore, "Правильный ответ должен оцениваться выше неправильного");
+        assertTrue(score <= 0.4, "Неправильный ответ должен получить низкую нормализованную оценку (<=0.4)");
     }
 }

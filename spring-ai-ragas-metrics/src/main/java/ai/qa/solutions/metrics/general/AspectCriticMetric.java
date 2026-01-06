@@ -44,8 +44,7 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
                     Instructions:
                     1. Carefully analyze the AI response against the given criteria
                     2. Consider the context provided by the user input
-                    3. Apply a strictness level of {strictness} (1=lenient, 5=very strict)
-                    4. Provide your evaluation with the criteria, verdict (true/false), and detailed reasoning
+                    3. Provide your evaluation with the criteria, verdict (true/false), and detailed reasoning
 
                     Respond with a JSON object containing:
                     - criteria: The evaluation criteria being applied
@@ -169,8 +168,6 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
                 .variables(Map.of(
                         "definition",
                         config.definition,
-                        "strictness",
-                        config.strictness,
                         "user_input",
                         sample.getUserInput(),
                         "response",
@@ -203,8 +200,13 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
         @NonNull
         private String definition;
 
+        /**
+         * Number of iterations per model for self-consistency voting (RAGAS methodology).
+         * Each model will be called {@code strictness} times and results aggregated using majority voting.
+         * Recommended range: 1-4. Default is 1.
+         */
         @Builder.Default
-        private Integer strictness = 3;
+        private Integer strictness = 1;
 
         @SuppressWarnings("unused")
         public void setStrictness(final int strictness) {

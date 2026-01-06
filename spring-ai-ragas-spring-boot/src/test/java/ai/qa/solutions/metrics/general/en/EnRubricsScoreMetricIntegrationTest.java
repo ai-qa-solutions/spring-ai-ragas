@@ -85,12 +85,11 @@ class EnRubricsScoreMetricIntegrationTest {
     }
 
     @Test
-    @DisplayName("RubricsScore: Essay evaluation test")
-    void testRubricsScore_EssayEvaluation() {
-        log.info("=== RubricsScore: Essay evaluation ===");
+    @DisplayName("RubricsScore: Essay evaluation - good essay")
+    void testRubricsScore_EssayEvaluation_GoodEssay() {
+        log.info("=== RubricsScore: Essay evaluation - good essay ===");
 
-        // Good essay
-        Sample goodEssay = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Write an essay about the impact of technology on society")
                 .response("Technological progress has fundamentally transformed modern society in profound ways. "
                         + "On the positive side, digital technologies have created unprecedented opportunities for "
@@ -115,8 +114,22 @@ class EnRubricsScoreMetricIntegrationTest {
                 .reference("Essay about the impact of technology on society with examples and arguments")
                 .build();
 
-        // Weak essay
-        Sample weakEssay = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createEssayRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Good essay score: {}", score);
+
+        assertTrue(score >= 4.0, "Good essay should receive high score");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Essay evaluation - weak essay")
+    void testRubricsScore_EssayEvaluation_WeakEssay() {
+        log.info("=== RubricsScore: Essay evaluation - weak essay ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Write an essay about the impact of technology on society")
                 .response("Technology is good. There are phones and computers. "
                         + "People use the internet. It's convenient.")
@@ -127,23 +140,18 @@ class EnRubricsScoreMetricIntegrationTest {
                 .rubrics(createEssayRubrics())
                 .build();
 
-        Double goodScore = rubricsScoreMetric.singleTurnScore(config, goodEssay);
-        Double weakScore = rubricsScoreMetric.singleTurnScore(config, weakEssay);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Weak essay score: {}", score);
 
-        log.info("Good essay score: {}", goodScore);
-        log.info("Weak essay score: {}", weakScore);
-
-        assertTrue(goodScore >= 4.0, "Good essay should receive high score");
-        assertTrue(weakScore <= 2.0, "Weak essay should receive low score");
+        assertTrue(score <= 2.0, "Weak essay should receive low score");
     }
 
     @Test
-    @DisplayName("RubricsScore: Code quality evaluation")
-    void testRubricsScore_CodeQuality() {
-        log.info("=== RubricsScore: Code quality evaluation ===");
+    @DisplayName("RubricsScore: Code quality - good code")
+    void testRubricsScore_CodeQuality_GoodCode() {
+        log.info("=== RubricsScore: Code quality - good code ===");
 
-        // Well-written code
-        Sample goodCode = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Write a function to calculate factorial")
                 .response(
                         """
@@ -158,8 +166,22 @@ class EnRubricsScoreMetricIntegrationTest {
                 .reference("Function to calculate factorial with proper error handling")
                 .build();
 
-        // Poor code
-        Sample poorCode = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createCodeQualityRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Good code score: {}", score);
+
+        assertTrue(score >= 4.0, "Well-written code should score high");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Code quality - poor code")
+    void testRubricsScore_CodeQuality_PoorCode() {
+        log.info("=== RubricsScore: Code quality - poor code ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Write a function to calculate factorial")
                 .response(
                         """
@@ -175,20 +197,16 @@ class EnRubricsScoreMetricIntegrationTest {
                 .rubrics(createCodeQualityRubrics())
                 .build();
 
-        Double goodScore = rubricsScoreMetric.singleTurnScore(config, goodCode);
-        Double poorScore = rubricsScoreMetric.singleTurnScore(config, poorCode);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Poor code score: {}", score);
 
-        log.info("Good code score: {}", goodScore);
-        log.info("Poor code score: {}", poorScore);
-
-        assertTrue(goodScore >= 4.0, "Well-written code should score high");
-        assertTrue(poorScore <= 3.0, "Poor code should score lower");
+        assertTrue(score <= 3.0, "Poor code should score lower");
     }
 
     @Test
-    @DisplayName("RubricsScore: Custom model list - use specific models")
-    void testRubricsScore_CustomModelList() {
-        log.info("=== RubricsScore: Custom model list test ===");
+    @DisplayName("RubricsScore: Custom model list - specific model")
+    void testRubricsScore_CustomModelList_SpecificModel() {
+        log.info("=== RubricsScore: Custom model list - specific model ===");
 
         Sample sample = Sample.builder()
                 .userInput("What are the benefits of exercise?")
@@ -199,35 +217,47 @@ class EnRubricsScoreMetricIntegrationTest {
                 .reference("Benefits of regular physical activity for health")
                 .build();
 
-        // Test with custom model list - only specific model
-        RubricsScoreMetric.RubricsConfig configWithModels = RubricsScoreMetric.RubricsConfig.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
                 .rubrics(createPhotosynthesisRubrics())
-                .model("google/gemini-2.5-flash") // Only use this model
+                .model("google/gemini-2.5-flash")
                 .build();
 
-        Double scoreWithCustomModels = rubricsScoreMetric.singleTurnScore(configWithModels, sample);
-        log.info("Score with custom model list: {}", scoreWithCustomModels);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Score with custom model: {}", score);
 
-        assertTrue(scoreWithCustomModels >= 1.0 && scoreWithCustomModels <= 5.0, "Score should be valid (1-5 range)");
-
-        // Test with empty model list - should use all available models
-        RubricsScoreMetric.RubricsConfig configWithoutModels = RubricsScoreMetric.RubricsConfig.builder()
-                .rubrics(createPhotosynthesisRubrics())
-                .build();
-
-        Double scoreWithAllModels = rubricsScoreMetric.singleTurnScore(configWithoutModels, sample);
-        log.info("Score with all models: {}", scoreWithAllModels);
-
-        assertTrue(scoreWithAllModels >= 1.0 && scoreWithAllModels <= 5.0, "Score should be valid (1-5 range)");
+        assertTrue(score >= 1.0 && score <= 5.0, "Score should be valid (1-5 range)");
     }
 
     @Test
-    @DisplayName("RubricsScore: Customer Support RAG - Response quality evaluation")
-    void testRubricsScore_CustomerSupportRAG() {
-        log.info("=== RubricsScore: Customer Support RAG ===");
+    @DisplayName("RubricsScore: Custom model list - all models")
+    void testRubricsScore_CustomModelList_AllModels() {
+        log.info("=== RubricsScore: Custom model list - all models ===");
 
-        // Excellent support response
-        Sample excellentSupport = Sample.builder()
+        Sample sample = Sample.builder()
+                .userInput("What are the benefits of exercise?")
+                .response(
+                        "Regular exercise provides numerous health benefits including improved cardiovascular "
+                                + "health, stronger muscles and bones, better mental health, weight management, "
+                                + "and reduced risk of chronic diseases. It also boosts energy levels and improves sleep quality.")
+                .reference("Benefits of regular physical activity for health")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createPhotosynthesisRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Score with all models: {}", score);
+
+        assertTrue(score >= 1.0 && score <= 5.0, "Score should be valid (1-5 range)");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Customer Support RAG - excellent response")
+    void testRubricsScore_CustomerSupportRAG_ExcellentResponse() {
+        log.info("=== RubricsScore: Customer Support RAG - excellent response ===");
+
+        Sample sample = Sample.builder()
                 .userInput("I can't log into my account. It keeps saying 'invalid credentials'.")
                 .response("I understand how frustrating this must be. Let's resolve your login issue together. "
                         + "First, try resetting your password using the 'Forgot Password?' link on the login page. "
@@ -238,8 +268,22 @@ class EnRubricsScoreMetricIntegrationTest {
                         + "Clear cache/cookies. Contact support@company.com if issue persists.")
                 .build();
 
-        // Poor support response
-        Sample poorSupport = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createCustomerSupportRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Excellent support response score: {}", score);
+
+        assertTrue(score >= 4.0, "Empathetic and complete support response should score high");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Customer Support RAG - poor response")
+    void testRubricsScore_CustomerSupportRAG_PoorResponse() {
+        log.info("=== RubricsScore: Customer Support RAG - poor response ===");
+
+        Sample sample = Sample.builder()
                 .userInput("I can't log into my account. It keeps saying 'invalid credentials'.")
                 .response("You probably entered the wrong password. Try again.")
                 .reference("Password reset: use 'Forgot Password?' link. Check Caps Lock. "
@@ -250,23 +294,18 @@ class EnRubricsScoreMetricIntegrationTest {
                 .rubrics(createCustomerSupportRubrics())
                 .build();
 
-        Double excellentScore = rubricsScoreMetric.singleTurnScore(config, excellentSupport);
-        Double poorScore = rubricsScoreMetric.singleTurnScore(config, poorSupport);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Poor support response score: {}", score);
 
-        log.info("Excellent support response score: {}", excellentScore);
-        log.info("Poor support response score: {}", poorScore);
-
-        assertTrue(excellentScore >= 4.0, "Empathetic and complete support response should score high");
-        assertTrue(poorScore <= 2.0, "Unhelpful and incomplete support response should score low");
+        assertTrue(score <= 2.0, "Unhelpful and incomplete support response should score low");
     }
 
     @Test
-    @DisplayName("RubricsScore: Technical Documentation RAG - Accuracy and completeness")
-    void testRubricsScore_TechnicalDocumentation() {
-        log.info("=== RubricsScore: Technical Documentation RAG ===");
+    @DisplayName("RubricsScore: Technical Documentation RAG - accurate answer")
+    void testRubricsScore_TechnicalDocumentation_AccurateAnswer() {
+        log.info("=== RubricsScore: Technical Documentation RAG - accurate answer ===");
 
-        // Accurate and complete technical answer
-        Sample accurateTechnical = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("How do I set up Redis caching in Spring Boot 3.x?")
                 .response("To configure Redis caching in Spring Boot 3.x:\n"
                         + "1. Add dependencies: spring-boot-starter-data-redis and spring-boot-starter-cache\n"
@@ -279,8 +318,22 @@ class EnRubricsScoreMetricIntegrationTest {
                         + "enable @EnableCaching, configure RedisCacheManager with TTL")
                 .build();
 
-        // Incomplete technical answer
-        Sample incompleteTechnical = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createTechnicalDocumentationRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Accurate technical answer score: {}", score);
+
+        assertTrue(score >= 4.0, "Detailed technical answer with code examples should score high");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Technical Documentation RAG - incomplete answer")
+    void testRubricsScore_TechnicalDocumentation_IncompleteAnswer() {
+        log.info("=== RubricsScore: Technical Documentation RAG - incomplete answer ===");
+
+        Sample sample = Sample.builder()
                 .userInput("How do I set up Redis caching in Spring Boot 3.x?")
                 .response("You need to add Redis dependencies and configure Spring Boot. "
                         + "Then you can use Redis for caching data.")
@@ -292,23 +345,18 @@ class EnRubricsScoreMetricIntegrationTest {
                 .rubrics(createTechnicalDocumentationRubrics())
                 .build();
 
-        Double accurateScore = rubricsScoreMetric.singleTurnScore(config, accurateTechnical);
-        Double incompleteScore = rubricsScoreMetric.singleTurnScore(config, incompleteTechnical);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Incomplete technical answer score: {}", score);
 
-        log.info("Accurate technical answer score: {}", accurateScore);
-        log.info("Incomplete technical answer score: {}", incompleteScore);
-
-        assertTrue(accurateScore >= 4.0, "Detailed technical answer with code examples should score high");
-        assertTrue(incompleteScore <= 2.5, "Vague and incomplete technical answer should score low");
+        assertTrue(score <= 2.5, "Vague and incomplete technical answer should score low");
     }
 
     @Test
-    @DisplayName("RubricsScore: Medical Information RAG - Safety and reliability")
-    void testRubricsScore_MedicalInformation() {
-        log.info("=== RubricsScore: Medical Information RAG ===");
+    @DisplayName("RubricsScore: Medical Information RAG - safe response")
+    void testRubricsScore_MedicalInformation_SafeResponse() {
+        log.info("=== RubricsScore: Medical Information RAG - safe response ===");
 
-        // Safe and responsible medical information
-        Sample safeMedical = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("I have a persistent headache for 3 days. What should I do?")
                 .response(
                         "Persistent headaches lasting several days can have various causes, from tension and dehydration "
@@ -323,8 +371,22 @@ class EnRubricsScoreMetricIntegrationTest {
                                 + "Consult healthcare professional for evaluation, especially if severe or with other symptoms.")
                 .build();
 
-        // Unsafe medical advice
-        Sample unsafeMedical = Sample.builder()
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createMedicalInformationRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Safe medical information score: {}", score);
+
+        assertTrue(score >= 4.0, "Safe and responsible medical information should score high");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Medical Information RAG - unsafe response")
+    void testRubricsScore_MedicalInformation_UnsafeResponse() {
+        log.info("=== RubricsScore: Medical Information RAG - unsafe response ===");
+
+        Sample sample = Sample.builder()
                 .userInput("I have a persistent headache for 3 days. What should I do?")
                 .response("It's just a headache, nothing serious. Take some painkillers and you'll be fine. "
                         + "If it doesn't go away in a week or two, then maybe see a doctor.")
@@ -337,14 +399,10 @@ class EnRubricsScoreMetricIntegrationTest {
                 .rubrics(createMedicalInformationRubrics())
                 .build();
 
-        Double safeScore = rubricsScoreMetric.singleTurnScore(config, safeMedical);
-        Double unsafeScore = rubricsScoreMetric.singleTurnScore(config, unsafeMedical);
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+        log.info("Unsafe medical advice score: {}", score);
 
-        log.info("Safe medical information score: {}", safeScore);
-        log.info("Unsafe medical advice score: {}", unsafeScore);
-
-        assertTrue(safeScore >= 4.0, "Safe and responsible medical information should score high");
-        assertTrue(unsafeScore <= 2.0, "Unsafe medical advice should score low");
+        assertTrue(score <= 2.0, "Unsafe medical advice should score low");
     }
 
     // ==================== HELPER METHODS ====================

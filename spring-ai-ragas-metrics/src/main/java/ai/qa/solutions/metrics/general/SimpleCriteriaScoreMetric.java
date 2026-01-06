@@ -26,6 +26,10 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 /**
  * SimpleCriteriaScore Metric - Continuous scoring based on simple criteria.
  * <p>
+ * Returns normalized score in [0, 1] range according to RAGAS methodology.
+ * The LLM evaluates responses using a configurable score range (default 0-5),
+ * and the result is normalized to [0, 1] for consistency with other metrics.
+ * <p>
  * Uses {@link MultiModelExecutor} for parallel execution across multiple models
  * with explicit flow control and listener notifications.
  */
@@ -119,7 +123,10 @@ public class SimpleCriteriaScoreMetric
                     final ModelResult<Response> result = future.join();
                     allResults.add(result);
                     if (result.isSuccess()) {
-                        iterationScores.add(result.result().getNormalizedScore());
+                        // Normalize raw score to [0, 1] range (RAGAS methodology)
+                        final double normalizedScore =
+                                normalize(result.result().score(), config.minScore, config.maxScore);
+                        iterationScores.add(normalizedScore);
                     }
                 }
 
@@ -179,7 +186,34 @@ public class SimpleCriteriaScoreMetric
     }
 
     /**
-     * Response DTO for SimpleCriteriaScore metric evaluation
+     * Normalizes a raw score to [0, 1] range according to RAGAS methodology.
+     *
+     * @param rawScore the raw score from LLM
+     * @param minScore the minimum possible score
+     * @param maxScore the maximum possible score
+     * @return normalized score in [0, 1] range, guaranteed to be within bounds
+     */
+    private double normalize(final Double rawScore, final double minScore, final double maxScore) {
+        if (rawScore == null || rawScore.isNaN() || rawScore.isInfinite()) {
+            return 0.0;
+        }
+        // Protect against division by zero
+        final double range = maxScore - minScore;
+        if (range <= 0) {
+            return 0.0;
+        }
+        // Clamp to valid range first
+        final double clampedScore = Math.max(minScore, Math.min(maxScore, rawScore));
+        // Normalize to [0, 1]
+        final double normalized = (clampedScore - minScore) / range;
+        // Final safety clamp to ensure [0, 1] bounds
+        return Math.max(0.0, Math.min(1.0, normalized));
+    }
+
+    /**
+     * Response DTO for SimpleCriteriaScore metric evaluation.
+     * The score field contains the raw LLM score within [minScore, maxScore] range.
+     * Normalization to [0, 1] is performed externally using the config's score range.
      */
     public record Response(
             @JsonPropertyDescription("The evaluation criteria that was used to score the response") String criteria,
@@ -188,11 +222,7 @@ public class SimpleCriteriaScoreMetric
                     Double score,
             @JsonPropertyDescription(
                             "Detailed explanation of why this specific score was assigned, including analysis of strengths and weaknesses")
-                    String reasoning) {
-        public Double getNormalizedScore() {
-            return score != null ? score : 0.0;
-        }
-    }
+                    String reasoning) {}
 
     @Data
     @Builder
