@@ -45,6 +45,9 @@ public interface ScoreAggregator {
     ScoreAggregator MEDIAN = new ScoreAggregator() {
         @Override
         public double aggregate(final List<Double> scores) {
+            if (scores.isEmpty()) {
+                return 0.0;
+            }
             final var sorted = scores.stream().sorted().toList();
             final int size = sorted.size();
             if (size % 2 == 0) {
@@ -82,6 +85,27 @@ public interface ScoreAggregator {
         @Override
         public String getName() {
             return "MAX";
+        }
+    };
+
+    /**
+     * Majority voting for binary verdicts.
+     * Returns 1.0 if more than half of the scores are >= 0.5, otherwise returns 0.0.
+     * Used for AspectCritic-style metrics where verdicts are binary (true/false).
+     */
+    ScoreAggregator MAJORITY_VOTING = new ScoreAggregator() {
+        @Override
+        public double aggregate(List<Double> scores) {
+            if (scores.isEmpty()) {
+                return 0.0;
+            }
+            long trueVotes = scores.stream().filter(s -> s >= 0.5).count();
+            return trueVotes > scores.size() / 2.0 ? 1.0 : 0.0;
+        }
+
+        @Override
+        public String getName() {
+            return "MAJORITY_VOTING";
         }
     };
 

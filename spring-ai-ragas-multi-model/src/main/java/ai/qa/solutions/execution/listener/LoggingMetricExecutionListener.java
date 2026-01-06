@@ -387,6 +387,9 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
         if (clean.contains("closing quote") || clean.contains("Unexpected end")) {
             return "truncated JSON";
         }
+        if (clean.contains("No fallback setter/field") || clean.contains("duplicate")) {
+            return "duplicate JSON key";
+        }
         // Generic parse error - after more specific checks
         if (clean.contains("parse") || clean.contains("Parse") || clean.contains("JSON")) {
             return "parse error";

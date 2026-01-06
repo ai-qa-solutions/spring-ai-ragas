@@ -45,6 +45,7 @@ class RuSimpleCriteriaMetricIntegrationTest {
                 .definition("Оцените качество объяснения от 1 до 5, " + "учитывая полноту, ясность и точность")
                 .minScore(1.0)
                 .maxScore(5.0)
+                .strictness(2)
                 .build();
 
         Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);

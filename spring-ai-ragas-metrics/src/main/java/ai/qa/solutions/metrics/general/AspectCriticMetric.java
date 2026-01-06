@@ -2,6 +2,7 @@ package ai.qa.solutions.metrics.general;
 
 import ai.qa.solutions.execution.ModelResult;
 import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.ScoreAggregator;
 import ai.qa.solutions.execution.listener.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.ModelExclusionEvent;
@@ -10,10 +11,12 @@ import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -72,6 +75,8 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
         // Create evaluation-specific notifier for thread-safe parallel execution
         final EvaluationNotifier notifier = createEvaluationNotifier();
 
+        final int iterations = config.strictness != null ? config.strictness : 3;
+
         // Notify listeners before evaluation
         notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
                 .metricName(getName())
@@ -79,45 +84,71 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(1)
-                .metadata(Map.of("sample", sample, "config", config))
+                .metadata(Map.of("sample", sample, "config", config, "iterations", iterations))
                 .build());
 
         return CompletableFuture.supplyAsync(() -> {
-            // ========== Step 1: Evaluate ==========
+            // ========== Step 1: Evaluate with strictness iterations per model ==========
             notifier.beforeStep("Evaluate", 0, 1);
 
             final String prompt = renderPrompt(config, sample);
-            final List<ModelResult<Response>> results = executor.executeLlm(modelIds, prompt, Response.class);
-
-            notifier.afterLlmStep("Evaluate", 0, 1, prompt, results);
-
-            // Collect scores and notify about excluded models
             final Map<String, Double> modelScores = new HashMap<>();
-            for (final ModelResult<Response> result : results) {
-                if (result.isSuccess()) {
-                    modelScores.put(result.modelId(), result.result().getScore());
+            final List<String> excludedModels = new ArrayList<>();
+            final List<ModelResult<Response>> allResults = new ArrayList<>();
+
+            // Launch ALL iterations for ALL models in parallel
+            final Map<String, List<CompletableFuture<ModelResult<Response>>>> allFutures = new HashMap<>();
+            for (final String modelId : modelIds) {
+                final List<CompletableFuture<ModelResult<Response>>> modelFutures = IntStream.range(0, iterations)
+                        .mapToObj(i -> executor.executeLlmOnModelAsync(modelId, prompt, Response.class))
+                        .toList();
+                allFutures.put(modelId, modelFutures);
+            }
+
+            // Wait for ALL futures to complete at once
+            final List<CompletableFuture<ModelResult<Response>>> flatFutures =
+                    allFutures.values().stream().flatMap(List::stream).toList();
+            CompletableFuture.allOf(flatFutures.toArray(new CompletableFuture[0]))
+                    .join();
+
+            // Process results for each model and apply majority voting
+            for (final String modelId : modelIds) {
+                final List<Double> iterationScores = new ArrayList<>();
+                for (final CompletableFuture<ModelResult<Response>> future : allFutures.get(modelId)) {
+                    final ModelResult<Response> result = future.join();
+                    allResults.add(result);
+                    if (result.isSuccess()) {
+                        iterationScores.add(result.result().getScore());
+                    }
+                }
+
+                if (!iterationScores.isEmpty()) {
+                    // Apply majority voting to iterations of this model
+                    final double modelScore = ScoreAggregator.MAJORITY_VOTING.aggregate(iterationScores);
+                    modelScores.put(modelId, modelScore);
                 } else {
+                    // All iterations failed for this model
+                    excludedModels.add(modelId);
                     notifier.onModelExcluded(ModelExclusionEvent.builder()
-                            .modelId(result.modelId())
+                            .modelId(modelId)
                             .failedStepName("Evaluate")
                             .failedStepIndex(0)
-                            .cause(result.error())
+                            .cause(new IllegalStateException("All " + iterations + " iterations failed"))
                             .build());
                 }
             }
+
+            notifier.afterLlmStep("Evaluate", 0, 1, prompt, allResults);
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed for metric: " + getName());
             }
 
+            // Multi-model aggregation
             final double aggregatedScore = aggregate(modelScores);
 
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
-            final List<String> excludedModels = results.stream()
-                    .filter(ModelResult::isFailure)
-                    .map(ModelResult::modelId)
-                    .toList();
 
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
@@ -125,7 +156,7 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .metadata(Map.of("sample", sample, "config", config, "iterations", iterations))
                     .build());
 
             return aggregatedScore;

@@ -271,11 +271,31 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                 .render();
     }
 
+    /**
+     * Calculates Average Precision (AP) for context relevance ranking.
+     * <p>
+     * Formula: AP = sum(precision@k * relevance@k for all k) / total_relevant_items
+     * <p>
+     * This rewards relevant contexts appearing earlier in the ranking.
+     *
+     * @param relevanceScores list of boolean relevance scores in ranked order
+     * @return Average Precision score (0.0 to 1.0)
+     */
     private Double calculateContextPrecision(List<Boolean> relevanceScores) {
         if (relevanceScores.isEmpty()) {
             return 0.0;
         }
+
+        // Count total relevant items
+        long totalRelevant = relevanceScores.stream().filter(r -> r).count();
+
+        if (totalRelevant == 0) {
+            return 0.0;
+        }
+
+        // Sum precision@k only for positions where item is relevant (relevance@k = 1)
         double sum = IntStream.range(0, relevanceScores.size())
+                .filter(k -> relevanceScores.get(k)) // Only relevant positions
                 .mapToDouble(k -> {
                     // Calculate precision@k (relevant items up to position k / total items up to position k)
                     long relevantUpToK = relevanceScores.subList(0, k + 1).stream()
@@ -284,7 +304,9 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                     return (double) relevantUpToK / (k + 1);
                 })
                 .sum();
-        return sum / relevanceScores.size();
+
+        // Divide by number of relevant items (not total count)
+        return sum / totalRelevant;
     }
 
     /**
