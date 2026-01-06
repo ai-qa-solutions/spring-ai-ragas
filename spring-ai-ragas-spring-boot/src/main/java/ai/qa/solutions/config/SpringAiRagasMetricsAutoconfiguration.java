@@ -3,7 +3,6 @@ package ai.qa.solutions.config;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.LoggingMetricExecutionListener;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
-import ai.qa.solutions.metric.AbstractMultiModelMetric;
 import ai.qa.solutions.metrics.general.AspectCriticMetric;
 import ai.qa.solutions.metrics.general.RubricsScoreMetric;
 import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
@@ -111,76 +110,54 @@ public class SpringAiRagasMetricsAutoconfiguration {
     @Bean
     public AspectCriticMetric aspectCriticMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(AspectCriticMetric.builder().executor(executor).build(), listeners);
+        return AspectCriticMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public SimpleCriteriaScoreMetric simpleCriteriaScoreMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(
-                SimpleCriteriaScoreMetric.builder().executor(executor).build(), listeners);
+        return SimpleCriteriaScoreMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public RubricsScoreMetric rubricsScoreMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(RubricsScoreMetric.builder().executor(executor).build(), listeners);
+        return RubricsScoreMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public ContextPrecisionMetric contextPrecisionMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(ContextPrecisionMetric.builder().executor(executor).build(), listeners);
+        return ContextPrecisionMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public ContextRecallMetric contextRecallMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(ContextRecallMetric.builder().executor(executor).build(), listeners);
+        return ContextRecallMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public ContextEntityRecallMetric contextEntityRecallMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(
-                ContextEntityRecallMetric.builder().executor(executor).build(), listeners);
+        return ContextEntityRecallMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public NoiseSensitivityMetric noiseSensitivityMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(NoiseSensitivityMetric.builder().executor(executor).build(), listeners);
+        return NoiseSensitivityMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public FaithfulnessMetric faithfulnessMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(FaithfulnessMetric.builder().executor(executor).build(), listeners);
+        return FaithfulnessMetric.builder().executor(executor).build().withListeners(listeners);
     }
 
     @Bean
     public ResponseRelevancyMetric responseRelevancyMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return withListeners(
-                ResponseRelevancyMetric.builder().executor(executor).build(), listeners);
-    }
-
-    // ==================== Helper Methods ====================
-
-    /**
-     * Adds all listeners to a metric.
-     *
-     * @param metric    the metric to configure
-     * @param listeners list of listeners to add
-     * @param <T>       the metric type
-     * @return the configured metric
-     */
-    private <T extends AbstractMultiModelMetric<?>> T withListeners(
-            final T metric, final List<MetricExecutionListener> listeners) {
-        if (listeners != null) {
-            listeners.forEach(metric::addListener);
-            log.debug("Added {} listeners to {}", listeners.size(), metric.getName());
-        }
-        return metric;
+        return ResponseRelevancyMetric.builder().executor(executor).build().withListeners(listeners);
     }
 }

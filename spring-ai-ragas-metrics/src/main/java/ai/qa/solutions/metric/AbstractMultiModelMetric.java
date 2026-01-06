@@ -142,6 +142,31 @@ public abstract class AbstractMultiModelMetric<T extends Metric.MetricConfigurat
     }
 
     /**
+     * Adds multiple listeners for metric execution lifecycle events.
+     * <p>
+     * This is a convenience method for fluent configuration, typically used
+     * after building the metric:
+     * <pre>{@code
+     * AspectCriticMetric metric = AspectCriticMetric.builder()
+     *     .executor(executor)
+     *     .build()
+     *     .withListeners(listeners);
+     * }</pre>
+     *
+     * @param listeners the listeners to add (null-safe, ignores null elements)
+     * @param <M>       the concrete metric type for fluent return
+     * @return this metric instance for method chaining
+     */
+    @SuppressWarnings("unchecked")
+    public <M extends AbstractMultiModelMetric<T>> M withListeners(
+            final Collection<MetricExecutionListener> listeners) {
+        if (listeners != null) {
+            listeners.stream().filter(Objects::nonNull).forEach(this::addListener);
+        }
+        return (M) this;
+    }
+
+    /**
      * Removes a previously registered listener.
      *
      * @param listener the listener to remove
