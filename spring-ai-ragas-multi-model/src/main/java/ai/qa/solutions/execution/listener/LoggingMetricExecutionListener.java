@@ -217,7 +217,7 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
         }
         sb.append(" (").append(result.getTotalDuration().toMillis()).append("ms)\n");
 
-        // Steps section
+        // Steps section with individual timelines
         if (!allStepResults.isEmpty()) {
             appendSectionHeader(sb, "STEPS", String.valueOf(allStepResults.size()));
 
@@ -236,6 +236,20 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
                 }
                 sb.append(" (").append(step.getTotalDuration().toMillis()).append("ms)\n");
 
+                // Timeline for LLM steps with multiple models
+                if (step.getStepType() == StepType.LLM && step.getResults().size() > 1) {
+                    final List<AsciiGanttChart.Item> stepItems = step.getResults().stream()
+                            .filter(r -> r.duration() != null)
+                            .map(r -> new AsciiGanttChart.Item(r.modelId(), r.duration()))
+                            .toList();
+                    if (!stepItems.isEmpty()) {
+                        final AsciiGanttChart.Result stepGantt = AsciiGanttChart.render(stepItems, CONTENT_WIDTH - 4);
+                        for (String line : stepGantt.text().split("\n")) {
+                            sb.append("║   ").append(line).append("\n");
+                        }
+                    }
+                }
+
                 // Prompt for LLM steps
                 if (step.getStepType() == StepType.LLM && step.getRequest() != null) {
                     sb.append("║   ┌─ Prompt ")
@@ -251,13 +265,13 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
             }
         }
 
-        // LLM Execution timeline
+        // Total LLM execution timeline (sum of all steps)
         if (!modelTotalDurations.isEmpty()) {
             final long totalMs = modelTotalDurations.values().stream()
                     .mapToLong(Duration::toMillis)
                     .max()
                     .orElse(0);
-            appendSectionHeader(sb, "LLM TIMELINE", totalMs + "ms");
+            appendSectionHeader(sb, "TOTAL LLM TIME", totalMs + "ms");
 
             final List<AsciiGanttChart.Item> items = modelTotalDurations.entrySet().stream()
                     .map(e -> new AsciiGanttChart.Item(e.getKey(), e.getValue()))

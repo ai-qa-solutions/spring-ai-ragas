@@ -121,7 +121,7 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                 strategy == EvaluationStrategy.REFERENCE_BASED ? "reference" : "response",
                 retrievedContexts.size());
 
-        final int totalSteps = retrievedContexts.size() + 1; // N evaluation steps + 1 compute step
+        final int totalSteps = 2; // 1 parallel evaluation step + 1 compute step
 
         // Create evaluation-specific notifier for thread-safe parallel execution
         final EvaluationNotifier notifier = createEvaluationNotifier();
@@ -146,34 +146,51 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                     ? this.withReferencePrompt
                     : this.withoutReferencePrompt;
 
-            // Track relevance results per model
+            // Track relevance results per model (thread-safe for parallel processing)
             final Map<String, List<Boolean>> modelRelevanceResults = new HashMap<>();
             for (String modelId : modelIds) {
-                modelRelevanceResults.put(modelId, new ArrayList<>());
+                // Pre-initialize with nulls to maintain order when filled in parallel
+                final List<Boolean> relevanceList = new ArrayList<>();
+                for (int i = 0; i < retrievedContexts.size(); i++) {
+                    relevanceList.add(null);
+                }
+                modelRelevanceResults.put(modelId, relevanceList);
             }
 
-            // ========== Steps 0 to N-1: Evaluate each context ==========
-            for (int contextIdx = 0; contextIdx < retrievedContexts.size(); contextIdx++) {
-                final String contextChunk = retrievedContexts.get(contextIdx);
-                final String stepName = "EvaluateContext_" + contextIdx;
+            // ========== Evaluate ALL contexts IN PARALLEL ==========
+            notifier.beforeStep("EvaluateAllContexts", 0, totalSteps);
 
-                notifier.beforeStep(stepName, contextIdx, totalSteps);
+            // Prepare all prompts
+            final List<String> prompts = retrievedContexts.stream()
+                    .map(contextChunk -> renderPrompt(template, strategy, sample, contextChunk))
+                    .toList();
 
-                final String prompt = renderPrompt(template, strategy, sample, contextChunk);
+            // Launch ALL context evaluations in parallel
+            final List<CompletableFuture<List<ModelResult<RelevanceResponse>>>> contextFutures = IntStream.range(
+                            0, retrievedContexts.size())
+                    .mapToObj(contextIdx ->
+                            executor.executeLlmAsync(modelIds, prompts.get(contextIdx), RelevanceResponse.class))
+                    .toList();
+
+            // Wait for ALL to complete at once
+            CompletableFuture.allOf(contextFutures.toArray(new CompletableFuture[0]))
+                    .join();
+
+            // Process results maintaining context order
+            for (int contextIdx = 0; contextIdx < contextFutures.size(); contextIdx++) {
                 final List<ModelResult<RelevanceResponse>> results =
-                        executor.executeLlm(modelIds, prompt, RelevanceResponse.class);
-
-                notifier.afterLlmStep(stepName, contextIdx, totalSteps, prompt, results);
+                        contextFutures.get(contextIdx).join();
+                final String stepName = "EvaluateContext_" + contextIdx;
 
                 // Collect results for each model
                 for (final ModelResult<RelevanceResponse> result : results) {
                     if (result.isSuccess()) {
                         final boolean relevant = result.result().relevant() != null
                                 && result.result().relevant();
-                        modelRelevanceResults.get(result.modelId()).add(relevant);
+                        modelRelevanceResults.get(result.modelId()).set(contextIdx, relevant);
                     } else {
                         // Model failed for this context - mark as not relevant for this context
-                        modelRelevanceResults.get(result.modelId()).add(false);
+                        modelRelevanceResults.get(result.modelId()).set(contextIdx, false);
                         excludedModelIds.add(result.modelId());
                         notifier.onModelExcluded(ModelExclusionEvent.builder()
                                 .modelId(result.modelId())
@@ -185,8 +202,15 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                 }
             }
 
+            notifier.afterLlmStep(
+                    "EvaluateAllContexts",
+                    0,
+                    totalSteps,
+                    String.join("\n---\n", prompts),
+                    contextFutures.get(0).join());
+
             // ========== Final step: Compute precision ==========
-            notifier.beforeStep("ComputePrecision", retrievedContexts.size(), totalSteps);
+            notifier.beforeStep("ComputePrecision", 1, totalSteps);
 
             final Map<String, Double> modelScores = new HashMap<>();
 
@@ -205,7 +229,7 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                     .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
                     .toList();
 
-            notifier.afterComputeStep("ComputePrecision", retrievedContexts.size(), totalSteps, computeResults);
+            notifier.afterComputeStep("ComputePrecision", 1, totalSteps, computeResults);
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed for metric: " + getName());

@@ -130,7 +130,7 @@ public class ContextEntityRecallMetric
                 .sample(sample)
                 .config(config)
                 .modelIds(modelIds)
-                .totalSteps(3) // Extract reference entities -> Extract context entities -> Compute recall
+                .totalSteps(2) // Extract entities (parallel) -> Compute recall
                 .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
@@ -140,16 +140,28 @@ public class ContextEntityRecallMetric
             // Track excluded models across all steps
             final List<String> excludedModels = new java.util.ArrayList<>();
 
-            // ========== Step 1: Extract entities from reference ==========
-            notifier.beforeStep("ExtractReferenceEntities", 0, 3);
+            // ========== Steps 1 & 2: Extract entities from reference AND context IN PARALLEL ==========
+            notifier.beforeStep("ExtractEntities", 0, 2);
 
             final String referencePrompt = renderEntityExtractionPrompt(reference);
-            final List<ModelResult<EntitiesResponse>> step1Results =
-                    executor.executeLlm(modelIds, referencePrompt, EntitiesResponse.class);
+            final String combinedContexts = String.join("\n\n", retrievedContexts);
+            final String contextPrompt = renderEntityExtractionPrompt(combinedContexts);
 
-            notifier.afterLlmStep("ExtractReferenceEntities", 0, 3, referencePrompt, step1Results);
+            // Launch BOTH extractions in parallel - they are independent
+            final CompletableFuture<List<ModelResult<EntitiesResponse>>> step1Future =
+                    executor.executeLlmAsync(modelIds, referencePrompt, EntitiesResponse.class);
+            final CompletableFuture<List<ModelResult<EntitiesResponse>>> step2Future =
+                    executor.executeLlmAsync(modelIds, contextPrompt, EntitiesResponse.class);
 
-            // Collect successful results from step 1
+            // Wait for BOTH to complete at once
+            CompletableFuture.allOf(step1Future, step2Future).join();
+
+            final List<ModelResult<EntitiesResponse>> step1Results = step1Future.join();
+            final List<ModelResult<EntitiesResponse>> step2Results = step2Future.join();
+
+            notifier.afterLlmStep("ExtractEntities", 0, 2, referencePrompt + "\n---\n" + contextPrompt, step1Results);
+
+            // Collect successful results from step 1 (reference entities)
             final Map<String, EntitiesResponse> step1Successful = new HashMap<>();
             for (final ModelResult<EntitiesResponse> result : step1Results) {
                 if (result.isSuccess()) {
@@ -165,43 +177,27 @@ public class ContextEntityRecallMetric
                 }
             }
 
-            if (step1Successful.isEmpty()) {
-                throw new IllegalStateException(
-                        "All models failed at step ExtractReferenceEntities for metric: " + getName());
-            }
-
-            // ========== Step 2: Extract entities from retrieved contexts ==========
-            notifier.beforeStep("ExtractContextEntities", 1, 3);
-
-            final String combinedContexts = String.join("\n\n", retrievedContexts);
-            final String contextPrompt = renderEntityExtractionPrompt(combinedContexts);
-
-            // Execute in parallel for all models that succeeded in step 1
-            final List<String> step1ModelIds = new java.util.ArrayList<>(step1Successful.keySet());
-            final List<CompletableFuture<ModelResult<EntitiesResponse>>> step2Futures = step1ModelIds.stream()
-                    .map(modelId -> executor.executeLlmOnModelAsync(modelId, contextPrompt, EntitiesResponse.class))
-                    .toList();
-            CompletableFuture.allOf(step2Futures.toArray(new CompletableFuture[0]))
-                    .join();
-            final List<ModelResult<EntitiesResponse>> step2Results =
-                    step2Futures.stream().map(CompletableFuture::join).toList();
-
-            notifier.afterLlmStep("ExtractContextEntities", 1, 3, contextPrompt, step2Results);
-
-            // Collect successful results from step 2
+            // Collect successful results from step 2 (context entities)
             final Map<String, EntitiesResponse> step2Successful = new HashMap<>();
             for (final ModelResult<EntitiesResponse> result : step2Results) {
                 if (result.isSuccess()) {
                     step2Successful.put(result.modelId(), result.result());
                 } else {
-                    excludedModels.add(result.modelId());
+                    if (!excludedModels.contains(result.modelId())) {
+                        excludedModels.add(result.modelId());
+                    }
                     notifier.onModelExcluded(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("ExtractContextEntities")
-                            .failedStepIndex(1)
+                            .failedStepIndex(0)
                             .cause(result.error())
                             .build());
                 }
+            }
+
+            if (step1Successful.isEmpty()) {
+                throw new IllegalStateException(
+                        "All models failed at step ExtractReferenceEntities for metric: " + getName());
             }
 
             if (step2Successful.isEmpty()) {
@@ -209,11 +205,15 @@ public class ContextEntityRecallMetric
                         "All models failed at step ExtractContextEntities for metric: " + getName());
             }
 
-            // ========== Step 3: Compute entity recall ==========
-            notifier.beforeStep("ComputeEntityRecall", 2, 3);
+            // ========== Step 2: Compute entity recall ==========
+            notifier.beforeStep("ComputeEntityRecall", 1, 2);
 
             final Map<String, Double> modelScores = new HashMap<>();
+            // Only use models that succeeded in BOTH steps
             for (final String modelId : step2Successful.keySet()) {
+                if (!step1Successful.containsKey(modelId)) {
+                    continue; // Skip models that failed step1
+                }
                 final EntitiesResponse referenceEntitiesResponse = step1Successful.get(modelId);
                 final EntitiesResponse contextEntitiesResponse = step2Successful.get(modelId);
 
@@ -226,7 +226,7 @@ public class ContextEntityRecallMetric
                     .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
                     .toList();
 
-            notifier.afterComputeStep("ComputeEntityRecall", 2, 3, step3Results);
+            notifier.afterComputeStep("ComputeEntityRecall", 1, 2, step3Results);
 
             final double aggregatedScore = aggregate(modelScores);
 

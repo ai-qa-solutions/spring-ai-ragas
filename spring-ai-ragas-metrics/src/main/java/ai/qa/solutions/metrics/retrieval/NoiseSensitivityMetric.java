@@ -127,7 +127,6 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
 
     private final String statementGeneratorPrompt;
     private final String statementFaithfulnessPrompt;
-    private final String systemPrompt;
 
     @Builder(toBuilder = true)
     protected NoiseSensitivityMetric(
@@ -141,7 +140,6 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
         this.statementFaithfulnessPrompt = statementFaithfulnessPrompt != null
                 ? statementFaithfulnessPrompt
                 : DEFAULT_STATEMENT_FAITHFULNESS_PROMPT;
-        this.systemPrompt = systemPrompt != null ? systemPrompt : DEFAULT_SYSTEM_PROMPT;
     }
 
     /**
@@ -190,8 +188,8 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
 
         final List<String> retrievedContexts = sample.getRetrievedContexts();
         final int numContexts = retrievedContexts.size();
-        // 2 decompose steps + 1 groundTruth eval + N refToContext + N respToContext + 1 compute
-        final int totalSteps = 2 + 1 + numContexts + numContexts + 1;
+        // 2 decompose steps + 1 groundTruth eval + 1 parallel context eval + 1 compute
+        final int totalSteps = 5;
 
         log.debug("Computing noise sensitivity with {} contexts in {} mode", numContexts, config.getMode());
 
@@ -330,22 +328,39 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
 
             stepIndex++;
 
-            // ========== Steps 4 to 3+N: Evaluate reference statements against each context
-            // (retrievedToGroundTruth) ==========
+            // ========== Step 4: Evaluate ALL context comparisons IN PARALLEL ==========
+            // (retrievedToGroundTruth + retrievedToAnswer)
+            notifier.beforeStep("EvaluateAllContexts", stepIndex, totalSteps);
+
+            // Pre-initialize result maps with null lists of correct size
             final Map<String, List<FaithfulnessVerdictsResponse>> retrievedToGroundTruthMap = new HashMap<>();
             for (String modelId : refStatementsMap.keySet()) {
-                retrievedToGroundTruthMap.put(modelId, new ArrayList<>());
+                final List<FaithfulnessVerdictsResponse> list = new ArrayList<>();
+                for (int i = 0; i < numContexts; i++) list.add(null);
+                retrievedToGroundTruthMap.put(modelId, list);
+            }
+
+            final Map<String, List<FaithfulnessVerdictsResponse>> retrievedToAnswerMap = new HashMap<>();
+            for (String modelId : respStatementsMap.keySet()) {
+                final List<FaithfulnessVerdictsResponse> list = new ArrayList<>();
+                for (int i = 0; i < numContexts; i++) list.add(null);
+                retrievedToAnswerMap.put(modelId, list);
             }
 
             final List<String> refModelIds = new ArrayList<>(refStatementsMap.keySet());
-            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
-                final String stepName = "EvaluateRefToContext_" + contextIdx;
-                notifier.beforeStep(stepName, stepIndex, totalSteps);
+            final List<String> respModelIdsList = new ArrayList<>(respStatementsMap.keySet());
 
+            // Launch ALL futures for ALL contexts in parallel
+            final List<List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>>> refContextFuturesList =
+                    new ArrayList<>();
+            final List<List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>>> respContextFuturesList =
+                    new ArrayList<>();
+
+            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
                 final String context = retrievedContexts.get(contextIdx);
 
-                // Execute in parallel for all models
-                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> refContextFutures =
+                // Launch ref-to-context futures for this context
+                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> refFutures =
                         refModelIds.stream()
                                 .map(modelId -> {
                                     final StatementsResponse refStmts = refStatementsMap.get(modelId);
@@ -355,49 +370,10 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                                             modelId, prompt, FaithfulnessVerdictsResponse.class);
                                 })
                                 .toList();
-                CompletableFuture.allOf(refContextFutures.toArray(new CompletableFuture[0]))
-                        .join();
-                final List<ModelResult<FaithfulnessVerdictsResponse>> contextResults =
-                        refContextFutures.stream().map(CompletableFuture::join).toList();
+                refContextFuturesList.add(refFutures);
 
-                for (final ModelResult<FaithfulnessVerdictsResponse> result : contextResults) {
-                    if (result.isSuccess()) {
-                        retrievedToGroundTruthMap.get(result.modelId()).add(result.result());
-                    } else {
-                        retrievedToGroundTruthMap.get(result.modelId()).add(null);
-                    }
-                }
-
-                // Use first model's prompt as example for logging
-                final String exampleContextPrompt = refStatementsMap.isEmpty()
-                        ? statementFaithfulnessPrompt
-                        : renderFaithfulnessPrompt(
-                                context,
-                                formatStatements(refStatementsMap
-                                        .values()
-                                        .iterator()
-                                        .next()
-                                        .statements()));
-                notifier.afterLlmStep(stepName, stepIndex, totalSteps, exampleContextPrompt, contextResults);
-                stepIndex++;
-            }
-
-            // ========== Steps 4+N to 3+2N: Evaluate response statements against each context
-            // (retrievedToAnswer) ==========
-            final Map<String, List<FaithfulnessVerdictsResponse>> retrievedToAnswerMap = new HashMap<>();
-            for (String modelId : respStatementsMap.keySet()) {
-                retrievedToAnswerMap.put(modelId, new ArrayList<>());
-            }
-
-            final List<String> respModelIdsList = new ArrayList<>(respStatementsMap.keySet());
-            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
-                final String stepName = "EvaluateRespToContext_" + contextIdx;
-                notifier.beforeStep(stepName, stepIndex, totalSteps);
-
-                final String context = retrievedContexts.get(contextIdx);
-
-                // Execute in parallel for all models
-                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> respContextFutures =
+                // Launch resp-to-context futures for this context
+                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> respFutures =
                         respModelIdsList.stream()
                                 .map(modelId -> {
                                     final StatementsResponse respStmts = respStatementsMap.get(modelId);
@@ -407,32 +383,59 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                                             modelId, prompt, FaithfulnessVerdictsResponse.class);
                                 })
                                 .toList();
-                CompletableFuture.allOf(respContextFutures.toArray(new CompletableFuture[0]))
-                        .join();
-                final List<ModelResult<FaithfulnessVerdictsResponse>> contextResults =
-                        respContextFutures.stream().map(CompletableFuture::join).toList();
+                respContextFuturesList.add(respFutures);
+            }
 
-                for (final ModelResult<FaithfulnessVerdictsResponse> result : contextResults) {
+            // Flatten all futures and wait for ALL at once
+            final List<CompletableFuture<?>> allFutures = new ArrayList<>();
+            refContextFuturesList.forEach(allFutures::addAll);
+            respContextFuturesList.forEach(allFutures::addAll);
+            CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))
+                    .join();
+
+            // Process ref-to-context results
+            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> refFutures =
+                        refContextFuturesList.get(contextIdx);
+                for (int modelIdx = 0; modelIdx < refModelIds.size(); modelIdx++) {
+                    final ModelResult<FaithfulnessVerdictsResponse> result =
+                            refFutures.get(modelIdx).join();
+                    final String modelId = refModelIds.get(modelIdx);
                     if (result.isSuccess()) {
-                        retrievedToAnswerMap.get(result.modelId()).add(result.result());
-                    } else {
-                        retrievedToAnswerMap.get(result.modelId()).add(null);
+                        retrievedToGroundTruthMap.get(modelId).set(contextIdx, result.result());
                     }
                 }
-
-                // Use first model's prompt as example for logging
-                final String exampleRespPrompt = respStatementsMap.isEmpty()
-                        ? statementFaithfulnessPrompt
-                        : renderFaithfulnessPrompt(
-                                context,
-                                formatStatements(respStatementsMap
-                                        .values()
-                                        .iterator()
-                                        .next()
-                                        .statements()));
-                notifier.afterLlmStep(stepName, stepIndex, totalSteps, exampleRespPrompt, contextResults);
-                stepIndex++;
             }
+
+            // Process resp-to-context results
+            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> respFutures =
+                        respContextFuturesList.get(contextIdx);
+                for (int modelIdx = 0; modelIdx < respModelIdsList.size(); modelIdx++) {
+                    final ModelResult<FaithfulnessVerdictsResponse> result =
+                            respFutures.get(modelIdx).join();
+                    final String modelId = respModelIdsList.get(modelIdx);
+                    if (result.isSuccess()) {
+                        retrievedToAnswerMap.get(modelId).set(contextIdx, result.result());
+                    }
+                }
+            }
+
+            // Notify with example prompts
+            final String contextEvalPrompt = !refStatementsMap.isEmpty() && !retrievedContexts.isEmpty()
+                    ? renderFaithfulnessPrompt(
+                            retrievedContexts.get(0),
+                            formatStatements(
+                                    refStatementsMap.values().iterator().next().statements()))
+                    : statementFaithfulnessPrompt;
+            final List<ModelResult<FaithfulnessVerdictsResponse>> contextEvalResults = refContextFuturesList.isEmpty()
+                            || refContextFuturesList.get(0).isEmpty()
+                    ? List.of()
+                    : refContextFuturesList.get(0).stream()
+                            .map(CompletableFuture::join)
+                            .toList();
+            notifier.afterLlmStep("EvaluateAllContexts", stepIndex, totalSteps, contextEvalPrompt, contextEvalResults);
+            stepIndex++;
 
             // ========== Final step: Compute noise sensitivity ==========
             notifier.beforeStep("ComputeNoiseSensitivity", stepIndex, totalSteps);
@@ -440,7 +443,11 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
             final Map<String, Double> modelScores = new HashMap<>();
 
             for (final String modelId : respStatementsMap.keySet()) {
-                if (!groundTruthToAnswerMap.containsKey(modelId)) {
+                // Skip models that failed any required step
+                if (!groundTruthToAnswerMap.containsKey(modelId)
+                        || !refStatementsMap.containsKey(modelId)
+                        || !retrievedToGroundTruthMap.containsKey(modelId)
+                        || !retrievedToAnswerMap.containsKey(modelId)) {
                     continue;
                 }
 
