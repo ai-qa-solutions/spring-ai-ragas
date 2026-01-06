@@ -34,22 +34,6 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  */
 @Slf4j
 public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensitivityMetric.NoiseSensitivityConfig> {
-    public static final String DEFAULT_SYSTEM_PROMPT =
-            """
-            You are a context-only evaluation system with NO access to external knowledge.
-
-            CRITICAL: You must evaluate statements SOLELY based on the provided context.
-            - If context says "X is Y", treat that as the ONLY truth for this evaluation
-            - Completely ignore what you know about the real world
-            - If context contradicts reality, use the context as truth
-
-            Example: If context says "Paris is in Germany" and statement says "Paris, Germany" - this is TRUE because they match.
-
-            Your ONLY job: Does the statement match what the context says? Yes = true, No = false.
-
-            Respond ONLY with valid JSON in the exact format requested.
-            """;
-
     public static final String DEFAULT_STATEMENT_GENERATOR_PROMPT =
             """
                 Given a question and an answer, create a list of statements that are present in the answer.
@@ -132,8 +116,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
     protected NoiseSensitivityMetric(
             final MultiModelExecutor executor,
             final String statementGeneratorPrompt,
-            final String statementFaithfulnessPrompt,
-            final String systemPrompt) {
+            final String statementFaithfulnessPrompt) {
         super(executor);
         this.statementGeneratorPrompt =
                 statementGeneratorPrompt != null ? statementGeneratorPrompt : DEFAULT_STATEMENT_GENERATOR_PROMPT;
@@ -726,7 +709,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
         private NoiseSensitivityMode mode = NoiseSensitivityMode.RELEVANT;
 
         /**
-         * List of model IDs to use for multi-model execution.
+         * List of model IDs to use for multimodel execution.
          * If not specified, uses default models from executor configuration.
          */
         @Singular
