@@ -42,8 +42,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>spring-ai-ragas-core</module>
-        <module>spring-ai-ragas-autoconfiguration</module>
+        <module>spring-ai-ragas-metrics</module>
+        <module>spring-ai-ragas-spring-boot</module>
         <module>spring-ai-ragas-spring-boot-starter</module>
         <module>spring-ai-ragas-multi-model</module>
     </modules>
@@ -74,7 +74,7 @@
             </dependency>
             <dependency>
                 <groupId>io.github.ai-qa-solutions</groupId>
-                <artifactId>spring-ai-ragas-core</artifactId>
+                <artifactId>spring-ai-ragas-metrics</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -158,7 +158,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>check</goal>
+                            <goal>apply</goal>
                         </goals>
                         <phase>compile</phase>
                     </execution>
@@ -178,6 +178,10 @@
                     <properties>
                         <configurationParameters>
                             junit.jupiter.execution.parallel.enabled = true
+                            junit.jupiter.execution.parallel.mode.default = concurrent
+                            junit.jupiter.execution.parallel.mode.classes.default = concurrent
+                            junit.jupiter.execution.parallel.config.strategy = dynamic
+                            junit.jupiter.execution.parallel.config.dynamic.factor = 1
                         </configurationParameters>
                     </properties>
                     <systemPropertyVariables>

@@ -1,0 +1,728 @@
+package ai.qa.solutions.metrics.retrieval;
+
+import ai.qa.solutions.execution.ModelResult;
+import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.listener.MetricEvaluationContext;
+import ai.qa.solutions.execution.listener.MetricEvaluationResult;
+import ai.qa.solutions.execution.listener.ModelExclusionEvent;
+import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.sample.Sample;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+
+/**
+ * Noise Sensitivity Metric - LLM-based evaluation measuring how often a system makes errors
+ * by providing incorrect responses when utilizing either relevant or irrelevant retrieved documents.
+ * <p>
+ * Uses {@link MultiModelExecutor} for parallel execution across multiple models
+ * with explicit flow control and listener notifications.
+ * <p>
+ * The score ranges from 0 to 1, with lower values indicating better performance.
+ * Measures the proportion of incorrect statements in the response that can be attributed
+ * to the retrieved contexts (relevant or irrelevant based on mode).
+ */
+@Slf4j
+public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensitivityMetric.NoiseSensitivityConfig> {
+    public static final String DEFAULT_SYSTEM_PROMPT =
+            """
+            You are a context-only evaluation system with NO access to external knowledge.
+
+            CRITICAL: You must evaluate statements SOLELY based on the provided context.
+            - If context says "X is Y", treat that as the ONLY truth for this evaluation
+            - Completely ignore what you know about the real world
+            - If context contradicts reality, use the context as truth
+
+            Example: If context says "Paris is in Germany" and statement says "Paris, Germany" - this is TRUE because they match.
+
+            Your ONLY job: Does the statement match what the context says? Yes = true, No = false.
+
+            Respond ONLY with valid JSON in the exact format requested.
+            """;
+
+    public static final String DEFAULT_STATEMENT_GENERATOR_PROMPT =
+            """
+                Given a question and an answer, create a list of statements that are present in the answer.
+                Each statement should be atomic, meaning it contains only one piece of information.
+
+                Question: {question}
+                Answer: {answer}
+
+                Instructions:
+                1. Break down the answer into individual, atomic statements
+                2. Each statement should be a complete, standalone assertion
+                3. Avoid compound statements - split them into separate statements
+                4. Focus on factual claims that can be verified
+                5. Maintain the original meaning from the answer
+                6. Do not add information not present in the answer
+
+                Respond with a JSON object containing:
+                - statements: A list of atomic statements extracted from the answer
+                """;
+
+    public static final String DEFAULT_STATEMENT_FAITHFULNESS_PROMPT =
+            """
+            IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.
+
+                Context: {context}
+                Statements: {statements}
+
+                CRITICAL INSTRUCTIONS - READ CAREFULLY:
+
+                YOU MUST COMPLETELY IGNORE ALL REAL-WORLD KNOWLEDGE FOR THIS EVALUATION.
+
+                CRITICAL: Evaluate ONLY using the context provided above. DO NOT use information from any previous contexts you may have seen.
+                Each evaluation is independent. Forget all previous contexts.
+
+                This is a test environment. The context contains deliberately wrong information to test system behavior.
+                Your job is NOT to correct facts, but to check if statements match the context.
+
+                EVALUATION RULES (MANDATORY):
+                1. Pretend you have complete amnesia about real-world facts AND previous contexts
+                2. The ONLY truth for this evaluation is what THIS SPECIFIC context states
+                3. If context says "Paris is in Germany" and statement says "Paris, Germany" → verdict: TRUE (they match the context)
+                4. If context says "built in 1899" and statement says "built in 1889" → verdict: FALSE (numbers don't match)
+                5. If context doesn't mention something (e.g., location), statement can't be verified → verdict: FALSE
+                6. Compare word-by-word and fact-by-fact against THIS context ONLY
+                7. Even if reality contradicts the context, use ONLY this context as your source of truth
+                8. If the context is about a different topic than the statement, verdict: FALSE
+
+                EXAMPLES OF CORRECT EVALUATION:
+                - Context: "The tower is in Paris, capital of Germany"
+                  Statement: "It is located in Paris, Germany"
+                  Verdict: TRUE (both say Paris + Germany, they match)
+
+                - Context: "Built in 1899"
+                  Statement: "Built in 1889"
+                  Verdict: FALSE (1899 ≠ 1889, they don't match)
+
+                - Context: "The tower was designed by Gustav"
+                  Statement: "It is located in Paris, France"
+                  Verdict: FALSE (location not mentioned in this context)
+
+                For EACH statement:
+                Step 1: What EXACTLY does THIS context say? (not what you remember from before)
+                Step 2: Does the statement match what THIS context says (word-for-word, fact-for-fact)?
+                Step 3: Is there ANY detail that contradicts or isn't mentioned in THIS context?
+                Step 4: Verdict: TRUE only if EVERYTHING in the statement matches THIS context. FALSE if ANY part differs or is missing.
+
+                DO NOT let your knowledge of real-world facts OR previous contexts influence your verdict. Each evaluation is completely independent.
+
+                Respond with a JSON object containing:
+                   - verdicts: A list of verdicts for each statement, where each verdict contains:
+                   - statement: The original statement
+                   - verdict: true if the ENTIRE statement matches THIS context exactly, false otherwise
+                   - reason: Explanation comparing statement to THIS context (not to real-world facts or previous contexts)
+            """;
+
+    private final String statementGeneratorPrompt;
+    private final String statementFaithfulnessPrompt;
+    private final String systemPrompt;
+
+    @Builder(toBuilder = true)
+    protected NoiseSensitivityMetric(
+            final MultiModelExecutor executor,
+            final String statementGeneratorPrompt,
+            final String statementFaithfulnessPrompt,
+            final String systemPrompt) {
+        super(executor);
+        this.statementGeneratorPrompt =
+                statementGeneratorPrompt != null ? statementGeneratorPrompt : DEFAULT_STATEMENT_GENERATOR_PROMPT;
+        this.statementFaithfulnessPrompt = statementFaithfulnessPrompt != null
+                ? statementFaithfulnessPrompt
+                : DEFAULT_STATEMENT_FAITHFULNESS_PROMPT;
+        this.systemPrompt = systemPrompt != null ? systemPrompt : DEFAULT_SYSTEM_PROMPT;
+    }
+
+    /**
+     * Convenience method for single-turn scoring with default configuration.
+     */
+    public Double singleTurnScore(final Sample sample) {
+        return singleTurnScore(NoiseSensitivityConfig.builder().build(), sample);
+    }
+
+    /**
+     * Convenience method for async single-turn scoring with default configuration.
+     */
+    public CompletableFuture<Double> singleTurnScoreAsync(final Sample sample) {
+        return singleTurnScoreAsync(NoiseSensitivityConfig.builder().build(), sample);
+    }
+
+    @Override
+    public Double singleTurnScore(final NoiseSensitivityConfig config, final Sample sample) {
+        return singleTurnScoreAsync(config, sample).join();
+    }
+
+    @Override
+    public CompletableFuture<Double> singleTurnScoreAsync(final NoiseSensitivityConfig config, final Sample sample) {
+        // Validation
+        if (sample.getUserInput() == null || sample.getUserInput().trim().isEmpty()) {
+            log.warn("No user input provided for Noise Sensitivity evaluation");
+            return CompletableFuture.completedFuture(0.0);
+        }
+        if (sample.getResponse() == null || sample.getResponse().trim().isEmpty()) {
+            log.warn("No response provided for Noise Sensitivity evaluation");
+            return CompletableFuture.completedFuture(0.0);
+        }
+        if (sample.getReference() == null || sample.getReference().trim().isEmpty()) {
+            log.warn("No reference provided for Noise Sensitivity evaluation");
+            return CompletableFuture.completedFuture(0.0);
+        }
+        if (sample.getRetrievedContexts() == null
+                || sample.getRetrievedContexts().isEmpty()) {
+            log.warn("No retrieved contexts provided for Noise Sensitivity evaluation");
+            return CompletableFuture.completedFuture(0.0);
+        }
+
+        final Instant startTime = Instant.now();
+        final List<String> modelIds =
+                config.models != null && !config.models.isEmpty() ? config.models : executor.getModelIds();
+
+        final List<String> retrievedContexts = sample.getRetrievedContexts();
+        final int numContexts = retrievedContexts.size();
+        // 2 decompose steps + 1 groundTruth eval + N refToContext + N respToContext + 1 compute
+        final int totalSteps = 2 + 1 + numContexts + numContexts + 1;
+
+        log.debug("Computing noise sensitivity with {} contexts in {} mode", numContexts, config.getMode());
+
+        // Create evaluation-specific notifier for thread-safe parallel execution
+        final EvaluationNotifier notifier = createEvaluationNotifier();
+
+        // Notify listeners
+        notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
+                .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(modelIds)
+                .totalSteps(totalSteps)
+                .metadata(Map.of("sample", sample, "config", config, "mode", config.getMode()))
+                .build());
+
+        return CompletableFuture.supplyAsync(() -> {
+            log.debug("Computing noise sensitivity evaluation with explicit flow");
+
+            // Track excluded models across all steps
+            final java.util.Set<String> excludedModelIds = new java.util.HashSet<>();
+
+            int stepIndex = 0;
+
+            // ========== Step 1: Decompose reference into statements ==========
+            notifier.beforeStep("DecomposeReference", stepIndex, totalSteps);
+
+            final String decomposeRefPrompt = renderDecomposePrompt(sample.getUserInput(), sample.getReference());
+            final List<ModelResult<StatementsResponse>> decomposeRefResults =
+                    executor.executeLlm(modelIds, decomposeRefPrompt, StatementsResponse.class);
+
+            notifier.afterLlmStep("DecomposeReference", stepIndex, totalSteps, decomposeRefPrompt, decomposeRefResults);
+
+            final Map<String, StatementsResponse> refStatementsMap = new HashMap<>();
+            for (final ModelResult<StatementsResponse> result : decomposeRefResults) {
+                if (result.isSuccess()) {
+                    refStatementsMap.put(result.modelId(), result.result());
+                } else {
+                    excludedModelIds.add(result.modelId());
+                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                            .modelId(result.modelId())
+                            .failedStepName("DecomposeReference")
+                            .failedStepIndex(stepIndex)
+                            .cause(result.error())
+                            .build());
+                }
+            }
+
+            if (refStatementsMap.isEmpty()) {
+                throw new IllegalStateException(
+                        "All models failed at step DecomposeReference for metric: " + getName());
+            }
+
+            stepIndex++;
+
+            // ========== Step 2: Decompose response into statements ==========
+            notifier.beforeStep("DecomposeResponse", stepIndex, totalSteps);
+
+            final String decomposeRespPrompt = renderDecomposePrompt(sample.getUserInput(), sample.getResponse());
+
+            // Execute in parallel for all models
+            final List<String> activeModelIds = new ArrayList<>(refStatementsMap.keySet());
+            final List<CompletableFuture<ModelResult<StatementsResponse>>> decomposeRespFutures =
+                    activeModelIds.stream()
+                            .map(modelId -> executor.executeLlmOnModelAsync(
+                                    modelId, decomposeRespPrompt, StatementsResponse.class))
+                            .toList();
+            CompletableFuture.allOf(decomposeRespFutures.toArray(new CompletableFuture[0]))
+                    .join();
+            final List<ModelResult<StatementsResponse>> decomposeRespResults =
+                    decomposeRespFutures.stream().map(CompletableFuture::join).toList();
+
+            notifier.afterLlmStep(
+                    "DecomposeResponse", stepIndex, totalSteps, decomposeRespPrompt, decomposeRespResults);
+
+            final Map<String, StatementsResponse> respStatementsMap = new HashMap<>();
+            for (final ModelResult<StatementsResponse> result : decomposeRespResults) {
+                if (result.isSuccess()) {
+                    respStatementsMap.put(result.modelId(), result.result());
+                } else {
+                    excludedModelIds.add(result.modelId());
+                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                            .modelId(result.modelId())
+                            .failedStepName("DecomposeResponse")
+                            .failedStepIndex(stepIndex)
+                            .cause(result.error())
+                            .build());
+                }
+            }
+
+            if (respStatementsMap.isEmpty()) {
+                throw new IllegalStateException("All models failed at step DecomposeResponse for metric: " + getName());
+            }
+
+            stepIndex++;
+
+            // ========== Step 3: Evaluate response statements against reference (groundTruthToAnswer)
+            // ==========
+            notifier.beforeStep("EvaluateGroundTruthToAnswer", stepIndex, totalSteps);
+
+            final Map<String, FaithfulnessVerdictsResponse> groundTruthToAnswerMap = new HashMap<>();
+
+            // Execute in parallel for all models
+            final List<String> respModelIds = new ArrayList<>(respStatementsMap.keySet());
+            final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> groundTruthFutures =
+                    respModelIds.stream()
+                            .map(modelId -> {
+                                final StatementsResponse respStmts = respStatementsMap.get(modelId);
+                                final String statementsFormatted = formatStatements(respStmts.statements());
+                                final String prompt =
+                                        renderFaithfulnessPrompt(sample.getReference(), statementsFormatted);
+                                return executor.executeLlmOnModelAsync(
+                                        modelId, prompt, FaithfulnessVerdictsResponse.class);
+                            })
+                            .toList();
+            CompletableFuture.allOf(groundTruthFutures.toArray(new CompletableFuture[0]))
+                    .join();
+            final List<ModelResult<FaithfulnessVerdictsResponse>> groundTruthResults =
+                    groundTruthFutures.stream().map(CompletableFuture::join).toList();
+
+            for (final ModelResult<FaithfulnessVerdictsResponse> result : groundTruthResults) {
+                if (result.isSuccess()) {
+                    groundTruthToAnswerMap.put(result.modelId(), result.result());
+                }
+            }
+
+            // Use first model's prompt as example for logging
+            final String examplePrompt = respStatementsMap.isEmpty()
+                    ? statementFaithfulnessPrompt
+                    : renderFaithfulnessPrompt(
+                            sample.getReference(),
+                            formatStatements(
+                                    respStatementsMap.values().iterator().next().statements()));
+            notifier.afterLlmStep(
+                    "EvaluateGroundTruthToAnswer", stepIndex, totalSteps, examplePrompt, groundTruthResults);
+
+            stepIndex++;
+
+            // ========== Steps 4 to 3+N: Evaluate reference statements against each context
+            // (retrievedToGroundTruth) ==========
+            final Map<String, List<FaithfulnessVerdictsResponse>> retrievedToGroundTruthMap = new HashMap<>();
+            for (String modelId : refStatementsMap.keySet()) {
+                retrievedToGroundTruthMap.put(modelId, new ArrayList<>());
+            }
+
+            final List<String> refModelIds = new ArrayList<>(refStatementsMap.keySet());
+            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+                final String stepName = "EvaluateRefToContext_" + contextIdx;
+                notifier.beforeStep(stepName, stepIndex, totalSteps);
+
+                final String context = retrievedContexts.get(contextIdx);
+
+                // Execute in parallel for all models
+                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> refContextFutures =
+                        refModelIds.stream()
+                                .map(modelId -> {
+                                    final StatementsResponse refStmts = refStatementsMap.get(modelId);
+                                    final String statementsFormatted = formatStatements(refStmts.statements());
+                                    final String prompt = renderFaithfulnessPrompt(context, statementsFormatted);
+                                    return executor.executeLlmOnModelAsync(
+                                            modelId, prompt, FaithfulnessVerdictsResponse.class);
+                                })
+                                .toList();
+                CompletableFuture.allOf(refContextFutures.toArray(new CompletableFuture[0]))
+                        .join();
+                final List<ModelResult<FaithfulnessVerdictsResponse>> contextResults =
+                        refContextFutures.stream().map(CompletableFuture::join).toList();
+
+                for (final ModelResult<FaithfulnessVerdictsResponse> result : contextResults) {
+                    if (result.isSuccess()) {
+                        retrievedToGroundTruthMap.get(result.modelId()).add(result.result());
+                    } else {
+                        retrievedToGroundTruthMap.get(result.modelId()).add(null);
+                    }
+                }
+
+                // Use first model's prompt as example for logging
+                final String exampleContextPrompt = refStatementsMap.isEmpty()
+                        ? statementFaithfulnessPrompt
+                        : renderFaithfulnessPrompt(
+                                context,
+                                formatStatements(refStatementsMap
+                                        .values()
+                                        .iterator()
+                                        .next()
+                                        .statements()));
+                notifier.afterLlmStep(stepName, stepIndex, totalSteps, exampleContextPrompt, contextResults);
+                stepIndex++;
+            }
+
+            // ========== Steps 4+N to 3+2N: Evaluate response statements against each context
+            // (retrievedToAnswer) ==========
+            final Map<String, List<FaithfulnessVerdictsResponse>> retrievedToAnswerMap = new HashMap<>();
+            for (String modelId : respStatementsMap.keySet()) {
+                retrievedToAnswerMap.put(modelId, new ArrayList<>());
+            }
+
+            final List<String> respModelIdsList = new ArrayList<>(respStatementsMap.keySet());
+            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+                final String stepName = "EvaluateRespToContext_" + contextIdx;
+                notifier.beforeStep(stepName, stepIndex, totalSteps);
+
+                final String context = retrievedContexts.get(contextIdx);
+
+                // Execute in parallel for all models
+                final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> respContextFutures =
+                        respModelIdsList.stream()
+                                .map(modelId -> {
+                                    final StatementsResponse respStmts = respStatementsMap.get(modelId);
+                                    final String statementsFormatted = formatStatements(respStmts.statements());
+                                    final String prompt = renderFaithfulnessPrompt(context, statementsFormatted);
+                                    return executor.executeLlmOnModelAsync(
+                                            modelId, prompt, FaithfulnessVerdictsResponse.class);
+                                })
+                                .toList();
+                CompletableFuture.allOf(respContextFutures.toArray(new CompletableFuture[0]))
+                        .join();
+                final List<ModelResult<FaithfulnessVerdictsResponse>> contextResults =
+                        respContextFutures.stream().map(CompletableFuture::join).toList();
+
+                for (final ModelResult<FaithfulnessVerdictsResponse> result : contextResults) {
+                    if (result.isSuccess()) {
+                        retrievedToAnswerMap.get(result.modelId()).add(result.result());
+                    } else {
+                        retrievedToAnswerMap.get(result.modelId()).add(null);
+                    }
+                }
+
+                // Use first model's prompt as example for logging
+                final String exampleRespPrompt = respStatementsMap.isEmpty()
+                        ? statementFaithfulnessPrompt
+                        : renderFaithfulnessPrompt(
+                                context,
+                                formatStatements(respStatementsMap
+                                        .values()
+                                        .iterator()
+                                        .next()
+                                        .statements()));
+                notifier.afterLlmStep(stepName, stepIndex, totalSteps, exampleRespPrompt, contextResults);
+                stepIndex++;
+            }
+
+            // ========== Final step: Compute noise sensitivity ==========
+            notifier.beforeStep("ComputeNoiseSensitivity", stepIndex, totalSteps);
+
+            final Map<String, Double> modelScores = new HashMap<>();
+
+            for (final String modelId : respStatementsMap.keySet()) {
+                if (!groundTruthToAnswerMap.containsKey(modelId)) {
+                    continue;
+                }
+
+                final StatementsResponse refStmts = refStatementsMap.get(modelId);
+                final StatementsResponse respStmts = respStatementsMap.get(modelId);
+                final FaithfulnessVerdictsResponse groundTruthToAnswer = groundTruthToAnswerMap.get(modelId);
+                final List<FaithfulnessVerdictsResponse> retrievedToGroundTruth =
+                        retrievedToGroundTruthMap.get(modelId);
+                final List<FaithfulnessVerdictsResponse> retrievedToAnswer = retrievedToAnswerMap.get(modelId);
+
+                // Convert to 2D arrays
+                final boolean[][] gtToAnswer = convertToGroundTruthToAnswer(groundTruthToAnswer, respStmts);
+                final boolean[][] rtToGt = convertToRetrievedToGroundTruth(retrievedToGroundTruth, refStmts);
+                final boolean[][] rtToAnswer = convertToRetrievedToAnswer(retrievedToAnswer, respStmts);
+
+                final FaithfulnessResults results = new FaithfulnessResults(gtToAnswer, rtToGt, rtToAnswer);
+                final double score = calculateNoiseSensitivity(results, config.getMode());
+                modelScores.put(modelId, score);
+            }
+
+            // Create synthetic results for notification
+            final List<ModelResult<Double>> computeResults = modelScores.entrySet().stream()
+                    .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
+                    .toList();
+
+            notifier.afterComputeStep("ComputeNoiseSensitivity", stepIndex, totalSteps, computeResults);
+
+            if (modelScores.isEmpty()) {
+                throw new IllegalStateException("All models failed for metric: " + getName());
+            }
+
+            final double aggregatedScore = aggregate(modelScores);
+
+            // Notify with full results
+            final Duration duration = Duration.between(startTime, Instant.now());
+            notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
+                    .metricName(getName())
+                    .aggregatedScore(aggregatedScore)
+                    .modelScores(modelScores)
+                    .excludedModels(new java.util.ArrayList<>(excludedModelIds))
+                    .totalDuration(duration)
+                    .metadata(Map.of("sample", sample, "config", config, "mode", config.getMode()))
+                    .build());
+
+            return aggregatedScore;
+        });
+    }
+
+    private String renderDecomposePrompt(final String question, final String answer) {
+        return PromptTemplate.builder()
+                .template(this.statementGeneratorPrompt)
+                .variables(Map.of("question", question, "answer", answer))
+                .build()
+                .render();
+    }
+
+    private String renderFaithfulnessPrompt(final String context, final String statementsFormatted) {
+        return PromptTemplate.builder()
+                .template(this.statementFaithfulnessPrompt)
+                .variables(Map.of("context", context, "statements", statementsFormatted))
+                .build()
+                .render();
+    }
+
+    private String formatStatements(final List<String> statements) {
+        if (statements == null || statements.isEmpty()) {
+            return "";
+        }
+        return String.join("\n", statements);
+    }
+
+    private boolean[][] convertToGroundTruthToAnswer(
+            FaithfulnessVerdictsResponse response, StatementsResponse statements) {
+        final List<String> stmtsList = statements.statements() != null ? statements.statements() : List.of();
+        final boolean[][] result = new boolean[1][stmtsList.size()];
+
+        if (response != null && response.verdicts() != null) {
+            final List<StatementVerdict> verdicts = response.verdicts();
+            for (int i = 0; i < stmtsList.size() && i < verdicts.size(); i++) {
+                result[0][i] =
+                        verdicts.get(i).verdict() != null ? verdicts.get(i).verdict() : false;
+            }
+        }
+
+        return result;
+    }
+
+    private boolean[][] convertToRetrievedToGroundTruth(
+            List<FaithfulnessVerdictsResponse> responses, StatementsResponse statements) {
+        final List<String> stmtsList = statements.statements() != null ? statements.statements() : List.of();
+        final int numStatements = stmtsList.size();
+        final int numContexts = responses.size();
+
+        final boolean[][] result = new boolean[numStatements][numContexts];
+
+        for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+            final FaithfulnessVerdictsResponse response = responses.get(contextIdx);
+            if (response != null && response.verdicts() != null) {
+                final List<StatementVerdict> verdicts = response.verdicts();
+                for (int stmtIdx = 0; stmtIdx < numStatements && stmtIdx < verdicts.size(); stmtIdx++) {
+                    result[stmtIdx][contextIdx] = verdicts.get(stmtIdx).verdict() != null
+                            ? verdicts.get(stmtIdx).verdict()
+                            : false;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private boolean[][] convertToRetrievedToAnswer(
+            List<FaithfulnessVerdictsResponse> responses, StatementsResponse statements) {
+        final List<String> stmtsList = statements.statements() != null ? statements.statements() : List.of();
+        final int numStatements = stmtsList.size();
+        final int numContexts = responses.size();
+
+        final boolean[][] result = new boolean[numStatements][numContexts];
+
+        for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+            final FaithfulnessVerdictsResponse response = responses.get(contextIdx);
+            if (response != null && response.verdicts() != null) {
+                final List<StatementVerdict> verdicts = response.verdicts();
+                for (int stmtIdx = 0; stmtIdx < numStatements && stmtIdx < verdicts.size(); stmtIdx++) {
+                    result[stmtIdx][contextIdx] = verdicts.get(stmtIdx).verdict() != null
+                            ? verdicts.get(stmtIdx).verdict()
+                            : false;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    private Double calculateNoiseSensitivity(FaithfulnessResults results, NoiseSensitivityMode mode) {
+        boolean[][] groundTruthToAnswer = results.groundTruthToAnswer();
+        boolean[][] retrievedToGroundTruth = results.retrievedToGroundTruth();
+        boolean[][] retrievedToAnswer = results.retrievedToAnswer();
+
+        if (groundTruthToAnswer.length == 0 || groundTruthToAnswer[0].length == 0 || retrievedToAnswer.length == 0) {
+            return 0.0;
+        }
+
+        int numResponseStatements = groundTruthToAnswer[0].length;
+        int numContexts = retrievedToGroundTruth.length > 0 ? retrievedToGroundTruth[0].length : 0;
+
+        if (numContexts == 0) {
+            return 0.0;
+        }
+
+        // Create incorrect array by inverting ground_truth2answer
+        boolean[] incorrect = new boolean[numResponseStatements];
+        for (int i = 0; i < numResponseStatements; i++) {
+            incorrect[i] = !groundTruthToAnswer[0][i];
+        }
+
+        // Compute relevant retrievals using max over axis 0 (ground truth statements)
+        boolean[] relevantRetrieved = new boolean[numContexts];
+        for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+            boolean hasRelevantStatement = false;
+            for (boolean[] booleans : retrievedToGroundTruth) {
+                if (booleans[contextIdx]) {
+                    hasRelevantStatement = true;
+                    break;
+                }
+            }
+            relevantRetrieved[contextIdx] = hasRelevantStatement;
+        }
+
+        // Compute relevant faithful using max over axis 1 (contexts)
+        boolean[] relevantFaithful = new boolean[numResponseStatements];
+        for (int answerStatementIdx = 0; answerStatementIdx < numResponseStatements; answerStatementIdx++) {
+            boolean hasFaithfulContext = false;
+            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+                if (relevantRetrieved[contextIdx] && retrievedToAnswer[answerStatementIdx][contextIdx]) {
+                    hasFaithfulContext = true;
+                    break;
+                }
+            }
+            relevantFaithful[answerStatementIdx] = hasFaithfulContext;
+        }
+
+        if (mode == NoiseSensitivityMode.IRRELEVANT) {
+            // Compute irrelevant retrievals: ~relevant_retrieved
+            boolean[] irrelevantRetrieved = new boolean[numContexts];
+            for (int i = 0; i < numContexts; i++) {
+                irrelevantRetrieved[i] = !relevantRetrieved[i];
+            }
+
+            // Compute irrelevant faithful using max over axis 1 (contexts)
+            boolean[] irrelevantFaithful = new boolean[numResponseStatements];
+            for (int answerStatementIdx = 0; answerStatementIdx < numResponseStatements; answerStatementIdx++) {
+                boolean hasFaithfulIrrelevantContext = false;
+                for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+                    if (irrelevantRetrieved[contextIdx] && retrievedToAnswer[answerStatementIdx][contextIdx]) {
+                        hasFaithfulIrrelevantContext = true;
+                        break;
+                    }
+                }
+                irrelevantFaithful[answerStatementIdx] = hasFaithfulIrrelevantContext;
+            }
+
+            // Keep them exclusive (irrelevant should not include relevant)
+            for (int i = 0; i < numResponseStatements; i++) {
+                irrelevantFaithful[i] = irrelevantFaithful[i] && !relevantFaithful[i];
+            }
+
+            // Return mean of (irrelevant_faithful & incorrect)
+            int count = 0;
+            for (int i = 0; i < numResponseStatements; i++) {
+                if (irrelevantFaithful[i] && incorrect[i]) {
+                    count++;
+                }
+            }
+            return (double) count / numResponseStatements;
+
+        } else { // RELEVANT mode
+            // Return mean of (relevant_faithful & incorrect)
+            int count = 0;
+            for (int i = 0; i < numResponseStatements; i++) {
+                if (relevantFaithful[i] && incorrect[i]) {
+                    count++;
+                }
+            }
+            return (double) count / numResponseStatements;
+        }
+    }
+
+    /**
+     * Data structure to hold faithfulness evaluation results
+     */
+    private record FaithfulnessResults(
+            boolean[][] groundTruthToAnswer, // Shape: (1, num_response_statements)
+            boolean[][] retrievedToGroundTruth, // Shape: (num_reference_statements, num_contexts)
+            boolean[][] retrievedToAnswer // Shape: (num_response_statements, num_contexts)
+            ) {}
+
+    /**
+     * Response DTO for statement decomposition
+     */
+    public record StatementsResponse(
+            @JsonPropertyDescription("List of atomic statements extracted from the answer") List<String> statements) {}
+
+    /**
+     * Response DTO for individual statement verdict
+     */
+    public record StatementVerdict(
+            @JsonPropertyDescription("The original statement") String statement,
+            @JsonPropertyDescription("True if the statement can be inferred from context, false otherwise")
+                    Boolean verdict,
+            @JsonPropertyDescription("Explanation for the verdict") String reason) {}
+
+    /**
+     * Response DTO for statement faithfulness evaluation
+     */
+    public record FaithfulnessVerdictsResponse(
+            @JsonPropertyDescription("List of verdicts for each statement") List<StatementVerdict> verdicts) {}
+
+    /**
+     * Noise sensitivity evaluation mode
+     */
+    public enum NoiseSensitivityMode {
+        RELEVANT, // Measures errors from relevant retrieved contexts
+        IRRELEVANT // Measures errors from irrelevant retrieved contexts
+    }
+
+    @Data
+    @Builder
+    public static class NoiseSensitivityConfig implements MetricConfiguration {
+        /**
+         * Evaluation mode for noise sensitivity
+         * RELEVANT: measures errors from relevant contexts
+         * IRRELEVANT: measures errors from irrelevant contexts
+         */
+        @Builder.Default
+        private NoiseSensitivityMode mode = NoiseSensitivityMode.RELEVANT;
+
+        /**
+         * List of model IDs to use for multi-model execution.
+         * If not specified, uses default models from executor configuration.
+         */
+        @Singular
+        private List<String> models;
+    }
+}

@@ -1,19 +1,15 @@
 package ai.qa.solutions.execution;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ai.qa.solutions.chatclient.ChatClientStore;
-import ai.qa.solutions.execution.MultiModelExecutor.ExecutionRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,27 +42,28 @@ class MultiModelExecutorTest {
     class BasicExecution {
 
         @Test
-        @DisplayName("Should execute on all models and aggregate scores")
-        void shouldExecuteOnAllModelsAndAggregateScores() {
+        @DisplayName("Should execute on all models and return results")
+        void shouldExecuteOnAllModelsAndReturnResults() {
             // Given
             setupMockModels(Map.of(
                     "model-1", 0.8,
                     "model-2", 1.0,
                     "model-3", 0.6));
 
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test prompt")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .build();
-
             // When
-            Double result = executor.execute(request).join();
+            List<ModelResult<TestResponse>> results = executor.executeLlm("test prompt", TestResponse.class);
 
             // Then
-            assertThat(result)
-                    .isCloseTo(0.8, org.assertj.core.api.Assertions.within(0.001)); // Average of 0.8, 1.0, 0.6
+            assertThat(results).hasSize(3);
+            assertThat(results).allMatch(ModelResult::isSuccess);
+
+            Map<String, Double> scores = results.stream()
+                    .collect(java.util.stream.Collectors.toMap(
+                            ModelResult::modelId, r -> r.result().score()));
+
+            assertThat(scores.get("model-1")).isEqualTo(0.8);
+            assertThat(scores.get("model-2")).isEqualTo(1.0);
+            assertThat(scores.get("model-3")).isEqualTo(0.6);
         }
 
         @Test
@@ -80,299 +77,68 @@ class MultiModelExecutorTest {
             when(chatClientStore.get("success")).thenReturn(successClient);
             when(chatClientStore.get("fail")).thenReturn(failingClient);
 
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .build();
-
             // When
-            Double result = executor.execute(request).join();
+            List<ModelResult<TestResponse>> results = executor.executeLlm("test", TestResponse.class);
 
             // Then
-            assertThat(result).isEqualTo(0.8); // Only successful model
+            assertThat(results).hasSize(2);
+
+            ModelResult<TestResponse> successResult = results.stream()
+                    .filter(r -> r.modelId().equals("success"))
+                    .findFirst()
+                    .orElseThrow();
+            ModelResult<TestResponse> failResult = results.stream()
+                    .filter(r -> r.modelId().equals("fail"))
+                    .findFirst()
+                    .orElseThrow();
+
+            assertThat(successResult.isSuccess()).isTrue();
+            assertThat(successResult.result().score()).isEqualTo(0.8);
+
+            assertThat(failResult.isFailure()).isTrue();
+            assertThat(failResult.error()).isNotNull();
         }
 
         @Test
-        @DisplayName("Should fail when all models fail")
-        void shouldFailWhenAllModelsFail() {
-            // Given
-            ChatClient failingClient = createFailingMockClient();
-            when(chatClientStore.getModelIds()).thenReturn(List.of("model-1"));
-            when(chatClientStore.get("model-1")).thenReturn(failingClient);
-
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .build();
-
-            // When/Then
-            assertThatThrownBy(() -> executor.execute(request).join())
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("All 1 models failed");
-        }
-
-        @Test
-        @DisplayName("Should fail when no models configured")
-        void shouldFailWhenNoModelsConfigured() {
+        @DisplayName("Should return empty list when no models configured")
+        void shouldReturnEmptyListWhenNoModelsConfigured() {
             // Given
             when(chatClientStore.getModelIds()).thenReturn(List.of());
 
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .build();
-
-            // When/Then
-            assertThatThrownBy(() -> executor.execute(request).join())
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("No models configured");
-        }
-    }
-
-    @Nested
-    @DisplayName("Custom Aggregators")
-    class CustomAggregators {
-
-        @Test
-        @DisplayName("Should use MIN aggregator")
-        void shouldUseMinAggregator() {
-            // Given
-            setupMockModels(Map.of("m1", 0.8, "m2", 0.5, "m3", 0.9));
-            ExecutionRequest<TestResponse> request = createTestRequest();
-
             // When
-            Double result = executor.execute(request, ScoreAggregator.MIN).join();
+            List<ModelResult<TestResponse>> results = executor.executeLlm("test", TestResponse.class);
 
             // Then
-            assertThat(result).isEqualTo(0.5);
+            assertThat(results).isEmpty();
         }
 
         @Test
-        @DisplayName("Should use MAX aggregator")
-        void shouldUseMaxAggregator() {
+        @DisplayName("Should include duration in results")
+        void shouldIncludeDurationInResults() {
             // Given
-            setupMockModels(Map.of("m1", 0.8, "m2", 0.5, "m3", 0.9));
-            ExecutionRequest<TestResponse> request = createTestRequest();
+            setupMockModels(Map.of("model-1", 0.8));
 
             // When
-            Double result = executor.execute(request, ScoreAggregator.MAX).join();
+            List<ModelResult<TestResponse>> results = executor.executeLlm("test", TestResponse.class);
 
             // Then
-            assertThat(result).isEqualTo(0.9);
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).duration()).isNotNull();
+            assertThat(results.get(0).duration().toMillis()).isGreaterThanOrEqualTo(0);
         }
 
         @Test
-        @DisplayName("Should use MEDIAN aggregator")
-        void shouldUseMedianAggregator() {
+        @DisplayName("Should include request in results")
+        void shouldIncludeRequestInResults() {
             // Given
-            setupMockModels(Map.of("m1", 0.1, "m2", 0.5, "m3", 0.9));
-            ExecutionRequest<TestResponse> request = createTestRequest();
+            setupMockModels(Map.of("model-1", 0.8));
 
             // When
-            Double result = executor.execute(request, ScoreAggregator.MEDIAN).join();
+            List<ModelResult<TestResponse>> results = executor.executeLlm("my test prompt", TestResponse.class);
 
             // Then
-            assertThat(result).isEqualTo(0.5);
-        }
-
-        @Test
-        @DisplayName("Should use consensus aggregator when models agree")
-        void shouldUseConsensusAggregatorWhenModelsAgree() {
-            // Given
-            setupMockModels(Map.of("m1", 0.79, "m2", 0.80, "m3", 0.81));
-            ExecutionRequest<TestResponse> request = createTestRequest();
-
-            // When
-            Double result =
-                    executor.execute(request, ScoreAggregator.consensus(0.1)).join();
-
-            // Then
-            assertThat(result).isCloseTo(0.8, org.assertj.core.api.Assertions.within(0.001));
-        }
-
-        @Test
-        @DisplayName("Should fail consensus when models disagree")
-        void shouldFailConsensusWhenModelsDisagree() {
-            // Given
-            setupMockModels(Map.of("m1", 0.1, "m2", 0.9));
-            ExecutionRequest<TestResponse> request = createTestRequest();
-
-            // When/Then
-            assertThatThrownBy(() -> executor.execute(request, ScoreAggregator.consensus(0.1))
-                            .join())
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("No consensus");
-        }
-    }
-
-    @Nested
-    @DisplayName("Listeners")
-    class Listeners {
-
-        @Test
-        @DisplayName("Should notify listeners in order")
-        void shouldNotifyListenersInOrder() {
-            // Given
-            setupMockModels(Map.of("m1", 0.8));
-            List<String> callOrder = new ArrayList<>();
-
-            ModelExecutionListener firstListener = new ModelExecutionListener() {
-                @Override
-                public void beforeExecution(ModelExecutionContext context) {
-                    callOrder.add("first-before");
-                }
-
-                @Override
-                public void afterExecution(ModelExecutionResult result) {
-                    callOrder.add("first-after");
-                }
-
-                @Override
-                public void afterAggregation(AggregatedExecutionResult result) {
-                    callOrder.add("first-aggregation");
-                }
-
-                @Override
-                public int getOrder() {
-                    return 1;
-                }
-            };
-
-            ModelExecutionListener secondListener = new ModelExecutionListener() {
-                @Override
-                public void beforeExecution(ModelExecutionContext context) {
-                    callOrder.add("second-before");
-                }
-
-                @Override
-                public void afterExecution(ModelExecutionResult result) {
-                    callOrder.add("second-after");
-                }
-
-                @Override
-                public void afterAggregation(AggregatedExecutionResult result) {
-                    callOrder.add("second-aggregation");
-                }
-
-                @Override
-                public int getOrder() {
-                    return 2;
-                }
-            };
-
-            executor.addListener(secondListener).addListener(firstListener);
-
-            // When
-            executor.execute(createTestRequest()).join();
-
-            // Then
-            assertThat(callOrder)
-                    .containsExactly(
-                            "first-before",
-                            "second-before",
-                            "first-after",
-                            "second-after",
-                            "first-aggregation",
-                            "second-aggregation");
-        }
-
-        @Test
-        @DisplayName("Should provide correct context to listeners")
-        void shouldProvideCorrectContextToListeners() {
-            // Given
-            setupMockModels(Map.of("test-model", 0.7));
-            AtomicInteger beforeCalls = new AtomicInteger();
-            AtomicInteger afterCalls = new AtomicInteger();
-
-            ModelExecutionListener listener = new ModelExecutionListener() {
-                @Override
-                public void beforeExecution(ModelExecutionContext context) {
-                    beforeCalls.incrementAndGet();
-                    assertThat(context.getModelId()).isEqualTo("test-model");
-                    assertThat(context.getMetricName()).isEqualTo("TestMetric");
-                    assertThat(context.getPrompt()).isEqualTo("test prompt");
-                    assertThat(context.getExecutionId()).isNotBlank();
-                }
-
-                @Override
-                public void afterExecution(ModelExecutionResult result) {
-                    afterCalls.incrementAndGet();
-                    assertThat(result.isSuccess()).isTrue();
-                    assertThat(result.getScore()).contains(0.7);
-                    assertThat(result.getDuration()).isNotNull();
-                }
-
-                @Override
-                public void afterAggregation(AggregatedExecutionResult result) {
-                    assertThat(result.getAggregatedScore()).isEqualTo(0.7);
-                    assertThat(result.getSuccessRate()).isEqualTo(1.0);
-                    assertThat(result.getResults()).hasSize(1);
-                }
-            };
-
-            executor.addListener(listener);
-
-            // When
-            executor.execute(createTestRequest()).join();
-
-            // Then
-            assertThat(beforeCalls.get()).isEqualTo(1);
-            assertThat(afterCalls.get()).isEqualTo(1);
-        }
-
-        @Test
-        @DisplayName("Should handle listener exceptions gracefully")
-        void shouldHandleListenerExceptionsGracefully() {
-            // Given
-            setupMockModels(Map.of("m1", 0.8));
-
-            ModelExecutionListener faultyListener = new ModelExecutionListener() {
-                @Override
-                public void beforeExecution(ModelExecutionContext context) {
-                    throw new RuntimeException("Listener error");
-                }
-            };
-
-            executor.addListener(faultyListener);
-
-            // When
-            Double result = executor.execute(createTestRequest()).join();
-
-            // Then - should still succeed
-            assertThat(result).isEqualTo(0.8);
-        }
-
-        @Test
-        @DisplayName("Should support removing listeners")
-        void shouldSupportRemovingListeners() {
-            // Given
-            setupMockModels(Map.of("m1", 0.8));
-            AtomicInteger callCount = new AtomicInteger();
-
-            ModelExecutionListener listener = new ModelExecutionListener() {
-                @Override
-                public void beforeExecution(ModelExecutionContext context) {
-                    callCount.incrementAndGet();
-                }
-            };
-
-            executor.addListener(listener);
-            executor.removeListener(listener);
-
-            // When
-            executor.execute(createTestRequest()).join();
-
-            // Then
-            assertThat(callCount.get()).isZero();
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).request()).isEqualTo("my test prompt");
         }
     }
 
@@ -390,67 +156,29 @@ class MultiModelExecutorTest {
                     "model-3", 0.6,
                     "model-4", 0.9));
 
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test prompt")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .modelIds(List.of("model-1", "model-3")) // Only use these two models
-                    .build();
+            // When - only use models 1 and 3
+            List<ModelResult<TestResponse>> results =
+                    executor.executeLlm(List.of("model-1", "model-3"), "test", TestResponse.class);
 
-            // When
-            Double result = executor.execute(request).join();
-
-            // Then - should average only model-1 (0.8) and model-3 (0.6)
-            assertThat(result).isCloseTo(0.7, org.assertj.core.api.Assertions.within(0.001));
+            // Then
+            assertThat(results).hasSize(2);
+            assertThat(results).extracting(ModelResult::modelId).containsExactlyInAnyOrder("model-1", "model-3");
         }
 
         @Test
-        @DisplayName("Should use all models when custom list is empty")
-        void shouldUseAllModelsWhenCustomListIsEmpty() {
+        @DisplayName("Should return empty list when custom model list is empty")
+        void shouldReturnEmptyListWhenCustomModelListIsEmpty() {
             // Given
             setupMockModels(Map.of(
                     "model-1", 0.8,
                     "model-2", 1.0,
                     "model-3", 0.6));
 
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test prompt")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .modelIds(List.of()) // Empty list - should use all models
-                    .build();
+            // When - explicit empty list means no models to execute on
+            List<ModelResult<TestResponse>> results = executor.executeLlm(List.of(), "test", TestResponse.class);
 
-            // When
-            Double result = executor.execute(request).join();
-
-            // Then - should average all three models
-            assertThat(result).isCloseTo(0.8, org.assertj.core.api.Assertions.within(0.001));
-        }
-
-        @Test
-        @DisplayName("Should use all models when custom list is null")
-        void shouldUseAllModelsWhenCustomListIsNull() {
-            // Given
-            setupMockModels(Map.of(
-                    "model-1", 0.8,
-                    "model-2", 1.0,
-                    "model-3", 0.6));
-
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test prompt")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .modelIds(null) // Null list - should use all models
-                    .build();
-
-            // When
-            Double result = executor.execute(request).join();
-
-            // Then - should average all three models
-            assertThat(result).isCloseTo(0.8, org.assertj.core.api.Assertions.within(0.001));
+            // Then - empty list = no models = empty result
+            assertThat(results).isEmpty();
         }
 
         @Test
@@ -462,43 +190,86 @@ class MultiModelExecutorTest {
                     "model-2", 1.0,
                     "model-3", 0.6));
 
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test prompt")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .modelIds(List.of("model-2")) // Only model-2
-                    .build();
+            // When
+            List<ModelResult<TestResponse>> results =
+                    executor.executeLlm(List.of("model-2"), "test", TestResponse.class);
+
+            // Then
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).modelId()).isEqualTo("model-2");
+            assertThat(results.get(0).result().score()).isEqualTo(1.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Single Model Execution")
+    class SingleModelExecution {
+
+        @Test
+        @DisplayName("Should execute on single model and return result")
+        void shouldExecuteOnSingleModelAndReturnResult() {
+            // Given
+            setupMockModels(Map.of("target-model", 0.75));
 
             // When
-            Double result = executor.execute(request).join();
+            ModelResult<TestResponse> result = executor.executeLlmOnModel("target-model", "prompt", TestResponse.class);
 
-            // Then - should return only model-2 score
-            assertThat(result).isEqualTo(1.0);
+            // Then
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.modelId()).isEqualTo("target-model");
+            assertThat(result.result().score()).isEqualTo(0.75);
         }
 
         @Test
-        @DisplayName("Should work with custom aggregator and custom model list")
-        void shouldWorkWithCustomAggregatorAndCustomModelList() {
+        @DisplayName("Should return failure result when model fails")
+        void shouldReturnFailureResultWhenModelFails() {
             // Given
-            setupMockModels(Map.of(
-                    "model-1", 0.5,
-                    "model-2", 0.7,
-                    "model-3", 0.9));
+            ChatClient failingClient = createFailingMockClient();
+            when(chatClientStore.get("failing-model")).thenReturn(failingClient);
 
-            ExecutionRequest<TestResponse> request = ExecutionRequest.<TestResponse>builder()
-                    .metricName("TestMetric")
-                    .prompt("test prompt")
-                    .responseType(TestResponse.class)
-                    .scoreExtractor(TestResponse::score)
-                    .modelIds(List.of("model-1", "model-3")) // 0.5 and 0.9
-                    .build();
+            // When
+            ModelResult<TestResponse> result =
+                    executor.executeLlmOnModel("failing-model", "prompt", TestResponse.class);
 
-            // When - Use MAX aggregator
-            Double result = executor.execute(request, ScoreAggregator.MAX).join();
+            // Then
+            assertThat(result.isFailure()).isTrue();
+            assertThat(result.error()).isNotNull();
+            assertThat(result.result()).isNull();
+        }
+    }
 
-            // Then - should return max of 0.5 and 0.9
-            assertThat(result).isEqualTo(0.9);
+    @Nested
+    @DisplayName("Async Execution")
+    class AsyncExecution {
+
+        @Test
+        @DisplayName("Should execute asynchronously on all models")
+        void shouldExecuteAsyncOnAllModels() {
+            // Given
+            setupMockModels(Map.of("model-1", 0.8, "model-2", 0.9));
+
+            // When
+            List<ModelResult<TestResponse>> results =
+                    executor.executeLlmAsync("test", TestResponse.class).join();
+
+            // Then
+            assertThat(results).hasSize(2);
+            assertThat(results).allMatch(ModelResult::isSuccess);
+        }
+
+        @Test
+        @DisplayName("Should execute asynchronously on single model")
+        void shouldExecuteAsyncOnSingleModel() {
+            // Given
+            setupMockModels(Map.of("model-1", 0.8));
+
+            // When
+            ModelResult<TestResponse> result = executor.executeLlmOnModelAsync("model-1", "test", TestResponse.class)
+                    .join();
+
+            // Then
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.result().score()).isEqualTo(0.8);
         }
     }
 
@@ -532,15 +303,6 @@ class MultiModelExecutorTest {
         when(requestSpec.call()).thenThrow(new RuntimeException("Model error"));
 
         return client;
-    }
-
-    private ExecutionRequest<TestResponse> createTestRequest() {
-        return ExecutionRequest.<TestResponse>builder()
-                .metricName("TestMetric")
-                .prompt("test prompt")
-                .responseType(TestResponse.class)
-                .scoreExtractor(TestResponse::score)
-                .build();
     }
 
     record TestResponse(double score) {}

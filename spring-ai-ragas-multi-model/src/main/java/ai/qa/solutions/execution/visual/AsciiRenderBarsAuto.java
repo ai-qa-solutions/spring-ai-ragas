@@ -81,10 +81,16 @@ public class AsciiRenderBarsAuto {
         }
         Locale.setDefault(Locale.ROOT);
 
-        final Item minItem =
-                items.stream().min(Comparator.comparingDouble(i -> i.value)).orElse(items.get(0));
-        final Item maxItem =
-                items.stream().max(Comparator.comparingDouble(i -> i.value)).orElse(items.get(0));
+        // Sort items alphabetically by label for consistent display
+        final List<Item> sortedItems =
+                items.stream().sorted(Comparator.comparing(Item::label)).toList();
+
+        final Item minItem = sortedItems.stream()
+                .min(Comparator.comparingDouble(i -> i.value))
+                .orElse(sortedItems.get(0));
+        final Item maxItem = sortedItems.stream()
+                .max(Comparator.comparingDouble(i -> i.value))
+                .orElse(sortedItems.get(0));
         double min = minItem.value;
         double max = maxItem.value;
         final double avg = items.stream().mapToDouble(i -> i.value).average().orElse(0.0);
@@ -98,12 +104,12 @@ public class AsciiRenderBarsAuto {
         final int topPad = 1;
         final int bottomPad = 1;
         final int rightPad = 2;
-        final int rows = items.size();
+        final int rows = sortedItems.size();
         final int autoHeight = topPad + rows + bottomPad;
         if (height <= 0) height = Math.max(5, autoHeight);
         height = Math.max(height, autoHeight);
 
-        final int longest = items.stream()
+        final int longest = sortedItems.stream()
                 .map(i -> i.label)
                 .mapToInt(s -> s == null ? 0 : s.length())
                 .max()
@@ -131,7 +137,7 @@ public class AsciiRenderBarsAuto {
 
         for (int i = 0; i < rows; i++) {
             final int y = topPad + i;
-            final Item it = items.get(i);
+            final Item it = sortedItems.get(i);
 
             final String lbl = ellipsizeRight(it.label, labelsW);
             b.element(new Label(lbl, labelsX, y, labelsW));
