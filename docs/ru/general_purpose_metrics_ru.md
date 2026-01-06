@@ -1,531 +1,544 @@
 # General Purpose Metrics (Универсальные метрики)
 
-Универсальные метрики оценки предназначены для измерения качества ответов AI-систем в различных сценариях. Эти метрики не привязаны к конкретной задаче и могут применяться для оценки любых типов генерируемого контента.
+Универсальные метрики оценивают ответы AI-систем без привязки к конкретному домену. Они работают с любым типом
+генерируемого контента.
 
-## Содержание
+## Конфигурация
 
-- [Когда использовать](#когда-использовать)
-- [AspectCritic](#aspectcritic)
-- [SimpleCriteriaScore](#simplecriteriascore)
-- [RubricsScore](#rubricsscore)
-- [Параллельная оценка](#параллельная-оценка-нескольких-метрик)
-- [Выбор метрики](#выбор-подходящей-метрики)
-- [Best Practices](#best-practices)
-- [Troubleshooting](#troubleshooting)
-- [Расширенные примеры](#расширенные-примеры)
+### application.yaml
 
-## Когда использовать
-
-**Используйте эти метрики когда:**
-- Необходимо оценить общее качество ответов без специфических требований к домену
-- Нужна быстрая проверка соответствия ответов заданным критериям
-- Требуется бинарная оценка (соответствует/не соответствует)
-- Необходима оценка по заранее определённой шкале или рубрикам
-- Нужно проверить ответы на безопасность, корректность или другие аспекты
-- Требуется гибкая настройка критериев оценки под конкретную задачу
-
-**Не используйте эти метрики когда:**
-- Нужны специализированные метрики для конкретных задач (RAG, кодогенерация, суммаризация)
-- Требуется оценка технических аспектов (латентность, токены, стоимость)
-- Необходима оценка на основе внешних источников данных или контекста
+```yaml
+spring:
+  ai:
+    retry:
+      on-http-codes: [ 429 ]
+      on-client-errors: true
+      backoff:
+        initial-interval: 2000ms
+        max-interval: 30000ms
+        multiplier: 2
+    openai:
+      base-url: https://openrouter.ai/api
+      api-key: ${OPENROUTER_API_KEY}
+      chat:
+        options:
+          model: google/gemini-2.5-flash
+          temperature: 0.0
+    # Chat-модели для мульти-модельной оценки
+    chat-models:
+      default-options:
+        temperature: 0.0
+        max-tokens: 1000
+        top-p: 1.0
+      list:
+        - { id: anthropic/claude-4.5-sonnet }
+        - { id: google/gemini-2.5-flash }
+        - { id: openai/gpt-4o-mini }
+        - { id: deepseek/deepseek-v3.2 }
+  threads:
+    virtual:
+      enabled: true
+```
 
 ---
 
 ## AspectCritic
 
-`AspectCritic` — это бинарная метрика оценки, которая проверяет соответствие ответа AI-системы заданному критерию. Метрика возвращает `1.0` (соответствует) или `0.0` (не соответствует).
+AspectCritic — бинарная метрика, которая оценивает ответ по критерию в свободной форме. Возвращает `1.0` (критерий
+выполнен) или `0.0` (критерий не выполнен).
 
-### Когда применять
+### Как работает
 
-**Идеальные сценарии:**
-- **Проверка безопасности контента**: определение вредоносной, токсичной или неприемлемой информации
-- **Валидация корректности**: проверка фактической точности и достоверности ответов
-- **Контроль качества**: оценка соблюдения корпоративных стандартов и политик
-- **Compliance проверки**: соответствие регуляторным требованиям и юридическим нормам
-- **Фильтрация контента**: отсев неподходящих ответов в production pipeline
+Метрика использует мажоритарное голосование для определения итогового вердикта:
 
-**Преимущества:**
-- Простая интерпретация результатов (бинарная оценка)
-- Настраиваемый уровень строгости оценки
-- Высокая скорость выполнения
-- Подходит для автоматической фильтрации
-
-**Ограничения:**
-- Не показывает степень соответствия (только да/нет)
-- Требует чёткого определения критерия
-- Может быть слишком жёсткой для пограничных случаев
-
-### Пример использования
+1. LLM оценивает ответ по критерию `strictness` раз
+2. Каждая оценка возвращает бинарный вердикт (true/false)
+3. Мажоритарное голосование определяет итоговый результат: `1.0` если больше половины true, иначе `0.0`
 
 ```java
+// Из AspectCriticMetric.java — агрегация мажоритарным голосованием
+class Example {
+    void example() {
+        final double modelScore = ScoreAggregator.MAJORITY_VOTING.aggregate(iterationScores);
+    }
+}
+```
+
+### Пример
+
+```java
+package ai.qa.solutions.metrics.general.ru;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import ai.qa.solutions.metrics.general.AspectCriticMetric;
 import ai.qa.solutions.sample.Sample;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
 
-Sample sample = Sample.builder()
-    .userInput("Как защитить компьютер от вирусов?")
-    .response("Установите антивирус, регулярно обновляйте систему, "
-        + "не открывайте подозрительные ссылки и делайте резервные копии данных.")
-    .build();
+@Slf4j
+@EnableAutoConfiguration
+@SpringBootTest(classes = AspectCriticTest.TestConfiguration.class)
+class AspectCriticTest {
 
-AspectCriticMetric.AspectCriticConfig config = 
-    AspectCriticMetric.AspectCriticConfig.builder()
-        .definition("Содержит ли ответ вредоносную или опасную информацию?")
-        .strictness(4) // 1=мягко, 5=очень строго
-        .build();
+    @Configuration
+    public static class TestConfiguration {
+    }
 
-AspectCriticMetric metric = AspectCriticMetric.builder()
-    .chatClient(chatClient)
-    .build();
-Double score = metric.singleTurnScore(config, sample);
-// Результат: 0.0 (безопасный контент)
+    @Autowired
+    private AspectCriticMetric aspectCriticMetric;
+
+    @Test
+    @DisplayName("AspectCritic: Безопасный контент")
+    void testSafeContent() {
+        Sample sample = Sample.builder()
+                .userInput("Как защитить компьютер от вирусов?")
+                .response("Для защиты компьютера от вирусов рекомендую: "
+                        + "установите антивирус, регулярно обновляйте систему, "
+                        + "не открывайте подозрительные ссылки, используйте фаервол, "
+                        + "и делайте резервные копии данных.")
+                .build();
+
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Содержит ли ответ безопасные и легитимные советы по безопасности?")
+                .strictness(3)
+                .build();
+
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 0.9, "Ожидается высокий балл для безопасного ответа");
+    }
+
+    @Test
+    @DisplayName("AspectCritic: Фактическая точность с конкретной моделью")
+    void testFactualAccuracy() {
+        Sample sample = Sample.builder()
+                .userInput("Какая столица Франции?")
+                .response("Столица Франции — Париж. Париж является крупнейшим городом "
+                        + "и служит политическим, экономическим и культурным центром.")
+                .build();
+
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Является ли ответ фактически точным и правдивым?")
+                .strictness(4)
+                .model("google/gemini-2.5-flash")
+                .build();
+
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 0.8, "Ожидается высокий балл для фактически точного ответа");
+    }
+}
 ```
 
-### Параметры конфигурации
+### Конфигурация
 
-|   Параметр   |   Тип   | Обязательный | По умолчанию |             Описание              |
-|--------------|---------|--------------|--------------|-----------------------------------|
-| `definition` | String  | Да           | -            | Критерий оценки в свободной форме |
-| `strictness` | Integer | Нет          | 3            | Уровень строгости оценки (1-5)    |
+|   Параметр   |   Тип   | Обязательный | По умолчанию |                   Описание                    |
+|--------------|---------|--------------|--------------|-----------------------------------------------|
+| `definition` | String  | Да           | -            | Критерий оценки в свободной форме             |
+| `strictness` | Integer | Нет          | 1            | Количество итераций LLM для голосования (1-5) |
+| `models`     | List    | Нет          | все          | Конкретные ID моделей для оценки              |
 
-**Уровни строгости:**
-- **1-2**: Мягкая оценка, допускает неточности
-- **3**: Сбалансированная оценка (рекомендуется)
-- **4-5**: Строгая оценка, требует полного соответствия
+### Когда использовать
 
-### Как работает метрика
-
-AspectCritic использует LLM для анализа ответа по заданному критерию:
-
-1. **Анализ контекста**: Учитывается пользовательский запрос и полученный ответ
-2. **Применение критерия**: LLM оценивает соответствие ответа заданному определению
-3. **Учёт строгости**: Применяется настроенный уровень строгости оценки
-4. **Вынесение вердикта**: Возвращается бинарное решение с обоснованием
-
-### Асинхронное выполнение
-
-```java
-CompletableFuture<Double> futureScore = 
-    metric.singleTurnScoreAsync(config, sample);
-Double score = futureScore.get(); // Неблокирующая оценка
-```
+- Проверка безопасности контента (вредоносный, токсичный контент)
+- Валидация фактической точности
+- Проверка соответствия политикам (compliance)
+- Быстрая бинарная классификация в production
 
 ---
 
 ## SimpleCriteriaScore
 
-`SimpleCriteriaScore` — это метрика количественной оценки, которая присваивает числовое значение ответу на основе заданного критерия. В отличие от бинарной AspectCritic, эта метрика показывает степень соответствия.
+SimpleCriteriaScore оценивает ответы по непрерывной шкале на основе критерия. В отличие от AspectCritic, предоставляет
+гранулярную оценку качества.
 
-### Когда применять
+### Как работает
 
-**Идеальные сценарии:**
-- **Оценка качества объяснений**: насколько полно и понятно объяснена концепция
-- **Измерение релевантности**: степень соответствия ответа запросу
-- **Оценка стиля и тона**: соответствие корпоративному стилю коммуникации
-- **Ранжирование ответов**: выбор лучшего из нескольких вариантов
-- **A/B тестирование**: сравнение версий промптов или моделей
+Метрика нормализует оценки в диапазон `[0, 1]` согласно методологии RAGAS:
 
-**Преимущества:**
-- Гранулярная оценка качества
-- Гибкая настройка диапазона баллов
-- Подходит для ранжирования и сравнения
-- Показывает тренды улучшения/ухудшения
-
-**Ограничения:**
-- Субъективность числовой оценки
-- Требует хорошо определённого критерия
-- Может быть менее стабильной, чем бинарная оценка
-
-### Пример использования
+1. LLM оценивает ответ в настраиваемом диапазоне (по умолчанию: 0-5)
+2. Сырая оценка нормализуется: `(score - minScore) / (maxScore - minScore)`
+3. При нескольких итерациях используется агрегация медианой
 
 ```java
-import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
-
-Sample sample = Sample.builder()
-    .userInput("Что такое искусственный интеллект?")
-    .response("Искусственный интеллект — это область информатики, которая "
-        + "создаёт системы, способные выполнять задачи, требующие "
-        + "человеческого интеллекта: обучение, рассуждение и восприятие.")
-    .reference("ИИ — технология, имитирующая человеческое мышление.")
-    .build();
-
-SimpleCriteriaScoreMetric.SimpleCriteriaConfig config = 
-    SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-        .definition("Оцените полноту и ясность объяснения")
-        .minScore(1.0)
-        .maxScore(5.0)
-        .build();
-
-SimpleCriteriaScoreMetric metric = SimpleCriteriaScoreMetric.builder()
-    .chatClient(chatClient)
-    .build();
-Double score = metric.singleTurnScore(config, sample);
-// Результат: 4.5 (высокое качество объяснения)
+// Из SimpleCriteriaScoreMetric.java — нормализация
+class Example {
+    private double normalize(Double rawScore, double minScore, double maxScore) {
+        double clampedScore = Math.max(minScore, Math.min(maxScore, rawScore));
+        return (clampedScore - minScore) / (maxScore - minScore);
+    }
+}
 ```
 
-### Параметры конфигурации
+### Пример
 
-|   Параметр   |  Тип   | Обязательный | По умолчанию |                  Описание                   |
-|--------------|--------|--------------|--------------|---------------------------------------------|
-| `definition` | String | Да           | -            | Критерий оценки, описывающий что измеряется |
-| `minScore`   | Double | Нет          | 0.0          | Минимальное значение шкалы                  |
-| `maxScore`   | Double | Нет          | 5.0          | Максимальное значение шкалы                 |
+```java
+package ai.qa.solutions.metrics.general.ru;
 
-**Рекомендуемые диапазоны:**
-- **0-1**: Для нормализованных метрик и вероятностей
-- **1-5**: Для общей оценки качества (стандарт)
-- **1-10**: Для более детальной градации
-- **0-100**: Для процентных оценок
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-### Интерпретация результатов
+import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
+import ai.qa.solutions.sample.Sample;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
 
-Для шкалы 1-5 (стандартной):
-- **1.0-2.0**: Низкое качество, требуется значительная доработка
-- **2.0-3.0**: Удовлетворительно, есть существенные недостатки
-- **3.0-4.0**: Хорошо, незначительные улучшения желательны
-- **4.0-5.0**: Отлично, высокое качество ответа
+@Slf4j
+@EnableAutoConfiguration
+@SpringBootTest(classes = SimpleCriteriaScoreTest.TestConfiguration.class)
+class SimpleCriteriaScoreTest {
+
+    @Configuration
+    public static class TestConfiguration {
+    }
+
+    @Autowired
+    private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
+
+    @Test
+    @DisplayName("SimpleCriteriaScore: Качественное объяснение")
+    void testHighQualityExplanation() {
+        Sample sample = Sample.builder()
+                .userInput("Объясните, что такое искусственный интеллект")
+                .response("Искусственный интеллект (ИИ) — это область информатики, "
+                        + "направленная на создание систем, способных выполнять задачи, "
+                        + "требующие человеческого интеллекта. Это включает обучение, "
+                        + "рассуждение, восприятие и принятие решений. "
+                        + "ИИ используется в различных сферах, от медицины до автономных транспортных средств.")
+                .reference("ИИ — технология, имитирующая человеческое мышление для решения сложных задач.")
+                .build();
+
+        SimpleCriteriaScoreMetric.SimpleCriteriaConfig config =
+                SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                        .definition("Оцените качество объяснения с точки зрения "
+                                + "полноты, ясности и точности")
+                        .minScore(1.0)
+                        .maxScore(5.0)
+                        .build();
+
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+
+        log.info("Нормализованный балл: {} (шкала 0-1)", score);
+        assertTrue(score >= 0.0 && score <= 1.0, "Балл должен быть нормализован в диапазон [0, 1]");
+        assertTrue(score >= 0.75, "Ожидается высокий нормализованный балл для качественного объяснения");
+    }
+
+    @Test
+    @DisplayName("SimpleCriteriaScore: Математическая точность")
+    void testMathematicalAccuracy() {
+        Sample sample = Sample.builder()
+                .userInput("Сколько будет 15 умножить на 12?")
+                .response("15 умножить на 12 равно 180.")
+                .reference("180")
+                .build();
+
+        SimpleCriteriaScoreMetric.SimpleCriteriaConfig config =
+                SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                        .definition("Оцените математическую точность от 0 до 5")
+                        .minScore(0.0)
+                        .maxScore(5.0)
+                        .build();
+
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 0.9, "Правильный ответ должен получить высокий нормализованный балл");
+    }
+}
+```
+
+### Конфигурация
+
+|   Параметр   |   Тип   | Обязательный | По умолчанию |                 Описание                  |
+|--------------|---------|--------------|--------------|-------------------------------------------|
+| `definition` | String  | Да           | -            | Критерий, описывающий что измеряется      |
+| `minScore`   | Double  | Нет          | 0.0          | Минимальное значение шкалы                |
+| `maxScore`   | Double  | Нет          | 5.0          | Максимальное значение шкалы               |
+| `strictness` | Integer | Нет          | 1            | Количество итераций с агрегацией медианой |
+| `models`     | List    | Нет          | все          | Конкретные ID моделей для оценки          |
+
+### Когда использовать
+
+- Оценка качества объяснений
+- Измерение релевантности ответов
+- A/B тестирование промптов или моделей
+- Ранжирование вариантов ответов
 
 ---
 
 ## RubricsScore
 
-`RubricsScore` — это метрика с детализированными критериями оценки. Вместо одного критерия используется набор рубрик, где каждый уровень баллов имеет подробное описание.
+RubricsScore оценивает ответы по детализированным рубрикам, где каждый уровень оценки имеет явное описание. Обеспечивает
+максимальную прозрачность оценки.
 
-### Когда применять
+### Как работает
 
-**Идеальные сценарии:**
-- **Оценка эссе и текстов**: когда есть чёткие критерии качества для каждого уровня
-- **Образовательные системы**: оценка ответов учащихся по стандартизированным рубрикам
-- **Контроль качества документации**: проверка соответствия стандартам написания
-- **Код-ревью**: оценка качества кода по заданным критериям
-- **Креативный контент**: оценка оригинальности, стиля, структуры
-
-**Преимущества:**
-- Максимальная прозрачность оценки
-- Согласованность между разными оценками
-- Подробная обратная связь о качестве
-- Легко адаптируется под специфические требования
-
-**Ограничения:**
-- Требует времени на создание рубрик
-- Сложнее в настройке, чем другие метрики
-- Может быть избыточной для простых задач
-
-### Пример использования
+1. Рубрики определяют критерии качества для каждого уровня (например, 1-5)
+2. LLM выбирает уровень рубрики, который лучше всего соответствует ответу
+3. Возвращает целочисленную оценку выбранной рубрики
 
 ```java
-import ai.qa.solutions.metrics.general.RubricsScoreMetric;
-
-Sample sample = Sample.builder()
-    .userInput("Объясните процесс фотосинтеза")
-    .response("Фотосинтез — процесс, при котором растения преобразуют "
-        + "световую энергию в химическую. В хлоропластах хлорофилл "
-        + "поглощает свет, расщепляя воду и выделяя кислород. "
-        + "CO₂ превращается в глюкозу в цикле Кальвина.")
-    .reference("Фотосинтез - образование органических веществ "
-        + "из CO₂ и воды с использованием света.")
-    .build();
-
-RubricsScoreMetric.RubricsConfig config = 
-    RubricsScoreMetric.RubricsConfig.builder()
-        .rubric("score1_description", 
-            "Полностью неверная или нерелевантная информация")
-        .rubric("score2_description", 
-            "Базовое понимание с существенными пробелами")
-        .rubric("score3_description", 
-            "Общее понимание, отсутствуют важные детали")
-        .rubric("score4_description", 
-            "Хорошее понимание с основными этапами и компонентами")
-        .rubric("score5_description", 
-            "Отличное объяснение с научными деталями и примерами")
-        .build();
-
-RubricsScoreMetric metric = RubricsScoreMetric.builder()
-    .chatClient(chatClient)
-    .build();
-Double score = metric.singleTurnScore(config, sample);
-// Результат: 4.0 (хорошее понимание темы)
+// Из RubricsScoreMetric.java — форматирование рубрик
+class Example {
+    private String buildRubricsText(Map<String, String> rubrics) {
+        rubrics.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    String score = entry.getKey().replaceAll("[^0-9]", "");
+                    rubricsText.append("Score ").append(score)
+                            .append(": ").append(entry.getValue()).append("\n");
+                });
+        return rubricsText.toString();
+    }
+}
 ```
 
-### Параметры конфигурации
+### Пример
 
-| Параметр  |         Тип         | Обязательный |              Описание              |
-|-----------|---------------------|--------------|------------------------------------|
-| `rubrics` | Map<String, String> | Да           | Описания для каждого уровня баллов |
+```java
+package ai.qa.solutions.metrics.general.ru;
 
-**Требования к ключам:** Должны быть в формате `score1_description`, `score2_description`, и т.д.
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-**Рекомендации:** Используйте 3-5 уровней для оптимального баланса детализации и простоты
+import ai.qa.solutions.metrics.general.RubricsScoreMetric;
+import ai.qa.solutions.sample.Sample;
+
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
+
+@Slf4j
+@EnableAutoConfiguration
+@SpringBootTest(classes = RubricsScoreTest.TestConfiguration.class)
+class RubricsScoreTest {
+
+    @Configuration
+    public static class TestConfiguration {
+    }
+
+    @Autowired
+    private RubricsScoreMetric rubricsScoreMetric;
+
+    @Test
+    @DisplayName("RubricsScore: Отличное научное объяснение")
+    void testExcellentExplanation() {
+        Sample sample = Sample.builder()
+                .userInput("Объясните процесс фотосинтеза")
+                .response("Фотосинтез — сложный биохимический процесс, при котором растения "
+                        + "преобразуют световую энергию в химическую. Процесс происходит "
+                        + "в хлоропластах и включает два основных этапа: световые и "
+                        + "темновые реакции. В световой фазе хлорофилл поглощает солнечный "
+                        + "свет, расщепляя молекулы воды и высвобождая кислород. "
+                        + "В темновой фазе (цикл Кальвина) углекислый газ превращается в глюкозу. "
+                        + "Общее уравнение: 6CO2 + 6H2O + свет -> C6H12O6 + 6O2.")
+                .reference("Фотосинтез — образование органических веществ "
+                        + "из CO2 и воды с использованием световой энергии.")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createPhotosynthesisRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+
+        log.info("Оценка по рубрикам: {}", score);
+        assertTrue(score >= 4.0, "Ожидается высокий балл за подробное научное объяснение");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Оценка качества кода")
+    void testCodeQuality() {
+        Sample sample = Sample.builder()
+                .userInput("Напишите функцию для вычисления факториала")
+                .response("""
+                        def factorial(n):
+                            '''Вычисляет факториал n с использованием рекурсии и валидации'''
+                            if not isinstance(n, int) or n < 0:
+                                raise ValueError("Входные данные должны быть неотрицательным целым числом")
+                            if n == 0 or n == 1:
+                                return 1
+                            return n * factorial(n - 1)
+                        """)
+                .reference("Функция для вычисления факториала с обработкой ошибок")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createCodeQualityRubrics())
+                .model("anthropic/claude-4.5-sonnet")
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 4.0, "Хорошо написанный код должен получить высокий балл");
+    }
+
+    private Map<String, String> createPhotosynthesisRubrics() {
+        return Map.of(
+                "score1_description", "Полностью неверная или нерелевантная информация",
+                "score2_description", "Базовое понимание со значительными пробелами или ошибками",
+                "score3_description", "Общее понимание, но отсутствуют важные детали",
+                "score4_description", "Хорошее понимание с упоминанием основных этапов и компонентов",
+                "score5_description", "Отличное объяснение с научными деталями, уравнением и примерами");
+    }
+
+    private Map<String, String> createCodeQualityRubrics() {
+        return Map.of(
+                "score1_description", "Неработающий код с синтаксическими ошибками",
+                "score2_description", "Базовая функциональность, но плохие практики, нет обработки ошибок",
+                "score3_description", "Работающий код с приемлемой структурой, минимальная документация",
+                "score4_description", "Хорошо структурированный код с хорошими практиками и обработкой ошибок",
+                "score5_description", "Отличный код с лучшими практиками, документацией и обработкой краевых случаев");
+    }
+}
+```
+
+### Конфигурация
+
+| Параметр  |         Тип         | Обязательный |                    Описание                    |
+|-----------|---------------------|--------------|------------------------------------------------|
+| `rubrics` | Map<String, String> | Да           | Описания оценок в формате `scoreN_description` |
+| `models`  | List                | Нет          | Конкретные ID моделей для оценки               |
 
 ### Создание эффективных рубрик
 
-#### Принципы составления
-
-**1. Конкретность**
-
-Описывайте наблюдаемые характеристики, а не абстрактные понятия:
-- ❌ Плохо: "Хороший ответ"
-- ✅ Хорошо: "Ответ содержит определение, 2-3 примера и объяснение причинно-следственных связей"
-
-**2. Прогрессия**
-
-Каждый уровень должен логично развивать предыдущий:
-- Level 1: Базовое упоминание темы
-- Level 2: Определение + 1 пример
-- Level 3: Определение + примеры + контекст
-- Level 4: Всё выше + анализ
-- Level 5: Всё выше + синтез + нюансы
-
-**3. Измеримость**
-
-Используйте количественные индикаторы где возможно:
-- "Содержит 3+ релевантных примера"
-- "Объясняет минимум 2 причинно-следственные связи"
-
-**4. Согласованность**
-
-Используйте единую терминологию со схемой Sample:
-- Если Sample использует `reference`, не пишите "ground truth" в рубриках
-
-#### Пример полного набора рубрик
-
-**Для оценки кода:**
+**Используйте прогрессивную сложность:**
 
 ```java
-RubricsScoreMetric.RubricsConfig config = 
-    RubricsScoreMetric.RubricsConfig.builder()
-        .rubric("score1_description", 
-            "Код не работает или содержит критические ошибки синтаксиса/логики")
-        .rubric("score2_description", 
-            "Код работает, но неэффективен, есть очевидные проблемы производительности")
-        .rubric("score3_description", 
-            "Код работает корректно, базовая оптимизация, читаемость средняя")
-        .rubric("score4_description", 
-            "Код эффективен, хорошо структурирован, есть комментарии, следует best practices")
-        .rubric("score5_description", 
-            "Отличный код: оптимальная сложность O(n), SOLID принципы, "
-            + "полная документация, обработка edge cases, покрытие тестами")
-        .build();
+class Example {
+    void example() {
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubric("score1_description", "Неверная или нерелевантная информация")
+                .rubric("score2_description", "Базовое упоминание со значительными ошибками")
+                .rubric("score3_description", "Общее понимание, отсутствуют ключевые детали")
+                .rubric("score4_description", "Хорошее понимание с примерами")
+                .rubric("score5_description", "Экспертное объяснение с нюансами")
+                .build();
+    }
+}
 ```
+
+**Включайте измеримые критерии:**
+
+- "Содержит минимум 3 релевантных примера"
+- "Объясняет 2+ причинно-следственные связи"
+- "Предоставляет код с обработкой ошибок"
+
+### Когда использовать
+
+- Оценка эссе и учебных работ
+- Оценка качества кода
+- Контроль качества документации
+- Оценка ответов службы поддержки
 
 ---
 
-## Параллельная оценка нескольких метрик
+## Мульти-модельное выполнение
 
-Все метрики поддерживают асинхронное выполнение через CompletableFuture, что позволяет эффективно оценивать один ответ по нескольким критериям одновременно.
+Все метрики поддерживают параллельное выполнение на нескольких моделях через `MultiModelExecutor`. Результаты
+агрегируются с помощью настраиваемых стратегий.
 
-### Пример комплексной оценки
+### Доступные агрегаторы
+
+|     Агрегатор     |          Применение          |                Описание                 |
+|-------------------|------------------------------|-----------------------------------------|
+| `AVERAGE`         | По умолчанию для большинства | Среднее арифметическое всех оценок      |
+| `MEDIAN`          | Итерации SimpleCriteriaScore | Медиана, устойчива к выбросам           |
+| `MAJORITY_VOTING` | AspectCritic                 | Бинарный: 1.0 если >50% true, иначе 0.0 |
+| `MIN`             | Консервативная оценка        | Минимальная оценка (самая строгая)      |
+| `MAX`             | Оптимистичная оценка         | Максимальная оценка (самая мягкая)      |
+| `CONSENSUS`       | Критические решения          | Требует согласия всех моделей           |
+
+### Указание моделей
 
 ```java
-Sample sample = Sample.builder()
-    .userInput("Расскажите о глобальном потеплении")
-    .response("Глобальное потепление — повышение температуры планеты "
-        + "из-за парниковых газов от деятельности человека...")
-    .reference("Глобальное потепление - увеличение температуры Земли "
-        + "из-за парникового эффекта.")
-    .build();
+class Example {
+    void specificModels() {
+        // Использовать конкретные модели
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Является ли ответ фактически точным?")
+                .model("openai/gpt-4o")
+                .model("anthropic/claude-4.5-sonnet")
+                .build();
+    }
 
-// Конфигурация метрик
-var aspectConfig = AspectCriticMetric.AspectCriticConfig.builder()
-    .definition("Содержит ли ответ научно достоверную информацию?")
-    .build();
+    void allModels() {
+        // Или использовать все настроенные модели (по умолчанию)
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Является ли ответ фактически точным?")
+                .build();
+    }
+}
+```
 
-var criteriaConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-    .definition("Оцените полноту и ясность объяснения")
-    .minScore(1.0)
-    .maxScore(5.0)
-    .build();
+### Асинхронное выполнение
 
-var rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
-    .rubric("score1_description", "Неверная информация")
-    .rubric("score3_description", "Базовое понимание")
-    .rubric("score5_description", "Экспертное объяснение с деталями")
-    .build();
+```java
+class Example {
+    void asyncExecution() {
+        CompletableFuture<Double> aspectFuture =
+                aspectCriticMetric.singleTurnScoreAsync(aspectConfig, sample);
+        CompletableFuture<Double> criteriaFuture =
+                simpleCriteriaMetric.singleTurnScoreAsync(criteriaConfig, sample);
 
-// Параллельное выполнение
-CompletableFuture<Double> aspect = 
-    aspectMetric.singleTurnScoreAsync(aspectConfig, sample);
-CompletableFuture<Double> criteria = 
-    criteriaMetric.singleTurnScoreAsync(criteriaConfig, sample);
-CompletableFuture<Double> rubrics = 
-    rubricsMetric.singleTurnScoreAsync(rubricsConfig, sample);
+        CompletableFuture.allOf(aspectFuture, criteriaFuture).join();
 
-// Ожидание всех результатов
-CompletableFuture.allOf(aspect, criteria, rubrics).join();
-
-System.out.println("Достоверность: " + aspect.join());  // 1.0
-System.out.println("Качество: " + criteria.join());     // 4.2
-System.out.println("По рубрикам: " + rubrics.join());   // 4.0
+        System.out.println("Безопасность: " + aspectFuture.join());
+        System.out.println("Качество: " + criteriaFuture.join());
+    }
+}
 ```
 
 ---
 
 ## Выбор подходящей метрики
 
-|            Сценарий            | Рекомендуемая метрика |             Почему             |
-|--------------------------------|-----------------------|--------------------------------|
-| Проверка безопасности контента | AspectCritic          | Нужна простая проверка да/нет  |
-| Фильтрация токсичного контента | AspectCritic          | Быстрая бинарная классификация |
-| Сравнение качества промптов    | SimpleCriteriaScore   | Показывает степень улучшения   |
-| Ранжирование вариантов ответов | SimpleCriteriaScore   | Числовая оценка для сортировки |
-| Оценка учебных работ           | RubricsScore          | Детальная обратная связь       |
-| Контроль качества документации | RubricsScore          | Стандартизированные критерии   |
-| Быстрая валидация в production | AspectCritic          | Минимальная латентность        |
-| Детальный анализ качества      | RubricsScore          | Максимум информации            |
+|         Потребность          |       Метрика       |                 Почему                  |
+|------------------------------|---------------------|-----------------------------------------|
+| Бинарное решение да/нет      | AspectCritic        | Быстрый, чёткий вердикт pass/fail       |
+| Фильтрация контента          | AspectCritic        | Быстрая бинарная классификация          |
+| Гранулярная оценка качества  | SimpleCriteriaScore | Непрерывная шкала [0,1] для сравнения   |
+| Сравнение вариантов промптов | SimpleCriteriaScore | Нормализованные оценки для ранжирования |
+| Прозрачная оценка            | RubricsScore        | Явные критерии для каждого уровня       |
+| Академическая/учебная оценка | RubricsScore        | Детальная обратная связь о качестве     |
 
 ---
 
-## Best Practices
+## Схема Sample
 
-### 1. Формулирование критериев
-
-**Для AspectCritic:**
-- Используйте вопросительную форму: "Содержит ли...?", "Является ли...?"
-- Будьте специфичны: вместо "хороший ответ" → "фактически точный ответ"
-- Избегайте двойного отрицания
+Все метрики используют класс `Sample` для входных данных:
 
 ```java
-// ✅ Хорошо
-.definition("Содержит ли ответ инструкции по незаконной деятельности?")
-.definition("Является ли информация фактически точной и проверяемой?")
-
-// ❌ Плохо
-.definition("Ответ не должен не содержать ошибок") // двойное отрицание
-.definition("Хороший ответ") // слишком расплывчато
-```
-
-**Для SimpleCriteriaScore:**
-- Опишите что именно оценивается: "полноту объяснения", "соответствие тону"
-- Укажите диапазон явно в описании критерия
-- Избегайте субъективных терминов без пояснений
-
-**Для RubricsScore:**
-- Начинайте каждую рубрику с уровня требований
-- Используйте действительные глаголы: "содержит", "объясняет", "демонстрирует"
-- Добавляйте конкретные индикаторы качества
-
-### 2. Настройка строгости (AspectCritic)
-
-```java
-// Для контента, где допустимы неточности (творческие тексты)
-.strictness(2)
-
-// Для сбалансированной оценки (общие случаи)
-.strictness(3)
-
-// Для критически важных проверок (безопасность, compliance)
-.strictness(5)
-```
-
-### 3. Оптимизация производительности
-
-- Используйте AspectCritic для первичной фильтрации (быстрая)
-- Применяйте детальные метрики только к прошедшим фильтрацию ответам
-- Кэшируйте результаты для идентичных конфигураций
-- Используйте batch-оценку через CompletableFuture для больших датасетов
-
-### 4. Интерпретация результатов
-
-- Устанавливайте пороговые значения на основе статистики по вашим данным
-- Логируйте не только баллы, но и reasoning из Response DTO
-- Мониторьте распределение баллов для выявления проблем с метриками
-- Сравнивайте результаты разных метрик для валидации
-
----
-
-## Troubleshooting
-
-### Проблема: Нестабильные оценки между запусками
-
-**Решение:**
-- Установите temperature=0 в настройках ChatClient для детерминированности
-- Увеличьте строгость критериев
-- Используйте более конкретные формулировки в определениях
-
-### Проблема: Все оценки слишком высокие/низкие
-
-**Решение:**
-- Пересмотрите формулировку критериев (возможно, слишком мягкая/жёсткая)
-- Для SimpleCriteriaScore: проверьте диапазон баллов
-- Для RubricsScore: убедитесь, что рубрики покрывают весь спектр качества
-
-### Проблема: Метрика не различает хорошие и плохие ответы
-
-**Решение:**
-- Добавьте reference ответ в Sample для сравнения
-- Используйте RubricsScore вместо SimpleCriteriaScore для большей детализации
-- Проверьте, что критерий действительно релевантен для вашей задачи
-
----
-
-## Расширенные примеры
-
-### Пример 1: Мультиязычная оценка
-
-```java
-// Критерии могут быть на любом языке, который поддерживает LLM
-public class MultilingualEvaluation {
-    
-    public Map<String, Double> evaluateMultilingual(Sample sample) {
-        // Русский
-        var ruConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Содержит ли ответ грамматические ошибки?")
-            .build();
-        
-        // Английский
-        var enConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Does the response contain grammatical errors?")
-            .build();
-        
-        return Map.of(
-            "ru", aspectMetric.singleTurnScore(ruConfig, sample),
-            "en", aspectMetric.singleTurnScore(enConfig, sample)
-        );
+class Example {
+    void createSample() {
+        Sample sample = Sample.builder()
+                .userInput("Вопрос или запрос пользователя")
+                .response("AI-ответ для оценки")
+                .reference("Опционально: эталонный или ожидаемый ответ")
+                .retrievedContexts(List.of("контекст1", "контекст2")) // Для RAG-сценариев
+                .build();
     }
 }
 ```
 
-### Пример 2: Доменно-специфичная оценка
-
-```java
-// Медицинская информация
-var medicalConfig = AspectCriticMetric.AspectCriticConfig.builder()
-    .definition("Содержит ли ответ медицинские рекомендации "
-        + "без предупреждения о необходимости консультации врача?")
-    .strictness(5) // Максимальная строгость для безопасности
-    .build();
-
-// Финансовые советы
-var financialConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-    .definition("Оцените полноту раскрытия рисков и дисклеймеров")
-    .minScore(0.0)
-    .maxScore(10.0)
-    .build();
-```
-
-### Пример 3: A/B тестирование промптов
-
-```java
-List<Sample> variantA = generateResponses(promptA);
-List<Sample> variantB = generateResponses(promptB);
-
-var config = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-    .definition("Оцените релевантность и полноту ответа")
-    .minScore(1.0)
-    .maxScore(5.0)
-    .build();
-
-double avgScoreA = variantA.stream()
-    .mapToDouble(s -> metric.singleTurnScore(config, s))
-    .average()
-    .orElse(0.0);
-
-double avgScoreB = variantB.stream()
-    .mapToDouble(s -> metric.singleTurnScore(config, s))
-    .average()
-    .orElse(0.0);
-
-System.out.println("Промпт A: " + avgScoreA);
-System.out.println("Промпт B: " + avgScoreB);
-System.out.println("Улучшение: " + ((avgScoreB - avgScoreA) / avgScoreA * 100) + "%");
-```
+|        Поле         |     Тип      |      Используется       |            Описание             |
+|---------------------|--------------|-------------------------|---------------------------------|
+| `userInput`         | String       | Все метрики             | Входной запрос пользователя     |
+| `response`          | String       | Все метрики             | AI-ответ для оценки             |
+| `reference`         | String       | SimpleCriteria, Rubrics | Эталонный ответ для сравнения   |
+| `retrievedContexts` | List<String> | RAG-метрики             | Извлечённые документы контекста |
 

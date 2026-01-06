@@ -1,4 +1,4 @@
-# Spring AI RAGAS - LLM Agent Evaluation for Java 🎯
+# Spring AI RAGAS - LLM Agent Evaluation for Java
 
 [![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/README.md)
 [![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/README.ru.md)
@@ -7,39 +7,44 @@ A Java library for evaluating and testing AI agents based on Large Language Mode
 [RAGAS](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/general_purpose/)
 framework. Built on Spring Boot and Spring AI SDK for easy integration with the Java ecosystem.
 
-## 🎯 Why This Library?
+## Why This Library?
 
 Modern AI agents require objective and automated quality assessment. Manual testing is time-consuming and highly
 subjective. Spring AI RAGAS solves these problems:
 
-- **🔍 Objective Evaluation**: LLM-based metrics for automated testing
-- **🚀 Spring-native**: Native integration with Spring Boot ecosystem
-- **⚡ Asynchronous**: CompletableFuture for parallel evaluations
-- **🌍 Multilingual**: Support for Russian and English languages
-- **🛠️ Extensible**: Easy to create custom metrics
+- **Objective Evaluation**: LLM-based metrics for automated testing
+- **Spring-native**: Native integration with Spring Boot ecosystem
+- **Asynchronous**: CompletableFuture for parallel evaluations
+- **Multi-Model**: Run evaluations across multiple LLMs with aggregation strategies
+- **Multilingual**: Support for Russian and English languages
+- **Extensible**: Easy to create custom metrics
 
-## 🔄 Supported Metrics
+## Supported Metrics
 
 ### General Purpose Metrics
 
-- **[AspectCritic](docs/en/general/AspectCritic.md)** - Binary evaluation based on predefined aspects
-- **[SimpleCriteriaScore](docs/en/general_purpose_metrics_en.md#simplecriteriascore)** - Quantitative evaluation based on simple criteria
-- **[RubricsScore](docs/en/general_purpose_metrics_en.md#rubricsscore)** - Detailed evaluation based on rubrics
+|                                      Metric                                      |                  Description                  |
+|----------------------------------------------------------------------------------|-----------------------------------------------|
+| [AspectCritic](docs/en/general_purpose_metrics_en.md#aspectcritic)               | Binary evaluation based on predefined aspects |
+| [SimpleCriteriaScore](docs/en/general_purpose_metrics_en.md#simplecriteriascore) | Quantitative evaluation on continuous scale   |
+| [RubricsScore](docs/en/general_purpose_metrics_en.md#rubricsscore)               | Detailed evaluation based on explicit rubrics |
 
-> 📖 **Detailed Documentation**: [General Purpose Metrics Guide](docs/en/general_purpose_metrics_en.md)
+Full documentation: [General Purpose Metrics Guide](docs/en/general_purpose_metrics_en.md)
 
 ### Retrieval Metrics
 
-- **[ContextEntityRecall](docs/en/retrieval_metrics_en.md#contextentityrecall)** - Entity coverage in retrieved contexts
-- **[ContextPrecision](docs/en/retrieval_metrics_en.md#contextprecision)** - Precision of retrieved context ranking
-- **[ContextRecall](docs/en/retrieval_metrics_en.md#contextrecall)** - Completeness of retrieved information
-- **[Faithfulness](docs/en/retrieval_metrics_en.md#faithfulness)** - Factual consistency with retrieved contexts
-- **[NoiseSensitivity](docs/en/retrieval_metrics_en.md#noisesensitivity)** - Robustness to irrelevant contexts
-- **[ResponseRelevancy](docs/en/retrieval/ResponseRelevancy.md)** - Response semantic relevance for the context
+|                                   Metric                                   |                 Description                 |
+|----------------------------------------------------------------------------|---------------------------------------------|
+| [ContextEntityRecall](docs/en/retrieval_metrics_en.md#contextentityrecall) | Entity coverage in retrieved contexts       |
+| [ContextPrecision](docs/en/retrieval_metrics_en.md#contextprecision)       | Precision of retrieved context ranking      |
+| [ContextRecall](docs/en/retrieval_metrics_en.md#contextrecall)             | Completeness of retrieved information       |
+| [Faithfulness](docs/en/retrieval_metrics_en.md#faithfulness)               | Factual consistency with retrieved contexts |
+| [NoiseSensitivity](docs/en/retrieval_metrics_en.md#noisesensitivity)       | Robustness to irrelevant contexts           |
+| [ResponseRelevancy](docs/en/retrieval_metrics_en.md#responserelevancy)     | Response semantic relevance to user input   |
 
-> 📖 **Detailed Documentation**: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
+Full documentation: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -60,12 +65,6 @@ subjective. Spring AI RAGAS solves these problems:
 </dependency>
 <!-- Add any required starters from spring-ai ecosystem -->
 <dependency>
-    <groupId>chat.giga</groupId>
-    <artifactId>spring-ai-starter-model-gigachat</artifactId>
-    <version>1.0.5</version>
-    <scope>test</scope>
-</dependency>
-<dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-starter-model-openai</artifactId>
     <version>1.1.0-M2</version>
@@ -76,9 +75,8 @@ subjective. Spring AI RAGAS solves these problems:
 #### Gradle
 
 ```groovy
-implementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
-implementation 'chat.giga:spring-ai-starter-model-gigachat:1.0.5'
-implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
+testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
+testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
 ```
 
 ### Configuration
@@ -88,195 +86,164 @@ application.yaml
 ```yaml
 spring:
   ai:
-    retry: # Recommended to configure retries for large test volumes
+    retry:
       on-http-codes: [ 429 ]
       on-client-errors: true
       backoff:
         initial-interval: 2000ms
         max-interval: 30000ms
         multiplier: 2
-    model: # Choose API starter for work
-      chat: gigachat
-    gigachat: # GigaChat API connection parameters
-      auth:
-        unsafe-ssl: true
-        scope: gigachat_api_pers
-        bearer:
-          client-id: ${SPRING_AI_GIGACHAT_CLIENT_ID}
-          client-secret: ${SPRING_AI_GIGACHAT_CLIENT_SECRET}
-      chat:
-        options:
-          model: GigaChat-2-Max
-    openai: # OpenRouter connection parameters
+    openai:
       base-url: https://openrouter.ai/api
       api-key: ${OPENROUTER_API_KEY}
       chat:
         options:
-          model: qwen/qwen3-235b-a22b:free
+          model: google/gemini-2.5-flash
+          temperature: 0.0
+    # Multi-model evaluation configuration
+    chat-models:
+      default-options:
+        temperature: 0.0
+        max-tokens: 1000
+      list:
+        - { id: anthropic/claude-4.5-sonnet }
+        - { id: google/gemini-2.5-flash }
+        - { id: openai/gpt-4o-mini }
 ```
 
-## 📡 5-Minute quick example
-
-### Basic Usage Example
+## Usage Example
 
 ```java
 @SpringBootTest
-class MetricsQuickStartTest {
-    
+class MetricsTest {
+
     @Autowired
     private AspectCriticMetric aspectCritic;
-    
-    @Autowired 
+
+    @Autowired
     private SimpleCriteriaScoreMetric simpleCriteria;
-    
+
     @Autowired
     private RubricsScoreMetric rubrics;
-    
+
     @Test
-    void quickEvaluationExample() {
-        // Create test data
+    void evaluateResponse() {
         Sample sample = Sample.builder()
-            .userInput("What is artificial intelligence?")
-            .response("AI is a field of computer science that creates systems " +
-                    "capable of performing tasks requiring human intelligence.")
-            .build();
-        
-        // 1. Binary safety check (AspectCritic)
-        var safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Does the response contain information about artificial intelligence?")
-            .build();
-        
-        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
-        // Result: 1.0 (accurate) or 0.0 (inaccurate)
-        
-        // 2. Quality assessment (SimpleCriteriaScore)  
-        var qualityConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-            .definition("Rate explanation quality from 1 to 5")
-            .minScore(1.0)
-            .maxScore(5.0)
-            .build();
-        
-        Double qualityScore = simpleCriteria.singleTurnScore(qualityConfig, sample);
-        // Result: 1.0-5.0 (quality level)
-        
-        // 3. Detailed rubric evaluation (RubricsScore)
+                .userInput("What is artificial intelligence?")
+                .response("AI is a field of computer science that creates systems "
+                        + "capable of performing tasks requiring human intelligence.")
+                .build();
+
+        // Binary evaluation (AspectCritic)
+        var aspectConfig = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Does the response accurately explain AI?")
+                .build();
+        Double aspectScore = aspectCritic.singleTurnScore(aspectConfig, sample);
+        // Result: 1.0 (yes) or 0.0 (no)
+
+        // Continuous scale evaluation (SimpleCriteriaScore)
+        var criteriaConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                .definition("Rate explanation quality from 1 to 5")
+                .build();
+        Double criteriaScore = simpleCriteria.singleTurnScore(criteriaConfig, sample);
+        // Result: 0.0-1.0 (normalized score)
+
+        // Rubric-based evaluation (RubricsScore)
         var rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
-            .rubric("score1_description", "No relevant information")
-            .rubric("score3_description", "Basic definition provided")  
-            .rubric("score5_description", "Comprehensive explanation with examples")
-            .build();
-        
-        Double detailedScore = rubrics.singleTurnScore(rubricsConfig, sample);
-        // Result: 1.0-5.0 (based on rubric criteria)
-        
-        System.out.println("Safety: " + safetyScore);    // 1.0
-        System.out.println("Quality: " + qualityScore);  // 4.2
-        System.out.println("Detailed: " + detailedScore);// 4.0
+                .rubric("score1_description", "No relevant information")
+                .rubric("score3_description", "Basic definition provided")
+                .rubric("score5_description", "Comprehensive explanation with examples")
+                .build();
+        Double rubricsScore = rubrics.singleTurnScore(rubricsConfig, sample);
+        // Result: 0.0-1.0 (normalized score)
     }
 }
 ```
 
-### Common Use Cases
-
-**Content Safety Filtering:**
+### Content Safety Filtering
 
 ```java
 var config = AspectCriticMetric.AspectCriticConfig.builder()
-    .definition("Does the response contain harmful information?")
-    .strictness(5) // Very strict
-    .build();
-
+        .definition("Does the response contain harmful information?")
+        .strictness(5)
+        .build();
 Double score = aspectCritic.singleTurnScore(config, sample);
-// Use score == 0.0 to allow content, == 1.0 to block
+// score == 0.0: safe content, score == 1.0: harmful content
 ```
 
-**Response Quality Ranking:**
+### RAG System Evaluation
 
 ```java
-var config = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-    .definition("Rate answer helpfulness from 1 to 10")
-    .minScore(1.0).maxScore(10.0)
-    .build();
-Double score = simpleCriteria.singleTurnScore(config, sample);
-// Use score for ranking: higher = better
+@Autowired
+private FaithfulnessMetric faithfulness;
+
+@Autowired
+private ContextPrecisionMetric contextPrecision;
+
+@Test
+void evaluateRAG() {
+    Sample sample = Sample.builder()
+            .userInput("When was the first Super Bowl?")
+            .response("The first Super Bowl was held on January 15, 1967.")
+            .retrievedContexts(List.of(
+                    "The first Super Bowl was held on January 15, 1967.",
+                    "The game was played at the Los Angeles Memorial Coliseum."))
+            .build();
+
+    Double faithfulnessScore = faithfulness.singleTurnScore(sample);
+    // Measures if response is grounded in retrieved contexts
+
+    var precisionConfig = ContextPrecisionMetric.ContextPrecisionConfig.builder()
+            .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.RESPONSE_BASED)
+            .build();
+    Double precisionScore = contextPrecision.singleTurnScore(precisionConfig, sample);
+    // Measures retrieval ranking quality
+}
 ```
 
-**Detailed Assessment:**
-
-```java
-var config = RubricsScoreMetric.RubricsConfig.builder()
-    .rubric("score1_description", "Incorrect or missing information")
-    .rubric("score2_description", "Basic understanding, some gaps")
-    .rubric("score3_description", "Good understanding, minor issues") 
-    .rubric("score4_description", "Very good explanation")
-    .rubric("score5_description", "Excellent, comprehensive answer")
-    .build();
-
-Double score = rubrics.singleTurnScore(config, sample);
-```
-
-## 🏗️ Architecture
-
-### Core Components
+## Architecture
 
 ```
-spring-ai-ragas-core
-└── ai.qa.solutions/
-   ├── sample/           # DTO data samples (Sample, MultiTurnSample)
-   ├── metric/           # Base metric interfaces  
-   └── metrics/          # Evaluators and results
-        ├── general/          # General metrics (AspectCritic, SimpleCriteria, Rubrics)
-        └── retrieval/        # RAG-specific metrics
-
-spring-ai-ragas-autoconfiguration
-└── config/               # Spring Boot configuration
-
-spring-ai-ragas-spring-boot-starter 
-                          # Spring Boot starter
+spring-ai-ragas/
+├── spring-ai-ragas-metrics/              # Core metrics library
+│   └── ai.qa.solutions/
+│       ├── metric/                       # Base metric classes
+│       │   ├── Metric                    # Metric interface
+│       │   └── AbstractMultiModelMetric  # Base class for multi-model metrics
+│       └── metrics/
+│           ├── general/                  # General purpose metrics
+│           │   ├── AspectCriticMetric
+│           │   ├── SimpleCriteriaScoreMetric
+│           │   └── RubricsScoreMetric
+│           └── retrieval/                # RAG evaluation metrics
+│               ├── ContextEntityRecallMetric
+│               ├── ContextPrecisionMetric
+│               ├── ContextRecallMetric
+│               ├── FaithfulnessMetric
+│               ├── NoiseSensitivityMetric
+│               └── ResponseRelevancyMetric
+│
+├── spring-ai-ragas-multi-model/          # Multi-model execution
+│   └── ai.qa.solutions/
+│       ├── chatclient/                   # ChatClient factory
+│       ├── embedding/                    # EmbeddingModel factory
+│       ├── execution/                    # Multi-model execution engine
+│       │   ├── MultiModelExecutor        # Parallel model execution
+│       │   └── ScoreAggregator           # Score aggregation strategies
+│       └── sample/                       # Sample DTO classes
+│
+├── spring-ai-ragas-spring-boot/          # Spring Boot autoconfiguration
+│   └── config/                           # Auto-configuration classes
+│
+└── spring-ai-ragas-spring-boot-starter/  # Spring Boot starter
 ```
 
-## 🗺️ Roadmap
-
-### v1.0.0 ✅
-
-- [x] AspectCriticMetric
-- [x] SimpleCriteriaScore
-- [x] RubricsScore
-- [x] ContextEntityRecall
-- [x] ContextPrecision
-- [x] ContextRecall
-- [x] Faithfulness
-- [x] NoiseSensitivity
-- [x] ResponseRelevancy
-
-### Developer Quick Start
-
-```bash
-git clone https://github.com/ai-qa-solutions/spring-ai-ragas.git
-cd spring-ai-ragas
-mvn clean install
-```
-
-### Running Tests
-
-```bash
-# Set environment variables
-export SPRING_AI_GIGACHAT_CLIENT_ID=your_client_id
-export SPRING_AI_GIGACHAT_CLIENT_SECRET=your_client_secret
-
-# Or use OpenAI/OpenRouter
-export OPENROUTER_API_KEY=your_api_key
-
-# Run tests
-mvn test
-```
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- [RAGAS](https://github.com/explodinggradients/ragas) - Idea and examples
+- [RAGAS](https://github.com/explodinggradients/ragas) - Original Python framework
 - [Spring AI](https://spring.io/projects/spring-ai) - LLM integration foundation
 

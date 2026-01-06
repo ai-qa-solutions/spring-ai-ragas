@@ -1,583 +1,545 @@
 # General Purpose Metrics
 
-General purpose evaluation metrics are designed to assess the quality of AI system responses across various scenarios. These metrics are task-agnostic and can be applied to evaluate any type of generated content.
+General purpose metrics evaluate AI responses without domain-specific requirements. They are task-agnostic and work
+across any type of generated content.
 
-## Table of Contents
+## Configuration
 
-- [When to Use](#when-to-use)
-- [AspectCritic](#aspectcritic)
-- [SimpleCriteriaScore](#simplecriteriascore)
-- [RubricsScore](#rubricsscore)
-- [Parallel Evaluation](#parallel-evaluation-of-multiple-metrics)
-- [Choosing the Right Metric](#choosing-the-right-metric)
-- [Best Practices](#best-practices)
-- [Troubleshooting](#troubleshooting)
-- [Advanced Examples](#advanced-examples)
+### application.yaml
 
-## When to Use
-
-**Use these metrics when:**
-- Need to evaluate overall response quality without domain-specific requirements
-- Quick validation of response compliance with defined criteria is needed
-- Binary assessment (compliant/non-compliant) is required
-- Evaluation against predefined scales or rubrics is necessary
-- Response safety, correctness, or other aspects need verification
-- Flexible criteria configuration for specific tasks is needed
-
-**Don't use these metrics when:**
-- Specialized metrics for specific tasks are needed (RAG, code generation, summarization)
-- Technical aspects evaluation is required (latency, tokens, cost)
-- Assessment based on external data sources or context is necessary
+```yaml
+spring:
+  ai:
+    retry:
+      on-http-codes: [ 429 ]
+      on-client-errors: true
+      backoff:
+        initial-interval: 2000ms
+        max-interval: 30000ms
+        multiplier: 2
+    openai:
+      base-url: https://openrouter.ai/api
+      api-key: ${OPENROUTER_API_KEY}
+      chat:
+        options:
+          model: google/gemini-2.5-flash
+          temperature: 0.0
+    # Chat models for multi-model evaluation
+    chat-models:
+      default-options:
+        temperature: 0.0
+        max-tokens: 1000
+        top-p: 1.0
+      list:
+        - { id: anthropic/claude-4.5-sonnet }
+        - { id: google/gemini-2.5-flash }
+        - { id: openai/gpt-4o-mini }
+        - { id: deepseek/deepseek-v3.2 }
+  threads:
+    virtual:
+      enabled: true
+```
 
 ---
 
 ## AspectCritic
 
-`AspectCritic` is a binary evaluation metric that checks AI response compliance with a given criterion. The metric returns `1.0` (compliant) or `0.0` (non-compliant).
+AspectCritic is a binary metric that evaluates responses against a free-form natural language criterion. It returns
+`1.0` (criterion met) or `0.0` (criterion not met).
 
-### When to Apply
+### How It Works
 
-**Ideal Scenarios:**
-- **Content safety checks**: detecting harmful, toxic, or inappropriate information
-- **Correctness validation**: verifying factual accuracy and reliability of responses
-- **Quality control**: assessing compliance with corporate standards and policies
-- **Compliance checks**: meeting regulatory requirements and legal norms
-- **Content filtering**: filtering out unsuitable responses in production pipeline
+The metric uses majority voting to determine the final verdict:
 
-**Advantages:**
-- Simple result interpretation (binary assessment)
-- Adjustable evaluation strictness level
-- High execution speed
-- Suitable for automated filtering
-
-**Limitations:**
-- Doesn't show degree of compliance (only yes/no)
-- Requires clear criterion definition
-- May be too rigid for edge cases
-
-### Usage Example
+1. The LLM evaluates the response against the criterion `strictness` times
+2. Each evaluation produces a binary verdict (true/false)
+3. Majority voting determines the final score: `1.0` if more than half are true, `0.0` otherwise
 
 ```java
+// From AspectCriticMetric.java - majority voting aggregation
+class Example {
+    void example() {
+        final double modelScore = ScoreAggregator.MAJORITY_VOTING.aggregate(iterationScores);
+    }
+}
+```
+
+### Example
+
+```java
+package ai.qa.solutions.metrics.general.en;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import ai.qa.solutions.metrics.general.AspectCriticMetric;
 import ai.qa.solutions.sample.Sample;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
 
-Sample sample = Sample.builder()
-        .userInput("How to protect computer from viruses?")
-        .response("Install antivirus, regularly update system, "
-                + "don't open suspicious links, and backup your data.")
-        .build();
+@Slf4j
+@EnableAutoConfiguration
+@SpringBootTest(classes = AspectCriticTest.TestConfiguration.class)
+class AspectCriticTest {
 
-AspectCriticMetric.AspectCriticConfig config =
-        AspectCriticMetric.AspectCriticConfig.builder()
-                .definition("Does the response contain harmful or dangerous information?")
-                .strictness(4) // 1=lenient, 5=very strict
+    @Configuration
+    public static class TestConfiguration {
+    }
+
+    @Autowired
+    private AspectCriticMetric aspectCriticMetric;
+
+    @Test
+    @DisplayName("AspectCritic: Safe content detection")
+    void testSafeContent() {
+        Sample sample = Sample.builder()
+                .userInput("How to protect my computer from viruses?")
+                .response("To protect your computer from viruses, I recommend: "
+                        + "install antivirus software, regularly update your system, "
+                        + "avoid clicking suspicious links, use a firewall, "
+                        + "and create regular backups of your data.")
                 .build();
 
-AspectCriticMetric metric = AspectCriticMetric.builder()
-        .chatClient(chatClient)
-        .build();
-Double score = metric.singleTurnScore(config, sample);
-// Result: 0.0 (safe content)
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is the response providing safe and legitimate security advice?")
+                .strictness(3)
+                .build();
+
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 0.9, "Expecting high score for safe response");
+    }
+
+    @Test
+    @DisplayName("AspectCritic: Factual accuracy with specific model")
+    void testFactualAccuracy() {
+        Sample sample = Sample.builder()
+                .userInput("What is the capital of France?")
+                .response("The capital of France is Paris. Paris is the largest city "
+                        + "and serves as the political, economic, and cultural center.")
+                .build();
+
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is the response factually accurate and truthful?")
+                .strictness(4)
+                .model("google/gemini-2.5-flash")
+                .build();
+
+        Double score = aspectCriticMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 0.8, "Expected high score for factually accurate answer");
+    }
+}
 ```
 
-### Configuration Parameters
+### Configuration
 
-|  Parameter   |  Type   | Required | Default |            Description            |
-|--------------|---------|----------|---------|-----------------------------------|
-| `definition` | String  | Yes      | -       | Evaluation criterion in free form |
-| `strictness` | Integer | No       | 3       | Evaluation strictness level (1-5) |
+|  Parameter   |  Type   | Required | Default |                    Description                     |
+|--------------|---------|----------|---------|----------------------------------------------------|
+| `definition` | String  | Yes      | -       | Free-form criterion describing what to evaluate    |
+| `strictness` | Integer | No       | 1       | Number of LLM iterations for majority voting (1-5) |
+| `models`     | List    | No       | all     | Specific model IDs to use for evaluation           |
 
-**Strictness Levels:**
-- **1-2**: Lenient evaluation, allows inaccuracies
-- **3**: Balanced evaluation (recommended)
-- **4-5**: Strict evaluation, requires full compliance
+### When to Use
 
-### How the Metric Works
-
-AspectCritic uses LLM to analyze response against given criterion:
-
-1. **Context Analysis**: User query and received response are considered
-2. **Criterion Application**: LLM evaluates response compliance with given definition
-3. **Strictness Consideration**: Configured strictness level is applied
-4. **Verdict Delivery**: Binary decision with reasoning is returned
-
-### Asynchronous Execution
-
-```java
-CompletableFuture<Double> futureScore =
-        metric.singleTurnScoreAsync(config, sample);
-Double score = futureScore.get(); // Non-blocking evaluation
-```
+- Content safety checks (harmful, toxic content detection)
+- Factual accuracy validation
+- Compliance checks (policy adherence)
+- Fast binary classification in production pipelines
 
 ---
 
 ## SimpleCriteriaScore
 
-`SimpleCriteriaScore` is a quantitative evaluation metric that assigns a numerical value to a response based on a given criterion. Unlike binary AspectCritic, this metric shows the degree of compliance.
+SimpleCriteriaScore evaluates responses on a continuous scale based on a criterion. Unlike AspectCritic, it provides
+granular quality assessment.
 
-### When to Apply
+### How It Works
 
-**Ideal Scenarios:**
-- **Explanation quality assessment**: how complete and clear is the concept explained
-- **Relevance measurement**: degree of response alignment with query
-- **Style and tone evaluation**: compliance with corporate communication style
-- **Response ranking**: choosing the best among several options
-- **A/B testing**: comparing prompt or model versions
+The metric normalizes scores to the `[0, 1]` range following RAGAS methodology:
 
-**Advantages:**
-- Granular quality assessment
-- Flexible score range configuration
-- Suitable for ranking and comparison
-- Shows improvement/degradation trends
-
-**Limitations:**
-- Subjectivity of numerical assessment
-- Requires well-defined criterion
-- May be less stable than binary evaluation
-
-### Usage Example
+1. LLM scores the response within a configurable range (default: 0-5)
+2. Raw score is normalized: `(score - minScore) / (maxScore - minScore)`
+3. Multiple iterations use median aggregation for stability
 
 ```java
-import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
-
-Sample sample = Sample.builder()
-        .userInput("What is artificial intelligence?")
-        .response("Artificial intelligence is a field of computer science that "
-                + "creates systems capable of performing tasks requiring "
-                + "human intelligence: learning, reasoning, and perception.")
-        .reference("AI is technology imitating human thinking.")
-        .build();
-
-SimpleCriteriaScoreMetric.SimpleCriteriaConfig config =
-        SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-                .definition("Rate the completeness and clarity of explanation")
-                .minScore(1.0)
-                .maxScore(5.0)
-                .build();
-
-SimpleCriteriaScoreMetric metric = SimpleCriteriaScoreMetric.builder()
-        .chatClient(chatClient)
-        .build();
-Double score = metric.singleTurnScore(config, sample);
-// Result: 4.5 (high quality explanation)
+// From SimpleCriteriaScoreMetric.java - normalization
+class Example {
+    private double normalize(Double rawScore, double minScore, double maxScore) {
+        double clampedScore = Math.max(minScore, Math.min(maxScore, rawScore));
+        return (clampedScore - minScore) / (maxScore - minScore);
+    }
+}
 ```
 
-### Configuration Parameters
+### Example
 
-|  Parameter   |  Type  | Required | Default |                   Description                    |
-|--------------|--------|----------|---------|--------------------------------------------------|
-| `definition` | String | Yes      | -       | Evaluation criterion describing what is measured |
-| `minScore`   | Double | No       | 0.0     | Minimum scale value                              |
-| `maxScore`   | Double | No       | 5.0     | Maximum scale value                              |
+```java
+package ai.qa.solutions.metrics.general.en;
 
-**Recommended Ranges:**
-- **0-1**: For normalized metrics and probabilities
-- **1-5**: For general quality assessment (standard)
-- **1-10**: For more detailed gradation
-- **0-100**: For percentage assessments
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-### Result Interpretation
+import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
+import ai.qa.solutions.sample.Sample;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
 
-For 1-5 scale (standard):
-- **1.0-2.0**: Low quality, significant refinement needed
-- **2.0-3.0**: Satisfactory, has substantial shortcomings
-- **3.0-4.0**: Good, minor improvements desirable
-- **4.0-5.0**: Excellent, high response quality
+@Slf4j
+@EnableAutoConfiguration
+@SpringBootTest(classes = SimpleCriteriaScoreTest.TestConfiguration.class)
+class SimpleCriteriaScoreTest {
+
+    @Configuration
+    public static class TestConfiguration {
+    }
+
+    @Autowired
+    private SimpleCriteriaScoreMetric simpleCriteriaScoreMetric;
+
+    @Test
+    @DisplayName("SimpleCriteriaScore: High quality explanation")
+    void testHighQualityExplanation() {
+        Sample sample = Sample.builder()
+                .userInput("Explain what artificial intelligence is")
+                .response("Artificial Intelligence (AI) is a branch of computer science "
+                        + "focused on creating systems capable of performing tasks "
+                        + "that typically require human intelligence. This includes "
+                        + "learning, reasoning, perception, and decision-making. "
+                        + "AI is used across various fields, from medicine to autonomous vehicles.")
+                .reference("AI is technology that simulates human thinking to solve complex problems.")
+                .build();
+
+        SimpleCriteriaScoreMetric.SimpleCriteriaConfig config =
+                SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                        .definition("Rate the quality of explanation considering "
+                                + "completeness, clarity, and accuracy")
+                        .minScore(1.0)
+                        .maxScore(5.0)
+                        .build();
+
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+
+        log.info("Normalized score: {} (0-1 scale)", score);
+        assertTrue(score >= 0.0 && score <= 1.0, "Score must be normalized to [0, 1] range");
+        assertTrue(score >= 0.75, "Expected high normalized score for quality explanation");
+    }
+
+    @Test
+    @DisplayName("SimpleCriteriaScore: Mathematical accuracy")
+    void testMathematicalAccuracy() {
+        Sample sample = Sample.builder()
+                .userInput("What is 15 multiplied by 12?")
+                .response("15 multiplied by 12 equals 180.")
+                .reference("180")
+                .build();
+
+        SimpleCriteriaScoreMetric.SimpleCriteriaConfig config =
+                SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                        .definition("Rate the mathematical accuracy from 0 to 5")
+                        .minScore(0.0)
+                        .maxScore(5.0)
+                        .build();
+
+        Double score = simpleCriteriaScoreMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 0.9, "Correct answer should receive high normalized score");
+    }
+}
+```
+
+### Configuration
+
+|  Parameter   |  Type   | Required | Default |                 Description                  |
+|--------------|---------|----------|---------|----------------------------------------------|
+| `definition` | String  | Yes      | -       | Criterion describing what aspect to measure  |
+| `minScore`   | Double  | No       | 0.0     | Minimum value of the scoring scale           |
+| `maxScore`   | Double  | No       | 5.0     | Maximum value of the scoring scale           |
+| `strictness` | Integer | No       | 1       | Number of iterations with median aggregation |
+| `models`     | List    | No       | all     | Specific model IDs to use for evaluation     |
+
+### When to Use
+
+- Explanation quality assessment
+- Response relevance measurement
+- A/B testing of prompts or models
+- Ranking response variants
 
 ---
 
 ## RubricsScore
 
-`RubricsScore` is a metric with detailed evaluation criteria. Instead of one criterion, a set of rubrics is used where each score level has a detailed description.
+RubricsScore evaluates responses using detailed rubrics where each score level has an explicit description. This
+provides maximum evaluation transparency.
 
-### When to Apply
+### How It Works
 
-**Ideal Scenarios:**
-- **Essay and text evaluation**: when there are clear quality criteria for each level
-- **Educational systems**: evaluating student responses using standardized rubrics
-- **Documentation quality control**: checking compliance with writing standards
-- **Code review**: evaluating code quality against defined criteria
-- **Creative content**: assessing originality, style, structure
-
-**Advantages:**
-- Maximum evaluation transparency
-- Consistency between different assessments
-- Detailed quality feedback
-- Easily adaptable to specific requirements
-
-**Limitations:**
-- Requires time to create rubrics
-- More complex to configure than other metrics
-- May be excessive for simple tasks
-
-### Usage Example
+1. Rubrics define quality criteria for each score level (e.g., 1-5)
+2. LLM selects the rubric level that best matches the response
+3. Returns the integer score corresponding to the selected rubric
 
 ```java
-import ai.qa.solutions.metrics.general.RubricsScoreMetric;
-
-Sample sample = Sample.builder()
-        .userInput("Explain the process of photosynthesis")
-        .response("Photosynthesis is a process where plants convert "
-                + "light energy into chemical energy. In chloroplasts, chlorophyll "
-                + "absorbs light, splitting water and releasing oxygen. "
-                + "CO₂ is converted to glucose in the Calvin cycle.")
-        .reference("Photosynthesis is the formation of organic substances "
-                + "from CO₂ and water using light.")
-        .build();
-
-RubricsScoreMetric.RubricsConfig config =
-        RubricsScoreMetric.RubricsConfig.builder()
-                .rubric("score1_description",
-                        "Completely incorrect or irrelevant information")
-                .rubric("score2_description",
-                        "Basic understanding with significant gaps")
-                .rubric("score3_description",
-                        "General understanding, missing important details")
-                .rubric("score4_description",
-                        "Good understanding with main stages and components")
-                .rubric("score5_description",
-                        "Excellent explanation with scientific details and examples")
-                .build();
-
-RubricsScoreMetric metric = RubricsScoreMetric.builder()
-        .chatClient(chatClient)
-        .build();
-Double score = metric.singleTurnScore(config, sample);
-// Result: 4.0 (good understanding of topic)
+// From RubricsScoreMetric.java - rubrics formatting
+class Example {
+    private String buildRubricsText(Map<String, String> rubrics) {
+        rubrics.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    String score = entry.getKey().replaceAll("[^0-9]", "");
+                    rubricsText.append("Score ").append(score)
+                            .append(": ").append(entry.getValue()).append("\n");
+                });
+        return rubricsText.toString();
+    }
+}
 ```
 
-### Configuration Parameters
+### Example
 
-| Parameter |        Type         | Required |            Description            |
-|-----------|---------------------|----------|-----------------------------------|
-| `rubrics` | Map<String, String> | Yes      | Descriptions for each score level |
+```java
+package ai.qa.solutions.metrics.general.en;
 
-**Key Requirements:** Must be in format `score1_description`, `score2_description`, etc.
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-**Recommendations:** Use 3-5 levels for optimal balance of detail and simplicity
+import ai.qa.solutions.metrics.general.RubricsScoreMetric;
+import ai.qa.solutions.sample.Sample;
+
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
+
+@Slf4j
+@EnableAutoConfiguration
+@SpringBootTest(classes = RubricsScoreTest.TestConfiguration.class)
+class RubricsScoreTest {
+
+    @Configuration
+    public static class TestConfiguration {
+    }
+
+    @Autowired
+    private RubricsScoreMetric rubricsScoreMetric;
+
+    @Test
+    @DisplayName("RubricsScore: Excellent scientific explanation")
+    void testExcellentExplanation() {
+        Sample sample = Sample.builder()
+                .userInput("Explain the process of photosynthesis")
+                .response("Photosynthesis is a complex biochemical process by which plants "
+                        + "convert light energy into chemical energy. The process occurs "
+                        + "in chloroplasts and includes two main stages: light-dependent "
+                        + "and light-independent reactions. In the light-dependent phase, "
+                        + "chlorophyll absorbs sunlight, splitting water molecules and "
+                        + "releasing oxygen. In the light-independent phase (Calvin cycle), "
+                        + "carbon dioxide is converted into glucose. "
+                        + "Overall equation: 6CO2 + 6H2O + light -> C6H12O6 + 6O2.")
+                .reference("Photosynthesis is the formation of organic substances "
+                        + "from CO2 and water using light energy.")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createPhotosynthesisRubrics())
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+
+        log.info("Rubrics score: {}", score);
+        assertTrue(score >= 4.0, "Expected high score for detailed scientific explanation");
+    }
+
+    @Test
+    @DisplayName("RubricsScore: Code quality evaluation")
+    void testCodeQuality() {
+        Sample sample = Sample.builder()
+                .userInput("Write a function to calculate factorial")
+                .response("""
+                        def factorial(n):
+                            '''Calculate factorial of n using recursion with validation'''
+                            if not isinstance(n, int) or n < 0:
+                                raise ValueError("Input must be a non-negative integer")
+                            if n == 0 or n == 1:
+                                return 1
+                            return n * factorial(n - 1)
+                        """)
+                .reference("Function to calculate factorial with proper error handling")
+                .build();
+
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubrics(createCodeQualityRubrics())
+                .model("anthropic/claude-4.5-sonnet")
+                .build();
+
+        Double score = rubricsScoreMetric.singleTurnScore(config, sample);
+
+        assertTrue(score >= 4.0, "Well-written code should score high");
+    }
+
+    private Map<String, String> createPhotosynthesisRubrics() {
+        return Map.of(
+                "score1_description", "Completely incorrect or irrelevant information",
+                "score2_description", "Basic understanding with significant gaps or errors",
+                "score3_description", "General understanding, but missing important details",
+                "score4_description", "Good understanding mentioning main stages and components",
+                "score5_description", "Excellent explanation with scientific details, equation, and examples");
+    }
+
+    private Map<String, String> createCodeQualityRubrics() {
+        return Map.of(
+                "score1_description", "Non-functional code with syntax errors",
+                "score2_description", "Basic functionality but poor practices, no error handling",
+                "score3_description", "Working code with acceptable structure, minimal documentation",
+                "score4_description", "Well-structured code with good practices and error handling",
+                "score5_description", "Excellent code with best practices, documentation, and edge case handling");
+    }
+}
+```
+
+### Configuration
+
+| Parameter |        Type         | Required |                    Description                    |
+|-----------|---------------------|----------|---------------------------------------------------|
+| `rubrics` | Map<String, String> | Yes      | Score descriptions in `scoreN_description` format |
+| `models`  | List                | No       | Specific model IDs to use for evaluation          |
 
 ### Creating Effective Rubrics
 
-#### Composition Principles
-
-**1. Specificity**
-
-Describe observable characteristics, not abstract concepts:
-- ❌ Bad: "Good answer"
-- ✅ Good: "Answer contains definition, 2-3 examples, and explanation of causal relationships"
-
-**2. Progression**
-
-Each level should logically develop the previous one:
-- Level 1: Basic topic mention
-- Level 2: Definition + 1 example
-- Level 3: Definition + examples + context
-- Level 4: All above + analysis
-- Level 5: All above + synthesis + nuances
-
-**3. Measurability**
-
-Use quantitative indicators where possible:
-- "Contains 3+ relevant examples"
-- "Explains at least 2 causal relationships"
-
-**4. Consistency**
-
-Use uniform terminology with Sample schema:
-- If Sample uses `reference`, don't write "ground truth" in rubrics
-
-#### Complete Rubric Set Examples
-
-**For Code Evaluation:**
+**Use progressive complexity:**
 
 ```java
-RubricsScoreMetric.RubricsConfig config =
-        RubricsScoreMetric.RubricsConfig.builder()
-                .rubric("score1_description",
-                        "Code doesn't work or contains critical syntax/logic errors")
-                .rubric("score2_description",
-                        "Code works but is inefficient, has obvious performance issues")
-                .rubric("score3_description",
-                        "Code works correctly, basic optimization, average readability")
-                .rubric("score4_description",
-                        "Code is efficient, well-structured, has comments, follows best practices")
-                .rubric("score5_description",
-                        "Excellent code: optimal O(n) complexity, SOLID principles, "
-                                + "complete documentation, edge case handling, test coverage")
+class Example {
+    void example() {
+        RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                .rubric("score1_description", "Incorrect or irrelevant information")
+                .rubric("score2_description", "Basic mention with significant errors")
+                .rubric("score3_description", "General understanding, lacks key details")
+                .rubric("score4_description", "Good understanding with examples")
+                .rubric("score5_description", "Expert-level explanation with nuances")
                 .build();
+    }
+}
 ```
+
+**Include measurable criteria:**
+
+- "Contains at least 3 relevant examples"
+- "Explains 2+ cause-effect relationships"
+- "Provides code with error handling"
+
+### When to Use
+
+- Essay and academic work evaluation
+- Code quality assessment
+- Documentation quality control
+- Customer support response grading
 
 ---
 
-## Parallel Evaluation of Multiple Metrics
+## Multi-Model Execution
 
-All metrics support asynchronous execution via CompletableFuture, allowing efficient evaluation of one response against multiple criteria simultaneously.
+All metrics support parallel execution across multiple models using `MultiModelExecutor`. Results are aggregated using
+configurable strategies.
 
-### Complex Evaluation Example
+### Available Aggregators
+
+|    Aggregator     |            Use Case            |            Description             |
+|-------------------|--------------------------------|------------------------------------|
+| `AVERAGE`         | Default for most metrics       | Arithmetic mean of all scores      |
+| `MEDIAN`          | SimpleCriteriaScore iterations | Middle value, robust to outliers   |
+| `MAJORITY_VOTING` | AspectCritic                   | Binary: 1.0 if >50% true, else 0.0 |
+| `MIN`             | Conservative evaluation        | Lowest score (most strict)         |
+| `MAX`             | Optimistic evaluation          | Highest score (most lenient)       |
+| `CONSENSUS`       | High-stakes decisions          | Requires all models to agree       |
+
+### Specifying Models
 
 ```java
-Sample sample = Sample.builder()
-        .userInput("Tell me about global warming")
-        .response("Global warming is an increase in planet's temperature "
-                + "due to greenhouse gases from human activity...")
-        .reference("Global warming is Earth's temperature increase "
-                + "due to greenhouse effect.")
-        .build();
+class Example {
+    void specificModels() {
+        // Use specific models
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is the response factually accurate?")
+                .model("openai/gpt-4o")
+                .model("anthropic/claude-4.5-sonnet")
+                .build();
+    }
 
-// Metric configuration
-var aspectConfig = AspectCriticMetric.AspectCriticConfig.builder()
-        .definition("Does the response contain scientifically accurate information?")
-        .build();
+    void allModels() {
+        // Or use all configured models (default)
+        AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("Is the response factually accurate?")
+                .build();
+    }
+}
+```
 
-var criteriaConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-        .definition("Rate the completeness and clarity of explanation")
-        .minScore(1.0)
-        .maxScore(5.0)
-        .build();
+### Async Execution
 
-var rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
-        .rubric("score1_description", "Incorrect information")
-        .rubric("score3_description", "Basic understanding")
-        .rubric("score5_description", "Expert explanation with details")
-        .build();
+```java
+class Example {
+    void asyncExecution() {
+        CompletableFuture<Double> aspectFuture =
+                aspectCriticMetric.singleTurnScoreAsync(aspectConfig, sample);
+        CompletableFuture<Double> criteriaFuture =
+                simpleCriteriaMetric.singleTurnScoreAsync(criteriaConfig, sample);
 
-// Parallel execution
-CompletableFuture<Double> aspect =
-        aspectMetric.singleTurnScoreAsync(aspectConfig, sample);
-CompletableFuture<Double> criteria =
-        criteriaMetric.singleTurnScoreAsync(criteriaConfig, sample);
-CompletableFuture<Double> rubrics =
-        rubricsMetric.singleTurnScoreAsync(rubricsConfig, sample);
+        CompletableFuture.allOf(aspectFuture, criteriaFuture).join();
 
-// Wait for all results
-CompletableFuture.allOf(aspect, criteria, rubrics).join();
-
-System.out.println("Accuracy: " + aspect.join());      // 1.0
-        System.out.println("Quality: " + criteria.join());     // 4.2
-        System.out.println("Rubrics: " + rubrics.join());      // 4.0
+        System.out.println("Safety: " + aspectFuture.join());
+        System.out.println("Quality: " + criteriaFuture.join());
+    }
+}
 ```
 
 ---
 
 ## Choosing the Right Metric
 
-|           Scenario            | Recommended Metric  |             Why             |
-|-------------------------------|---------------------|-----------------------------|
-| Content safety check          | AspectCritic        | Simple yes/no check needed  |
-| Toxic content filtering       | AspectCritic        | Fast binary classification  |
-| Prompt quality comparison     | SimpleCriteriaScore | Shows degree of improvement |
-| Response variant ranking      | SimpleCriteriaScore | Numerical score for sorting |
-| Academic work evaluation      | RubricsScore        | Detailed feedback           |
-| Documentation quality control | RubricsScore        | Standardized criteria       |
-| Quick production validation   | AspectCritic        | Minimal latency             |
-| Detailed quality analysis     | RubricsScore        | Maximum information         |
+|             Need             |       Metric        |                  Why                  |
+|------------------------------|---------------------|---------------------------------------|
+| Binary yes/no decision       | AspectCritic        | Fast, clear pass/fail verdict         |
+| Content safety filtering     | AspectCritic        | Quick binary classification           |
+| Granular quality score       | SimpleCriteriaScore | Continuous [0,1] scale for comparison |
+| Comparing prompt variants    | SimpleCriteriaScore | Normalized scores enable ranking      |
+| Transparent evaluation       | RubricsScore        | Explicit criteria for each level      |
+| Academic/educational grading | RubricsScore        | Detailed feedback on quality          |
 
 ---
 
-## Best Practices
+## Sample Schema
 
-### 1. Criterion Formulation
-
-**For AspectCritic:**
-- Use question form: "Does it contain...?", "Is it...?"
-- Be specific: instead of "good answer" → "factually accurate answer"
-- Avoid double negatives
+All metrics use the `Sample` class for input:
 
 ```java
-// ✅ Good
-.definition("Does the response contain instructions for illegal activities?")
-.definition("Is the information factually accurate and verifiable?")
-
-// ❌ Bad
-.definition("The answer should not not contain errors") // double negative
-.definition("Good answer") // too vague
-```
-
-**For SimpleCriteriaScore:**
-- Describe what exactly is being evaluated: "explanation completeness", "tone alignment"
-- Explicitly specify range in criterion description
-- Avoid subjective terms without clarification
-
-**For RubricsScore:**
-- Start each rubric with requirement level
-- Use action verbs: "contains", "explains", "demonstrates"
-- Add specific quality indicators
-
-### 2. Strictness Configuration (AspectCritic)
-
-```java
-// For content where inaccuracies are acceptable (creative texts)
-.strictness(2)
-
-// For balanced evaluation (general cases)
-.strictness(3)
-
-// For critically important checks (safety, compliance)
-.strictness(5)
-```
-
-### 3. Performance Optimization
-
-- Use AspectCritic for initial filtering (fast)
-- Apply detailed metrics only to responses that passed filtering
-- Cache results for identical configurations
-- Use batch evaluation via CompletableFuture for large datasets
-
-### 4. Result Interpretation
-
-- Set threshold values based on statistics from your data
-- Log not only scores but also reasoning from Response DTO
-- Monitor score distribution to identify metric issues
-- Compare results from different metrics for validation
-
----
-
-## Troubleshooting
-
-### Issue: Unstable scores between runs
-
-**Solution:**
-- Set temperature=0 in ChatClient settings for determinism
-- Increase criterion strictness
-- Use more specific formulations in definitions
-
-### Issue: All scores are too high/low
-
-**Solution:**
-- Review criterion formulation (possibly too lenient/strict)
-- For SimpleCriteriaScore: check score range
-- For RubricsScore: ensure rubrics cover the full quality spectrum
-
-### Issue: Metric doesn't distinguish between good and bad answers
-
-**Solution:**
-- Add reference answer to Sample for comparison
-- Use RubricsScore instead of SimpleCriteriaScore for more detail
-- Verify that criterion is truly relevant to your task
-
----
-
-## Advanced Examples
-
-### Example 1: Multilingual Evaluation
-
-```java
-// Criteria can be in any language supported by the LLM
-public class MultilingualEvaluation {
-
-    public Map<String, Double> evaluateMultilingual(Sample sample) {
-        // Russian
-        var ruConfig = AspectCriticMetric.AspectCriticConfig.builder()
-                .definition("Содержит ли ответ грамматические ошибки?")
+class Example {
+    void createSample() {
+        Sample sample = Sample.builder()
+                .userInput("User's question or request")
+                .response("AI-generated response to evaluate")
+                .reference("Optional: ground truth or expected answer")
+                .retrievedContexts(List.of("context1", "context2"))
                 .build();
-
-        // English
-        var enConfig = AspectCriticMetric.AspectCriticConfig.builder()
-                .definition("Does the response contain grammatical errors?")
-                .build();
-
-        return Map.of(
-                "ru", aspectMetric.singleTurnScore(ruConfig, sample),
-                "en", aspectMetric.singleTurnScore(enConfig, sample)
-        );
     }
 }
 ```
 
-### Example 2: Domain-Specific Evaluation
-
-```java
-// Medical information
-var medicalConfig = AspectCriticMetric.AspectCriticConfig.builder()
-                .definition("Does the response contain medical recommendations "
-                        + "without warning about the need to consult a doctor?")
-                .strictness(5) // Maximum strictness for safety
-                .build();
-
-// Financial advice
-var financialConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-        .definition("Rate the completeness of risk disclosure and disclaimers")
-        .minScore(0.0)
-        .maxScore(10.0)
-        .build();
-```
-
-### Example 3: A/B Testing Prompts
-
-```java
-List<Sample> variantA = generateResponses(promptA);
-List<Sample> variantB = generateResponses(promptB);
-
-var config = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-        .definition("Rate the relevance and completeness of answer")
-        .minScore(1.0)
-        .maxScore(5.0)
-        .build();
-
-double avgScoreA = variantA.stream()
-        .mapToDouble(s -> metric.singleTurnScore(config, s))
-        .average()
-        .orElse(0.0);
-
-double avgScoreB = variantB.stream()
-        .mapToDouble(s -> metric.singleTurnScore(config, s))
-        .average()
-        .orElse(0.0);
-
-System.out.println("Prompt A: " + avgScoreA);
-System.out.println("Prompt B: " + avgScoreB);
-System.out.println("Improvement: " + ((avgScoreB - avgScoreA) / avgScoreA * 100) + "%");
-```
-
-### Example 4: Cascading Evaluation Pipeline
-
-```java
-public class EvaluationPipeline {
-
-    public EvaluationResult evaluateSample(Sample sample) {
-        // Step 1: Safety check (fast)
-        Double safetyScore = aspectMetric.singleTurnScore(safetyConfig, sample);
-
-        if (safetyScore == 0.0) { // Safe content
-            // Step 2: Quality assessment
-            Double qualityScore = criteriaMetric.singleTurnScore(qualityConfig, sample);
-
-            if (qualityScore >= 3.5) { // High quality
-                // Step 3: Detailed rubrics evaluation
-                Double detailedScore = rubricsMetric.singleTurnScore(rubricsConfig, sample);
-                return new EvaluationResult(safetyScore, qualityScore, detailedScore);
-            }
-
-            return new EvaluationResult(safetyScore, qualityScore, null);
-        }
-
-        return new EvaluationResult(safetyScore, null, null); // Unsafe content
-    }
-}
-```
-
-### Example 5: Batch Processing with Optimization
-
-```java
-public class BatchEvaluator {
-    
-    public List<Double> evaluateBatch(List<Sample> samples, 
-                                    AspectCriticMetric.AspectCriticConfig config) {
-        int batchSize = 50;
-        List<List<Sample>> batches = Lists.partition(samples, batchSize);
-        
-        return batches.parallelStream()
-            .flatMap(batch -> {
-                List<CompletableFuture<Double>> futures = batch.stream()
-                    .map(sample -> metric.singleTurnScoreAsync(config, sample))
-                    .collect(Collectors.toList());
-                
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-                
-                return futures.stream().map(CompletableFuture::join);
-            })
-            .collect(Collectors.toList());
-    }
-}
-```
+|        Field        |     Type     |         Used By         |         Description         |
+|---------------------|--------------|-------------------------|-----------------------------|
+| `userInput`         | String       | All metrics             | User's input query          |
+| `response`          | String       | All metrics             | AI response to evaluate     |
+| `reference`         | String       | SimpleCriteria, Rubrics | Ground truth for comparison |
+| `retrievedContexts` | List<String> | RAG metrics             | Retrieved context documents |
 
