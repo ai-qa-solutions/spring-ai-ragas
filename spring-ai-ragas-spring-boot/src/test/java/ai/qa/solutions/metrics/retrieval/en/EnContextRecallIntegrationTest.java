@@ -374,12 +374,11 @@ class EnContextRecallIntegrationTest {
     // ==================== QUALITY ASSESSMENT TESTS ====================
 
     @Test
-    @DisplayName("Quality assessment: Detailed vs brief reference")
-    void testContextRecall_DetailedVsBriefReference() {
-        log.info("=== Testing Quality Assessment - Detailed vs Brief Reference ===");
+    @DisplayName("Quality assessment: Brief reference")
+    void testContextRecall_BriefReference() {
+        log.info("=== Testing Quality Assessment - Brief Reference ===");
 
-        // Brief reference
-        Sample briefSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("What is gravity?")
                 .reference("Gravity is a force that attracts objects to each other.")
                 .retrievedContexts(List.of(
@@ -388,8 +387,24 @@ class EnContextRecallIntegrationTest {
                         "Newton's law of universal gravitation describes how gravity works."))
                 .build();
 
-        // Detailed reference
-        Sample detailedSample = Sample.builder()
+        ContextRecallMetric.ContextRecallConfig config =
+                ContextRecallMetric.ContextRecallConfig.builder().build();
+
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+
+        log.info("Brief reference score: {}", score);
+
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score >= 0.7, "Expected high score for brief but supported reference");
+    }
+
+    @Test
+    @DisplayName("Quality assessment: Detailed reference")
+    void testContextRecall_DetailedReference() {
+        log.info("=== Testing Quality Assessment - Detailed Reference ===");
+
+        Sample sample = Sample.builder()
                 .userInput("What is gravity?")
                 .reference(
                         "Gravity is a fundamental force of nature. It causes objects with mass to attract each other. The force depends on mass and distance. Newton described this with his law of universal gravitation. Einstein later explained gravity through general relativity.")
@@ -403,32 +418,24 @@ class EnContextRecallIntegrationTest {
         ContextRecallMetric.ContextRecallConfig config =
                 ContextRecallMetric.ContextRecallConfig.builder().build();
 
-        Double briefScore = contextRecallMetric.singleTurnScore(config, briefSample);
-        Double detailedScore = contextRecallMetric.singleTurnScore(config, detailedSample);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
 
-        log.info("Brief reference score: {}", briefScore);
-        log.info("Detailed reference score: {}", detailedScore);
+        log.info("Detailed reference score: {}", score);
 
-        assertNotNull(briefScore);
-        assertNotNull(detailedScore);
-        assertTrue(briefScore >= 0.0 && briefScore <= 1.0);
-        assertTrue(detailedScore >= 0.0 && detailedScore <= 1.0);
-
-        // Both should have good scores since contexts support the information
-        assertTrue(briefScore >= 0.7, "Expected high score for brief but supported reference");
-        assertTrue(detailedScore >= 0.6, "Expected good score for detailed reference");
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score >= 0.6, "Expected good score for detailed reference");
     }
 
     @Test
-    @DisplayName("Quality assessment: Context completeness impact")
-    void testContextRecall_ContextCompletenessImpact() {
-        log.info("=== Testing Quality Assessment - Context Completeness Impact ===");
+    @DisplayName("Quality assessment: Complete contexts")
+    void testContextRecall_CompleteContexts() {
+        log.info("=== Testing Quality Assessment - Complete Contexts ===");
 
         String reference =
                 "Water boils at 100 degrees Celsius. This happens at sea level pressure. The boiling point changes with altitude.";
 
-        // Complete contexts
-        Sample completeSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("At what temperature does water boil?")
                 .reference(reference)
                 .retrievedContexts(List.of(
@@ -437,8 +444,27 @@ class EnContextRecallIntegrationTest {
                         "At higher altitudes, where atmospheric pressure is lower, water boils at lower temperatures."))
                 .build();
 
-        // Incomplete contexts
-        Sample incompleteSample = Sample.builder()
+        ContextRecallMetric.ContextRecallConfig config =
+                ContextRecallMetric.ContextRecallConfig.builder().build();
+
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+
+        log.info("Complete contexts score: {}", score);
+
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score >= 0.6, "Expected high score for complete contexts");
+    }
+
+    @Test
+    @DisplayName("Quality assessment: Incomplete contexts")
+    void testContextRecall_IncompleteContexts() {
+        log.info("=== Testing Quality Assessment - Incomplete Contexts ===");
+
+        String reference =
+                "Water boils at 100 degrees Celsius. This happens at sea level pressure. The boiling point changes with altitude.";
+
+        Sample sample = Sample.builder()
                 .userInput("At what temperature does water boil?")
                 .reference(reference)
                 .retrievedContexts(List.of(
@@ -449,25 +475,19 @@ class EnContextRecallIntegrationTest {
         ContextRecallMetric.ContextRecallConfig config =
                 ContextRecallMetric.ContextRecallConfig.builder().build();
 
-        Double completeScore = contextRecallMetric.singleTurnScore(config, completeSample);
-        Double incompleteScore = contextRecallMetric.singleTurnScore(config, incompleteSample);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
 
-        log.info("Complete contexts score: {}", completeScore);
-        log.info("Incomplete contexts score: {}", incompleteScore);
+        log.info("Incomplete contexts score: {}", score);
 
-        assertNotNull(completeScore);
-        assertNotNull(incompleteScore);
-        assertTrue(completeScore >= 0.0 && completeScore <= 1.0);
-        assertTrue(incompleteScore >= 0.0 && incompleteScore <= 1.0);
-
-        assertTrue(completeScore >= 0.6, "Expected high score for complete contexts");
-        assertTrue(incompleteScore <= 0.3, "Expected low score for incomplete contexts");
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score <= 0.3, "Expected low score for incomplete contexts");
     }
 
     @Test
-    @DisplayName("Context Recall: Custom model list - use specific models")
-    void testContextRecall_CustomModelList() {
-        log.info("=== Context Recall: Custom model list test ===");
+    @DisplayName("Context Recall: Custom model list - single model")
+    void testContextRecall_CustomModelList_SingleModel() {
+        log.info("=== Context Recall: Custom model list - single model test ===");
 
         Sample sample = Sample.builder()
                 .userInput("What is the speed of light?")
@@ -479,25 +499,39 @@ class EnContextRecallIntegrationTest {
                         "The speed of light is a fundamental constant in physics."))
                 .build();
 
-        // Test with custom model list - only specific models
-        ContextRecallMetric.ContextRecallConfig configWithModels = ContextRecallMetric.ContextRecallConfig.builder()
+        ContextRecallMetric.ContextRecallConfig config = ContextRecallMetric.ContextRecallConfig.builder()
                 .model("google/gemini-2.5-flash") // Only use this model
                 .build();
 
-        Double scoreWithCustomModels = contextRecallMetric.singleTurnScore(configWithModels, sample);
-        log.info("Score with custom model list: {}", scoreWithCustomModels);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+        log.info("Score with custom model list: {}", score);
 
-        assertTrue(scoreWithCustomModels >= 0.0 && scoreWithCustomModels <= 1.0, "Score should be valid (0-1 range)");
-        assertTrue(scoreWithCustomModels >= 0.8, "Expected high score for well-supported facts");
+        assertTrue(score >= 0.0 && score <= 1.0, "Score should be valid (0-1 range)");
+        assertTrue(score >= 0.8, "Expected high score for well-supported facts");
+    }
 
-        // Test with empty model list - should use all available models
-        ContextRecallMetric.ContextRecallConfig configWithoutModels =
+    @Test
+    @DisplayName("Context Recall: Custom model list - all models")
+    void testContextRecall_CustomModelList_AllModels() {
+        log.info("=== Context Recall: Custom model list - all models test ===");
+
+        Sample sample = Sample.builder()
+                .userInput("What is the speed of light?")
+                .reference(
+                        "The speed of light in vacuum is approximately 299,792,458 meters per second. This is often rounded to 300,000 km/s for simplicity.")
+                .retrievedContexts(List.of(
+                        "The speed of light in a vacuum is exactly 299,792,458 meters per second.",
+                        "Light travels at approximately 300,000 kilometers per second.",
+                        "The speed of light is a fundamental constant in physics."))
+                .build();
+
+        ContextRecallMetric.ContextRecallConfig config =
                 ContextRecallMetric.ContextRecallConfig.builder().build();
 
-        Double scoreWithAllModels = contextRecallMetric.singleTurnScore(configWithoutModels, sample);
-        log.info("Score with all models: {}", scoreWithAllModels);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+        log.info("Score with all models: {}", score);
 
-        assertTrue(scoreWithAllModels >= 0.0 && scoreWithAllModels <= 1.0, "Score should be valid (0-1 range)");
-        assertTrue(scoreWithAllModels >= 0.8, "Expected high score for well-supported facts");
+        assertTrue(score >= 0.0 && score <= 1.0, "Score should be valid (0-1 range)");
+        assertTrue(score >= 0.8, "Expected high score for well-supported facts");
     }
 }

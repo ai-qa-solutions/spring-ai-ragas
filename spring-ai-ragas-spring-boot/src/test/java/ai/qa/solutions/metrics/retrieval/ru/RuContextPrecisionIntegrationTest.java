@@ -440,9 +440,9 @@ class RuContextPrecisionIntegrationTest {
     }
 
     @Test
-    @DisplayName("Сравнение стратегий: Эталон vs Ответ с одними и теми же данными")
-    void testStrategyComparison() {
-        log.info("=== Тест сравнения стратегий - Одни и те же данные ===");
+    @DisplayName("Сравнение стратегий: Оценка на основе эталона")
+    void testStrategyComparison_ReferenceBased() {
+        log.info("=== Тест сравнения стратегий - Оценка на основе эталона ===");
 
         Sample sample = Sample.builder()
                 .userInput("Что вызывает землетрясения?")
@@ -456,29 +456,46 @@ class RuContextPrecisionIntegrationTest {
                         "Лучшее время для посещения Японии — сезон цветения сакуры."))
                 .build();
 
-        ContextPrecisionMetric.ContextPrecisionConfig referenceConfig =
-                ContextPrecisionMetric.ContextPrecisionConfig.builder()
-                        .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
-                        .build();
+        ContextPrecisionMetric.ContextPrecisionConfig config = ContextPrecisionMetric.ContextPrecisionConfig.builder()
+                .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
+                .build();
 
-        ContextPrecisionMetric.ContextPrecisionConfig responseConfig =
-                ContextPrecisionMetric.ContextPrecisionConfig.builder()
-                        .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.RESPONSE_BASED)
-                        .build();
-
-        Double referenceScore = contextPrecisionMetric.singleTurnScore(referenceConfig, sample);
-        Double responseScore = contextPrecisionMetric.singleTurnScore(responseConfig, sample);
+        Double referenceScore = contextPrecisionMetric.singleTurnScore(config, sample);
 
         log.info("Оценка на основе эталона: {}", referenceScore);
-        log.info("Оценка на основе ответа: {}", responseScore);
 
         assertNotNull(referenceScore);
-        assertNotNull(responseScore);
         assertTrue(referenceScore >= 0.0 && referenceScore <= 1.0);
-        assertTrue(responseScore >= 0.0 && responseScore <= 1.0);
-
-        // Обе должны дать разумные оценки, поскольку большинство контекстов релевантны
         assertTrue(referenceScore >= 0.5, "Ожидается разумная оценка на основе эталона");
+    }
+
+    @Test
+    @DisplayName("Сравнение стратегий: Оценка на основе ответа")
+    void testStrategyComparison_ResponseBased() {
+        log.info("=== Тест сравнения стратегий - Оценка на основе ответа ===");
+
+        Sample sample = Sample.builder()
+                .userInput("Что вызывает землетрясения?")
+                .response("Землетрясения вызываются движением тектонических плит.")
+                .reference(
+                        "Землетрясения происходят, когда тектонические плиты в земной коре внезапно сдвигаются и высвобождают энергию, создавая сейсмические волны.")
+                .retrievedContexts(List.of(
+                        "Тектонические плиты в земной коре могут внезапно сдвигаться, вызывая землетрясения.",
+                        "Когда тектонические плиты сталкиваются или скользят друг мимо друга, они могут вызывать землетрясения.",
+                        "Сейсмические волны — это энергия, высвобождающаяся во время землетрясения.",
+                        "Лучшее время для посещения Японии — сезон цветения сакуры."))
+                .build();
+
+        ContextPrecisionMetric.ContextPrecisionConfig config = ContextPrecisionMetric.ContextPrecisionConfig.builder()
+                .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.RESPONSE_BASED)
+                .build();
+
+        Double responseScore = contextPrecisionMetric.singleTurnScore(config, sample);
+
+        log.info("Оценка на основе ответа: {}", responseScore);
+
+        assertNotNull(responseScore);
+        assertTrue(responseScore >= 0.0 && responseScore <= 1.0);
         assertTrue(responseScore >= 0.5, "Ожидается разумная оценка на основе ответа");
     }
 }

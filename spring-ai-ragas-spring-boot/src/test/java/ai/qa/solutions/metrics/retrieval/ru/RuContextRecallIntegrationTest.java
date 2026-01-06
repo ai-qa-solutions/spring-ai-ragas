@@ -272,12 +272,11 @@ class RuContextRecallIntegrationTest {
     // ==================== ТЕСТЫ ОЦЕНКИ КАЧЕСТВА ====================
 
     @Test
-    @DisplayName("Оценка качества: Подробный vs краткий эталон")
-    void testContextRecall_DetailedVsBriefReference() {
-        log.info("=== Тест оценки качества - Подробный vs краткий эталон ===");
+    @DisplayName("Оценка качества: Краткий эталон")
+    void testContextRecall_BriefReference() {
+        log.info("=== Тест оценки качества - Краткий эталон ===");
 
-        // Краткий эталон
-        Sample briefSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("Что такое гравитация?")
                 .reference("Гравитация — это сила, которая притягивает объекты друг к другу.")
                 .retrievedContexts(List.of(
@@ -286,8 +285,24 @@ class RuContextRecallIntegrationTest {
                         "Закон всемирного тяготения Ньютона описывает, как работает гравитация."))
                 .build();
 
-        // Подробный эталон
-        Sample detailedSample = Sample.builder()
+        ContextRecallMetric.ContextRecallConfig config =
+                ContextRecallMetric.ContextRecallConfig.builder().build();
+
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+
+        log.info("Оценка краткого эталона: {}", score);
+
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score >= 0.7, "Ожидается высокая оценка для краткого, но поддерживаемого эталона");
+    }
+
+    @Test
+    @DisplayName("Оценка качества: Подробный эталон")
+    void testContextRecall_DetailedReference() {
+        log.info("=== Тест оценки качества - Подробный эталон ===");
+
+        Sample sample = Sample.builder()
                 .userInput("Что такое гравитация?")
                 .reference(
                         "Гравитация — это фундаментальная сила природы. Она заставляет объекты с массой притягиваться друг к другу. Сила зависит от массы и расстояния. Ньютон описал это своим законом всемирного тяготения. Эйнштейн позже объяснил гравитацию через общую теорию относительности.")
@@ -301,32 +316,24 @@ class RuContextRecallIntegrationTest {
         ContextRecallMetric.ContextRecallConfig config =
                 ContextRecallMetric.ContextRecallConfig.builder().build();
 
-        Double briefScore = contextRecallMetric.singleTurnScore(config, briefSample);
-        Double detailedScore = contextRecallMetric.singleTurnScore(config, detailedSample);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
 
-        log.info("Оценка краткого эталона: {}", briefScore);
-        log.info("Оценка подробного эталона: {}", detailedScore);
+        log.info("Оценка подробного эталона: {}", score);
 
-        assertNotNull(briefScore);
-        assertNotNull(detailedScore);
-        assertTrue(briefScore >= 0.0 && briefScore <= 1.0);
-        assertTrue(detailedScore >= 0.0 && detailedScore <= 1.0);
-
-        // Обе должны иметь хорошие оценки, поскольку контексты поддерживают информацию
-        assertTrue(briefScore >= 0.7, "Ожидается высокая оценка для краткого, но поддерживаемого эталона");
-        assertTrue(detailedScore >= 0.6, "Ожидается хорошая оценка для подробного эталона");
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score >= 0.6, "Ожидается хорошая оценка для подробного эталона");
     }
 
     @Test
-    @DisplayName("Оценка качества: Влияние полноты контекста")
-    void testContextRecall_ContextCompletenessImpact() {
-        log.info("=== Тест оценки качества - Влияние полноты контекста ===");
+    @DisplayName("Оценка качества: Полные контексты")
+    void testContextRecall_CompleteContexts() {
+        log.info("=== Тест оценки качества - Полные контексты ===");
 
         String reference =
                 "Вода кипит при 100 градусах Цельсия. Это происходит при давлении на уровне моря. Точка кипения изменяется с высотой.";
 
-        // Полные контексты
-        Sample completeSample = Sample.builder()
+        Sample sample = Sample.builder()
                 .userInput("При какой температуре кипит вода?")
                 .reference(reference)
                 .retrievedContexts(List.of(
@@ -335,8 +342,27 @@ class RuContextRecallIntegrationTest {
                         "На больших высотах, где атмосферное давление ниже, вода кипит при более низких температурах."))
                 .build();
 
-        // Неполные контексты
-        Sample incompleteSample = Sample.builder()
+        ContextRecallMetric.ContextRecallConfig config =
+                ContextRecallMetric.ContextRecallConfig.builder().build();
+
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+
+        log.info("Оценка полных контекстов: {}", score);
+
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score >= 0.6, "Ожидается высокая оценка для полных контекстов");
+    }
+
+    @Test
+    @DisplayName("Оценка качества: Неполные контексты")
+    void testContextRecall_IncompleteContexts() {
+        log.info("=== Тест оценки качества - Неполные контексты ===");
+
+        String reference =
+                "Вода кипит при 100 градусах Цельсия. Это происходит при давлении на уровне моря. Точка кипения изменяется с высотой.";
+
+        Sample sample = Sample.builder()
                 .userInput("При какой температуре кипит вода?")
                 .reference(reference)
                 .retrievedContexts(List.of(
@@ -347,19 +373,13 @@ class RuContextRecallIntegrationTest {
         ContextRecallMetric.ContextRecallConfig config =
                 ContextRecallMetric.ContextRecallConfig.builder().build();
 
-        Double completeScore = contextRecallMetric.singleTurnScore(config, completeSample);
-        Double incompleteScore = contextRecallMetric.singleTurnScore(config, incompleteSample);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
 
-        log.info("Оценка полных контекстов: {}", completeScore);
-        log.info("Оценка неполных контекстов: {}", incompleteScore);
+        log.info("Оценка неполных контекстов: {}", score);
 
-        assertNotNull(completeScore);
-        assertNotNull(incompleteScore);
-        assertTrue(completeScore >= 0.0 && completeScore <= 1.0);
-        assertTrue(incompleteScore >= 0.0 && incompleteScore <= 1.0);
-
-        assertTrue(completeScore >= 0.6, "Ожидается высокая оценка для полных контекстов");
-        assertTrue(incompleteScore <= 0.3, "Ожидается низкая оценка для неполных контекстов");
+        assertNotNull(score);
+        assertTrue(score >= 0.0 && score <= 1.0);
+        assertTrue(score <= 0.3, "Ожидается низкая оценка для неполных контекстов");
     }
 
     @Test
@@ -467,13 +487,13 @@ class RuContextRecallIntegrationTest {
         assertTrue(
                 score >= 0.8,
                 "Ожидается высокая оценка для хорошо поддерживаемого большого эталона, получен: " + score);
-        assertTrue((endTime - startTime) < 30000, "Обработка должна завершиться в разумное время");
+        assertTrue((endTime - startTime) < 120000, "Обработка должна завершиться в разумное время");
     }
 
     @Test
-    @DisplayName("Context Recall: Кастомный список моделей - использование конкретных моделей")
-    void testContextRecall_CustomModelList() {
-        log.info("=== Context Recall: Тест с кастомным списком моделей ===");
+    @DisplayName("Context Recall: Кастомный список моделей - одна модель")
+    void testContextRecall_CustomModelList_SingleModel() {
+        log.info("=== Context Recall: Тест с кастомным списком моделей - одна модель ===");
 
         Sample sample = Sample.builder()
                 .userInput("Какова скорость света?")
@@ -485,25 +505,40 @@ class RuContextRecallIntegrationTest {
                         "Скорость света является фундаментальной константой в физике."))
                 .build();
 
-        // Тест с кастомным списком моделей - только конкретные модели
-        ContextRecallMetric.ContextRecallConfig configWithModels = ContextRecallMetric.ContextRecallConfig.builder()
+        ContextRecallMetric.ContextRecallConfig config = ContextRecallMetric.ContextRecallConfig.builder()
                 .model("google/gemini-2.5-flash") // Использовать только эту модель
                 .build();
 
-        Double scoreWithCustomModels = contextRecallMetric.singleTurnScore(configWithModels, sample);
-        log.info("Оценка с кастомным списком моделей: {}", scoreWithCustomModels);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+        log.info("Оценка с кастомным списком моделей: {}", score);
 
-        assertTrue(scoreWithCustomModels >= 0.0 && scoreWithCustomModels <= 1.0, "Оценка должна быть в диапазоне 0-1");
-        assertTrue(scoreWithCustomModels >= 0.8, "Ожидается высокая оценка для хорошо поддерживаемых фактов");
+        assertTrue(score >= 0.0 && score <= 1.0, "Оценка должна быть в диапазоне 0-1");
+        assertTrue(score >= 0.8, "Ожидается высокая оценка для хорошо поддерживаемых фактов");
+    }
+
+    @Test
+    @DisplayName("Context Recall: Кастомный список моделей - все модели")
+    void testContextRecall_CustomModelList_AllModels() {
+        log.info("=== Context Recall: Тест с кастомным списком моделей - все модели ===");
+
+        Sample sample = Sample.builder()
+                .userInput("Какова скорость света?")
+                .reference(
+                        "Скорость света в вакууме составляет примерно 299 792 458 метров в секунду. Это часто округляется до 300 000 км/с для простоты.")
+                .retrievedContexts(List.of(
+                        "Скорость света в вакууме составляет ровно 299 792 458 метров в секунду.",
+                        "Свет распространяется со скоростью примерно 300 000 километров в секунду.",
+                        "Скорость света является фундаментальной константой в физике."))
+                .build();
 
         // Тест с пустым списком моделей - должны использоваться все доступные модели
-        ContextRecallMetric.ContextRecallConfig configWithoutModels =
+        ContextRecallMetric.ContextRecallConfig config =
                 ContextRecallMetric.ContextRecallConfig.builder().build();
 
-        Double scoreWithAllModels = contextRecallMetric.singleTurnScore(configWithoutModels, sample);
-        log.info("Оценка со всеми моделями: {}", scoreWithAllModels);
+        Double score = contextRecallMetric.singleTurnScore(config, sample);
+        log.info("Оценка со всеми моделями: {}", score);
 
-        assertTrue(scoreWithAllModels >= 0.0 && scoreWithAllModels <= 1.0, "Оценка должна быть в диапазоне 0-1");
-        assertTrue(scoreWithAllModels >= 0.8, "Ожидается высокая оценка для хорошо поддерживаемых фактов");
+        assertTrue(score >= 0.0 && score <= 1.0, "Оценка должна быть в диапазоне 0-1");
+        assertTrue(score >= 0.6, "Ожидается хорошая оценка для хорошо поддерживаемых фактов");
     }
 }

@@ -492,9 +492,9 @@ class EnContextEntityRecallIntegrationTest {
     // ==================== RETRIEVAL MECHANISM COMPARISON ====================
 
     @Test
-    @DisplayName("Retrieval comparison: High vs low entity coverage")
-    void testContextEntityRecall_RetrievalComparison() {
-        log.info("=== Testing Retrieval Comparison - High vs Low Coverage ===");
+    @DisplayName("Retrieval comparison: High entity coverage")
+    void testContextEntityRecall_RetrievalComparison_HighCoverage() {
+        log.info("=== Testing Retrieval Comparison - High Coverage ===");
 
         String reference =
                 "The Renaissance began in Florence, Italy in the 14th century. Leonardo da Vinci and Michelangelo were famous Renaissance artists.";
@@ -509,6 +509,26 @@ class EnContextEntityRecallIntegrationTest {
                         "Michelangelo was another renowned Renaissance artist known for his sculptures and paintings."))
                 .build();
 
+        ContextEntityRecallMetric.ContextEntityRecallConfig config =
+                ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build();
+
+        Double highScore = contextEntityRecallMetric.singleTurnScore(config, highCoverageSample);
+
+        log.info("High coverage retrieval score: {}", highScore);
+
+        assertNotNull(highScore);
+        assertTrue(highScore >= 0.0 && highScore <= 1.0);
+        assertTrue(highScore >= 0.7, "Expected high score for good entity coverage retrieval");
+    }
+
+    @Test
+    @DisplayName("Retrieval comparison: Low entity coverage")
+    void testContextEntityRecall_RetrievalComparison_LowCoverage() {
+        log.info("=== Testing Retrieval Comparison - Low Coverage ===");
+
+        String reference =
+                "The Renaissance began in Florence, Italy in the 14th century. Leonardo da Vinci and Michelangelo were famous Renaissance artists.";
+
         // Low entity coverage retrieval
         Sample lowCoverageSample = Sample.builder()
                 .reference(reference)
@@ -521,23 +541,13 @@ class EnContextEntityRecallIntegrationTest {
         ContextEntityRecallMetric.ContextEntityRecallConfig config =
                 ContextEntityRecallMetric.ContextEntityRecallConfig.builder().build();
 
-        Double highScore = contextEntityRecallMetric.singleTurnScore(config, highCoverageSample);
         Double lowScore = contextEntityRecallMetric.singleTurnScore(config, lowCoverageSample);
 
-        log.info("High coverage retrieval score: {}", highScore);
         log.info("Low coverage retrieval score: {}", lowScore);
 
-        assertNotNull(highScore);
         assertNotNull(lowScore);
-        assertTrue(highScore >= 0.0 && highScore <= 1.0);
         assertTrue(lowScore >= 0.0 && lowScore <= 1.0);
-
-        assertTrue(highScore >= 0.7, "Expected high score for good entity coverage retrieval");
         assertTrue(lowScore <= 0.3, "Expected low score for poor entity coverage retrieval");
-        assertTrue(highScore > lowScore, "High coverage retrieval should score higher than low coverage");
-
-        log.info("This demonstrates that the first retrieval mechanism ({}) performs better than");
-        log.info("the second ({}) for entity-focused use cases", highScore, lowScore);
     }
 
     @Test

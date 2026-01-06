@@ -429,9 +429,9 @@ class EnContextPrecisionIntegrationTest {
     }
 
     @Test
-    @DisplayName("Strategy comparison: Reference vs Response with same data")
-    void testStrategyComparison() {
-        log.info("=== Testing Strategy Comparison - Same Data ===");
+    @DisplayName("Strategy comparison: Reference-based strategy")
+    void testStrategyComparison_ReferenceBased() {
+        log.info("=== Testing Strategy Comparison - Reference-based ===");
 
         Sample sample = Sample.builder()
                 .userInput("What causes earthquakes?")
@@ -445,29 +445,46 @@ class EnContextPrecisionIntegrationTest {
                         "Popular tourist destinations include tropical beaches."))
                 .build();
 
-        ContextPrecisionMetric.ContextPrecisionConfig referenceConfig =
-                ContextPrecisionMetric.ContextPrecisionConfig.builder()
-                        .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
-                        .build();
+        ContextPrecisionMetric.ContextPrecisionConfig config = ContextPrecisionMetric.ContextPrecisionConfig.builder()
+                .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.REFERENCE_BASED)
+                .build();
 
-        ContextPrecisionMetric.ContextPrecisionConfig responseConfig =
-                ContextPrecisionMetric.ContextPrecisionConfig.builder()
-                        .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.RESPONSE_BASED)
-                        .build();
-
-        Double referenceScore = contextPrecisionMetric.singleTurnScore(referenceConfig, sample);
-        Double responseScore = contextPrecisionMetric.singleTurnScore(responseConfig, sample);
+        Double referenceScore = contextPrecisionMetric.singleTurnScore(config, sample);
 
         log.info("Reference-based score: {}", referenceScore);
-        log.info("Response-based score: {}", responseScore);
 
         assertNotNull(referenceScore);
-        assertNotNull(responseScore);
         assertTrue(referenceScore >= 0.0 && referenceScore <= 1.0);
-        assertTrue(responseScore >= 0.0 && responseScore <= 1.0);
-
-        // Both should give reasonable scores since most contexts are relevant
         assertTrue(referenceScore >= 0.5, "Expected reasonable reference-based score");
+    }
+
+    @Test
+    @DisplayName("Strategy comparison: Response-based strategy")
+    void testStrategyComparison_ResponseBased() {
+        log.info("=== Testing Strategy Comparison - Response-based ===");
+
+        Sample sample = Sample.builder()
+                .userInput("What causes earthquakes?")
+                .response("Earthquakes are caused by the movement of tectonic plates.")
+                .reference(
+                        "Earthquakes occur when tectonic plates in the Earth's crust suddenly shift and release energy, creating seismic waves.")
+                .retrievedContexts(List.of(
+                        "Earthquakes are caused by the sudden movement of tectonic plates.",
+                        "Tectonic plate movement occurs when plates shift along fault lines.",
+                        "The release of energy from moving tectonic plates creates seismic waves.",
+                        "Popular tourist destinations include tropical beaches."))
+                .build();
+
+        ContextPrecisionMetric.ContextPrecisionConfig config = ContextPrecisionMetric.ContextPrecisionConfig.builder()
+                .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.RESPONSE_BASED)
+                .build();
+
+        Double responseScore = contextPrecisionMetric.singleTurnScore(config, sample);
+
+        log.info("Response-based score: {}", responseScore);
+
+        assertNotNull(responseScore);
+        assertTrue(responseScore >= 0.0 && responseScore <= 1.0);
         assertTrue(responseScore >= 0.5, "Expected reasonable response-based score");
     }
 }
