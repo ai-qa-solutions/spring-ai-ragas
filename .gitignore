@@ -29,3 +29,6 @@ target/
 # IDE
 .idea/
 *.iml
+
+# Allure
+.allure/
