@@ -1,5 +1,12 @@
 spring:
   ai:
+    ragas:
+      allure:
+        enabled: true
+        language: ru
+        include-prompts: true
+        include-responses: true
+        include-stack-traces: true
     retry:
       on-http-codes: [ 429 ]
       on-client-errors: true

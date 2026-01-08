@@ -24,6 +24,7 @@ spring-ai-ragas/
 ```
 
 ### Module Dependencies
+
 ```
 spring-boot-starter → spring-boot → metrics → multi-model
 ```
@@ -95,11 +96,13 @@ Scores from multiple models are combined using `ScoreAggregator`:
 ## Available Metrics
 
 ### General Purpose
+
 - `AspectCriticMetric` - Binary evaluation (pass/fail)
 - `SimpleCriteriaScoreMetric` - Continuous scale (0-1)
 - `RubricsScoreMetric` - Detailed rubric-based evaluation
 
 ### Retrieval (RAG)
+
 - `FaithfulnessMetric` - Factual consistency with context
 - `ContextPrecisionMetric` - Retrieval ranking quality
 - `ContextRecallMetric` - Completeness of retrieved info
@@ -110,6 +113,7 @@ Scores from multiple models are combined using `ScoreAggregator`:
 ## Code Style
 
 ### General Rules
+
 - Use `final` for all variables, parameters, and fields (enforced by convention)
 - Use Lombok `@Builder` for configuration classes
 - Use Java records for DTOs
@@ -118,6 +122,7 @@ Scores from multiple models are combined using `ScoreAggregator`:
 - Return `CompletableFuture<Double>` for async methods
 
 ### No-Nest Code Style
+
 Avoid deep nesting. Use early returns and guard clauses:
 
 ```java
@@ -159,12 +164,14 @@ Spotless runs automatically during `compile` phase. CI will fail if code is not 
 ## Testing and Coverage
 
 ### Unit Tests
+
 - Use `StubMultiModelExecutor` for isolation (no network calls)
 - Located in `src/test/java` with `*Test.java` naming
 - Use `@Nested` classes for logical grouping
 - Use `@DisplayName` for descriptive test names
 
 ### Integration Tests
+
 - Use `*IT.java` naming convention
 - Organized by language: `en/` and `ru/` subdirectories
 - Require actual LLM API credentials
@@ -184,6 +191,7 @@ mvn verify -P coverage
 JaCoCo configuration excludes Mockito-generated classes. Coverage check fails the build if thresholds are not met.
 
 ### Example: Testing a Metric
+
 ```java
 @Test
 void shouldCalculateScore() {
@@ -209,6 +217,7 @@ void shouldCalculateScore() {
 6. Add integration tests for both `en/` and `ru/`
 
 ### Sample Data Object
+
 ```java
 Sample sample = Sample.builder()
     .userInput("User question")
@@ -217,3 +226,4 @@ Sample sample = Sample.builder()
     .reference("Ground truth answer")
     .build();
 ```
+

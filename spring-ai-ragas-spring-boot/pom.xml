@@ -39,6 +39,11 @@
             <artifactId>spring-ai-starter-model-openai</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.github.ai-qa-solutions</groupId>
+            <artifactId>spring-ai-ragas-allure</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -46,6 +46,7 @@
         <module>spring-ai-ragas-spring-boot</module>
         <module>spring-ai-ragas-spring-boot-starter</module>
         <module>spring-ai-ragas-multi-model</module>
+        <module>spring-ai-ragas-allure</module>
     </modules>
 
     <properties>
@@ -82,6 +83,11 @@
             <dependency>
                 <groupId>io.github.ai-qa-solutions</groupId>
                 <artifactId>spring-ai-ragas-multi-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.ai-qa-solutions</groupId>
+                <artifactId>spring-ai-ragas-allure</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
