@@ -44,6 +44,8 @@ spring:
 
 ## AspectCritic
 
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/aspect_critic/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_aspect_critic.py)
+
 AspectCritic is a binary metric that evaluates responses against a free-form natural language criterion. It returns
 `1.0` (criterion met) or `0.0` (criterion not met).
 
@@ -154,6 +156,8 @@ class AspectCriticTest {
 ---
 
 ## SimpleCriteriaScore
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/general_purpose/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_simple_criteria.py)
 
 SimpleCriteriaScore evaluates responses on a continuous scale based on a criterion. Unlike AspectCritic, it provides
 granular quality assessment.
@@ -276,6 +280,8 @@ class SimpleCriteriaScoreTest {
 ---
 
 ## RubricsScore
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/rubrics_based/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_rubrics_score.py)
 
 RubricsScore evaluates responses using detailed rubrics where each score level has an explicit description. This
 provides maximum evaluation transparency.

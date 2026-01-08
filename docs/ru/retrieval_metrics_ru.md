@@ -58,6 +58,8 @@ spring:
 
 ## ContextEntityRecall
 
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_entities_recall/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_context_entities_recall.py)
+
 ContextEntityRecall измеряет полноту покрытия сущностей, присутствующих как в эталонном ответе, так и в извлечённых
 контекстах, относительно сущностей в эталоне. Эта метрика особенно полезна для работы с терминами и фактами.
 
@@ -176,6 +178,8 @@ class ContextEntityRecallTest {
 ---
 
 ## ContextPrecision
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_context_precision.py)
 
 ContextPrecision оценивает способность извлекателя ранжировать релевантные фрагменты выше в списке найденных контекстов.
 Метрика вычисляет Average Precision (AP), которая награждает релевантные контексты, появляющиеся раньше в ранжировании.
@@ -310,6 +314,8 @@ class ContextPrecisionTest {
 
 ## ContextRecall
 
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_recall/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_context_recall.py)
+
 ContextRecall измеряет, сколько утверждений в эталонном ответе можно отнести к извлечённым контекстам. Эта метрика
 оценивает полноту извлеченной информации.
 
@@ -403,6 +409,8 @@ class ContextRecallTest {
 ---
 
 ## Faithfulness
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_faithfulness.py)
 
 Faithfulness измеряет фактическую согласованность между сгенерированным ответом и извлечёнными контекстами.
 Метрика выявляет галлюцинации и обеспечивает обоснованность ответов в предоставленной информации.
@@ -509,6 +517,8 @@ class FaithfulnessTest {
 ---
 
 ## NoiseSensitivity
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/noise_sensitivity/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_noise_sensitivity.py)
 
 NoiseSensitivity измеряет, как часто система совершает ошибки, предоставляя неверные ответы при использовании релевантных
 или нерелевантных извлечённых документов. **Более низкие оценки означают лучшую производительность.**
@@ -624,6 +634,8 @@ class NoiseSensitivityTest {
 ---
 
 ## ResponseRelevancy
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/answer_relevance/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_answer_relevance.py)
 
 ResponseRelevancy измеряет, насколько релевантен ответ пользовательскому вводу. Метрика обнаруживает неполные ответы,
 ответы не по теме и уклончивые (evasive) формулировки.

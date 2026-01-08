@@ -58,6 +58,8 @@ spring:
 
 ## ContextEntityRecall
 
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_entities_recall/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_context_entities_recall.py)
+
 ContextEntityRecall measures the recall of entities present in both reference and retrieved contexts relative to
 entities in the reference alone. This metric is particularly useful for fact-based applications like tourism help desks
 or historical QA systems.
@@ -177,6 +179,8 @@ class ContextEntityRecallTest {
 ---
 
 ## ContextPrecision
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_context_precision.py)
 
 ContextPrecision evaluates the retriever's ability to rank relevant chunks higher in the retrieved context list. It
 calculates Average Precision (AP) which rewards relevant contexts appearing earlier in the ranking.
@@ -311,6 +315,8 @@ class ContextPrecisionTest {
 
 ## ContextRecall
 
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_recall/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_context_recall.py)
+
 ContextRecall measures how many statements in the reference answer can be attributed to the retrieved contexts. This
 metric evaluates the completeness of retrieved information.
 
@@ -404,6 +410,8 @@ class ContextRecallTest {
 ---
 
 ## Faithfulness
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_faithfulness.py)
 
 Faithfulness measures factual consistency between the generated response and retrieved contexts. It identifies
 hallucinations and ensures responses are grounded in provided information.
@@ -510,6 +518,8 @@ class FaithfulnessTest {
 ---
 
 ## NoiseSensitivity
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/noise_sensitivity/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_noise_sensitivity.py)
 
 NoiseSensitivity measures how often a system makes errors by providing incorrect responses when utilizing either
 relevant or irrelevant retrieved documents. **Lower scores indicate better performance.**
@@ -625,6 +635,8 @@ class NoiseSensitivityTest {
 ---
 
 ## ResponseRelevancy
+
+> **RAGAS Reference:** [Documentation](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/answer_relevance/) | [Python Source](https://github.com/explodinggradients/ragas/blob/main/src/ragas/metrics/_answer_relevance.py)
 
 ResponseRelevancy measures how relevant a response is to the user's input. It detects incomplete answers, off-topic
 responses, and noncommittal (evasive) statements.
