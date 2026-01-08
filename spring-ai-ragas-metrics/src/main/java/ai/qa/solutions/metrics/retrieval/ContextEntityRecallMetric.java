@@ -2,9 +2,9 @@ package ai.qa.solutions.metrics.retrieval;
 
 import ai.qa.solutions.execution.ModelResult;
 import ai.qa.solutions.execution.MultiModelExecutor;
-import ai.qa.solutions.execution.listener.MetricEvaluationContext;
-import ai.qa.solutions.execution.listener.MetricEvaluationResult;
-import ai.qa.solutions.execution.listener.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;

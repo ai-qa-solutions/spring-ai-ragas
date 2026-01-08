@@ -1,1 +1,4 @@
-ai.qa.solutions.config.SpringAiRagasMetricsAutoconfiguration
+ai.qa.solutions.config.RagasMetricsAutoconfiguration
+ai.qa.solutions.config.ChatClientStoreAutoConfiguration
+ai.qa.solutions.config.EmbeddingModelAutoConfiguration
+ai.qa.solutions.config.MultiModelExecutorAutoconfiguration

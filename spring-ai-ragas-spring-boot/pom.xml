@@ -24,6 +24,10 @@
             <groupId>io.github.ai-qa-solutions</groupId>
             <artifactId>spring-ai-ragas-metrics</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.ai-qa-solutions</groupId>
+            <artifactId>spring-ai-ragas-multi-model</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>chat.giga</groupId>

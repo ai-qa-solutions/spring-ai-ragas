@@ -20,24 +20,14 @@ public class EmbeddingModelFactory {
 
     /**
      * Creates an EmbeddingModel with overridden options for a specific model.
-     * <p>
-     * If individual options are not specified for the model, {@code defaultOptions}
-     * from the general configuration are used.
      *
      * @param baseModel base model for delegating calls
-     * @param modelConfig specific model configuration
-     * @param properties general configuration for all models
+     * @param modelId model ID to use in requests
+     * @param dimensions vector dimensionality (can be null to use base model's default)
      * @return delegating EmbeddingModel with overridden options
      */
-    public EmbeddingModel create(
-            final EmbeddingModel baseModel,
-            final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig modelConfig,
-            final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties) {
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelOptions options =
-                modelConfig.getOptions() != null ? modelConfig.getOptions() : properties.getDefaultOptions();
-
-        return new DelegatingEmbeddingModel(baseModel, modelConfig.getId(), options.getDimensions());
+    public EmbeddingModel create(final EmbeddingModel baseModel, final String modelId, final Integer dimensions) {
+        return new DelegatingEmbeddingModel(baseModel, modelId, dimensions);
     }
 
     /**

@@ -30,20 +30,10 @@ class EmbeddingModelFactoryTest {
     }
 
     @Test
-    @DisplayName("Should create model with default options")
-    void shouldCreateModelWithDefaultOptions() {
-        // Given
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties();
-        properties.getDefaultOptions().setDimensions(1024);
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig config =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig();
-        config.setId("test-model");
-        config.setOptions(null); // Используем default options
-
+    @DisplayName("Should create model with specified dimensions")
+    void shouldCreateModelWithSpecifiedDimensions() {
         // When
-        final EmbeddingModel model = factory.create(baseMock, config, properties);
+        final EmbeddingModel model = factory.create(baseMock, "test-model", 1024);
 
         // Then
         assertThat(model).isNotNull();
@@ -51,24 +41,10 @@ class EmbeddingModelFactoryTest {
     }
 
     @Test
-    @DisplayName("Should create model with custom options")
-    void shouldCreateModelWithCustomOptions() {
-        // Given
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties();
-        properties.getDefaultOptions().setDimensions(1024);
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig config =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig();
-        config.setId("test-model");
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelOptions customOptions =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelOptions();
-        customOptions.setDimensions(512);
-        config.setOptions(customOptions);
-
+    @DisplayName("Should create model with custom dimensions")
+    void shouldCreateModelWithCustomDimensions() {
         // When
-        final EmbeddingModel model = factory.create(baseMock, config, properties);
+        final EmbeddingModel model = factory.create(baseMock, "test-model", 512);
 
         // Then
         assertThat(model).isNotNull();
@@ -79,14 +55,7 @@ class EmbeddingModelFactoryTest {
     @DisplayName("Should delegate call to base model")
     void shouldDelegateCallToBaseModel() {
         // Given
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties();
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig config =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig();
-        config.setId("test-model");
-
-        final EmbeddingModel model = factory.create(baseMock, config, properties);
+        final EmbeddingModel model = factory.create(baseMock, "test-model", 1024);
 
         final EmbeddingRequest request = new EmbeddingRequest(
                 List.of("test text"), EmbeddingOptions.builder().build());
@@ -107,14 +76,7 @@ class EmbeddingModelFactoryTest {
     @DisplayName("Should override model ID in request")
     void shouldOverrideModelIdInRequest() {
         // Given
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties();
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig config =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig();
-        config.setId("custom-model-id");
-
-        final EmbeddingModel model = factory.create(baseMock, config, properties);
+        final EmbeddingModel model = factory.create(baseMock, "custom-model-id", 1024);
 
         final EmbeddingRequest originalRequest = new EmbeddingRequest(
                 List.of("test"),
@@ -140,14 +102,7 @@ class EmbeddingModelFactoryTest {
     @DisplayName("Should delegate embed(Document) to base model")
     void shouldDelegateEmbedDocumentToBaseModel() {
         // Given
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties();
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig config =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig();
-        config.setId("test-model");
-
-        final EmbeddingModel model = factory.create(baseMock, config, properties);
+        final EmbeddingModel model = factory.create(baseMock, "test-model", 1024);
 
         final Document document = new Document("test content");
         final float[] expectedEmbedding = new float[] {1.0f, 2.0f, 3.0f};
@@ -165,15 +120,7 @@ class EmbeddingModelFactoryTest {
     @DisplayName("Should handle null options in request")
     void shouldHandleNullOptionsInRequest() {
         // Given
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties();
-        properties.getDefaultOptions().setDimensions(1024);
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig config =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig();
-        config.setId("test-model");
-
-        final EmbeddingModel model = factory.create(baseMock, config, properties);
+        final EmbeddingModel model = factory.create(baseMock, "test-model", 1024);
 
         final EmbeddingRequest requestWithNullOptions = new EmbeddingRequest(List.of("test"), null);
 
@@ -192,17 +139,9 @@ class EmbeddingModelFactoryTest {
     @DisplayName("Should return base model dimensions when not specified")
     void shouldReturnBaseModelDimensionsWhenNotSpecified() {
         // Given
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties properties =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties();
-        properties.getDefaultOptions().setDimensions(null);
-
-        final EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig config =
-                new EmbeddingModelAutoConfiguration.EmbeddingModelProperties.ModelConfig();
-        config.setId("test-model");
-
         when(baseMock.dimensions()).thenReturn(768);
 
-        final EmbeddingModel model = factory.create(baseMock, config, properties);
+        final EmbeddingModel model = factory.create(baseMock, "test-model", null);
 
         // When
         final int dimensions = model.dimensions();

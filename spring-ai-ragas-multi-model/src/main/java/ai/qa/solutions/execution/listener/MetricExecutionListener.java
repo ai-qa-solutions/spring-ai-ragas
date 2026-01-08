@@ -1,5 +1,7 @@
 package ai.qa.solutions.execution.listener;
 
+import ai.qa.solutions.execution.listener.dto.*;
+
 /**
  * Listener interface for observing metric execution lifecycle events.
  * <p>

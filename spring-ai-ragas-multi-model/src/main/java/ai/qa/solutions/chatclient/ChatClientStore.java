@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.model.chat.client.autoconfigure.ChatClientAutoConfiguration;
 
 /**
  * Store for pre-configured {@link ChatClient} instances for different models.
@@ -24,7 +25,7 @@ public class ChatClientStore {
     private final Map<String, ChatClient> clients = new ConcurrentHashMap<>();
 
     /**
-     * Default ChatClient configured through standard Spring AI auto-configuration.
+     * Default ChatClient configured through standard Spring AI autoconfiguration.
      */
     private final ChatClient defaultClient;
 

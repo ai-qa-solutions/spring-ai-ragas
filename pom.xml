@@ -54,6 +54,8 @@
         <spring-ai-starter-model-gigachat.version>1.0.5</spring-ai-starter-model-gigachat.version>
         <allure-bom.version>2.29.0</allure-bom.version>
         <aspectj.version>1.9.24</aspectj.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.coverage.minimum>0.80</jacoco.coverage.minimum>
     </properties>
 
     <dependencyManagement>
@@ -136,6 +138,60 @@
                         <skip>true</skip>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <configuration>
+                        <excludes>
+                            <!-- Exclude Mockito generated classes -->
+                            <exclude>**/*$MockitoMock*</exclude>
+                            <exclude>**/*$auxiliary*</exclude>
+                        </excludes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <rule>
+                                        <element>BUNDLE</element>
+                                        <limits>
+                                            <limit>
+                                                <counter>LINE</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>${jacoco.coverage.minimum}</minimum>
+                                            </limit>
+                                            <limit>
+                                                <counter>BRANCH</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>${jacoco.coverage.minimum}</minimum>
+                                            </limit>
+                                        </limits>
+                                    </rule>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -166,11 +222,17 @@
             </plugin>
 
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <testFailureIgnore>false</testFailureIgnore>
                     <argLine>
+                        @{argLine}
                         -XX:+EnableDynamicAgentLoading
                         -Dfile.encoding=${project.build.sourceEncoding}
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
@@ -214,5 +276,80 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>integration-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>3.5.3</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <testFailureIgnore>false</testFailureIgnore>
+                            <argLine>
+                                @{argLine}
+                                -XX:+EnableDynamicAgentLoading
+                                -Dfile.encoding=${project.build.sourceEncoding}
+                                -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                            </argLine>
+                            <properties>
+                                <configurationParameters>
+                                    junit.jupiter.execution.parallel.enabled = true
+                                    junit.jupiter.execution.parallel.mode.default = concurrent
+                                    junit.jupiter.execution.parallel.mode.classes.default = concurrent
+                                    junit.jupiter.execution.parallel.config.strategy = dynamic
+                                    junit.jupiter.execution.parallel.config.dynamic.factor = 1
+                                </configurationParameters>
+                            </properties>
+                            <systemPropertyVariables>
+                                <allure.results.directory>target/allure-results</allure.results.directory>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.aspectj</groupId>
+                                <artifactId>aspectjweaver</artifactId>
+                                <version>${aspectj.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>check</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

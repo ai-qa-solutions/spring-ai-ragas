@@ -13,7 +13,6 @@ import org.springframework.ai.embedding.EmbeddingModel;
  * to the default model. Used for managing multiple embedding models
  * in Spring AI applications.
  *
- * @see EmbeddingModelAutoConfiguration
  * @see EmbeddingModelFactory
  */
 @Slf4j

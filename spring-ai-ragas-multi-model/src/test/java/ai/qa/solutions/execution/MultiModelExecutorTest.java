@@ -2,11 +2,13 @@ package ai.qa.solutions.execution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ai.qa.solutions.chatclient.ChatClientStore;
+import ai.qa.solutions.embedding.EmbeddingModelStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
@@ -306,4 +309,270 @@ class MultiModelExecutorTest {
     }
 
     record TestResponse(double score) {}
+
+    @Nested
+    @DisplayName("Embedding Operations")
+    class EmbeddingOperations {
+
+        @Mock
+        private EmbeddingModelStore embeddingModelStore;
+
+        private MultiModelExecutor executorWithEmbeddings;
+
+        @BeforeEach
+        void setUpEmbedding() {
+            executorWithEmbeddings = new MultiModelExecutor(chatClientStore, embeddingModelStore, taskExecutor);
+        }
+
+        @Test
+        @DisplayName("Should execute embedding on all models")
+        void shouldExecuteEmbeddingOnAllModels() {
+            // Given
+            final EmbeddingModel model1 = mock(EmbeddingModel.class);
+            final EmbeddingModel model2 = mock(EmbeddingModel.class);
+
+            when(embeddingModelStore.getModelIds()).thenReturn(List.of("embed-1", "embed-2"));
+            when(embeddingModelStore.get("embed-1")).thenReturn(model1);
+            when(embeddingModelStore.get("embed-2")).thenReturn(model2);
+            when(model1.embed(anyString())).thenReturn(new float[] {0.1f, 0.2f, 0.3f});
+            when(model2.embed(anyString())).thenReturn(new float[] {0.4f, 0.5f, 0.6f});
+
+            // When
+            final List<ModelResult<float[]>> results = executorWithEmbeddings.executeEmbedding("test text");
+
+            // Then
+            assertThat(results).hasSize(2);
+            assertThat(results).allMatch(ModelResult::isSuccess);
+        }
+
+        @Test
+        @DisplayName("Should execute embedding on single model")
+        void shouldExecuteEmbeddingOnSingleModel() {
+            // Given
+            final EmbeddingModel model = mock(EmbeddingModel.class);
+            final float[] expectedEmbedding = {0.1f, 0.2f, 0.3f};
+
+            when(embeddingModelStore.get("embed-model")).thenReturn(model);
+            when(model.embed("test text")).thenReturn(expectedEmbedding);
+
+            // When
+            final ModelResult<float[]> result =
+                    executorWithEmbeddings.executeEmbeddingOnModel("embed-model", "test text");
+
+            // Then
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.result()).isEqualTo(expectedEmbedding);
+            assertThat(result.modelId()).isEqualTo("embed-model");
+        }
+
+        @Test
+        @DisplayName("Should handle embedding failure gracefully")
+        void shouldHandleEmbeddingFailureGracefully() {
+            // Given
+            final EmbeddingModel failingModel = mock(EmbeddingModel.class);
+
+            when(embeddingModelStore.get("failing-embed")).thenReturn(failingModel);
+            when(failingModel.embed(anyString())).thenThrow(new RuntimeException("Embedding failed"));
+
+            // When
+            final ModelResult<float[]> result = executorWithEmbeddings.executeEmbeddingOnModel("failing-embed", "test");
+
+            // Then
+            assertThat(result.isFailure()).isTrue();
+            assertThat(result.error()).isNotNull();
+            assertThat(result.error().getMessage()).contains("Embedding failed");
+        }
+
+        @Test
+        @DisplayName("Should execute batch embeddings on single model")
+        void shouldExecuteBatchEmbeddingsOnSingleModel() {
+            // Given
+            final EmbeddingModel model = mock(EmbeddingModel.class);
+            final List<String> texts = List.of("text1", "text2", "text3");
+
+            when(embeddingModelStore.get("embed-model")).thenReturn(model);
+            when(model.embed("text1")).thenReturn(new float[] {0.1f});
+            when(model.embed("text2")).thenReturn(new float[] {0.2f});
+            when(model.embed("text3")).thenReturn(new float[] {0.3f});
+
+            // When
+            final ModelResult<List<float[]>> result =
+                    executorWithEmbeddings.executeEmbeddingsOnModel("embed-model", texts);
+
+            // Then
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.result()).hasSize(3);
+        }
+
+        @Test
+        @DisplayName("Should return empty list when no embedding store configured")
+        void shouldReturnEmptyListWhenNoEmbeddingStoreConfigured() {
+            // Given - executor without embedding store
+            final MultiModelExecutor executorNoEmbeddings = new MultiModelExecutor(chatClientStore, taskExecutor);
+
+            // When
+            final List<ModelResult<float[]>> results = executorNoEmbeddings.executeEmbedding("test");
+
+            // Then
+            assertThat(results).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Should return failure when embedding store not configured for single model")
+        void shouldReturnFailureWhenEmbeddingStoreNotConfiguredForSingleModel() {
+            // Given - executor without embedding store
+            final MultiModelExecutor executorNoEmbeddings = new MultiModelExecutor(chatClientStore, taskExecutor);
+
+            // When
+            final ModelResult<float[]> result = executorNoEmbeddings.executeEmbeddingOnModel("any-model", "test");
+
+            // Then
+            assertThat(result.isFailure()).isTrue();
+            assertThat(result.error()).isInstanceOf(IllegalStateException.class);
+            assertThat(result.error().getMessage()).contains("EmbeddingModelStore not configured");
+        }
+
+        @Test
+        @DisplayName("Should execute batch embeddings on all models")
+        void shouldExecuteBatchEmbeddingsOnAllModels() {
+            // Given
+            final EmbeddingModel model1 = mock(EmbeddingModel.class);
+            final List<String> texts = List.of("text1", "text2");
+
+            when(embeddingModelStore.getModelIds()).thenReturn(List.of("embed-1"));
+            when(embeddingModelStore.get("embed-1")).thenReturn(model1);
+            when(model1.embed("text1")).thenReturn(new float[] {0.1f});
+            when(model1.embed("text2")).thenReturn(new float[] {0.2f});
+
+            // When
+            final List<ModelResult<List<float[]>>> results = executorWithEmbeddings.executeEmbeddings(texts);
+
+            // Then
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).isSuccess()).isTrue();
+            assertThat(results.get(0).result()).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("Should include request in embedding result")
+        void shouldIncludeRequestInEmbeddingResult() {
+            // Given
+            final EmbeddingModel model = mock(EmbeddingModel.class);
+
+            when(embeddingModelStore.get("embed-model")).thenReturn(model);
+            when(model.embed("my query")).thenReturn(new float[] {0.1f});
+
+            // When
+            final ModelResult<float[]> result =
+                    executorWithEmbeddings.executeEmbeddingOnModel("embed-model", "my query");
+
+            // Then
+            assertThat(result.request()).isEqualTo("my query");
+        }
+    }
+
+    @Nested
+    @DisplayName("Utility Methods")
+    class UtilityMethods {
+
+        @Test
+        @DisplayName("getModelIds should return all LLM model IDs")
+        void getModelIdsShouldReturnAllLlmModelIds() {
+            // Given
+            when(chatClientStore.getModelIds()).thenReturn(List.of("model-1", "model-2", "model-3"));
+
+            // When
+            final List<String> modelIds = executor.getModelIds();
+
+            // Then
+            assertThat(modelIds).containsExactly("model-1", "model-2", "model-3");
+        }
+
+        @Test
+        @DisplayName("getEmbeddingModelIds should return empty when no embedding store")
+        void getEmbeddingModelIdsShouldReturnEmptyWhenNoEmbeddingStore() {
+            // Given - executor without embedding store (default setup)
+
+            // When
+            final List<String> embeddingIds = executor.getEmbeddingModelIds();
+
+            // Then
+            assertThat(embeddingIds).isEmpty();
+        }
+
+        @Test
+        @DisplayName("getEmbeddingModelIds should return IDs when embedding store configured")
+        void getEmbeddingModelIdsShouldReturnIdsWhenEmbeddingStoreConfigured() {
+            // Given
+            final EmbeddingModelStore embeddingStore = mock(EmbeddingModelStore.class);
+            when(embeddingStore.getModelIds()).thenReturn(List.of("embed-1", "embed-2"));
+
+            final MultiModelExecutor executorWithEmbeddings =
+                    new MultiModelExecutor(chatClientStore, embeddingStore, taskExecutor);
+
+            // When
+            final List<String> embeddingIds = executorWithEmbeddings.getEmbeddingModelIds();
+
+            // Then
+            assertThat(embeddingIds).containsExactly("embed-1", "embed-2");
+        }
+    }
+
+    @Nested
+    @DisplayName("Null Model List Handling")
+    class NullModelListHandling {
+
+        @Test
+        @DisplayName("Should return empty list when null model list passed to executeLlm")
+        void shouldReturnEmptyListWhenNullModelListPassed() {
+            // When
+            final List<ModelResult<TestResponse>> results = executor.executeLlm(null, "prompt", TestResponse.class);
+
+            // Then
+            assertThat(results).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Should return empty list when null model list passed to executeLlmAsync")
+        void shouldReturnEmptyListWhenNullModelListPassedAsync() {
+            // When
+            final List<ModelResult<TestResponse>> results =
+                    executor.executeLlmAsync(null, "prompt", TestResponse.class).join();
+
+            // Then
+            assertThat(results).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("Constructor Validation")
+    class ConstructorValidation {
+
+        @Test
+        @DisplayName("Should create executor without embedding store")
+        void shouldCreateExecutorWithoutEmbeddingStore() {
+            // When
+            final MultiModelExecutor executorNoEmbeddings = new MultiModelExecutor(chatClientStore, taskExecutor);
+
+            // Then
+            assertThat(executorNoEmbeddings.getEmbeddingModelIds()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Should create executor with all stores")
+        void shouldCreateExecutorWithAllStores() {
+            // Given
+            final EmbeddingModelStore embeddingStore = mock(EmbeddingModelStore.class);
+            when(embeddingStore.getModelIds()).thenReturn(List.of("embed-1"));
+            when(chatClientStore.getModelIds()).thenReturn(List.of("llm-1"));
+
+            // When
+            final MultiModelExecutor fullExecutor =
+                    new MultiModelExecutor(chatClientStore, embeddingStore, taskExecutor);
+
+            // Then
+            assertThat(fullExecutor.getModelIds()).containsExactly("llm-1");
+            assertThat(fullExecutor.getEmbeddingModelIds()).containsExactly("embed-1");
+        }
+    }
 }

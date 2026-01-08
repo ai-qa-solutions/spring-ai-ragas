@@ -119,6 +119,32 @@ class ScoreAggregatorTest {
         }
 
         @Test
+        @DisplayName("Should return 0 for empty list")
+        void shouldReturn0ForEmptyList() {
+            // Given
+            final List<Double> scores = List.of();
+
+            // When
+            final double result = ScoreAggregator.MEDIAN.aggregate(scores);
+
+            // Then
+            assertThat(result).isZero();
+        }
+
+        @Test
+        @DisplayName("Should calculate median for two scores")
+        void shouldCalculateMedianForTwoScores() {
+            // Given
+            final List<Double> scores = List.of(0.3, 0.7);
+
+            // When
+            final double result = ScoreAggregator.MEDIAN.aggregate(scores);
+
+            // Then
+            assertThat(result).isCloseTo(0.5, offset(0.001));
+        }
+
+        @Test
         @DisplayName("Should have correct name")
         void shouldHaveCorrectName() {
             assertThat(ScoreAggregator.MEDIAN.getName()).isEqualTo("MEDIAN");
@@ -222,6 +248,134 @@ class ScoreAggregatorTest {
         @DisplayName("Should have correct name")
         void shouldHaveCorrectName() {
             assertThat(ScoreAggregator.MAX.getName()).isEqualTo("MAX");
+        }
+    }
+
+    @Nested
+    @DisplayName("MAJORITY_VOTING Aggregator")
+    class MajorityVotingAggregator {
+
+        @Test
+        @DisplayName("Should return 1.0 when majority votes true (>= 0.5)")
+        void shouldReturn1WhenMajorityVotesTrue() {
+            // Given - 3 out of 5 are >= 0.5
+            final List<Double> scores = List.of(0.8, 0.6, 0.3, 0.9, 0.2);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 when majority votes false (< 0.5)")
+        void shouldReturn0WhenMajorityVotesFalse() {
+            // Given - 3 out of 5 are < 0.5
+            final List<Double> scores = List.of(0.1, 0.2, 0.6, 0.3, 0.4);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 when exactly half votes true (tie goes to false)")
+        void shouldReturn0WhenExactlyHalfVotesTrue() {
+            // Given - 2 out of 4 are >= 0.5 (exactly half, not more than half)
+            final List<Double> scores = List.of(0.6, 0.7, 0.3, 0.4);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should return 1.0 when all votes are true")
+        void shouldReturn1WhenAllVotesTrue() {
+            // Given
+            final List<Double> scores = List.of(0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 when all votes are false")
+        void shouldReturn0WhenAllVotesFalse() {
+            // Given
+            final List<Double> scores = List.of(0.0, 0.1, 0.2, 0.3, 0.4, 0.49);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 for empty list")
+        void shouldReturn0ForEmptyList() {
+            // Given
+            final List<Double> scores = List.of();
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should return 1.0 for single true vote")
+        void shouldReturn1ForSingleTrueVote() {
+            // Given
+            final List<Double> scores = List.of(0.5);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 for single false vote")
+        void shouldReturn0ForSingleFalseVote() {
+            // Given
+            final List<Double> scores = List.of(0.49);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should treat exactly 0.5 as true vote")
+        void shouldTreatExactly05AsTrueVote() {
+            // Given - boundary case: 0.5 should be counted as true
+            final List<Double> scores = List.of(0.5, 0.5, 0.4);
+
+            // When
+            final double result = ScoreAggregator.MAJORITY_VOTING.aggregate(scores);
+
+            // Then
+            assertThat(result).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should have correct name")
+        void shouldHaveCorrectName() {
+            assertThat(ScoreAggregator.MAJORITY_VOTING.getName()).isEqualTo("MAJORITY_VOTING");
         }
     }
 
