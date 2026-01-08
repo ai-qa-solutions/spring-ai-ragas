@@ -482,5 +482,315 @@ class NoiseSensitivityMetricTest {
 
             assertThat(score).isGreaterThanOrEqualTo(0.0).isLessThanOrEqualTo(1.0);
         }
+
+        @Test
+        @DisplayName("Should handle multiple contexts")
+        void shouldHandleMultipleContexts() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(List.of("Statement 1", "Statement 2")))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(List.of(
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 1", true, "found"),
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 2", false, "not found"))));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response with multiple statements")
+                    .reference("Reference with multiple statements")
+                    .retrievedContexts(List.of("Context 1", "Context 2", "Context 3"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            assertThat(score).isGreaterThanOrEqualTo(0.0).isLessThanOrEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should handle null verdict in response")
+        void shouldHandleNullVerdictInResponse() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(List.of("Statement 1")))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(List.of(
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 1", null, "unclear"))));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            // null verdict treated as false
+            assertThat(score).isGreaterThanOrEqualTo(0.0).isLessThanOrEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should handle empty statements list")
+        void shouldHandleEmptyStatementsList() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(List.of()))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(List.of()));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            // Empty statements should result in 0.0
+            assertThat(score).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should handle null statements in response")
+        void shouldHandleNullStatementsInResponse() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(null))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(List.of()));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            assertThat(score).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should handle null verdicts list in faithfulness response")
+        void shouldHandleNullVerdictsListInFaithfulnessResponse() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(List.of("Statement 1")))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(null));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            // null verdicts list should be handled gracefully
+            assertThat(score).isGreaterThanOrEqualTo(0.0).isLessThanOrEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should compute IRRELEVANT mode with mixed verdicts")
+        void shouldComputeIrrelevantModeWithMixedVerdicts() {
+            // For IRRELEVANT mode: measure errors from irrelevant contexts
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(List.of("Statement 1", "Statement 2")))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(List.of(
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 1", false, "not found"),
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 2", true, "found"))));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Relevant context", "Irrelevant context"))
+                    .build();
+
+            NoiseSensitivityMetric.NoiseSensitivityConfig config =
+                    NoiseSensitivityMetric.NoiseSensitivityConfig.builder()
+                            .mode(NoiseSensitivityMetric.NoiseSensitivityMode.IRRELEVANT)
+                            .build();
+
+            Double score = metric.singleTurnScore(config, sample);
+
+            assertThat(score).isGreaterThanOrEqualTo(0.0).isLessThanOrEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should handle RELEVANT mode with all false verdicts")
+        void shouldHandleRelevantModeWithAllFalseVerdicts() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(List.of("Statement 1", "Statement 2")))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(List.of(
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 1", false, "not found"),
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 2", false, "not found"))));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context 1", "Context 2"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            assertThat(score).isGreaterThanOrEqualTo(0.0).isLessThanOrEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should work with specified models in config")
+        void shouldWorkWithSpecifiedModelsInConfig() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1", "model-2"))
+                    .withResponse(
+                            NoiseSensitivityMetric.StatementsResponse.class,
+                            new NoiseSensitivityMetric.StatementsResponse(List.of("Statement 1")))
+                    .withResponse(
+                            NoiseSensitivityMetric.FaithfulnessVerdictsResponse.class,
+                            new NoiseSensitivityMetric.FaithfulnessVerdictsResponse(List.of(
+                                    new NoiseSensitivityMetric.StatementVerdict("Statement 1", true, "found"))));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            NoiseSensitivityMetric.NoiseSensitivityConfig config =
+                    NoiseSensitivityMetric.NoiseSensitivityConfig.builder()
+                            .model("model-1")
+                            .build();
+
+            Double score = metric.singleTurnScore(config, sample);
+
+            assertThat(score).isGreaterThanOrEqualTo(0.0).isLessThanOrEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 when user input is empty string")
+        void shouldReturn0WhenUserInputIsEmpty() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("   ")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            assertThat(score).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 when response is empty string")
+        void shouldReturn0WhenResponseIsEmpty() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("   ")
+                    .reference("Reference")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            assertThat(score).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 when reference is empty string")
+        void shouldReturn0WhenReferenceIsEmpty() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("   ")
+                    .retrievedContexts(List.of("Context"))
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            assertThat(score).isEqualTo(0.0);
+        }
+
+        @Test
+        @DisplayName("Should return 0.0 when contexts list is empty")
+        void shouldReturn0WhenContextsListIsEmpty() {
+            StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"));
+
+            NoiseSensitivityMetric metric =
+                    NoiseSensitivityMetric.builder().executor(stubExecutor).build();
+
+            Sample sample = Sample.builder()
+                    .userInput("Question")
+                    .response("Response")
+                    .reference("Reference")
+                    .retrievedContexts(List.of())
+                    .build();
+
+            Double score = metric.singleTurnScore(sample);
+
+            assertThat(score).isEqualTo(0.0);
+        }
     }
 }
