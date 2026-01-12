@@ -80,30 +80,6 @@ testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starte
 testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
 ```
 
-#### Allure отчёты (Опционально)
-
-Для генерации HTML-отчётов с объяснениями оценок и временной шкалой выполнения добавьте модуль интеграции с Allure.
-Требуется предварительно настроенный AspectJ и Allure в вашем проекте.
-Пример полной настройки см. в [pom.xml](pom.xml).
-
-```xml
-<dependency>
-    <groupId>io.github.ai-qa-solutions</groupId>
-    <artifactId>spring-ai-ragas-allure</artifactId>
-    <version>1.0.0</version>
-    <scope>test</scope>
-</dependency>
-```
-
-Примеры отчётов:
-[AspectCritic](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AspectCriticMetric_ru.html) |
-[SimpleCriteriaScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SimpleCriteriaScoreMetric_ru.html) |
-[RubricsScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RubricsScoreMetric_ru.html) |
-[Faithfulness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FaithfulnessMetric_ru.html) |
-[ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_ru.html)
-
-Полная документация: [Руководство по интеграции с Allure](spring-ai-ragas-allure/README.md)
-
 ### Конфигурация
 
 application.yaml
@@ -227,6 +203,30 @@ void evaluateRAG() {
     // Измеряет качество ранжирования извлечения
 }
 ```
+
+## Allure отчёты (Опционально)
+
+Для генерации HTML-отчётов с объяснениями оценок и временной шкалой выполнения добавьте модуль интеграции с Allure.
+Требуется предварительно настроенный AspectJ и Allure в вашем проекте.
+Пример полной настройки см. в [pom.xml](pom.xml).
+
+```xml
+<dependency>
+    <groupId>io.github.ai-qa-solutions</groupId>
+    <artifactId>spring-ai-ragas-allure</artifactId>
+    <version>1.0.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Примеры отчётов:
+[AspectCritic](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AspectCriticMetric_ru.html) |
+[SimpleCriteriaScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SimpleCriteriaScoreMetric_ru.html) |
+[RubricsScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RubricsScoreMetric_ru.html) |
+[Faithfulness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FaithfulnessMetric_ru.html) |
+[ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_ru.html)
+
+Полная документация: [Руководство по интеграции с Allure](spring-ai-ragas-allure/README.md)
 
 ## Архитектура
 

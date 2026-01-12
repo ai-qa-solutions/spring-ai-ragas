@@ -79,30 +79,6 @@ testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starte
 testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
 ```
 
-#### Allure Reports (Optional)
-
-For rich HTML reports with score explanations and execution timelines, add the Allure integration module.
-Requires pre-configured AspectJ and Allure in your project.
-See [pom.xml](pom.xml) for a complete setup example.
-
-```xml
-<dependency>
-    <groupId>io.github.ai-qa-solutions</groupId>
-    <artifactId>spring-ai-ragas-allure</artifactId>
-    <version>1.0.0</version>
-    <scope>test</scope>
-</dependency>
-```
-
-Report examples:
-[AspectCritic](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AspectCriticMetric_en.html) |
-[SimpleCriteriaScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SimpleCriteriaScoreMetric_en.html) |
-[RubricsScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RubricsScoreMetric_en.html) |
-[Faithfulness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FaithfulnessMetric_en.html) |
-[ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_en.html)
-
-Full documentation: [Allure Integration Guide](spring-ai-ragas-allure/README.md)
-
 ### Configuration
 
 application.yaml
@@ -224,6 +200,30 @@ void evaluateRAG() {
     // Measures retrieval ranking quality
 }
 ```
+
+## Allure Reports (Optional)
+
+For rich HTML reports with score explanations and execution timelines, add the Allure integration module.
+Requires pre-configured AspectJ and Allure in your project.
+See [pom.xml](pom.xml) for a complete setup example.
+
+```xml
+<dependency>
+    <groupId>io.github.ai-qa-solutions</groupId>
+    <artifactId>spring-ai-ragas-allure</artifactId>
+    <version>1.0.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Report examples:
+[AspectCritic](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AspectCriticMetric_en.html) |
+[SimpleCriteriaScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SimpleCriteriaScoreMetric_en.html) |
+[RubricsScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RubricsScoreMetric_en.html) |
+[Faithfulness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FaithfulnessMetric_en.html) |
+[ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_en.html)
+
+Full documentation: [Allure Integration Guide](spring-ai-ragas-allure/README.md)
 
 ## Architecture
 
