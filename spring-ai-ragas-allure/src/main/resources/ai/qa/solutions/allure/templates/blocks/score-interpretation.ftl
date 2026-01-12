@@ -40,7 +40,7 @@
                 </span>
                 <span class="exp-scale-name">${level.name}</span>
                 <span class="exp-scale-range">${level.range}</span>
-                <span class="exp-scale-desc">${level.description}</span>
+                <span class="exp-scale-desc" title="${level.description}">${level.description}</span>
                 <#if level.current || level?index == (interp.currentLevelIndex!0)>
                 <span class="exp-scale-current">${i18n["explanation.yourResult"]}</span>
                 </#if>

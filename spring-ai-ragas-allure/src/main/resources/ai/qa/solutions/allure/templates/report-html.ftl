@@ -972,6 +972,28 @@
             background: #ffebee;
         }
 
+        /* Neutral items (rubrics unselected levels) */
+        .exp-item.neutral {
+            border-left: 4px solid #e0e0e0;
+            background: #f5f5f5;
+        }
+
+        /* Rubrics position-based colors */
+        .exp-item.score-poor {
+            border-left: 4px solid var(--color-poor);
+            background: #ffebee;
+        }
+
+        .exp-item.score-moderate {
+            border-left: 4px solid var(--color-moderate);
+            background: #fff3e0;
+        }
+
+        .exp-item.score-good {
+            border-left: 4px solid var(--color-good);
+            background: #e8f5e9;
+        }
+
         .exp-item-main {
             display: flex;
             align-items: flex-start;
@@ -1006,6 +1028,28 @@
         .exp-item-verdict.failed {
             background: #ffebee;
             color: var(--color-poor);
+        }
+
+        /* Neutral verdict (rubrics unselected) */
+        .exp-item-verdict.neutral {
+            background: #f5f5f5;
+            color: #757575;
+        }
+
+        /* Rubrics position-based verdict colors */
+        .exp-item-verdict.score-poor {
+            background: #ffebee;
+            color: var(--color-poor);
+        }
+
+        .exp-item-verdict.score-moderate {
+            background: #fff3e0;
+            color: var(--color-moderate);
+        }
+
+        .exp-item-verdict.score-good {
+            background: #e8f5e9;
+            color: var(--color-good);
         }
 
         .exp-item-reason {
@@ -1420,6 +1464,8 @@
         .exp-scale-desc {
             flex: 1;
             color: var(--color-text-secondary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .exp-scale-current {
@@ -1429,6 +1475,51 @@
             color: white;
             border-radius: 3px;
             font-weight: 600;
+        }
+
+        /* Rubric scale color classes */
+        .exp-scale-item.neutral {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+
+        .exp-scale-item.score-poor {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .exp-scale-item.score-moderate {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .exp-scale-item.score-good {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .exp-scale-item.current.score-poor .exp-scale-current {
+            background: #f44336;
+        }
+
+        .exp-scale-item.current.score-moderate .exp-scale-current {
+            background: #ff9800;
+        }
+
+        .exp-scale-item.current.score-good .exp-scale-current {
+            background: #4caf50;
+        }
+
+        .exp-scale-item.current.score-poor .exp-scale-marker {
+            color: #f44336;
+        }
+
+        .exp-scale-item.current.score-moderate .exp-scale-marker {
+            color: #ff9800;
+        }
+
+        .exp-scale-item.current.score-good .exp-scale-marker {
+            color: #4caf50;
         }
 
         .no-explanation {

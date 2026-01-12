@@ -6,7 +6,6 @@ import io.qameta.allure.AllureLifecycle;
 import io.qameta.allure.model.Attachment;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 
@@ -146,9 +145,6 @@ public class AllureAttachmentWriter {
     }
 
     private String buildAttachmentName(final EvaluationReportData data, final String suffix) {
-        final String score = data.getAggregatedScore() != null
-                ? String.format(Locale.US, "%.2f", data.getAggregatedScore() * 100) + "%"
-                : "N/A";
-        return String.format("%s [%s] %s", data.getMetricName(), score, suffix);
+        return String.format("%s %s", data.getMetricName(), suffix);
     }
 }

@@ -4,6 +4,7 @@
 
 - **Aspect** — a user-defined criterion for evaluating the response
 - **Agentic System** — an LLM-based system that generates responses
+- **Strictness** — number of LLM iterations per model for self-consistency via majority voting
 
 ## Description
 
@@ -37,8 +38,26 @@ The metric is binary — only two results are possible.
 ## Algorithm
 
 1. **Criterion Definition** — the aspect for evaluation is specified
-2. **Evaluation** — LLM analyzes the response against the criterion
-3. **Verdict** — result is returned with reasoning
+2. **Evaluation with Strictness** — for each model, LLM is called `strictness` times (default: 1)
+3. **Majority Voting per Model** — if strictness > 1, the final verdict for each model is determined by majority vote across iterations
+4. **Model Score Conversion** — each model's verdict is converted: PASS → 1.0, FAIL → 0.0
+5. **Aggregation** — final score is computed by averaging all model scores
+
+### Strictness Parameter
+
+The `strictness` parameter enables self-consistency checks through multiple LLM iterations:
+
+- **strictness = 1** (default): Single evaluation per model
+- **strictness = 3**: Three evaluations per model, majority vote determines result
+- **strictness = 5**: Five evaluations, more robust but slower
+
+Example with strictness = 3 and 2 models:
+
+```
+Model A: [PASS, PASS, FAIL] → majority PASS → 1.0
+Model B: [FAIL, FAIL, PASS] → majority FAIL → 0.0
+Final Score: (1.0 + 0.0) / 2 = 0.5 = 50%
+```
 
 ## Typical Aspects for Evaluation
 
@@ -50,10 +69,20 @@ The metric is binary — only two results are possible.
 
 ## Formula
 
+### Single Model
+
 ```
-score = 1.0 if criterion is met
-score = 0.0 if criterion is not met
+model_verdict = majority_vote(iterations) if strictness > 1 else single_evaluation
+model_score = 1.0 if model_verdict == PASS else 0.0
 ```
+
+### Multi-Model Aggregation
+
+```
+final_score = average(model_scores)
+```
+
+Example: 2 PASS + 3 FAIL = 2/5 = 0.40 = 40%
 
 ## References
 

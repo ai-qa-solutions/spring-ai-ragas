@@ -16,6 +16,7 @@ public class ContextEntityRecallExplanation extends AbstractScoreExplanation {
     private static final String METRIC_TYPE = "context-entity-recall";
 
     private final String reference;
+    private final String contexts;
     private final List<String> referenceEntities;
     private final List<String> contextEntities;
     private final List<String> foundEntities;
@@ -26,12 +27,14 @@ public class ContextEntityRecallExplanation extends AbstractScoreExplanation {
             final Double score,
             final String language,
             final String reference,
+            final String contexts,
             final List<String> referenceEntities,
             final List<String> contextEntities,
             final List<String> foundEntities,
             final List<String> missingEntities) {
         super(score, language);
         this.reference = reference != null ? reference : "";
+        this.contexts = contexts != null ? contexts : "";
         this.referenceEntities = referenceEntities != null ? referenceEntities : List.of();
         this.contextEntities = contextEntities != null ? contextEntities : List.of();
         this.foundEntities = foundEntities != null ? foundEntities : List.of();
@@ -75,7 +78,14 @@ public class ContextEntityRecallExplanation extends AbstractScoreExplanation {
                 .stepNumber(2)
                 .title(messages.get("contextEntityRecall.step2.title"))
                 .description(messages.get("contextEntityRecall.step2.desc"))
+                .inputData(contexts)
                 .outputSummary(messages.get("contextEntityRecall.step1.output", contextEntities.size()))
+                .items(contextEntities.stream()
+                        .map((e) -> ExplanationItem.builder()
+                                .content(e)
+                                .index(contextEntities.indexOf(e) + 1)
+                                .build())
+                        .toList())
                 .hasModelDisagreement(false)
                 .agreementPercent(100.0)
                 .build());

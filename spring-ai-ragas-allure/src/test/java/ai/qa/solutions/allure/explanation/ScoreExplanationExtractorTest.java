@@ -212,6 +212,38 @@ class ScoreExplanationExtractorTest {
             assertThat(result).isPresent();
             assertThat(result.get()).isInstanceOf(ContextRecallExplanation.class);
         }
+
+        @Test
+        @DisplayName("should extract contexts from request")
+        void shouldExtractContextsFromRequest() {
+            final var request =
+                    """
+                    Question: What is Spring?
+                    Context: Spring is a Java framework.
+
+                    It provides dependency injection.
+                    Reference Answer: Spring is a popular Java framework.
+                    Instructions: Analyze the reference.
+                    """;
+            final var step = StepExecutionData.builder()
+                    .stepName("ClassifyStatements")
+                    .request(request)
+                    .modelResults(List.of(ModelExecutionData.builder()
+                            .modelId("gpt-4")
+                            .success(true)
+                            .resultJson(
+                                    "{\"classifications\": [{\"statement\": \"Spring is a popular Java framework.\", \"attributed\": 1, \"reason\": \"Found in context\"}]}")
+                            .build()))
+                    .build();
+
+            final var result = extractor.extract("ContextRecall", List.of(step), 1.0, "en");
+
+            assertThat(result).isPresent();
+            final var explanation = (ContextRecallExplanation) result.get();
+            assertThat(explanation.getReference()).isEqualTo("Spring is a popular Java framework.");
+            assertThat(explanation.getContexts()).contains("Spring is a Java framework");
+            assertThat(explanation.getContexts()).contains("It provides dependency injection");
+        }
     }
 
     @Nested
@@ -313,6 +345,46 @@ class ScoreExplanationExtractorTest {
 
             assertThat(result).isPresent();
             assertThat(result.get()).isInstanceOf(RubricsScoreExplanation.class);
+        }
+
+        @Test
+        @DisplayName("should extract multi-line AI response from request")
+        void shouldExtractMultiLineResponse() {
+            final var multiLineCode =
+                    """
+                    def factorial(n):
+                        '''Calculate factorial of n using recursion with validation'''
+                        if not isinstance(n, int) or n < 0:
+                            raise ValueError("Input must be a non-negative integer")
+                        if n == 0 or n == 1:
+                            return 1
+                        return n * factorial(n - 1)""";
+            final var request =
+                    """
+                    User Input: Write a factorial function
+                    AI Response: %s
+                    Evaluation Rubrics:
+                    1: Bad
+                    5: Good
+                    """
+                            .formatted(multiLineCode);
+            final var step = StepExecutionData.builder()
+                    .stepName("EvaluateRubric")
+                    .request(request)
+                    .modelResults(List.of(ModelExecutionData.builder()
+                            .modelId("gpt-4")
+                            .success(true)
+                            .resultJson("{\"score\": 5, \"reasoning\": \"Excellent implementation\"}")
+                            .build()))
+                    .build();
+
+            final var result = extractor.extract("RubricsScore", List.of(step), 5.0, "en");
+
+            assertThat(result).isPresent();
+            final var explanation = (RubricsScoreExplanation) result.get();
+            assertThat(explanation.getAiResponse()).contains("def factorial(n):");
+            assertThat(explanation.getAiResponse()).contains("return n * factorial(n - 1)");
+            assertThat(explanation.getAiResponse()).contains("raise ValueError");
         }
     }
 

@@ -3,7 +3,7 @@ spring:
     ragas:
       allure:
         enabled: true
-        language: ru
+        language: en
         include-prompts: true
         include-responses: true
         include-stack-traces: true
@@ -38,7 +38,7 @@ spring:
         top-p: 1.0
       list:
         - { id: deepseek/deepseek-v3.2 }        # Best price/quality, $0.38/1M completion
-        - { id: anthropic/claude-haiku-4.5 }    # Reliable anchor, excellent instruction following
+#       - { id: anthropic/claude-haiku-4.5 }    # Reliable anchor, excellent instruction following
         - { id: google/gemini-3-flash-preview } # Fast, 1M context
         - { id: x-ai/grok-4.1-fast }            # 2M context, very cheap
         - { id: google/gemini-2.5-flash }

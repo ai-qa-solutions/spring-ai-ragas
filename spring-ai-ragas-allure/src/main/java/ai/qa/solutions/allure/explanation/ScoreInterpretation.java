@@ -77,6 +77,18 @@ public class ScoreInterpretation {
     int currentLevelIndex;
 
     /**
+     * Minimum level in the rubric scale (e.g., 1).
+     * Used for rubric-based metrics to calculate normalized scores.
+     */
+    Integer minLevel;
+
+    /**
+     * Maximum level in the rubric scale (e.g., 5 or 9).
+     * Used for rubric-based metrics to calculate normalized scores.
+     */
+    Integer maxLevel;
+
+    /**
      * A single level in the interpretation scale.
      */
     @Value

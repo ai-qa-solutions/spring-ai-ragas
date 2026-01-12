@@ -17,6 +17,7 @@ public class ContextPrecisionExplanation extends AbstractScoreExplanation {
 
     private static final String METRIC_TYPE = "context-precision";
 
+    private final String userInput;
     private final List<ContextRelevance> contexts;
     private final List<Double> precisionAtK;
     private final int relevantCount;
@@ -25,9 +26,11 @@ public class ContextPrecisionExplanation extends AbstractScoreExplanation {
     public ContextPrecisionExplanation(
             final Double score,
             final String language,
+            final String userInput,
             final List<ContextRelevance> contexts,
             final List<Double> precisionAtK) {
         super(score, language);
+        this.userInput = userInput != null ? userInput : "";
         this.contexts = contexts != null ? contexts : List.of();
         this.precisionAtK = precisionAtK != null ? precisionAtK : List.of();
         this.relevantCount =
@@ -47,12 +50,13 @@ public class ContextPrecisionExplanation extends AbstractScoreExplanation {
     }
 
     private void buildSteps() {
-        // Step 1: Evaluate each context
+        // Step 1: Evaluate each context against user question
         steps.add(StepExplanation.builder()
                 .stepName("EvaluateContexts")
                 .stepNumber(1)
                 .title(messages.get("contextPrecision.step1.title"))
                 .description(messages.get("contextPrecision.step1.desc"))
+                .inputData(userInput)
                 .outputSummary(messages.get("contextPrecision.step1.output", relevantCount, contexts.size()))
                 .items(contexts.stream()
                         .map((c) -> ExplanationItem.builder()
@@ -71,11 +75,22 @@ public class ContextPrecisionExplanation extends AbstractScoreExplanation {
                 .build());
 
         // Step 2: Calculate Precision@K
+        // Show precision at each position with cumulative relevant count
         final List<ExplanationItem> precisionItems = new ArrayList<>();
-        for (int i = 0; i < precisionAtK.size(); i++) {
+        int cumulativeRelevant = 0;
+        for (int i = 0; i < contexts.size(); i++) {
+            final boolean isRelevant = contexts.get(i).isRelevant();
+            if (isRelevant) {
+                cumulativeRelevant++;
+            }
+            final double precisionValue = i < precisionAtK.size() ? precisionAtK.get(i) : 0.0;
+            final String precisionPercent = String.format("%.1f%%", precisionValue * 100);
             precisionItems.add(ExplanationItem.builder()
-                    .content("Precision@" + (i + 1))
-                    .numericValue(precisionAtK.get(i))
+                    .content(String.format(
+                            "K=%d: %d/%d relevant → %s", i + 1, cumulativeRelevant, i + 1, precisionPercent))
+                    .numericValue(precisionValue)
+                    .passed(isRelevant)
+                    .verdict(isRelevant ? "+" : "−")
                     .index(i + 1)
                     .build());
         }
@@ -84,6 +99,7 @@ public class ContextPrecisionExplanation extends AbstractScoreExplanation {
                 .stepNumber(2)
                 .title(messages.get("contextPrecision.step2.title"))
                 .description(messages.get("contextPrecision.step2.desc"))
+                .outputSummary(messages.get("contextPrecision.step2.output", contexts.size(), relevantCount))
                 .items(precisionItems)
                 .hasModelDisagreement(false)
                 .agreementPercent(100.0)

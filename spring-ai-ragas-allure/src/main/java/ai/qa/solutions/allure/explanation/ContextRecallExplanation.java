@@ -1,6 +1,7 @@
 package ai.qa.solutions.allure.explanation;
 
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,6 +18,7 @@ public class ContextRecallExplanation extends AbstractScoreExplanation {
     private static final String METRIC_TYPE = "context-recall";
 
     private final String reference;
+    private final String contexts;
     private final List<ReferenceClassification> classifications;
     private final int foundCount;
     private final int totalCount;
@@ -26,9 +28,11 @@ public class ContextRecallExplanation extends AbstractScoreExplanation {
             final Double score,
             final String language,
             final String reference,
+            final String contexts,
             final List<ReferenceClassification> classifications) {
         super(score, language);
         this.reference = reference != null ? reference : "";
+        this.contexts = contexts != null ? contexts : "";
         this.classifications = classifications != null ? classifications : List.of();
         this.foundCount =
                 (int) this.classifications.stream().filter(c -> c.found).count();
@@ -65,6 +69,7 @@ public class ContextRecallExplanation extends AbstractScoreExplanation {
                                 .index(classifications.indexOf(c) + 1)
                                 .build())
                         .toList())
+                .metadata(Map.of("contexts", contexts))
                 .hasModelDisagreement(false)
                 .agreementPercent(100.0)
                 .build());

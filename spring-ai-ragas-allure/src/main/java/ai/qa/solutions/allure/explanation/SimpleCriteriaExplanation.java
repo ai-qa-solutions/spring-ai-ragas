@@ -1,6 +1,8 @@
 package ai.qa.solutions.allure.explanation;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,6 +21,8 @@ public class SimpleCriteriaExplanation extends AbstractScoreExplanation {
 
     private final String criteriaName;
     private final String criteriaDefinition;
+    private final String aiResponse;
+    private final Map<String, Integer> modelScores;
     private final int rawScore;
     private final int minScore;
     private final int maxScore;
@@ -30,6 +34,8 @@ public class SimpleCriteriaExplanation extends AbstractScoreExplanation {
             final String language,
             final String criteriaName,
             final String criteriaDefinition,
+            final String aiResponse,
+            final Map<String, Integer> modelScores,
             final int rawScore,
             final int minScore,
             final int maxScore,
@@ -37,6 +43,8 @@ public class SimpleCriteriaExplanation extends AbstractScoreExplanation {
         super(score, language);
         this.criteriaName = criteriaName != null ? criteriaName : messages.get("simpleCriteria.defaultCriteria");
         this.criteriaDefinition = criteriaDefinition != null ? criteriaDefinition : "";
+        this.aiResponse = aiResponse != null ? aiResponse : "";
+        this.modelScores = modelScores != null ? modelScores : Map.of();
         this.rawScore = rawScore;
         this.minScore = minScore;
         this.maxScore = maxScore;
@@ -56,17 +64,14 @@ public class SimpleCriteriaExplanation extends AbstractScoreExplanation {
     }
 
     private void buildSteps() {
-        // Step 1: Show the criteria
+        // Step 1: Show the criteria and AI response being evaluated
         steps.add(StepExplanation.builder()
                 .stepName("DefineCriteria")
                 .stepNumber(1)
                 .title(messages.get("simpleCriteria.step1.title"))
                 .description(messages.get("simpleCriteria.step1.desc"))
-                .outputSummary(criteriaName)
-                .items(List.of(ExplanationItem.builder()
-                        .content(criteriaDefinition)
-                        .index(1)
-                        .build()))
+                .outputSummary(criteriaDefinition)
+                .inputData(aiResponse)
                 .hasModelDisagreement(false)
                 .agreementPercent(100.0)
                 .build());
@@ -105,8 +110,25 @@ public class SimpleCriteriaExplanation extends AbstractScoreExplanation {
         final String formula =
                 String.format("(%s - %d) / (%d - %d)", messages.get("common.score"), minScore, maxScore, minScore);
 
-        // Score is aggregated across models, so show simplified calculation
-        final String calculation = formatPercent(score);
+        // Build calculation showing the actual score normalization
+        // The score is already correctly calculated by the metric, just show the formula with actual values
+        final String calculation;
+        if (modelScores.size() > 1) {
+            // Multi-model: show model scores and the final result
+            final String modelScoresList = modelScores.entrySet().stream()
+                    .map(e -> e.getValue().toString())
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("-");
+            calculation = String.format(
+                    Locale.US,
+                    "%s (%d %s) → %s",
+                    modelScoresList,
+                    modelScores.size(),
+                    messages.get("common.models"),
+                    formatPercent(score));
+        } else {
+            calculation = formatPercent(score);
+        }
 
         final String meaning = messages.get("simpleCriteria.meaning", rawScore, maxScore, criteriaName);
 

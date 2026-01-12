@@ -47,22 +47,10 @@ class AllureAttachmentWriterTest {
 
             verify(lifecycle)
                     .addAttachment(
-                            eq("TestMetric [85.00%] Report"),
+                            eq("TestMetric Report"),
                             eq("text/html"),
                             eq("html"),
                             eq("<html>content</html>".getBytes(StandardCharsets.UTF_8)));
-        }
-
-        @Test
-        @DisplayName("should handle null score in attachment name")
-        void shouldHandleNullScore() {
-            final EvaluationReportData data = createTestData(null);
-            when(templateEngine.renderHtml(data)).thenReturn("<html>content</html>");
-
-            writer.writeHtmlAttachment(data);
-
-            verify(lifecycle)
-                    .addAttachment(eq("TestMetric [N/A] Report"), eq("text/html"), eq("html"), any(byte[].class));
         }
 
         @Test
@@ -92,22 +80,10 @@ class AllureAttachmentWriterTest {
 
             verify(lifecycle)
                     .addAttachment(
-                            eq("TestMetric [72.00%] MD"),
+                            eq("TestMetric MD"),
                             eq("text/markdown"),
                             eq("md"),
                             eq("# Report".getBytes(StandardCharsets.UTF_8)));
-        }
-
-        @Test
-        @DisplayName("should handle null score in attachment name")
-        void shouldHandleNullScore() {
-            final EvaluationReportData data = createTestData(null);
-            when(templateEngine.renderMarkdown(data)).thenReturn("# Report");
-
-            writer.writeMarkdownAttachment(data);
-
-            verify(lifecycle)
-                    .addAttachment(eq("TestMetric [N/A] MD"), eq("text/markdown"), eq("md"), any(byte[].class));
         }
 
         @Test

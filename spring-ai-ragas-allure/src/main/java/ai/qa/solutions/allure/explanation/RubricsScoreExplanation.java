@@ -1,6 +1,7 @@
 package ai.qa.solutions.allure.explanation;
 
 import java.util.List;
+import java.util.Locale;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,7 +18,10 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
 
     private final List<RubricLevel> rubricLevels;
     private final int selectedLevel;
+    private final String aiResponse;
     private final String reasoning;
+    private final int minLevel;
+    private final int maxLevel;
 
     @Builder
     public RubricsScoreExplanation(
@@ -25,11 +29,28 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
             final String language,
             final List<RubricLevel> rubricLevels,
             final int selectedLevel,
-            final String reasoning) {
+            final String aiResponse,
+            final String reasoning,
+            final int minLevel,
+            final int maxLevel) {
         super(score, language);
         this.rubricLevels = rubricLevels != null ? rubricLevels : List.of();
         this.selectedLevel = selectedLevel;
+        this.aiResponse = aiResponse != null ? aiResponse : "";
         this.reasoning = reasoning != null ? reasoning : "";
+        // Dynamically compute min/max from rubric levels if not provided
+        this.minLevel = minLevel > 0
+                ? minLevel
+                : this.rubricLevels.stream()
+                        .mapToInt(RubricLevel::getLevel)
+                        .min()
+                        .orElse(1);
+        this.maxLevel = maxLevel > 0
+                ? maxLevel
+                : this.rubricLevels.stream()
+                        .mapToInt(RubricLevel::getLevel)
+                        .max()
+                        .orElse(5);
         buildSteps();
         buildInterpretation();
     }
@@ -46,6 +67,8 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
 
     private void buildSteps() {
         // Step 1: Show all rubric levels
+        // For rubrics: unselected levels are neutral (passed=null),
+        // selected level is marked but color is determined dynamically by position
         steps.add(StepExplanation.builder()
                 .stepName("DefineRubric")
                 .stepNumber(1)
@@ -54,7 +77,7 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
                 .items(rubricLevels.stream()
                         .map((r) -> ExplanationItem.builder()
                                 .content(r.description)
-                                .passed(r.level == selectedLevel)
+                                .passed(r.level == selectedLevel ? true : null)
                                 .verdict(messages.get("rubricsScore.level", r.level))
                                 .index(r.level)
                                 .build())
@@ -74,6 +97,7 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
                 .stepNumber(2)
                 .title(messages.get("rubricsScore.step2.title"))
                 .description(messages.get("rubricsScore.step2.desc"))
+                .inputData(aiResponse)
                 .outputSummary(messages.get("rubricsScore.step2.output", selectedLevel, selectedDesc))
                 .items(List.of(ExplanationItem.builder()
                         .content(reasoning)
@@ -97,16 +121,24 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
     }
 
     private void buildInterpretation() {
-        final int minLevel =
-                rubricLevels.stream().mapToInt(RubricLevel::getLevel).min().orElse(1);
-        final int maxLevel =
-                rubricLevels.stream().mapToInt(RubricLevel::getLevel).max().orElse(5);
-
+        // Formula with dynamic min/max
         final String formula =
                 String.format("(%s - %d) / (%d - %d)", messages.get("common.level"), minLevel, maxLevel, minLevel);
 
-        // Score is aggregated across models, so show simplified calculation
-        final String calculation = formatPercent(score);
+        // Calculate normalized score from actual aggregated score (may be fractional, e.g., 1.6)
+        // score field contains the aggregated average from all models
+        final double actualScore = score != null ? score : selectedLevel;
+        final double normalizedScore = (maxLevel > minLevel) ? (actualScore - minLevel) / (maxLevel - minLevel) : 0.0;
+
+        // Show the calculation with actual numbers (using fractional score)
+        final String calculation = String.format(
+                Locale.US,
+                "(%.1f - %d) / (%d - %d) = %s",
+                actualScore,
+                minLevel,
+                maxLevel,
+                minLevel,
+                formatPercent(normalizedScore));
 
         final String selectedDesc = rubricLevels.stream()
                 .filter(r -> r.level == selectedLevel)
@@ -127,10 +159,14 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
                         .build())
                 .toList();
 
-        final int currentLevelIndex = rubricLevels.stream()
+        // Find current level index in the sorted list (descending order)
+        final List<RubricLevel> sortedLevels = rubricLevels.stream()
+                .sorted((a, b) -> Integer.compare(b.level, a.level))
+                .toList();
+        final int currentLevelIndex = sortedLevels.stream()
                 .filter(r -> r.level == selectedLevel)
                 .findFirst()
-                .map(rubricLevels::indexOf)
+                .map(sortedLevels::indexOf)
                 .orElse(-1);
 
         interpretation = ScoreInterpretation.builder()
@@ -138,12 +174,14 @@ public class RubricsScoreExplanation extends AbstractScoreExplanation {
                 .calculation(calculation)
                 .numerator(selectedLevel - minLevel)
                 .denominator(maxLevel - minLevel)
-                .score(score)
-                .scorePercent(formatPercent(score))
+                .score(normalizedScore)
+                .scorePercent(formatPercent(normalizedScore))
                 .level(messages.get("rubricsScore.level", selectedLevel))
                 .meaning(meaning)
                 .scaleLevels(scaleLevels)
                 .currentLevelIndex(currentLevelIndex)
+                .minLevel(minLevel)
+                .maxLevel(maxLevel)
                 .build();
     }
 

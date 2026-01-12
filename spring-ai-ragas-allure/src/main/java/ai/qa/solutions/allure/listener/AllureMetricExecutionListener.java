@@ -15,6 +15,7 @@ import io.qameta.allure.model.StepResult;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -234,9 +235,13 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
 
         final ChartData chartData = buildChartData(result);
 
-        // Extract score explanation
+        // Extract score explanation (pass config for rubrics-based metrics)
         final Optional<ScoreExplanation> explanationOpt = explanationExtractor.extract(
-                metricName, new ArrayList<>(steps), result.getAggregatedScore(), properties.getLanguage());
+                metricName,
+                new ArrayList<>(steps),
+                result.getAggregatedScore(),
+                properties.getLanguage(),
+                evaluationContext.getConfig());
 
         return EvaluationReportData.builder()
                 .metricName(metricName)
@@ -320,10 +325,21 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         final String stepType =
                 results.getStepType() != null ? results.getStepType().name() : "LLM";
 
+        // Track iteration count per model to add "(iter N)" suffix for strictness iterations
+        final Map<String, Integer> modelIterationCount = new HashMap<>();
+
         // Add entries for each model result
         results.getResults().forEach(modelResult -> {
+            final String baseModelId = modelResult.modelId();
+            final int iteration = modelIterationCount.merge(baseModelId, 1, Integer::sum);
+            final boolean hasMultiple = hasMultipleIterations(results, baseModelId);
+
+            // Add iteration suffix if this model appears multiple times (strictness > 1)
+            final String displayModelId =
+                    iteration > 1 || hasMultiple ? baseModelId + " (iter " + iteration + ")" : baseModelId;
+
             timelineEntries.add(ChartData.TimelineEntry.builder()
-                    .modelId(modelResult.modelId())
+                    .modelId(displayModelId)
                     .stepName(results.getStepName())
                     .stepType(stepType)
                     .startOffsetMs(currentStepStartOffset)
@@ -334,6 +350,13 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
                     .success(modelResult.isSuccess())
                     .build());
         });
+    }
+
+    private boolean hasMultipleIterations(final StepResults results, final String modelId) {
+        return results.getResults().stream()
+                        .filter(r -> r.modelId().equals(modelId))
+                        .count()
+                > 1;
     }
 
     private long calculateMaxDuration() {

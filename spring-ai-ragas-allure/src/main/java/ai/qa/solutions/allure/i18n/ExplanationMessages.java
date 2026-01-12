@@ -67,6 +67,7 @@ public final class ExplanationMessages {
                 Map.entry("common.scoreNotCalculated", "Score not calculated"),
                 Map.entry("common.score", "score"),
                 Map.entry("common.level", "level"),
+                Map.entry("common.models", "models"),
 
                 // Scale levels (standard)
                 Map.entry("scale.excellent", "Excellent"),
@@ -128,6 +129,10 @@ public final class ExplanationMessages {
                 Map.entry("aspectCritic.step1.desc", "The criteria defined by the user for evaluation."),
                 Map.entry("aspectCritic.step2.title", "Aspect evaluation"),
                 Map.entry("aspectCritic.step2.desc", "LLM analyzed the response for criteria compliance."),
+                Map.entry("aspectCritic.step3.majority.title", "Majority Voting (strictness)"),
+                Map.entry(
+                        "aspectCritic.step3.majority.desc",
+                        "Each model was called %d times. Final result determined by majority voting."),
                 Map.entry("aspectCritic.step3.title", "Score calculation"),
                 Map.entry("aspectCritic.step3.desc", "PASS → 1.0, FAIL → 0.0"),
                 Map.entry("aspectCritic.meaning.pass", "Criteria \"%s\" PASSED"),
@@ -148,6 +153,7 @@ public final class ExplanationMessages {
                 Map.entry("contextPrecision.step1.output", "%d of %d are relevant"),
                 Map.entry("contextPrecision.step2.title", "Calculating Precision@K"),
                 Map.entry("contextPrecision.step2.desc", "Precision@K = (relevant in top-K) / K"),
+                Map.entry("contextPrecision.step2.output", "Precision calculated for %d contexts (%d relevant)"),
                 Map.entry("contextPrecision.step3.title", "Calculating Average Precision"),
                 Map.entry(
                         "contextPrecision.step3.desc",
@@ -294,7 +300,7 @@ public final class ExplanationMessages {
                                 + "with descriptions for each level."),
                 Map.entry("rubricsScore.step1.title", "Evaluation rubric"),
                 Map.entry("rubricsScore.step1.desc", "User defined a scale with description for each level."),
-                Map.entry("rubricsScore.step2.title", "LLM level selection"),
+                Map.entry("rubricsScore.step2.title", "LLM as a Judge"),
                 Map.entry("rubricsScore.step2.desc", "LLM analyzed the response and selected the appropriate level."),
                 Map.entry("rubricsScore.step2.output", "Level %d: %s"),
                 Map.entry("rubricsScore.step3.title", "Score calculation"),
@@ -311,6 +317,7 @@ public final class ExplanationMessages {
                 Map.entry("common.scoreNotCalculated", "Скор не вычислен"),
                 Map.entry("common.score", "оценка"),
                 Map.entry("common.level", "уровень"),
+                Map.entry("common.models", "моделей"),
 
                 // Scale levels (standard)
                 Map.entry("scale.excellent", "Отлично"),
@@ -371,6 +378,10 @@ public final class ExplanationMessages {
                 Map.entry("aspectCritic.step1.desc", "Критерий, заданный пользователем для проверки."),
                 Map.entry("aspectCritic.step2.title", "Оценка аспекта"),
                 Map.entry("aspectCritic.step2.desc", "LLM проанализировал ответ на соответствие критерию."),
+                Map.entry("aspectCritic.step3.majority.title", "Majority Voting (strictness)"),
+                Map.entry(
+                        "aspectCritic.step3.majority.desc",
+                        "Каждая модель вызывалась %d раз(а). Финальный результат определяется большинством голосов."),
                 Map.entry("aspectCritic.step3.title", "Расчёт скора"),
                 Map.entry("aspectCritic.step3.desc", "PASS → 1.0, FAIL → 0.0"),
                 Map.entry("aspectCritic.meaning.pass", "Критерий \"%s\" ВЫПОЛНЕН"),
@@ -391,6 +402,7 @@ public final class ExplanationMessages {
                 Map.entry("contextPrecision.step1.output", "%d из %d релевантны"),
                 Map.entry("contextPrecision.step2.title", "Расчёт Precision@K"),
                 Map.entry("contextPrecision.step2.desc", "Precision@K = (релевантных в топ-K) / K"),
+                Map.entry("contextPrecision.step2.output", "Precision рассчитан для %d контекстов (%d релевантных)"),
                 Map.entry("contextPrecision.step3.title", "Расчёт Average Precision"),
                 Map.entry(
                         "contextPrecision.step3.desc",
@@ -537,7 +549,7 @@ public final class ExplanationMessages {
                                 + "с описанием каждого уровня."),
                 Map.entry("rubricsScore.step1.title", "Шкала оценки (рубрика)"),
                 Map.entry("rubricsScore.step1.desc", "Пользователь определил шкалу с описанием каждого уровня."),
-                Map.entry("rubricsScore.step2.title", "Выбор уровня LLM"),
+                Map.entry("rubricsScore.step2.title", "LLM as a Judge"),
                 Map.entry("rubricsScore.step2.desc", "LLM проанализировал ответ и выбрал подходящий уровень."),
                 Map.entry("rubricsScore.step2.output", "Уровень %d: %s"),
                 Map.entry("rubricsScore.step3.title", "Расчёт скора"),

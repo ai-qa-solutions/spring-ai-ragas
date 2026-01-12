@@ -131,7 +131,14 @@
                     "errorMessage": <#if mr.errorMessage??>"${mr.errorMessage?json_string}"<#else>null</#if>
                 }<#if mr?has_next>,</#if>
                 </#list>
-            ]
+            ],
+            "metadata": {
+                <#if step.metadata??>
+                <#list step.metadata as key, value>
+                "${key?json_string}": <#if value??>"${value?string?json_string}"<#else>null</#if><#if key?has_next>,</#if>
+                </#list>
+                </#if>
+            }
         }<#if step?has_next>,</#if>
         </#list>
     ],
@@ -146,6 +153,8 @@
         "numerator": <#if exp.interpretation.numerator??>${exp.interpretation.numerator}<#else>null</#if>,
         "denominator": <#if exp.interpretation.denominator??>${exp.interpretation.denominator}<#else>null</#if>,
         "currentLevelIndex": ${exp.interpretation.currentLevelIndex!0},
+        "minLevel": <#if exp.interpretation.minLevel??>${exp.interpretation.minLevel}<#else>1</#if>,
+        "maxLevel": <#if exp.interpretation.maxLevel??>${exp.interpretation.maxLevel}<#else>5</#if>,
         "scaleLevels": [
             <#list exp.interpretation.scaleLevels![] as level>
             {
@@ -185,7 +194,10 @@
     "modelResults": "${(i18n["summary.modelScores"]!'Model Scores')?json_string}",
     "model": "${(i18n["table.model"]!'Model')?json_string}",
     "score": "${(i18n["table.score"]!'Score')?json_string}",
-    "inputData": "${(i18n["summary.response"]!'Ответ AI')?json_string}",
+    "level": "${(i18n["table.level"]!'Level')?json_string}",
+    "averageModels": "${(i18n["aggregation.average"]!'Average (%d models):')?json_string}",
+    "nItems": "${(i18n["common.nItems"]!'%d items')?json_string}",
+    "inputData": "${(i18n["summary.response"]!'Response')?json_string}",
     "inputLabelReference": "${(i18n["summary.reference"]!'Reference')?json_string}",
     "inputLabelResponse": "${(i18n["summary.response"]!'Response')?json_string}",
     "inputLabelUserInput": "${(i18n["summary.userInput"]!'User Input')?json_string}",
@@ -248,26 +260,36 @@
             `;
         }
 
+        // Show contexts from metadata if available (for ContextRecall)
+        if (step.metadata && step.metadata.contexts) {
+            html += `
+                <div class="exp-input-section">
+                    <div class="exp-input-label">${i18n.inputLabelContexts}:</div>
+                    <div class="exp-input-data exp-contexts-data">${escapeHtml(step.metadata.contexts)}</div>
+                </div>
+            `;
+        }
+
         // Find matching execution step to get model results
         const execStep = findExecutionStep(step.stepName);
+
+        // Always show outputSummary if available
+        if (step.outputSummary) {
+            html += `<div class="exp-output-summary">${escapeHtml(step.outputSummary)}</div>`;
+        }
+
+        // Always show static items if available (e.g., entity comparison results)
+        if (step.items && step.items.length > 0) {
+            html += renderStepItems(step);
+        }
 
         // Special handling for ComputeScore step - show per-model score breakdown
         if (step.stepName === 'ComputeScore' && expData.modelScores && Object.keys(expData.modelScores).length > 0) {
             html += renderModelScoresBreakdown();
         }
         // If we have execution data with model results, show per-model breakdown
-        // and skip the static outputSummary since it may be inconsistent with actual model data
         else if (execStep && execStep.modelResults && execStep.modelResults.length > 0) {
             html += renderModelDetailsFromExecution(execStep, step);
-        }
-        // Fallback: show static outputSummary and items if no execution data
-        else {
-            if (step.outputSummary) {
-                html += `<div class="exp-output-summary">${escapeHtml(step.outputSummary)}</div>`;
-            }
-            if (step.items && step.items.length > 0) {
-                html += renderStepItems(step);
-            }
         }
 
         // Model results - show numeric or agreement/disagreement
@@ -292,9 +314,9 @@
             'VerifyStatements': 'EvaluateFaithfulness',
             // ContextRecall
             'ClassifyStatements': 'ClassifyStatements',
-            // ContextEntityRecall
-            'ExtractReferenceEntities': 'ExtractEntities',
-            'ExtractContextEntities': 'ExtractEntities',
+            // ContextEntityRecall - metric now reports 3 separate steps
+            'ExtractReferenceEntities': 'ExtractReferenceEntities',
+            'ExtractContextEntities': 'ExtractContextEntities',
             'CompareEntities': 'ComputeEntityRecall',
             // ContextPrecision
             'EvaluateContexts': 'EvaluateAllContexts',
@@ -325,8 +347,12 @@
             return renderStepItems(explStep);
         }
 
+        const isRubrics = expData.metricType === 'rubrics-score';
+        const minLevel = expData.interpretation.minLevel || 1;
+        const maxLevel = expData.interpretation.maxLevel || 5;
+
         let html = `<div class="exp-models-breakdown">
-            <div class="exp-section-title">${i18n.modelResults || 'Результаты по моделям'}</div>`;
+            <div class="exp-section-title">${i18n.modelResults}</div>`;
 
         execStep.modelResults.forEach(mr => {
             if (!mr.success) {
@@ -343,6 +369,26 @@
 
             // Parse resultJson and extract items
             const items = parseModelResult(mr.resultJson, expData.metricType, explStep.stepName);
+
+            // For rubrics: show level instead of pass/fail count
+            if (isRubrics && items.length > 0 && items[0].isRubricLevel) {
+                const level = items[0].rubricScore;
+                const colorClass = getRubricScoreColorClass(level, minLevel, maxLevel);
+                html += `
+                    <div class="exp-model-card">
+                        <div class="exp-model-header" onclick="toggleModelDetails(this)">
+                            <span class="exp-model-expand">▶</span>
+                            <span class="exp-model-name">${escapeHtml(mr.modelId)}</span>
+                            <span class="exp-model-calc ${colorClass}">${level} / ${maxLevel}</span>
+                        </div>
+                        <div class="exp-model-details" style="display: none;">
+                            ${renderModelItems(items)}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
             // Count only items with actual pass/fail (not neutral)
             const evaluatedItems = items.filter(i => i.passed !== null);
             const passedCount = evaluatedItems.filter(i => i.passed === true).length;
@@ -356,7 +402,7 @@
                         <span class="exp-model-expand">▶</span>
                         <span class="exp-model-name">${escapeHtml(mr.modelId)}</span>
                         ${isNeutral
-                            ? `<span class="exp-model-calc neutral">${items.length} элементов</span>`
+                            ? `<span class="exp-model-calc neutral">${i18n.nItems.replace('%d', items.length)}</span>`
                             : `<span class="exp-model-calc">${passedCount} / ${totalCount}</span>
                                <span class="exp-model-score">${score}%</span>`
                         }
@@ -376,6 +422,19 @@
         if (!resultJson) return [];
         try {
             const data = JSON.parse(resultJson);
+
+            // RubricsScore: check metricType FIRST before any other checks
+            // Returns level as neutral item (not pass/fail)
+            if (metricType === 'rubrics-score' && typeof data.score === 'number') {
+                return [{
+                    content: data.reasoning || data.reason || 'Rubric evaluation',
+                    passed: null, // null = neutral, this is a level not pass/fail
+                    verdict: 'SCORE: ' + data.score,
+                    reason: data.reasoning || data.reason || '',
+                    isRubricLevel: true,
+                    rubricScore: data.score
+                }];
+            }
 
             // Faithfulness & NoiseSensitivity verdicts
             if (data.verdicts && Array.isArray(data.verdicts)) {
@@ -466,16 +525,6 @@
                 }];
             }
 
-            // RubricsScore: { score: Integer, rubric_level, reasoning }
-            if (typeof data.score === 'number' && data.rubric_level) {
-                return [{
-                    content: data.reasoning || 'Rubric evaluation',
-                    passed: true,
-                    verdict: 'Level ' + data.score + ': ' + data.rubric_level,
-                    reason: data.reasoning || ''
-                }];
-            }
-
             // Single verdict fallback
             if (typeof data.verdict !== 'undefined') {
                 return [{
@@ -526,10 +575,14 @@
             const isNeutral = item.passed === null;
             const statusClass = isNeutral ? 'neutral' : (item.passed ? 'passed' : 'failed');
             const marker = isNeutral ? '•' : (item.passed ? '✓' : '✗');
+            // For rubrics, show full reasoning text (no truncation)
+            const displayText = item.isRubricLevel
+                ? escapeHtml(item.content)
+                : escapeHtml(truncate(item.content, 150));
             html += `
                 <div class="exp-model-item ${statusClass}">
                     <span class="exp-item-marker ${statusClass}">${marker}</span>
-                    <span class="exp-item-text">${escapeHtml(truncate(item.content, 150))}</span>
+                    <span class="exp-item-text">${displayText}</span>
                     ${item.verdict ? `<span class="exp-item-badge ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                 </div>
             `;
@@ -546,12 +599,30 @@
     function renderStepItems(step) {
         if (!step.items || step.items.length === 0) return '';
 
+        const isRubrics = expData.metricType === 'rubrics-score';
+        const minLevel = expData.interpretation.minLevel || 1;
+        const maxLevel = expData.interpretation.maxLevel || 5;
+
         let html = `<div class="exp-items-section">
             <div class="exp-section-title">${i18n.items} (${step.items.length})</div>
             <div class="exp-items-list">`;
 
         step.items.forEach(item => {
-            const statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
+            let statusClass = '';
+            if (isRubrics && step.stepName === 'DefineRubric') {
+                // For rubrics: unselected = neutral, selected = color by position
+                if (item.passed === true) {
+                    // Selected level - use position-based color
+                    statusClass = getRubricScoreColorClass(item.index, minLevel, maxLevel);
+                } else {
+                    // Unselected levels - neutral gray
+                    statusClass = 'neutral';
+                }
+            } else {
+                // Standard logic for other metrics
+                statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
+            }
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
@@ -584,33 +655,56 @@
         const modelIds = Object.keys(scores);
         if (modelIds.length === 0) return '';
 
+        const isRubrics = expData.metricType === 'rubrics-score';
         const isInverted = expData.metricType === 'noise-sensitivity';
+        const minLevel = expData.interpretation.minLevel || 1;
+        const maxLevel = expData.interpretation.maxLevel || 5;
         const aggregated = expData.aggregatedScore;
 
         let html = `
             <div class="exp-scores-breakdown">
-                <div class="exp-section-title">${i18n.modelResults || 'Расчёт по моделям'}</div>
+                <div class="exp-section-title">${i18n.modelResults}</div>
                 <div class="exp-scores-table">
                     <table class="exp-table">
                         <thead>
                             <tr>
-                                <th>${i18n.model || 'Модель'}</th>
-                                <th>${i18n.score || 'Скор'}</th>
+                                <th>${i18n.model}</th>
+                                <th>${isRubrics ? i18n.level : i18n.score}</th>
+                                ${isRubrics ? '<th>' + i18n.score + '</th>' : ''}
                             </tr>
                         </thead>
                         <tbody>
         `;
 
         modelIds.forEach(modelId => {
-            const score = scores[modelId];
-            const percent = (score * 100).toFixed(2) + '%';
-            const colorClass = getScoreColorClass(score, isInverted);
-            html += `
-                <tr>
-                    <td class="model-name-cell">${escapeHtml(modelId)}</td>
-                    <td class="score-cell ${colorClass}">${percent}</td>
-                </tr>
-            `;
+            const rawScore = scores[modelId];
+            if (isRubrics) {
+                // For rubrics: display level "2 / 5" and normalized percent
+                const level = Math.round(rawScore);
+                const displayLevel = level + ' / ' + maxLevel;
+                const normalizedScore = (maxLevel > minLevel)
+                    ? (level - minLevel) / (maxLevel - minLevel)
+                    : 0;
+                const normalizedPercent = (normalizedScore * 100).toFixed(1) + '%';
+                const colorClass = getRubricScoreColorClass(level, minLevel, maxLevel);
+                html += `
+                    <tr>
+                        <td class="model-name-cell">${escapeHtml(modelId)}</td>
+                        <td class="score-cell ${colorClass}">${displayLevel}</td>
+                        <td class="score-cell">${normalizedPercent}</td>
+                    </tr>
+                `;
+            } else {
+                // Standard percentage display
+                const percent = (rawScore * 100).toFixed(2) + '%';
+                const colorClass = getScoreColorClass(rawScore, isInverted);
+                html += `
+                    <tr>
+                        <td class="model-name-cell">${escapeHtml(modelId)}</td>
+                        <td class="score-cell ${colorClass}">${percent}</td>
+                    </tr>
+                `;
+            }
         });
 
         html += `
@@ -621,18 +715,54 @@
 
         // Show aggregation
         if (aggregated !== null && modelIds.length > 1) {
-            const avgPercent = (aggregated * 100).toFixed(2) + '%';
-            const avgColorClass = getScoreColorClass(aggregated, isInverted);
-            html += `
-                <div class="exp-aggregation">
-                    <div class="exp-aggregation-label">Среднее (${modelIds.length} моделей):</div>
-                    <div class="exp-aggregation-value ${avgColorClass}">${avgPercent}</div>
-                </div>
-            `;
+            if (isRubrics) {
+                const avgLevel = aggregated;
+                const normalizedScore = (maxLevel > minLevel)
+                    ? (avgLevel - minLevel) / (maxLevel - minLevel)
+                    : 0;
+                const normalizedPercent = (normalizedScore * 100).toFixed(1) + '%';
+                const colorClass = getRubricScoreColorClass(avgLevel, minLevel, maxLevel);
+                html += `
+                    <div class="exp-aggregation">
+                        <div class="exp-aggregation-label">${i18n.averageModels.replace('%d', modelIds.length)}</div>
+                        <div class="exp-aggregation-value ${colorClass}">
+                            ${avgLevel.toFixed(1)} → ${normalizedPercent}
+                        </div>
+                    </div>
+                `;
+            } else {
+                const avgPercent = (aggregated * 100).toFixed(2) + '%';
+                const avgColorClass = getScoreColorClass(aggregated, isInverted);
+                html += `
+                    <div class="exp-aggregation">
+                        <div class="exp-aggregation-label">${i18n.averageModels.replace('%d', modelIds.length)}</div>
+                        <div class="exp-aggregation-value ${avgColorClass}">${avgPercent}</div>
+                    </div>
+                `;
+            }
         }
 
         html += '</div>';
         return html;
+    }
+
+    /**
+     * Determines color class for rubric level based on position in scale.
+     * @param level - current level (e.g., 2)
+     * @param minLevel - minimum level in scale (e.g., 1)
+     * @param maxLevel - maximum level in scale (e.g., 5 or 9)
+     * @returns CSS class: 'score-poor', 'score-moderate', or 'score-good'
+     */
+    function getRubricScoreColorClass(level, minLevel, maxLevel) {
+        if (maxLevel === minLevel) return 'score-moderate';
+
+        // Position of level in scale (0.0 = minimum, 1.0 = maximum)
+        const position = (level - minLevel) / (maxLevel - minLevel);
+
+        // First 33% - red (poor), middle 33% - yellow (moderate), top 33% - green (good)
+        if (position <= 0.33) return 'score-poor';
+        if (position <= 0.66) return 'score-moderate';
+        return 'score-good';
     }
 
     function getScoreColorClass(score, isInverted) {
@@ -727,6 +857,9 @@
 
     function renderInterpretation() {
         const interp = expData.interpretation;
+        const isRubrics = expData.metricType === 'rubrics-score';
+        const minLevel = interp.minLevel || 1;
+        const maxLevel = interp.maxLevel || 5;
 
         let html = `
             <div class="exp-interpretation">
@@ -762,12 +895,21 @@
 
             interp.scaleLevels.forEach((level, idx) => {
                 const isCurrent = level.current || idx === interp.currentLevelIndex;
+                const levelNum = parseInt(level.range) || (interp.scaleLevels.length - idx);
+
+                // For rubrics: inactive levels are neutral (gray),
+                // current level gets dynamic color based on position
+                let colorClass = 'neutral';
+                if (isCurrent && isRubrics) {
+                    colorClass = getRubricScoreColorClass(levelNum, minLevel, maxLevel);
+                }
+
                 html += `
-                    <div class="exp-scale-item ${isCurrent ? 'current' : ''}">
+                    <div class="exp-scale-item ${isCurrent ? 'current' : ''} ${colorClass}">
                         <span class="exp-scale-marker">${isCurrent ? '&#9658;' : ''}</span>
                         <span class="exp-scale-name">${escapeHtml(level.name)}</span>
                         <span class="exp-scale-range">${escapeHtml(level.range)}</span>
-                        <span class="exp-scale-desc">${escapeHtml(level.description)}</span>
+                        <span class="exp-scale-desc" title="${escapeHtml(level.description)}">${escapeHtml(level.description)}</span>
                         ${isCurrent ? `<span class="exp-scale-current">${i18n.yourResult}</span>` : ''}
                     </div>
                 `;

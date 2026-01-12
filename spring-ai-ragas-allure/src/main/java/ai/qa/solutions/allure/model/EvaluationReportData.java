@@ -1,5 +1,6 @@
 package ai.qa.solutions.allure.model;
 
+import ai.qa.solutions.allure.explanation.RubricsScoreExplanation;
 import ai.qa.solutions.allure.explanation.ScoreExplanation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -236,13 +237,25 @@ public class EvaluationReportData {
 
     /**
      * Gets the score as a formatted percentage string.
+     * <p>
+     * For rubrics-based metrics, displays level and normalized percentage.
      *
-     * @return formatted score (e.g., "85.00%") or "N/A" if null
+     * @return formatted score (e.g., "85.00%" or "2 / 5 → 25.00%") or "N/A" if null
      */
     public String getFormattedScore() {
         if (aggregatedScore == null) {
             return "N/A";
         }
+
+        // For rubrics metrics, show level and normalized score
+        if (isRubricsMetric()) {
+            final int minLevel = getRubricsMinLevel();
+            final int maxLevel = getRubricsMaxLevel();
+            final double normalizedScore =
+                    (maxLevel > minLevel) ? (aggregatedScore - minLevel) / (maxLevel - minLevel) : 0.0;
+            return String.format(Locale.US, "%.1f / %d → %.2f%%", aggregatedScore, maxLevel, normalizedScore * 100);
+        }
+
         return String.format(Locale.US, "%.2f%%", aggregatedScore * 100);
     }
 
@@ -254,6 +267,20 @@ public class EvaluationReportData {
     public String getScoreClass() {
         if (aggregatedScore == null) {
             return "unknown";
+        }
+
+        // Rubrics metrics: use dynamic color based on position in scale
+        if (isRubricsMetric()) {
+            final int minLevel = getRubricsMinLevel();
+            final int maxLevel = getRubricsMaxLevel();
+            final double position = (maxLevel > minLevel) ? (aggregatedScore - minLevel) / (maxLevel - minLevel) : 0.0;
+            if (position <= 0.33) {
+                return "poor";
+            }
+            if (position <= 0.66) {
+                return "moderate";
+            }
+            return "good";
         }
 
         // Inverted metrics: lower score is better
@@ -284,6 +311,30 @@ public class EvaluationReportData {
     }
 
     /**
+     * Gets the minimum rubric level from explanation, or default 1.
+     *
+     * @return minimum level in rubric scale
+     */
+    public int getRubricsMinLevel() {
+        if (scoreExplanation instanceof RubricsScoreExplanation rubrics) {
+            return rubrics.getMinLevel();
+        }
+        return 1;
+    }
+
+    /**
+     * Gets the maximum rubric level from explanation, or default 5.
+     *
+     * @return maximum level in rubric scale
+     */
+    public int getRubricsMaxLevel() {
+        if (scoreExplanation instanceof RubricsScoreExplanation rubrics) {
+            return rubrics.getMaxLevel();
+        }
+        return 5;
+    }
+
+    /**
      * Checks if this metric uses inverted scale (lower is better).
      * Used by templates to determine color coding.
      *
@@ -295,6 +346,20 @@ public class EvaluationReportData {
         }
         final String normalized = metricName.toLowerCase();
         return normalized.contains("noise") || normalized.contains("sensitivity");
+    }
+
+    /**
+     * Checks if this is a rubrics-based metric.
+     * <p>
+     * Rubrics metrics use raw levels (1-5, 1-9, etc.) instead of normalized scores (0.0-1.0).
+     *
+     * @return true for RubricsScoreMetric
+     */
+    public boolean isRubricsMetric() {
+        if (metricName == null) {
+            return false;
+        }
+        return metricName.toLowerCase().contains("rubrics");
     }
 
     /**

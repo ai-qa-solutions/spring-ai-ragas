@@ -23,7 +23,7 @@
                          onclick="selectModel(${step.stepIndex}, ${modelResult?index}, 'llm')">
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name">${modelResult.modelId}</span>
+                        <span class="tree-name" title="${modelResult.modelId}">${modelResult.modelId}</span>
                         <span class="tree-duration">${modelResult.durationMs?c}ms</span>
                         <#if !modelResult.success><span class="tree-error-badge">!</span></#if>
                     </div>
@@ -34,7 +34,7 @@
                          onclick="selectModel(${step.stepIndex}, ${embResult?index}, 'emb')">
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge embedding">EMB</span>
-                        <span class="tree-name">${embResult.modelId}</span>
+                        <span class="tree-name" title="${embResult.modelId}">${embResult.modelId}</span>
                         <span class="tree-duration">${embResult.durationMs?c}ms</span>
                         <#if !embResult.success><span class="tree-error-badge">!</span></#if>
                     </div>

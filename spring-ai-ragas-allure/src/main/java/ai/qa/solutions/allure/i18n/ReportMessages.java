@@ -65,6 +65,8 @@ public final class ReportMessages {
                 Map.entry("trace.modelsEvaluated", "Models evaluated"),
                 Map.entry("trace.successful", "Successful"),
                 Map.entry("trace.modelOutputs", "Model Outputs"),
+                // Common
+                Map.entry("common.nItems", "%d items"),
                 // Status labels
                 Map.entry("status.success", "Success"),
                 Map.entry("status.error", "Error"),
@@ -74,7 +76,10 @@ public final class ReportMessages {
                 // Table headers
                 Map.entry("table.model", "Model"),
                 Map.entry("table.score", "Score"),
+                Map.entry("table.level", "Level"),
                 Map.entry("table.status", "Status"),
+                // Aggregation
+                Map.entry("aggregation.average", "Average (%d models):"),
                 Map.entry("table.failedStep", "Failed Step"),
                 Map.entry("table.reason", "Reason"),
                 // Meta labels
@@ -157,6 +162,8 @@ public final class ReportMessages {
                 Map.entry("trace.modelsEvaluated", "Оценено моделей"),
                 Map.entry("trace.successful", "Успешно"),
                 Map.entry("trace.modelOutputs", "Ответы моделей"),
+                // Common
+                Map.entry("common.nItems", "%d элементов"),
                 // Status labels
                 Map.entry("status.success", "Успешно"),
                 Map.entry("status.error", "Ошибка"),
@@ -166,7 +173,10 @@ public final class ReportMessages {
                 // Table headers
                 Map.entry("table.model", "Модель"),
                 Map.entry("table.score", "Оценка"),
+                Map.entry("table.level", "Уровень"),
                 Map.entry("table.status", "Статус"),
+                // Aggregation
+                Map.entry("aggregation.average", "Среднее (%d моделей):"),
                 Map.entry("table.failedStep", "Шаг ошибки"),
                 Map.entry("table.reason", "Причина"),
                 // Meta labels
