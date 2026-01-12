@@ -95,6 +95,13 @@ testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-
 </dependency>
 ```
 
+Примеры отчётов:
+[AspectCritic](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AspectCriticMetric_ru.html) |
+[SimpleCriteriaScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SimpleCriteriaScoreMetric_ru.html) |
+[RubricsScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RubricsScoreMetric_ru.html) |
+[Faithfulness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FaithfulnessMetric_ru.html) |
+[ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_ru.html)
+
 Полная документация: [Руководство по интеграции с Allure](spring-ai-ragas-allure/README.md)
 
 ### Конфигурация
