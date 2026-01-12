@@ -3,6 +3,7 @@
 <!-- TOC -->
 * [Spring AI RAGAS Allure Integration](#spring-ai-ragas-allure-integration)
   * [Features](#features)
+  * [Report Preview](#report-preview)
   * [Installation](#installation)
   * [Quick Start](#quick-start)
     * [1. Enable Allure Integration](#1-enable-allure-integration)
@@ -45,6 +46,14 @@ assessment.
 - **Multilingual Support** - Full support for English and Russian reports
 - **Spring Boot Autoconfiguration** - Zero-code setup with `spring.ai.ragas.allure.enabled=true`
 - **Thread-Safe** - Safe for parallel metric execution with per-evaluation listener instances
+
+## Report Preview
+
+Here's an example of a generated Allure report for ResponseRelevancyMetric:
+
+![ResponseRelevancyMetric Report Example](example/ResponseRelevancyMetric_example.png)
+
+[View interactive HTML example](example/data_attachments_811c9d3a3f38a65a.html)
 
 ## Installation
 
