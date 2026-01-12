@@ -592,12 +592,19 @@ public class ScoreExplanationExtractor {
                 "Reference:",
                 "Evaluation Rubrics:",
                 "Instructions:",
+                "CRITICAL INSTRUCTIONS:",
+                "IMPORTANT:",
                 "Rubrics:",
                 "Context:",
                 "Criteria:",
                 "Example:",
                 "Output:",
-                "Now generate"
+                "Now generate",
+                "Your task:",
+                "You must:",
+                "Please ",
+                "\n\n1.",
+                "\n1."
             };
             for (final String marker : sectionMarkers) {
                 final int markerIdx = request.indexOf(marker, start);

@@ -28,13 +28,14 @@ public class SvgChartGenerator {
     private static final int BAR_HEIGHT = 24;
     private static final int BAR_GAP = 6;
 
-    private static final String COLOR_PASS = "#4caf50";
-    private static final String COLOR_FAIL = "#f44336";
-    private static final String COLOR_NA = "#9e9e9e";
-    private static final String COLOR_LLM = "#2196f3";
-    private static final String COLOR_EMBEDDING = "#9c27b0";
-    private static final String COLOR_COMPUTE = "#ff9800";
-    private static final String COLOR_ERROR = "#f44336";
+    // Allure 3 color scheme
+    private static final String COLOR_PASS = "#09a232";
+    private static final String COLOR_FAIL = "#eb5146";
+    private static final String COLOR_NA = "#7281a1";
+    private static final String COLOR_LLM = "#2c67e8";
+    private static final String COLOR_EMBEDDING = "#7a2ce8";
+    private static final String COLOR_COMPUTE = "#eb9b46";
+    private static final String COLOR_ERROR = "#eb5146";
 
     /**
      * Generates an SVG heatmap from chart data.

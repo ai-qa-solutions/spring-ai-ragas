@@ -57,6 +57,7 @@
         <aspectj.version>1.9.24</aspectj.version>
         <jacoco.version>0.8.12</jacoco.version>
         <jacoco.coverage.minimum>0.80</jacoco.coverage.minimum>
+        <commonmark.version>0.24.0</commonmark.version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +96,17 @@
                 <groupId>chat.giga</groupId>
                 <artifactId>spring-ai-starter-model-gigachat</artifactId>
                 <version>${spring-ai-starter-model-gigachat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.commonmark</groupId>
+                <artifactId>commonmark</artifactId>
+                <version>${commonmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.commonmark</groupId>
+                <artifactId>commonmark-ext-gfm-tables</artifactId>
+                <version>${commonmark.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

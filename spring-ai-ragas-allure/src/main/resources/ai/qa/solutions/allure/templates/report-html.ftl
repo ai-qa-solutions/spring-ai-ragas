@@ -7,16 +7,20 @@
     <title>${metricName} - ${i18n["report.title"]}</title>
     <style>
         :root {
-            --color-excellent: #2e7d32;
-            --color-good: #4caf50;
-            --color-moderate: #ff9800;
-            --color-poor: #f44336;
-            --color-unknown: #9e9e9e;
+            /* Allure 3 color scheme (day/light theme) */
+            --color-excellent: #09a232;
+            --color-good: #09a232;
+            --color-moderate: #eb9b46;
+            --color-poor: #eb5146;
+            --color-unknown: #7281a1;
             --color-bg: #ffffff;
-            --color-border: #e0e0e0;
-            --color-text: #333333;
-            --color-text-secondary: #666666;
-            --color-code-bg: #f5f5f5;
+            --color-border: #e8edf1;
+            --color-text: #1b2129;
+            --color-text-secondary: #677281;
+            --color-code-bg: #f1f5f7;
+            --color-header-bg: #2c343f;
+            --color-accent: #2c67e8;
+            --brand-green: #16b67b;
         }
 
         * { box-sizing: border-box; }
@@ -36,10 +40,10 @@
         }
 
         .report-header {
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            color: white;
+            background: var(--color-header-bg);
+            color: #f6fafe;
             padding: 24px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 24px;
         }
 
@@ -179,9 +183,9 @@
             font-weight: 600;
         }
 
-        .step-type-badge.llm { background: #2196f3; color: white; }
-        .step-type-badge.embedding { background: #9c27b0; color: white; }
-        .step-type-badge.compute { background: #ff9800; color: white; }
+        .step-type-badge.llm { background: #2c67e8; color: white; }
+        .step-type-badge.embedding { background: #7a2ce8; color: white; }
+        .step-type-badge.compute { background: #eb9b46; color: white; }
 
         .step-duration {
             font-size: 13px;
@@ -328,9 +332,9 @@
             font-size: 13px;
         }
 
-        .step-box.llm { background: #e3f2fd; border-color: #2196f3; }
-        .step-box.embedding { background: #f3e5f5; border-color: #9c27b0; }
-        .step-box.compute { background: #fff3e0; border-color: #ff9800; }
+        .step-box.llm { background: #e3f2fd; border-color: #2c67e8; }
+        .step-box.embedding { background: #f3e5f5; border-color: #7a2ce8; }
+        .step-box.compute { background: #fff3e0; border-color: #eb9b46; }
 
         .step-number {
             font-weight: 700;
@@ -466,7 +470,7 @@
 
         .tree-item.selected {
             background: #e3f2fd;
-            border-left-color: #2196f3;
+            border-left-color: #2c67e8;
         }
 
         .tree-item.error {
@@ -501,7 +505,7 @@
         .tree-type-badge.llm { background: #e3f2fd; color: #1565c0; }
         .tree-type-badge.embedding { background: #f3e5f5; color: #7b1fa2; }
         .tree-type-badge.compute { background: #fff3e0; color: #e65100; }
-        .tree-type-badge.model { background: #e8f5e9; color: #2e7d32; }
+        .tree-type-badge.model { background: #e8f5e9; color: #09a232; }
 
         .tree-name {
             flex: 1;
@@ -585,7 +589,7 @@
         .detail-type-badge.llm { background: #e3f2fd; color: #1565c0; }
         .detail-type-badge.embedding { background: #f3e5f5; color: #7b1fa2; }
         .detail-type-badge.compute { background: #fff3e0; color: #e65100; }
-        .detail-type-badge.model { background: #e8f5e9; color: #2e7d32; }
+        .detail-type-badge.model { background: #e8f5e9; color: #09a232; }
 
         .detail-name {
             font-weight: 600;
@@ -754,7 +758,7 @@
         }
 
         .explanation-icon .icon-info {
-            color: #2196f3;
+            color: #2c67e8;
         }
 
         .explanation-summary {
@@ -824,7 +828,7 @@
 
         .exp-tree-item.selected {
             background: #e3f2fd;
-            border-left-color: #2196f3;
+            border-left-color: #2c67e8;
         }
 
         .exp-tree-number {
@@ -842,12 +846,12 @@
         }
 
         .exp-tree-item.selected .exp-tree-number {
-            background: #2196f3;
+            background: #2c67e8;
             color: white;
         }
 
         .interpretation-node .exp-tree-number {
-            background: #ff9800;
+            background: #eb9b46;
             color: white;
         }
 
@@ -1440,12 +1444,12 @@
 
         .exp-scale-item.current {
             background: #e3f2fd;
-            border-color: #2196f3;
+            border-color: #2c67e8;
         }
 
         .exp-scale-marker {
             width: 20px;
-            color: #2196f3;
+            color: #2c67e8;
             font-weight: bold;
         }
 
@@ -1471,7 +1475,7 @@
         .exp-scale-current {
             font-size: 10px;
             padding: 2px 8px;
-            background: #2196f3;
+            background: #2c67e8;
             color: white;
             border-radius: 3px;
             font-weight: 600;
@@ -1485,41 +1489,41 @@
 
         .exp-scale-item.score-poor {
             background: #ffebee;
-            border-color: #f44336;
+            border-color: #eb5146;
         }
 
         .exp-scale-item.score-moderate {
             background: #fff3e0;
-            border-color: #ff9800;
+            border-color: #eb9b46;
         }
 
         .exp-scale-item.score-good {
             background: #e8f5e9;
-            border-color: #4caf50;
+            border-color: #09a232;
         }
 
         .exp-scale-item.current.score-poor .exp-scale-current {
-            background: #f44336;
+            background: #eb5146;
         }
 
         .exp-scale-item.current.score-moderate .exp-scale-current {
-            background: #ff9800;
+            background: #eb9b46;
         }
 
         .exp-scale-item.current.score-good .exp-scale-current {
-            background: #4caf50;
+            background: #09a232;
         }
 
         .exp-scale-item.current.score-poor .exp-scale-marker {
-            color: #f44336;
+            color: #eb5146;
         }
 
         .exp-scale-item.current.score-moderate .exp-scale-marker {
-            color: #ff9800;
+            color: #eb9b46;
         }
 
         .exp-scale-item.current.score-good .exp-scale-marker {
-            color: #4caf50;
+            color: #09a232;
         }
 
         .no-explanation {

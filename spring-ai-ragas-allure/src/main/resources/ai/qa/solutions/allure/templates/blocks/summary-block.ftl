@@ -10,15 +10,15 @@
     <h3>${i18n["summary.modelScores"]}</h3>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 ${(chartData.scoreEntries?size * 30) + 60}" class="bar-chart">
         <style>
-            .row-label { font-size: 11px; fill: #333; text-anchor: end; font-family: sans-serif; }
-            .scale-label { font-size: 10px; fill: #666; text-anchor: middle; font-family: sans-serif; }
-            .score-label { font-size: 10px; fill: #333; font-family: sans-serif; }
-            .grid-line { stroke: #e0e0e0; stroke-width: 1; }
-            .bar-excellent { fill: #2e7d32; }
-            .bar-good { fill: #4caf50; }
-            .bar-moderate { fill: #ff9800; }
-            .bar-poor { fill: #f44336; }
-            .bar-excluded { fill: #9e9e9e; }
+            .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
+            .scale-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
+            .score-label { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
+            .grid-line { stroke: #e8edf1; stroke-width: 1; }
+            .bar-excellent { fill: #09a232; }
+            .bar-good { fill: #09a232; }
+            .bar-moderate { fill: #eb9b46; }
+            .bar-poor { fill: #eb5146; }
+            .bar-excluded { fill: #7281a1; }
         </style>
         <#if isRubrics>
             <#-- Rubrics scale: show level numbers (e.g., 1, 2, 3, 4, 5) -->
@@ -77,15 +77,15 @@
     <#assign timeScale = (chartData.maxDurationMs > 0)?then(chartWidth / chartData.maxDurationMs, 1.0)>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth} ${timelineHeight}" class="timeline-chart">
         <style>
-            .row-label { font-size: 11px; fill: #333; text-anchor: end; font-family: sans-serif; }
-            .time-label { font-size: 10px; fill: #666; text-anchor: middle; font-family: sans-serif; }
-            .axis { stroke: #333; stroke-width: 1; }
-            .grid-line { stroke: #e0e0e0; stroke-width: 1; stroke-dasharray: 2,2; }
-            .bar-llm { fill: #2196f3; }
-            .bar-embedding { fill: #9c27b0; }
-            .bar-compute { fill: #ff9800; }
-            .bar-error { fill: #f44336; }
-            .legend-text { font-size: 10px; fill: #333; font-family: sans-serif; }
+            .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
+            .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
+            .axis { stroke: #1b2129; stroke-width: 1; }
+            .grid-line { stroke: #e8edf1; stroke-width: 1; stroke-dasharray: 2,2; }
+            .bar-llm { fill: #2c67e8; }
+            .bar-embedding { fill: #7a2ce8; }
+            .bar-compute { fill: #eb9b46; }
+            .bar-error { fill: #eb5146; }
+            .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
         <line x1="${labelWidth}" y1="${timelineHeight - 30}" x2="${labelWidth + chartWidth}" y2="${timelineHeight - 30}" class="axis"/>
         <#list 0..5 as i>
@@ -174,7 +174,7 @@
         <#if excludedModels?has_content>
         <div class="sample-item">
             <dt>${i18n["summary.excludedModels"]}</dt>
-            <dd><code style="color: #f44336;">${excludedModels?join(", ")}</code></dd>
+            <dd><code style="color: #eb5146;">${excludedModels?join(", ")}</code></dd>
         </div>
         </#if>
     </dl>
