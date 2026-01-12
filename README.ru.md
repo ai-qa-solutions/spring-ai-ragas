@@ -68,7 +68,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 <dependency>
 <groupId>org.springframework.ai</groupId>
 <artifactId>spring-ai-starter-model-openai</artifactId>
-<version>1.1.0-M2</version>
+<version>1.1.2</version>
 <scope>test</scope>
 </dependency>
 ```
@@ -77,7 +77,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 ```groovy
 testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
-testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
+testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.2'
 ```
 
 ### Конфигурация

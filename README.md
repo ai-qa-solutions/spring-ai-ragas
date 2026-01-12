@@ -67,7 +67,7 @@ Full documentation: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 <dependency>
     <groupId>org.springframework.ai</groupId>
     <artifactId>spring-ai-starter-model-openai</artifactId>
-    <version>1.1.0-M2</version>
+    <version>1.1.2</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -76,7 +76,7 @@ Full documentation: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 
 ```groovy
 testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
-testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.0-M2'
+testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.2'
 ```
 
 ### Configuration
