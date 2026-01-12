@@ -259,6 +259,11 @@ spring-ai-ragas/
 │       │   └── ScoreAggregator           # Стратегии агрегации оценок
 │       └── sample/                       # DTO классы Sample
 │
+├── spring-ai-ragas-allure/               # Интеграция с Allure отчётами
+│   └── ai.qa.solutions.allure/
+│       ├── AllureMetricExecutionListener # Listener для Allure вложений
+│       └── templates/                    # Freemarker шаблоны отчётов
+│
 ├── spring-ai-ragas-spring-boot/          # Spring Boot автоконфигурация
 │   └── config/                           # Классы автоконфигурации
 │
