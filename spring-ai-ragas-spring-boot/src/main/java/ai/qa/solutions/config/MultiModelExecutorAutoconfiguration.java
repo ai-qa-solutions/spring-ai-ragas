@@ -17,7 +17,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
  * This configuration automatically sets up the {@link MultiModelExecutor} bean
  * when Spring AI's {@link ChatClient} is present on the classpath.
  * <p>
- * The autoconfiguration runs after {@link EmbeddingModelAutoConfiguration} to ensure
+ * The autoconfiguration runs after {@link MultiProviderAutoConfiguration} to ensure
  * that stores are properly initialized before creating the executor.
  * <p>
  * <b>Note:</b> The executor is now stateless - all listeners should be registered
@@ -27,7 +27,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
  * {@code org.springframework.ai.chat.client.ChatClient} is available on the classpath.
  */
 @ConditionalOnClass(ChatClient.class)
-@AutoConfiguration(after = EmbeddingModelAutoConfiguration.class)
+@AutoConfiguration(after = MultiProviderAutoConfiguration.class)
 @ConditionalOnProperty(
         prefix = "spring.ai.ragas.metrics",
         name = "enabled",

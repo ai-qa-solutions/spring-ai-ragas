@@ -27,7 +27,14 @@
 
         <dependency>
             <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai</artifactId>
+        </dependency>
+
+        <!-- Test: Spring AI OpenAI autoconfiguration -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-openai</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

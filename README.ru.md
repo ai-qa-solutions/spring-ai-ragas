@@ -101,16 +101,85 @@ spring:
         options:
           model: google/gemini-2.5-flash
           temperature: 0.0
-    # Конфигурация мультимодельной оценки
-    chat-models:
-      default-options:
-        temperature: 0.0
-        max-tokens: 1000
-      list:
-        - { id: anthropic/claude-4.5-sonnet }
-        - { id: google/gemini-2.5-flash }
-        - { id: openai/gpt-4o-mini }
+    ragas:
+      # Конфигурация мультимодельной оценки
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: google/gemini-2.5-flash }
+              - { id: openai/gpt-4o-mini }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
 ```
+
+### Несколько провайдеров (OpenRouter + cloud.ru)
+
+Пример конфигурации с двумя провайдерами — OpenRouter для глобальных моделей и cloud.ru Evolution для моделей, размещённых в России:
+
+```yaml
+spring:
+  ai:
+    retry:
+      on-http-codes: [ 429 ]
+      on-client-errors: true
+      backoff:
+        initial-interval: 2000ms
+        max-interval: 30000ms
+        multiplier: 2
+    openai:
+      base-url: https://openrouter.ai/api
+      api-key: ${OPENROUTER_API_KEY}
+      chat:
+        options:
+          model: google/gemini-2.0-flash-001
+          temperature: 0.0
+
+    ragas:
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          # Провайдер 1: OpenRouter — глобальные модели
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: openai/gpt-4o }
+              - { id: google/gemini-2.0-flash-exp }
+          # Провайдер 2: cloud.ru Evolution — модели в России
+          - name: cloudru
+            base-url: https://foundation-models.api.cloud.ru
+            api-key: ${CLOUD_RU_API_KEY}
+            chat-models:
+              - { id: Qwen/Qwen3-235B-A22B-Instruct-2507 }
+              - { id: openai/gpt-oss-120b }
+              - { id: t-tech/T-pro-it-2.0 }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
+```
+
+#### Поддерживаемые OpenAI-совместимые провайдеры
+
+|     Провайдер      |                 Base URL                 |         Примечание         |
+|--------------------|------------------------------------------|----------------------------|
+| OpenRouter         | `https://openrouter.ai/api`              | Доступ к 200+ моделям      |
+| cloud.ru Evolution | `https://foundation-models.api.cloud.ru` | Российский хостинг         |
+| Groq               | `https://api.groq.com/openai`            | Быстрый инференс           |
+| Together AI        | `https://api.together.xyz`               | Open-source модели         |
+| Fireworks AI       | `https://api.fireworks.ai/inference`     | Быстрые open-source модели |
+| Azure OpenAI       | `https://{resource}.openai.azure.com`    | Enterprise Azure           |
+| Ollama             | `http://localhost:11434`                 | Локальные модели           |
 
 ## Пример использования
 

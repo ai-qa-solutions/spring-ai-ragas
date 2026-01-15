@@ -7,28 +7,20 @@
   * [Quick Start](#quick-start)
     * [1. Configure Your Models](#1-configure-your-models)
     * [2. Use in Your Code](#2-use-in-your-code)
-      * [Chat Models](#chat-models)
-      * [Embedding Models](#embedding-models)
   * [Configuration Reference](#configuration-reference)
-    * [Chat Models Configuration](#chat-models-configuration)
-    * [Embedding Models Configuration](#embedding-models-configuration)
+    * [Provider Configuration](#provider-configuration)
   * [Advanced Usage](#advanced-usage)
-    * [Working with OpenRouter (Multiple AI Providers)](#working-with-openrouter-multiple-ai-providers)
-    * [Custom Options Per Model](#custom-options-per-model)
+    * [Working with OpenRouter](#working-with-openrouter-multiple-ai-providers)
+    * [Multiple Providers Configuration](#multiple-providers-configuration)
+    * [Real-World Example: OpenRouter + cloud.ru](#real-world-example-openrouter--cloudru)
     * [Error Handling](#error-handling)
   * [API Reference](#api-reference)
     * [ChatClientStore](#chatclientstore)
     * [EmbeddingModelStore](#embeddingmodelstore)
+  * [Multi-Model Execution API](#multi-model-execution-api)
   * [How It Works](#how-it-works)
-    * [Chat Models](#chat-models-1)
-    * [Embedding Models](#embedding-models-1)
   * [Examples](#examples)
-    * [Use Case: Multi-Model Chat Comparison](#use-case-multi-model-chat-comparison)
-    * [Use Case: RAG with Multiple Embedding Models](#use-case-rag-with-multiple-embedding-models)
   * [Complete Working Example](#complete-working-example)
-    * [application.yml](#applicationyml)
-    * [Spring Boot Application](#spring-boot-application)
-    * [Service Example](#service-example)
 
 <!-- TOC -->
 
@@ -75,61 +67,49 @@ spring:
   ai:
     # Base Spring AI configuration (using OpenRouter as example)
     openai:
-      base-url: https://openrouter.ai/api/v1
+      base-url: https://openrouter.ai/api
       api-key: ${OPENROUTER_API_KEY}
       chat:
         options:
           model: google/gemini-2.5-flash
           temperature: 0.0
       embedding:
-        base-url: https://openrouter.ai/api/v1
+        base-url: https://openrouter.ai/api
         api-key: ${OPENROUTER_API_KEY}
         options:
           model: openai/text-embedding-3-small
           dimensions: 1024
 
-    # Configure multiple chat models
-    chat-models:
-      default-options:
-        temperature: 0.0
-        max-tokens: 1000
-        top-p: 1.0
-      list:
-        # OpenAI models via OpenRouter
-        - id: openai/gpt-4o
-        - id: openai/gpt-4o-mini
-        # Anthropic models
-        - id: anthropic/claude-3.5-sonnet
-        - id: anthropic/claude-3-haiku
-          options:
-            temperature: 0.7
-            max-tokens: 2000
-        # Google models
-        - id: google/gemini-2.5-flash
-        - id: google/gemini-1.5-pro
-
-    # Configure multiple embedding models
-    embedding-models:
-      default-options:
-        dimensions: 1024
-      list:
-        # OpenAI embeddings
-        - id: openai/text-embedding-3-small
-        - id: openai/text-embedding-3-large
-          options:
-            dimensions: 3072
-        # Qwen embeddings
-        - id: qwen/qwen3-embedding-8b
-        - id: qwen/qwen3-embedding-4b
-        # Google embedding
-        - id: google/gemini-embedding-001
-          options:
-            dimensions: 768
-        # BAAI embeddings
-        - id: baai/bge-m3
-        - id: baai/bge-base-en-v1.5
-          options:
-            dimensions: 768
+    ragas:
+      # Multi-provider configuration
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            # Chat models - multiple providers via OpenRouter
+            chat-models:
+              - { id: openai/gpt-4o }
+              - { id: openai/gpt-4o-mini }
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: anthropic/claude-3-haiku }
+              - { id: google/gemini-2.5-flash }
+              - { id: google/gemini-1.5-pro }
+            # Embedding models
+            embedding-models:
+              - { id: openai/text-embedding-3-small, dimensions: 1024 }
+              - { id: openai/text-embedding-3-large, dimensions: 3072 }
+              - { id: qwen/qwen3-embedding-8b, dimensions: 1024 }
+              - { id: google/gemini-embedding-001, dimensions: 768 }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
+          top-p: 1.0
+        embedding-default-options:
+          dimensions: 1024
 ```
 
 ### 2. Use in Your Code
@@ -207,23 +187,22 @@ public class EmbeddingService {
 
 ## Configuration Reference
 
-### Chat Models Configuration
+### Provider Configuration
 
-|                      Property                       |  Type   | Default |                                   Description                                    |
-|-----------------------------------------------------|---------|---------|----------------------------------------------------------------------------------|
-| `spring.ai.chat-models.default-options.temperature` | Double  | 0.0     | Default temperature for all models (0.0 = deterministic, higher = more creative) |
-| `spring.ai.chat-models.default-options.max-tokens`  | Integer | 1000    | Default maximum tokens in response                                               |
-| `spring.ai.chat-models.default-options.top-p`       | Double  | 1.0     | Default nucleus sampling parameter                                               |
-| `spring.ai.chat-models.list[].id`                   | String  | -       | **Required**. Unique model identifier                                            |
-| `spring.ai.chat-models.list[].options`              | Object  | -       | Optional. Model-specific options override defaults                               |
-
-### Embedding Models Configuration
-
-|                        Property                         |  Type   | Default |               Description                |
-|---------------------------------------------------------|---------|---------|------------------------------------------|
-| `spring.ai.embedding-models.default-options.dimensions` | Integer | 1024    | Default vector dimensions for all models |
-| `spring.ai.embedding-models.list[].id`                  | String  | -       | **Required**. Unique model identifier    |
-| `spring.ai.embedding-models.list[].options.dimensions`  | Integer | -       | Optional. Model-specific dimensions      |
+|                                   Property                                    |  Type   | Default |                               Description                               |
+|-------------------------------------------------------------------------------|---------|---------|-------------------------------------------------------------------------|
+| `spring.ai.ragas.providers.auto-detect-beans`                                 | Boolean | true    | Auto-detect external ChatModel beans (GigaChat, Anthropic native, etc.) |
+| `spring.ai.ragas.providers.openai-compatible[].name`                          | String  | -       | Provider name for identification                                        |
+| `spring.ai.ragas.providers.openai-compatible[].base-url`                      | String  | -       | **Required**. Base URL of the OpenAI-compatible API                     |
+| `spring.ai.ragas.providers.openai-compatible[].api-key`                       | String  | -       | **Required**. API key for authentication                                |
+| `spring.ai.ragas.providers.openai-compatible[].chat-models[].id`              | String  | -       | **Required**. Unique model identifier                                   |
+| `spring.ai.ragas.providers.openai-compatible[].embedding-models[].id`         | String  | -       | **Required**. Unique embedding model identifier                         |
+| `spring.ai.ragas.providers.openai-compatible[].embedding-models[].dimensions` | Integer | -       | Optional. Vector dimensions for this model                              |
+| `spring.ai.ragas.providers.default-provider.enabled`                          | Boolean | true    | Enable default OpenAI provider via Spring AI autoconfiguration          |
+| `spring.ai.ragas.providers.default-options.temperature`                       | Double  | 0.0     | Default temperature for all models                                      |
+| `spring.ai.ragas.providers.default-options.max-tokens`                        | Integer | 1000    | Default maximum tokens in response                                      |
+| `spring.ai.ragas.providers.default-options.top-p`                             | Double  | 1.0     | Default nucleus sampling parameter                                      |
+| `spring.ai.ragas.providers.embedding-default-options.dimensions`              | Integer | 1024    | Default vector dimensions for all embedding models                      |
 
 ## Advanced Usage
 
@@ -242,73 +221,163 @@ spring:
         max-interval: 30000ms
         multiplier: 2
     openai:
-      base-url: https://openrouter.ai/api/v1
+      base-url: https://openrouter.ai/api
       api-key: ${OPENROUTER_API_KEY}
       chat:
         options:
           model: google/gemini-2.5-flash
           temperature: 0.0
       embedding:
-        base-url: https://openrouter.ai/api/v1
+        base-url: https://openrouter.ai/api
         api-key: ${OPENROUTER_API_KEY}
         options:
           model: openai/text-embedding-3-small
           dimensions: 1024
 
-    chat-models:
-      default-options:
-        temperature: 0.0
-        max-tokens: 1000
-        top-p: 1.0
-      list:
-        # Premium tier models
-        - id: anthropic/claude-3.5-sonnet
-        - id: openai/gpt-4o
-        - id: google/gemini-1.5-pro
-
-        # Efficient tier models
-        - id: google/gemini-2.5-flash
-        - id: anthropic/claude-3-haiku
-        - id: openai/gpt-4o-mini
-        - id: deepseek/deepseek-chat
-
-        # Open-source models
-        - id: meta-llama/llama-3.3-70b-instruct
-        - id: qwen/qwen-2.5-72b-instruct
+    ragas:
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              # Premium tier models
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: openai/gpt-4o }
+              - { id: google/gemini-1.5-pro }
+              # Efficient tier models
+              - { id: google/gemini-2.5-flash }
+              - { id: anthropic/claude-3-haiku }
+              - { id: openai/gpt-4o-mini }
+              - { id: deepseek/deepseek-chat }
+              # Open-source models
+              - { id: meta-llama/llama-3.3-70b-instruct }
+              - { id: qwen/qwen-2.5-72b-instruct }
+            embedding-models:
+              - { id: openai/text-embedding-3-large, dimensions: 3072 }
+              - { id: openai/text-embedding-3-small, dimensions: 1024 }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
+          top-p: 1.0
+        embedding-default-options:
+          dimensions: 1024
 ```
 
-### Custom Options Per Model
+### Multiple Providers Configuration
+
+You can configure multiple providers (e.g., separate premium and efficient tiers):
 
 ```yaml
 spring:
   ai:
-    chat-models:
-      default-options:
-        temperature: 0.0
-        max-tokens: 1000
-      list:
-        # Use default options - for precise tasks
-        - id: openai/gpt-4o-mini
-
-        # Override for more creative responses
-        - id: anthropic/claude-3.5-sonnet
-          options:
-            temperature: 0.7
-            max-tokens: 4000
-            top-p: 0.95
-
-        # Creative writing model - high temperature
-        - id: google/gemini-1.5-pro
-          options:
-            temperature: 0.9
-            max-tokens: 8000
-
-        # Code generation - deterministic
-        - id: deepseek/deepseek-chat
-          options:
-            temperature: 0.0
-            max-tokens: 4000
+    ragas:
+      providers:
+        openai-compatible:
+          # Premium tier provider
+          - name: openrouter-premium
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: openai/gpt-4o }
+            embedding-models:
+              - { id: openai/text-embedding-3-large, dimensions: 3072 }
+          # Efficient tier provider
+          - name: openrouter-efficient
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              - { id: google/gemini-2.5-flash }
+              - { id: openai/gpt-4o-mini }
+              - { id: deepseek/deepseek-chat }
+            embedding-models:
+              - { id: openai/text-embedding-3-small, dimensions: 1024 }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
 ```
+
+### Real-World Example: OpenRouter + cloud.ru
+
+A complete working example combining two different API providers - OpenRouter for global models and cloud.ru Evolution for Russian-hosted models:
+
+#### application.yml
+
+```yaml
+spring:
+  ai:
+    retry:
+      on-http-codes: [ 429 ]
+      on-client-errors: true
+      backoff:
+        initial-interval: 2000ms
+        max-interval: 30000ms
+        multiplier: 2
+    openai:
+      base-url: https://openrouter.ai/api
+      api-key: ${OPENROUTER_API_KEY}
+      chat:
+        options:
+          model: google/gemini-2.0-flash-001
+          temperature: 0.0
+      embedding:
+        base-url: https://openrouter.ai/api
+        api-key: ${OPENROUTER_API_KEY}
+        options:
+          model: openai/text-embedding-3-small
+          dimensions: 1024
+
+    ragas:
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          # Provider 1: OpenRouter - global models
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: openai/gpt-4o }
+              - { id: google/gemini-2.0-flash-exp }
+              - { id: meta-llama/llama-3.3-70b-instruct }
+            embedding-models:
+              - { id: openai/text-embedding-3-large, dimensions: 3072 }
+              - { id: openai/text-embedding-3-small, dimensions: 1536 }
+          # Provider 2: cloud.ru Evolution - Russian-hosted models
+          - name: cloudru
+            base-url: https://foundation-models.api.cloud.ru
+            api-key: ${CLOUD_RU_API_KEY}
+            chat-models:
+              - { id: Qwen/Qwen3-235B-A22B-Instruct-2507 }
+              - { id: openai/gpt-oss-120b }
+              - { id: t-tech/T-pro-it-2.0 }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
+          top-p: 1.0
+        embedding-default-options:
+          dimensions: 1024
+```
+
+#### Supported OpenAI-Compatible Providers
+
+|      Provider      |                 Base URL                 |            Notes            |
+|--------------------|------------------------------------------|-----------------------------|
+| OpenRouter         | `https://openrouter.ai/api`              | Access to 200+ models       |
+| cloud.ru Evolution | `https://foundation-models.api.cloud.ru` | Russian-hosted              |
+| Groq               | `https://api.groq.com/openai`            | Fast inference              |
+| Together AI        | `https://api.together.xyz`               | Open-source models          |
+| Fireworks AI       | `https://api.fireworks.ai/inference`     | Fast open-source models     |
+| Azure OpenAI       | `https://{resource}.openai.azure.com`    | Enterprise Azure deployment |
+| Ollama             | `http://localhost:11434`                 | Local models                |
 
 ### Error Handling
 
@@ -869,28 +938,32 @@ public class ConcurrentExecutionService {
 
 ## How It Works
 
+### Multi-Provider Architecture
+
+The autoconfiguration supports three layers of providers that work together:
+
+1. **Layer 1: External ChatModel beans** - Auto-detected GigaChat, Anthropic native clients, etc.
+2. **Layer 2: OpenAI-compatible providers** - Groq, cloud.ru, Azure OpenAI, OpenRouter via `mutate()` pattern
+3. **Layer 3: Default OpenAI models** - Backward compatible with standard Spring AI configuration
+
 ### Chat Models
 
-1. **Auto-Configuration**: `ChatClientAutoConfiguration` detects Spring AI's `ChatClient.Builder` and your YAML
-   configuration
-2. **Model Creation**: For each model in `spring.ai.chat-models.list`, a separate `ChatClient` is created with:
-   - **Independent Configuration**: The builder is cloned for each model to ensure isolated configuration
+1. **Auto-Configuration**: `MultiProviderAutoConfiguration` detects configured providers
+2. **Model Creation**: For each model in `openai-compatible[].chat-models`, a separate `ChatClient` is created with:
+   - **Independent Configuration**: Uses `mutate()` pattern for isolated API connections per provider
    - Model-specific ID
    - Individual or default options (temperature, max tokens, top-p)
-   - SimpleLoggerAdvisor for logging
 3. **Store Initialization**: All clients are registered in `ChatClientStore` for thread-safe access
 
-> **Important**: Each `ChatClient` has its own independent configuration. The builder is cloned before configuring
-> each model to prevent configuration sharing between different models. This ensures that each model uses its own
-> specified parameters (model ID, temperature, max tokens, etc.) and produces unique results.
+> **Important**: Each `ChatClient` has its own independent configuration. The mutate pattern creates new API instances
+> for each provider to prevent configuration sharing between different providers.
 
 ### Embedding Models
 
-1. **Auto-Configuration**: `EmbeddingModelAutoConfiguration` detects the default `EmbeddingModel` bean
-2. **Factory Pattern**: `EmbeddingModelFactory` creates delegating wrappers that:
-   - Use a single API connection
-   - Override model ID and dimensions per request
-   - Merge options at runtime
+1. **Auto-Configuration**: `MultiProviderAutoConfiguration` creates embedding models from configured providers
+2. **Model Creation**: For each model in `openai-compatible[].embedding-models`:
+   - Creates provider-specific `OpenAiApi` via `mutate()` pattern
+   - Creates `OpenAiEmbeddingModel` with model-specific dimensions
 3. **Store Initialization**: All models are registered in `EmbeddingModelStore`
 
 ## Examples
@@ -1017,60 +1090,53 @@ spring:
         max-interval: 30000ms
         multiplier: 2
     openai:
-      base-url: https://openrouter.ai/api/v1
+      base-url: https://openrouter.ai/api
       api-key: ${OPENROUTER_API_KEY}
       chat:
         options:
           model: google/gemini-2.5-flash
           temperature: 0.0
       embedding:
-        base-url: https://openrouter.ai/api/v1
+        base-url: https://openrouter.ai/api
         api-key: ${OPENROUTER_API_KEY}
         options:
           model: openai/text-embedding-3-small
           dimensions: 1024
 
-    # Configure multiple chat models
-    chat-models:
-      default-options:
-        temperature: 0.0
-        max-tokens: 1000
-        top-p: 1.0
-      list:
-        # Base tier
-        - id: anthropic/claude-3.5-sonnet
-        - id: openai/gpt-4o
-        - id: google/gemini-1.5-pro
-        # Efficient tier
-        - id: google/gemini-2.5-flash
-        - id: anthropic/claude-3-haiku
-        - id: openai/gpt-4o-mini
-        - id: deepseek/deepseek-chat
-        # Open-source
-        - id: meta-llama/llama-3.3-70b-instruct
-        - id: qwen/qwen-2.5-72b-instruct
-
-    # Configure multiple embedding models
-    embedding-models:
-      default-options:
-        dimensions: 1024
-      list:
-        # OpenAI embeddings
-        - id: openai/text-embedding-3-large
-          options:
-            dimensions: 3072
-        # Qwen embeddings
-        - id: qwen/qwen3-embedding-8b
-        - id: qwen/qwen3-embedding-4b
-        # Google embedding
-        - id: google/gemini-embedding-001
-          options:
-            dimensions: 768
-        # BAAI embeddings
-        - id: baai/bge-m3
-        - id: baai/bge-base-en-v1.5
-          options:
-            dimensions: 768
+    ragas:
+      # Multi-provider configuration
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              # Premium tier
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: openai/gpt-4o }
+              - { id: google/gemini-1.5-pro }
+              # Efficient tier
+              - { id: google/gemini-2.5-flash }
+              - { id: anthropic/claude-3-haiku }
+              - { id: openai/gpt-4o-mini }
+              - { id: deepseek/deepseek-chat }
+              # Open-source
+              - { id: meta-llama/llama-3.3-70b-instruct }
+              - { id: qwen/qwen-2.5-72b-instruct }
+            embedding-models:
+              - { id: openai/text-embedding-3-large, dimensions: 3072 }
+              - { id: qwen/qwen3-embedding-8b, dimensions: 1024 }
+              - { id: google/gemini-embedding-001, dimensions: 768 }
+              - { id: baai/bge-m3, dimensions: 1024 }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
+          top-p: 1.0
+        embedding-default-options:
+          dimensions: 1024
 ```
 
 ### Spring Boot Application

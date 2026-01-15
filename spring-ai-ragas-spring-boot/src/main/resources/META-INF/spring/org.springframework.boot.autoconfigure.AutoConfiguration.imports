@@ -1,4 +1,3 @@
 ai.qa.solutions.config.RagasMetricsAutoconfiguration
-ai.qa.solutions.config.ChatClientStoreAutoConfiguration
-ai.qa.solutions.config.EmbeddingModelAutoConfiguration
+ai.qa.solutions.config.MultiProviderAutoConfiguration
 ai.qa.solutions.config.MultiModelExecutorAutoconfiguration

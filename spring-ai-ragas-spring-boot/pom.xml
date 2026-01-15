@@ -29,6 +29,13 @@
             <artifactId>spring-ai-ragas-multi-model</artifactId>
         </dependency>
 
+        <!-- Optional: OpenAI support for mutate() pattern -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>chat.giga</groupId>
             <artifactId>spring-ai-starter-model-gigachat</artifactId>

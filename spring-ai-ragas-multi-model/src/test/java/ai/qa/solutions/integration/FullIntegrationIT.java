@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @EnableAutoConfiguration
 @SpringBootTest(classes = ConfigurationForTests.class)
-@DisplayName("Full Integration Tests - Chat & Embedding")
+@DisplayName("OPENROUTER Full Integration Tests - Chat & Embedding")
 @EnabledIfEnvironmentVariable(named = "OPENROUTER_API_KEY", matches = ".*")
 class FullIntegrationIT {
 
@@ -64,7 +64,7 @@ class FullIntegrationIT {
                 "Embeddings convert text to vectors",
                 "ChatGPT is a language model");
 
-        final EmbeddingModel embeddingModel = embeddingModelStore.get("qwen/qwen3-embedding-8b");
+        final EmbeddingModel embeddingModel = embeddingModelStore.get("openai/text-embedding-3-small");
         final List<float[]> documentEmbeddings = embeddingModel.embed(documents);
 
         assertThat(documentEmbeddings).hasSize(3);
@@ -76,7 +76,7 @@ class FullIntegrationIT {
 
         final String relevantDocument = documents.get(0);
 
-        final ChatClient chatClient = chatClientStore.get("anthropic/claude-4.5-sonnet");
+        final ChatClient chatClient = chatClientStore.get("anthropic/claude-3.5-sonnet");
         final String answer = chatClient
                 .prompt()
                 .user(String.format(
@@ -108,7 +108,7 @@ class FullIntegrationIT {
         final String prompt = "What is 2+2? Answer with just the number.";
 
         final List<String> modelIds =
-                List.of("google/gemini-2.5-flash", "anthropic/claude-haiku-4.5", "openai/gpt-4o-mini");
+                List.of("google/gemini-2.0-flash-001", "anthropic/claude-3.5-haiku", "openai/gpt-4o-mini");
 
         final List<String> responses = modelIds.stream()
                 .map(modelId -> chatClientStore.get(modelId))
@@ -194,13 +194,8 @@ class FullIntegrationIT {
     @Test
     @DisplayName("Should verify all embedding models are available")
     void shouldVerifyAllEmbeddingModelsAreAvailable() {
-        final List<String> expectedModels = List.of(
-                "openai/text-embedding-3-large",
-                "qwen/qwen3-embedding-8b",
-                "qwen/qwen3-embedding-4b",
-                "google/gemini-embedding-001",
-                "baai/bge-m3",
-                "baai/bge-base-en-v1.5");
+        // Provider 1: text-embedding-3-large, Provider 2: text-embedding-3-small
+        final List<String> expectedModels = List.of("openai/text-embedding-3-large", "openai/text-embedding-3-small");
 
         assertThat(embeddingModelStore.getModelIds()).containsExactlyInAnyOrderElementsOf(expectedModels);
     }
