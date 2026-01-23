@@ -43,6 +43,12 @@
     * [Listener Priority](#listener-priority)
     * [Error Handling](#error-handling-1)
     * [Thread Safety](#thread-safety)
+    * [Executor Configuration (Deadlock Prevention)](#executor-configuration-deadlock-prevention)
+      * [The Deadlock Problem](#the-deadlock-problem)
+      * [The Solution: Dual Executor Architecture](#the-solution-dual-executor-architecture)
+      * [Default Pool Configuration](#default-pool-configuration)
+      * [Using `runAsync()` for Metrics](#using-runasync-for-metrics)
+      * [Customizing Pool Sizes for Microservices](#customizing-pool-sizes-for-microservices)
   * [How It Works](#how-it-works)
     * [Multi-Provider Architecture](#multi-provider-architecture)
     * [Chat Models](#chat-models-1)
@@ -1011,6 +1017,130 @@ All execution classes are thread-safe and designed for concurrent use:
 - `MultiModelExecutor` - Thread-safe, can execute multiple requests concurrently
 - Listeners use `CopyOnWriteArrayList` - Can be added/removed during execution
 - Result objects - Immutable value objects
+
+### Executor Configuration (Deadlock Prevention)
+
+The `MultiModelExecutor` uses **two separate thread pools** to prevent deadlocks during parallel execution:
+
+#### The Deadlock Problem
+
+When using a single thread pool, deadlocks can occur:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Single Pool (e.g., 16 threads)                                  │
+├─────────────────────────────────────────────────────────────────┤
+│ Metric Task 1 → calls executeLlm() → BLOCKED waiting for HTTP   │
+│ Metric Task 2 → calls executeLlm() → BLOCKED waiting for HTTP   │
+│ ...                                                             │
+│ Metric Task 16 → calls executeLlm() → BLOCKED waiting for HTTP  │
+│                                                                 │
+│ HTTP Task 1 → CANNOT START (no free threads)                    │
+│ HTTP Task 2 → CANNOT START (no free threads)                    │
+│ ... DEADLOCK! All threads blocked, waiting for each other       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### The Solution: Dual Executor Architecture
+
+Two separate pools ensure metric tasks can always wait for HTTP tasks:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ ragasMetricExecutor (core=4, max=32)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ Metric Task 1 → runAsync() → waiting for HTTP response...      │
+│ Metric Task 2 → runAsync() → waiting for HTTP response...      │
+│ Metric Task 3 → runAsync() → waiting for HTTP response...      │
+│ Metric Task 4 → runAsync() → waiting for HTTP response...      │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ ragasHttpExecutor (core=8, max=64)                              │
+├─────────────────────────────────────────────────────────────────┤
+│ HTTP Task 1 → calling LLM API... ✓ completed                    │
+│ HTTP Task 2 → calling LLM API... ✓ completed                    │
+│ HTTP Task 3 → calling LLM API... in progress                    │
+│ HTTP Task 4 → calling LLM API... in progress                    │
+│ ... (plenty of threads available)                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Default Pool Configuration
+
+| Pool | Core Size | Max Size | Queue Capacity | Purpose |
+|------|-----------|----------|----------------|---------|
+| `ragasMetricExecutor` | 4 | 32 | 200 | Metric-level async operations (`runAsync()`) |
+| `ragasHttpExecutor` | 8 | 64 | 500 | HTTP/LLM API calls |
+
+#### Using `runAsync()` for Metrics
+
+Metrics **must** use `executor.runAsync()` instead of `CompletableFuture.supplyAsync()`:
+
+```java
+// ❌ BAD - Uses ForkJoinPool, bypasses Spring executor, can cause issues
+CompletableFuture.supplyAsync(() -> {
+    return executor.executeLlm(prompt, Response.class);
+});
+
+// ✅ GOOD - Uses Spring-managed ragasMetricExecutor
+executor.runAsync(() -> {
+    return executor.executeLlm(prompt, Response.class);
+});
+```
+
+The `runAsync()` method:
+- Uses `ragasMetricExecutor` (separate from HTTP pool)
+- Integrates with Spring's task execution framework
+- Ensures proper shutdown handling
+- Prevents deadlocks by keeping metric and HTTP tasks in separate pools
+
+#### Customizing Pool Sizes for Microservices
+
+For high-load scenarios or microservice deployments, you can customize pool sizes by defining your own beans:
+
+```java
+@Configuration
+public class CustomExecutorConfig {
+
+    @Bean(name = "ragasMetricExecutor")
+    @Primary
+    public AsyncTaskExecutor ragasMetricExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);      // Increased for more parallel metrics
+        executor.setMaxPoolSize(64);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("ragas-metric-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(60);
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "ragasHttpExecutor")
+    @Primary
+    public AsyncTaskExecutor ragasHttpExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(16);     // Increased for more concurrent API calls
+        executor.setMaxPoolSize(128);
+        executor.setQueueCapacity(1000);
+        executor.setThreadNamePrefix("ragas-http-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(120);
+        executor.initialize();
+        return executor;
+    }
+}
+```
+
+**Tuning guidelines:**
+
+| Scenario | Metric Pool | HTTP Pool | Notes |
+|----------|-------------|-----------|-------|
+| Development | 2-4 core | 4-8 core | Low resource usage |
+| Production (standard) | 4-8 core | 8-16 core | Default settings |
+| High throughput | 8-16 core | 16-64 core | Many concurrent evaluations |
+| Rate-limited API | 4 core | 4-8 core | Limit concurrent API calls |
 
 ```java
 
