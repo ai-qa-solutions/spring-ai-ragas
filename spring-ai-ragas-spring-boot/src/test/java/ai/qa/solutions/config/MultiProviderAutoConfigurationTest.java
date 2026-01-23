@@ -68,11 +68,14 @@ class MultiProviderAutoConfigurationTest {
         @Test
         @DisplayName("Should create ChatClientStore with empty providers")
         void shouldCreateWithEmptyProviders() {
-            contextRunner.withUserConfiguration(MockConfig.class).run(context -> {
-                assertThat(context).hasSingleBean(ChatClientStore.class);
-                final ChatClientStore store = context.getBean(ChatClientStore.class);
-                assertThat(store.getModelIds()).isEmpty();
-            });
+            contextRunner
+                    .withPropertyValues("spring.ai.ragas.providers.auto-detect-beans=false")
+                    .withUserConfiguration(MockConfig.class)
+                    .run(context -> {
+                        assertThat(context).hasSingleBean(ChatClientStore.class);
+                        final ChatClientStore store = context.getBean(ChatClientStore.class);
+                        assertThat(store.getModelIds()).isEmpty();
+                    });
         }
 
         @Test
@@ -94,11 +97,14 @@ class MultiProviderAutoConfigurationTest {
         @Test
         @DisplayName("Should create EmbeddingModelStore with empty providers")
         void shouldCreateWithEmptyProviders() {
-            contextRunner.withUserConfiguration(MockConfig.class).run(context -> {
-                assertThat(context).hasSingleBean(EmbeddingModelStore.class);
-                final EmbeddingModelStore store = context.getBean(EmbeddingModelStore.class);
-                assertThat(store.getModelIds()).isEmpty();
-            });
+            contextRunner
+                    .withPropertyValues("spring.ai.ragas.providers.auto-detect-beans=false")
+                    .withUserConfiguration(MockConfig.class)
+                    .run(context -> {
+                        assertThat(context).hasSingleBean(EmbeddingModelStore.class);
+                        final EmbeddingModelStore store = context.getBean(EmbeddingModelStore.class);
+                        assertThat(store.getModelIds()).isEmpty();
+                    });
         }
     }
 

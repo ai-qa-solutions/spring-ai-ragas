@@ -86,7 +86,7 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
                 .metadata(Map.of("sample", sample, "config", config, "iterations", iterations))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             // ========== Step 1: Evaluate with strictness iterations per model ==========
             notifier.beforeStep("Evaluate", 0, 1);
 

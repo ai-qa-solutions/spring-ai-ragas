@@ -181,6 +181,74 @@ spring:
 | Azure OpenAI       | `https://{resource}.openai.azure.com`    | Enterprise Azure           |
 | Ollama             | `http://localhost:11434`                 | Локальные модели           |
 
+### Внешние Spring AI стартеры (GigaChat, Anthropic и др.)
+
+Библиотека автоматически обнаруживает бины ChatModel и EmbeddingModel из внешних Spring AI стартеров. Дополнительная конфигурация не требуется — просто добавьте зависимость стартера и настройте его.
+
+#### Пример: Интеграция с GigaChat
+
+**1. Добавьте зависимость GigaChat стартера:**
+
+```xml
+<dependency>
+    <groupId>chat.giga</groupId>
+    <artifactId>spring-ai-starter-model-gigachat</artifactId>
+    <version>1.1.1</version>
+</dependency>
+```
+
+**2. Настройте GigaChat в application.yml:**
+
+```yaml
+spring:
+  ai:
+    # Конфигурация GigaChat
+    gigachat:
+      auth:
+        bearer:
+          api-key: ${GIGACHAT_API_KEY}
+      chat:
+        options:
+          model: GigaChat
+          temperature: 0.5
+      embedding:
+        options:
+          model: Embeddings
+
+    # RAGAS автоматически обнаружит модели GigaChat
+    ragas:
+      providers:
+        auto-detect-beans: true  # Включено по умолчанию
+```
+
+**3. Используйте модели GigaChat:**
+
+```java
+@Service
+public class GigaChatService {
+
+    private final ChatClientStore chatClientStore;
+
+    public String chat(String message) {
+        // GigaChat автоматически обнаружен и доступен по ID модели
+        ChatClient client = chatClientStore.get("GigaChat");
+        return client.prompt().user(message).call().content();
+    }
+}
+```
+
+#### Поддерживаемые внешние стартеры
+
+|  Стартер  |                   Артефакт                   | ChatModel | EmbeddingModel |
+|-----------|----------------------------------------------|-----------|----------------|
+| GigaChat  | `chat.giga:spring-ai-starter-model-gigachat` | GigaChat  | Embeddings     |
+| Anthropic | `spring-ai-starter-model-anthropic`          | Claude    | -              |
+| Ollama    | `spring-ai-starter-model-ollama`             | *         | *              |
+| Mistral   | `spring-ai-starter-model-mistral-ai`         | *         | *              |
+| Vertex AI | `spring-ai-starter-model-vertex-ai`          | *         | *              |
+
+\* ID модели зависит от конфигурации
+
 ## Пример использования
 
 ```java

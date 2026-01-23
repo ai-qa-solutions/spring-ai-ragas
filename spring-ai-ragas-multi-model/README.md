@@ -7,20 +7,53 @@
   * [Quick Start](#quick-start)
     * [1. Configure Your Models](#1-configure-your-models)
     * [2. Use in Your Code](#2-use-in-your-code)
+      * [Chat Models](#chat-models)
+      * [Embedding Models](#embedding-models)
   * [Configuration Reference](#configuration-reference)
     * [Provider Configuration](#provider-configuration)
   * [Advanced Usage](#advanced-usage)
-    * [Working with OpenRouter](#working-with-openrouter-multiple-ai-providers)
+    * [Working with OpenRouter (Multiple AI Providers)](#working-with-openrouter-multiple-ai-providers)
     * [Multiple Providers Configuration](#multiple-providers-configuration)
     * [Real-World Example: OpenRouter + cloud.ru](#real-world-example-openrouter--cloudru)
+      * [application.yml](#applicationyml)
+      * [Supported OpenAI-Compatible Providers](#supported-openai-compatible-providers)
+    * [External Spring AI Starters (GigaChat, Anthropic, etc.)](#external-spring-ai-starters-gigachat-anthropic-etc)
+      * [Example: GigaChat Integration](#example-gigachat-integration)
+      * [Supported External Starters](#supported-external-starters)
     * [Error Handling](#error-handling)
   * [API Reference](#api-reference)
     * [ChatClientStore](#chatclientstore)
     * [EmbeddingModelStore](#embeddingmodelstore)
   * [Multi-Model Execution API](#multi-model-execution-api)
+    * [Key Features](#key-features)
+    * [Core Components](#core-components)
+      * [MultiModelExecutor](#multimodelexecutor)
+      * [Score Aggregators](#score-aggregators)
+      * [Custom Aggregators](#custom-aggregators)
+    * [Execution Listeners](#execution-listeners)
+      * [Built-in LoggingExecutionListener](#built-in-loggingexecutionlistener)
+      * [Custom Listeners](#custom-listeners)
+    * [Advanced Usage Examples](#advanced-usage-examples)
+      * [Parallel Execution with Multiple Metrics](#parallel-execution-with-multiple-metrics)
+      * [Using Different Aggregators per Metric](#using-different-aggregators-per-metric)
+      * [Accessing Detailed Results](#accessing-detailed-results)
+    * [Execution Result Classes](#execution-result-classes)
+      * [AggregatedExecutionResult](#aggregatedexecutionresult)
+      * [ModelExecutionResult](#modelexecutionresult)
+    * [Listener Priority](#listener-priority)
+    * [Error Handling](#error-handling-1)
+    * [Thread Safety](#thread-safety)
   * [How It Works](#how-it-works)
+    * [Multi-Provider Architecture](#multi-provider-architecture)
+    * [Chat Models](#chat-models-1)
+    * [Embedding Models](#embedding-models-1)
   * [Examples](#examples)
+    * [Use Case: Multi-Model Chat Comparison](#use-case-multi-model-chat-comparison)
+    * [Use Case: RAG with Multiple Embedding Models](#use-case-rag-with-multiple-embedding-models)
   * [Complete Working Example](#complete-working-example)
+    * [application.yml](#applicationyml-1)
+    * [Spring Boot Application](#spring-boot-application)
+    * [Service Example](#service-example)
 
 <!-- TOC -->
 
@@ -305,7 +338,8 @@ spring:
 
 ### Real-World Example: OpenRouter + cloud.ru
 
-A complete working example combining two different API providers - OpenRouter for global models and cloud.ru Evolution for Russian-hosted models:
+A complete working example combining two different API providers - OpenRouter for global models and cloud.ru Evolution
+for Russian-hosted models:
 
 #### application.yml
 
@@ -378,6 +412,77 @@ spring:
 | Fireworks AI       | `https://api.fireworks.ai/inference`     | Fast open-source models     |
 | Azure OpenAI       | `https://{resource}.openai.azure.com`    | Enterprise Azure deployment |
 | Ollama             | `http://localhost:11434`                 | Local models                |
+
+### External Spring AI Starters (GigaChat, Anthropic, etc.)
+
+The library automatically detects ChatModel and EmbeddingModel beans from external Spring AI starters. No additional
+configuration is required - just add the starter dependency and configure it.
+
+#### Example: GigaChat Integration
+
+**1. Add GigaChat starter dependency:**
+
+```xml
+
+<dependency>
+    <groupId>chat.giga</groupId>
+    <artifactId>spring-ai-starter-model-gigachat</artifactId>
+    <version>1.1.1</version>
+</dependency>
+```
+
+**2. Configure GigaChat in application.yml:**
+
+```yaml
+spring:
+  ai:
+    # GigaChat configuration
+    gigachat:
+      auth:
+        bearer:
+          api-key: ${GIGACHAT_API_KEY}
+      chat:
+        options:
+          model: GigaChat
+          temperature: 0.5
+      embedding:
+        options:
+          model: Embeddings
+
+    # RAGAS will auto-detect GigaChat models
+    ragas:
+      providers:
+        auto-detect-beans: true  # Enabled by default
+```
+
+**3. Use GigaChat models:**
+
+```java
+
+@Service
+public class GigaChatService {
+
+    private final ChatClientStore chatClientStore;
+
+    public String chat(String message) {
+        // GigaChat is auto-detected and available by model ID
+        ChatClient client = chatClientStore.get("GigaChat");
+        return client.prompt().user(message).call().content();
+    }
+}
+```
+
+#### Supported External Starters
+
+|  Starter  |                   Artifact                   | ChatModel | EmbeddingModel |
+|-----------|----------------------------------------------|-----------|----------------|
+| GigaChat  | `chat.giga:spring-ai-starter-model-gigachat` | GigaChat  | Embeddings     |
+| Anthropic | `spring-ai-starter-model-anthropic`          | Claude    | -              |
+| Ollama    | `spring-ai-starter-model-ollama`             | *         | *              |
+| Mistral   | `spring-ai-starter-model-mistral-ai`         | *         | *              |
+| Vertex AI | `spring-ai-starter-model-vertex-ai`          | *         | *              |
+
+\* Model ID depends on configuration
 
 ### Error Handling
 

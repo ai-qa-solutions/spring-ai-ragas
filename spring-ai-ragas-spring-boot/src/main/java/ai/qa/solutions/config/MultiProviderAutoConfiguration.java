@@ -2,6 +2,7 @@ package ai.qa.solutions.config;
 
 import ai.qa.solutions.chatclient.ChatClientStore;
 import ai.qa.solutions.config.detector.ExternalChatModelDetector;
+import ai.qa.solutions.config.detector.ExternalEmbeddingModelDetector;
 import ai.qa.solutions.config.factory.OpenAiCompatibleModelFactory;
 import ai.qa.solutions.embedding.EmbeddingModelStore;
 import ai.qa.solutions.properties.MultiProviderProperties;
@@ -61,7 +62,8 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(MultiProviderProperties.class)
 public class MultiProviderAutoConfiguration {
 
-    private final ExternalChatModelDetector externalDetector = new ExternalChatModelDetector();
+    private final ExternalChatModelDetector externalChatModelDetector = new ExternalChatModelDetector();
+    private final ExternalEmbeddingModelDetector externalEmbeddingModelDetector = new ExternalEmbeddingModelDetector();
     private final OpenAiCompatibleModelFactory openAiCompatibleFactory = new OpenAiCompatibleModelFactory();
 
     /**
@@ -84,7 +86,8 @@ public class MultiProviderAutoConfiguration {
             final Map<String, ChatModel> chatModels = chatModelsProvider.getIfAvailable();
             if (chatModels != null && !chatModels.isEmpty()) {
                 log.info("Layer 1: Detecting external ChatModel beans...");
-                final Map<String, List<ChatClient>> externalClients = externalDetector.detect(chatModels);
+                final Map<String, List<ChatClient>> externalClients =
+                        externalChatModelDetector.detect(chatModels, properties.getExternalStarters());
                 mergeClients(allClients, externalClients);
             }
         }
@@ -129,15 +132,25 @@ public class MultiProviderAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public EmbeddingModelStore embeddingModelStore(
+            final ObjectProvider<Map<String, EmbeddingModel>> embeddingModelsProvider,
             final ObjectProvider<OpenAiApi> openAiApiProvider,
-            final ObjectProvider<EmbeddingModel> defaultEmbeddingModelProvider,
             final MultiProviderProperties properties) {
 
         final Map<String, EmbeddingModel> allModels = new HashMap<>();
         final OpenAiApi openAiApi = openAiApiProvider.getIfAvailable();
-        final EmbeddingModel defaultEmbeddingModel = defaultEmbeddingModelProvider.getIfAvailable();
 
-        // Create embedding models from OpenAI-compatible providers
+        // Layer 1: External EmbeddingModel beans (GigaChat, Ollama, etc.)
+        if (properties.isAutoDetectBeans()) {
+            final Map<String, EmbeddingModel> embeddingModels = embeddingModelsProvider.getIfAvailable();
+            if (embeddingModels != null && !embeddingModels.isEmpty()) {
+                log.info("Layer 1: Detecting external EmbeddingModel beans...");
+                final Map<String, EmbeddingModel> externalModels =
+                        externalEmbeddingModelDetector.detect(embeddingModels);
+                allModels.putAll(externalModels);
+            }
+        }
+
+        // Layer 2: Create embedding models from OpenAI-compatible providers
         if (openAiApi != null) {
             for (final OpenAiCompatibleProvider provider : properties.getOpenaiCompatible()) {
                 if (provider.getBaseUrl() == null || provider.getApiKey() == null) {
@@ -188,6 +201,10 @@ public class MultiProviderAutoConfiguration {
                 }
             }
         }
+
+        // Resolve default embedding model from the first available
+        final EmbeddingModel defaultEmbeddingModel =
+                allModels.isEmpty() ? null : allModels.values().iterator().next();
 
         log.info("EmbeddingModelStore initialized with {} models", allModels.size());
         return new EmbeddingModelStore(allModels, defaultEmbeddingModel);

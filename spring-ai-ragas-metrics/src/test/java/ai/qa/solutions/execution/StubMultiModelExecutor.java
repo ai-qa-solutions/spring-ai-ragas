@@ -157,63 +157,66 @@ public class StubMultiModelExecutor extends MultiModelExecutor {
     @Override
     public <R> CompletableFuture<ModelResult<R>> executeLlmOnModelAsync(
             String modelId, String prompt, Class<R> responseType) {
-        return CompletableFuture.supplyAsync(() -> {
-            // Check for simulated error
-            if (modelErrors.containsKey(modelId)) {
-                return ModelResult.failure(modelId, Duration.ZERO, prompt, modelErrors.get(modelId));
-            }
+        // Synchronous execution for predictable test behavior
+        // Check for simulated error
+        if (modelErrors.containsKey(modelId)) {
+            return CompletableFuture.completedFuture(
+                    ModelResult.failure(modelId, Duration.ZERO, prompt, modelErrors.get(modelId)));
+        }
 
-            // Get response from provider
-            @SuppressWarnings("unchecked")
-            Function<String, R> provider = (Function<String, R>) responseProviders.get(responseType);
-            if (provider == null) {
-                throw new IllegalStateException(
-                        "No response provider configured for type: " + responseType.getSimpleName());
-            }
+        // Get response from provider
+        @SuppressWarnings("unchecked")
+        Function<String, R> provider = (Function<String, R>) responseProviders.get(responseType);
+        if (provider == null) {
+            return CompletableFuture.failedFuture(new IllegalStateException(
+                    "No response provider configured for type: " + responseType.getSimpleName()));
+        }
 
-            R response = provider.apply(prompt);
-            return ModelResult.success(modelId, response, Duration.ofMillis(100), prompt);
-        });
+        R response = provider.apply(prompt);
+        return CompletableFuture.completedFuture(
+                ModelResult.success(modelId, response, Duration.ofMillis(100), prompt));
     }
 
     @Override
     public CompletableFuture<ModelResult<float[]>> executeEmbeddingOnModelAsync(String modelId, String text) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (modelErrors.containsKey(modelId)) {
-                return ModelResult.failure(modelId, Duration.ZERO, text, modelErrors.get(modelId));
-            }
+        // Synchronous execution for predictable test behavior
+        if (modelErrors.containsKey(modelId)) {
+            return CompletableFuture.completedFuture(
+                    ModelResult.failure(modelId, Duration.ZERO, text, modelErrors.get(modelId)));
+        }
 
-            if (embeddingProvider == null) {
-                throw new IllegalStateException("No embedding provider configured");
-            }
+        if (embeddingProvider == null) {
+            return CompletableFuture.failedFuture(new IllegalStateException("No embedding provider configured"));
+        }
 
-            float[] embedding = embeddingProvider.apply(text);
-            return ModelResult.success(modelId, embedding, Duration.ofMillis(50), text);
-        });
+        float[] embedding = embeddingProvider.apply(text);
+        return CompletableFuture.completedFuture(ModelResult.success(modelId, embedding, Duration.ofMillis(50), text));
     }
 
     @Override
     public CompletableFuture<ModelResult<List<float[]>>> executeEmbeddingsOnModelAsync(
             String modelId, List<String> texts) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (modelErrors.containsKey(modelId)) {
-                return ModelResult.failure(modelId, Duration.ZERO, String.join(", ", texts), modelErrors.get(modelId));
-            }
+        // Synchronous execution for predictable test behavior
+        if (modelErrors.containsKey(modelId)) {
+            return CompletableFuture.completedFuture(
+                    ModelResult.failure(modelId, Duration.ZERO, String.join(", ", texts), modelErrors.get(modelId)));
+        }
 
-            if (embeddingsProvider != null) {
-                List<float[]> embeddings = embeddingsProvider.apply(texts);
-                return ModelResult.success(modelId, embeddings, Duration.ofMillis(50), String.join(", ", texts));
-            }
+        if (embeddingsProvider != null) {
+            List<float[]> embeddings = embeddingsProvider.apply(texts);
+            return CompletableFuture.completedFuture(
+                    ModelResult.success(modelId, embeddings, Duration.ofMillis(50), String.join(", ", texts)));
+        }
 
-            if (embeddingProvider != null) {
-                List<float[]> embeddings = new ArrayList<>();
-                for (String text : texts) {
-                    embeddings.add(embeddingProvider.apply(text));
-                }
-                return ModelResult.success(modelId, embeddings, Duration.ofMillis(50), String.join(", ", texts));
+        if (embeddingProvider != null) {
+            List<float[]> embeddings = new ArrayList<>();
+            for (String text : texts) {
+                embeddings.add(embeddingProvider.apply(text));
             }
+            return CompletableFuture.completedFuture(
+                    ModelResult.success(modelId, embeddings, Duration.ofMillis(50), String.join(", ", texts)));
+        }
 
-            throw new IllegalStateException("No embedding provider configured");
-        });
+        return CompletableFuture.failedFuture(new IllegalStateException("No embedding provider configured"));
     }
 }

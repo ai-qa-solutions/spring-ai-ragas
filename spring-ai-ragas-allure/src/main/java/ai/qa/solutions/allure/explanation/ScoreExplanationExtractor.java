@@ -72,6 +72,25 @@ public class ScoreExplanationExtractor {
                 case "simple-criteria", "simplecriteria", "simplecriteriascore" -> extractSimpleCriteria(
                         steps, score, language, config);
                 case "rubrics-score", "rubricsscore" -> extractRubricsScore(steps, score, language, config);
+                case "semantic-similarity", "semanticsimilarity" -> extractSemanticSimilarity(
+                        steps, score, language, config);
+                case "factual-correctness", "factualcorrectness" -> extractFactualCorrectness(
+                        steps, score, language, config);
+                case "answer-correctness", "answercorrectness" -> extractAnswerCorrectness(
+                        steps, score, language, config);
+                case "agent-goal-accuracy", "agentgoalaccuracy" -> extractAgentGoalAccuracy(
+                        steps, score, language, config);
+                case "tool-call-accuracy", "toolcallaccuracy" -> extractToolCallAccuracy(
+                        steps, score, language, config);
+                case "topic-adherence", "topicadherence" -> extractTopicAdherence(steps, score, language, config);
+                case "context-relevance", "contextrelevance" -> extractContextRelevance(steps, score, language, config);
+                case "response-groundedness", "responsegroundedness" -> extractResponseGroundedness(
+                        steps, score, language, config);
+                case "answer-accuracy", "answeraccuracy" -> extractAnswerAccuracy(steps, score, language, config);
+                case "bleu-score", "bleuscore", "bleu" -> extractBleuScore(steps, score, language, config);
+                case "rouge-score", "rougescore", "rouge" -> extractRougeScore(steps, score, language, config);
+                case "chrf-score", "chrfscore", "chrf" -> extractChrfScore(steps, score, language, config);
+                case "string-similarity", "stringsimilarity" -> extractStringSimilarity(steps, score, language, config);
                 default -> {
                     log.debug("No explanation extractor for metric: {}", metricName);
                     yield Optional.empty();
@@ -935,6 +954,252 @@ public class ScoreExplanationExtractor {
                         .build());
     }
 
+    private Optional<ScoreExplanation> extractSemanticSimilarity(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        Double threshold = null;
+        final List<SemanticSimilarityExplanation.ModelSimilarityResult> modelResults = new ArrayList<>();
+
+        // Extract threshold from config
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("threshold")) {
+                    final double t = configJson.get("threshold").asDouble(0.0);
+                    if (t > 0) {
+                        threshold = t;
+                    }
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse semantic similarity config: {}", e.getMessage());
+            }
+        }
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract response and reference from request (they are embedded together)
+            if (step.getRequest() != null && response.isEmpty()) {
+                response = extractResponseFromRequest(step.getRequest());
+                reference = extractReferenceFromRequest(step.getRequest());
+            }
+
+            // Extract similarity scores from ComputeCosineSimilarity step
+            if ("ComputeCosineSimilarity".equalsIgnoreCase(stepName)) {
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final double similarity =
+                                    Double.parseDouble(result.getResultJson().trim());
+                            modelResults.add(SemanticSimilarityExplanation.ModelSimilarityResult.builder()
+                                    .modelId(result.getModelId())
+                                    .similarity(similarity)
+                                    .build());
+                        } catch (final NumberFormatException e) {
+                            log.debug("Failed to parse similarity score: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        return Optional.of(SemanticSimilarityExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .modelResults(modelResults)
+                .threshold(threshold)
+                .build());
+    }
+
+    private Optional<ScoreExplanation> extractFactualCorrectness(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        String mode = "F1";
+        final List<String> responseClaims = new ArrayList<>();
+        final List<String> referenceClaims = new ArrayList<>();
+        final List<FactualCorrectnessExplanation.ClaimVerdict> precisionVerdicts = new ArrayList<>();
+        final List<FactualCorrectnessExplanation.ClaimVerdict> recallVerdicts = new ArrayList<>();
+
+        // Extract mode from config
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("mode")) {
+                    mode = configJson.get("mode").asText("F1");
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse factual correctness config: {}", e.getMessage());
+            }
+        }
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract response and reference from request
+            if (step.getRequest() != null) {
+                if (response.isEmpty()) {
+                    response = extractResponseFromRequest(step.getRequest());
+                }
+                if (reference.isEmpty()) {
+                    reference = extractReferenceFromRequest(step.getRequest());
+                }
+            }
+
+            // Extract claims from decomposition steps
+            if ("DecomposeResponseClaims".equalsIgnoreCase(stepName)) {
+                extractClaimsList(step, responseClaims);
+            } else if ("DecomposeReferenceClaims".equalsIgnoreCase(stepName)) {
+                extractClaimsList(step, referenceClaims);
+            } else if ("VerifyClaimsNLI".equalsIgnoreCase(stepName)) {
+                // Extract NLI verdicts
+                extractNliVerdicts(step, precisionVerdicts);
+            }
+        }
+
+        return Optional.of(FactualCorrectnessExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .responseClaims(responseClaims)
+                .referenceClaims(referenceClaims)
+                .precisionVerdicts(precisionVerdicts)
+                .recallVerdicts(recallVerdicts)
+                .mode(mode)
+                .build());
+    }
+
+    private void extractClaimsList(final StepExecutionData step, final List<String> claims) {
+        for (final ModelExecutionData result : step.getModelResults()) {
+            if (result.isSuccess() && result.getResultJson() != null) {
+                try {
+                    final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                    final JsonNode claimsNode = json.get("claims");
+                    if (claimsNode != null && claimsNode.isArray()) {
+                        for (final JsonNode c : claimsNode) {
+                            claims.add(c.asText());
+                        }
+                        break; // Use first successful model's claims
+                    }
+                } catch (final JsonProcessingException e) {
+                    log.debug("Failed to parse claims JSON: {}", e.getMessage());
+                }
+            }
+        }
+    }
+
+    private Optional<ScoreExplanation> extractAnswerCorrectness(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        double factualScore = 0.0;
+        double semanticScore = 0.0;
+        double factualWeight = 0.75;
+        double semanticWeight = 0.25;
+
+        // Extract weights from config
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("factualWeight")) {
+                    factualWeight = configJson.get("factualWeight").asDouble(0.75);
+                }
+                if (configJson.has("semanticWeight")) {
+                    semanticWeight = configJson.get("semanticWeight").asDouble(0.25);
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse answer correctness config: {}", e.getMessage());
+            }
+        }
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract response and reference from request
+            if (step.getRequest() != null) {
+                if (response.isEmpty()) {
+                    response = extractResponseFromRequest(step.getRequest());
+                }
+                if (reference.isEmpty()) {
+                    reference = extractReferenceFromRequest(step.getRequest());
+                }
+            }
+
+            // Extract component scores from their respective steps
+            if ("ComputeFactualCorrectness".equalsIgnoreCase(stepName)) {
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            factualScore =
+                                    Double.parseDouble(result.getResultJson().trim());
+                            break;
+                        } catch (final NumberFormatException e) {
+                            log.debug("Failed to parse factual score: {}", e.getMessage());
+                        }
+                    }
+                }
+            } else if ("ComputeSemanticSimilarity".equalsIgnoreCase(stepName)) {
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            semanticScore =
+                                    Double.parseDouble(result.getResultJson().trim());
+                            break;
+                        } catch (final NumberFormatException e) {
+                            log.debug("Failed to parse semantic score: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        return Optional.of(AnswerCorrectnessExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .factualScore(factualScore)
+                .semanticScore(semanticScore)
+                .factualWeight(factualWeight)
+                .semanticWeight(semanticWeight)
+                .build());
+    }
+
+    private void extractNliVerdicts(
+            final StepExecutionData step, final List<FactualCorrectnessExplanation.ClaimVerdict> verdicts) {
+        for (final ModelExecutionData result : step.getModelResults()) {
+            if (result.isSuccess() && result.getResultJson() != null) {
+                try {
+                    final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+
+                    // Try to extract from NliVerificationResult wrapper
+                    JsonNode verdictsSource = json;
+                    if (json.has("precisionVerdicts")) {
+                        verdictsSource = json.get("precisionVerdicts");
+                    }
+
+                    final JsonNode verdictsNode = verdictsSource.get("verdicts");
+                    if (verdictsNode != null && verdictsNode.isArray()) {
+                        for (final JsonNode v : verdictsNode) {
+                            verdicts.add(FactualCorrectnessExplanation.ClaimVerdict.builder()
+                                    .claim(getTextSafe(v, "claim"))
+                                    .verdict(getTextSafe(v, "verdict"))
+                                    .reason(getTextSafe(v, "reason"))
+                                    .build());
+                        }
+                        break; // Use first successful model's verdicts
+                    }
+                } catch (final JsonProcessingException e) {
+                    log.debug("Failed to parse NLI verdicts JSON: {}", e.getMessage());
+                }
+            }
+        }
+    }
+
     private String getTextSafe(final JsonNode node, final String field) {
         if (node == null || !node.has(field)) {
             return "";
@@ -947,5 +1212,743 @@ public class ScoreExplanationExtractor {
             return 0;
         }
         return node.get(field).asInt(0);
+    }
+
+    private Optional<ScoreExplanation> extractAgentGoalAccuracy(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String mode = "WITH_REFERENCE";
+        String conversation = "";
+        String referenceGoal = "";
+        String inferredGoal = null;
+        boolean goalAchieved = score != null && score >= 0.5;
+        String reasoning = "";
+
+        // Extract mode from config
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("mode")) {
+                    mode = configJson.get("mode").asText("WITH_REFERENCE");
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse agent goal accuracy config: {}", e.getMessage());
+            }
+        }
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract conversation from request
+            if (step.getRequest() != null && conversation.isEmpty()) {
+                conversation = extractConversationFromRequest(step.getRequest());
+                referenceGoal = extractGoalFromRequest(step.getRequest());
+            }
+
+            // Extract inferred goal from InferGoal step
+            if ("InferGoal".equalsIgnoreCase(stepName)) {
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            if (json.has("inferredGoal")) {
+                                inferredGoal = json.get("inferredGoal").asText();
+                                break;
+                            }
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse inferred goal JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            // Extract verdict from CompareOutcome or EvaluateOutcome step
+            if ("CompareOutcome".equalsIgnoreCase(stepName) || "EvaluateOutcome".equalsIgnoreCase(stepName)) {
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            if (json.has("goalAchieved")) {
+                                goalAchieved = json.get("goalAchieved").asBoolean();
+                            }
+                            if (json.has("reasoning")) {
+                                reasoning = json.get("reasoning").asText();
+                            }
+                            break;
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse goal verdict JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        return Optional.of(AgentGoalAccuracyExplanation.builder()
+                .score(score)
+                .language(language)
+                .mode(mode)
+                .conversation(conversation)
+                .referenceGoal(referenceGoal)
+                .inferredGoal(inferredGoal)
+                .goalAchieved(goalAchieved)
+                .reasoning(reasoning)
+                .build());
+    }
+
+    private String extractConversationFromRequest(final String request) {
+        // Extract "Conversation:" from prompt
+        if (request.contains("Conversation:")) {
+            final int start = request.indexOf("Conversation:") + 13;
+            // Find where conversation ends - at the next section marker
+            int end = request.length();
+            final String[] sectionMarkers = {"Instructions:", "Goal:", "Expected Outcome:", "Respond with"};
+            for (final String marker : sectionMarkers) {
+                final int markerIdx = request.indexOf(marker, start);
+                if (markerIdx > start && markerIdx < end) {
+                    end = markerIdx;
+                }
+            }
+            return request.substring(start, end).trim();
+        }
+        return "";
+    }
+
+    private String extractGoalFromRequest(final String request) {
+        // Extract "Expected Outcome:" or "Goal:" from prompt
+        if (request.contains("Expected Outcome:")) {
+            final int start = request.indexOf("Expected Outcome:") + 17;
+            final int end = request.indexOf("\n", start);
+            if (end > start) {
+                return request.substring(start, end).trim();
+            }
+            return request.substring(start).trim();
+        }
+        if (request.contains("Goal:")) {
+            final int start = request.indexOf("Goal:") + 5;
+            final int end = request.indexOf("\n", start);
+            if (end > start) {
+                return request.substring(start, end).trim();
+            }
+            return request.substring(start).trim();
+        }
+        return "";
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<ScoreExplanation> extractToolCallAccuracy(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String mode = "STRICT";
+        double precision = 0.0;
+        double recall = 0.0;
+        int truePositives = 0;
+        int falsePositives = 0;
+        int falseNegatives = 0;
+        final List<ToolCallAccuracyExplanation.ToolCallMatch> matches = new ArrayList<>();
+
+        // Extract mode from config
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("mode")) {
+                    mode = configJson.get("mode").asText("STRICT");
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse tool call accuracy config: {}", e.getMessage());
+            }
+        }
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract metrics from metadata if available
+            for (final ModelExecutionData result : step.getModelResults()) {
+                if (result.isSuccess() && result.getResultJson() != null) {
+                    try {
+                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+
+                        // Extract precision/recall from ComputePrecisionRecall step
+                        if ("ComputePrecisionRecall".equalsIgnoreCase(stepName)) {
+                            if (json.has("precision")) {
+                                precision = json.get("precision").asDouble();
+                            }
+                            if (json.has("recall")) {
+                                recall = json.get("recall").asDouble();
+                            }
+                            if (json.has("truePositives")) {
+                                truePositives = json.get("truePositives").asInt();
+                            }
+                            if (json.has("falsePositives")) {
+                                falsePositives = json.get("falsePositives").asInt();
+                            }
+                            if (json.has("falseNegatives")) {
+                                falseNegatives = json.get("falseNegatives").asInt();
+                            }
+                        }
+
+                        // Extract matches from AlignToolCalls step
+                        if ("AlignToolCalls".equalsIgnoreCase(stepName)) {
+                            final JsonNode matchesNode = json.get("matches");
+                            if (matchesNode != null && matchesNode.isArray()) {
+                                for (final JsonNode m : matchesNode) {
+                                    final JsonNode actualCall = m.get("actualCall");
+                                    final String toolName = actualCall != null ? getTextSafe(actualCall, "name") : "";
+                                    final Map<String, Object> arguments = new HashMap<>();
+                                    if (actualCall != null && actualCall.has("arguments")) {
+                                        actualCall
+                                                .get("arguments")
+                                                .fields()
+                                                .forEachRemaining(entry -> arguments.put(
+                                                        entry.getKey(),
+                                                        entry.getValue().asText()));
+                                    }
+
+                                    matches.add(ToolCallAccuracyExplanation.ToolCallMatch.builder()
+                                            .toolName(toolName)
+                                            .arguments(arguments)
+                                            .matched(m.has("matched")
+                                                    && m.get("matched").asBoolean())
+                                            .matchScore(
+                                                    m.has("matchScore")
+                                                            ? m.get("matchScore")
+                                                                    .asDouble()
+                                                            : 0.0)
+                                            .build());
+                                }
+                            }
+                        }
+                        break;
+                    } catch (final JsonProcessingException e) {
+                        log.debug("Failed to parse tool call accuracy JSON: {}", e.getMessage());
+                    }
+                }
+            }
+        }
+
+        // If no explicit precision/recall found, calculate from score
+        if (precision == 0.0 && recall == 0.0 && score != null && score > 0) {
+            // Assume equal precision and recall when we only have F1
+            precision = score;
+            recall = score;
+        }
+
+        return Optional.of(ToolCallAccuracyExplanation.builder()
+                .score(score)
+                .language(language)
+                .mode(mode)
+                .precision(precision)
+                .recall(recall)
+                .truePositives(truePositives)
+                .falsePositives(falsePositives)
+                .falseNegatives(falseNegatives)
+                .matches(matches)
+                .build());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<ScoreExplanation> extractTopicAdherence(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String mode = "F1";
+        double precision = 0.0;
+        double recall = 0.0;
+        final List<String> extractedTopics = new ArrayList<>();
+        final List<String> referenceTopics = new ArrayList<>();
+        final List<TopicAdherenceExplanation.TopicClassificationItem> classifications = new ArrayList<>();
+
+        // Extract mode from config
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("mode")) {
+                    mode = configJson.get("mode").asText("F1");
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse topic adherence config: {}", e.getMessage());
+            }
+        }
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract reference topics from request
+            if (step.getRequest() != null && referenceTopics.isEmpty()) {
+                extractReferenceTopicsFromRequest(step.getRequest(), referenceTopics);
+            }
+
+            // Extract topics from ExtractTopics step
+            if ("ExtractTopics".equalsIgnoreCase(stepName)) {
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode topicsNode = json.get("topics");
+                            if (topicsNode != null && topicsNode.isArray()) {
+                                for (final JsonNode t : topicsNode) {
+                                    extractedTopics.add(t.asText());
+                                }
+                                break; // Use first successful model's topics
+                            }
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse extracted topics JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            // Extract classifications from ClassifyTopics step
+            if ("ClassifyTopics".equalsIgnoreCase(stepName)) {
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode classificationsNode = json.get("classifications");
+                            if (classificationsNode != null && classificationsNode.isArray()) {
+                                for (final JsonNode c : classificationsNode) {
+                                    classifications.add(TopicAdherenceExplanation.TopicClassificationItem.builder()
+                                            .extractedTopic(getTextSafe(c, "extractedTopic"))
+                                            .onTopic(c.has("onTopic")
+                                                    && c.get("onTopic").asBoolean())
+                                            .matchedReferenceTopic(getTextSafe(c, "matchedReferenceTopic"))
+                                            .reasoning(getTextSafe(c, "reasoning"))
+                                            .build());
+                                }
+                                break; // Use first successful model's classifications
+                            }
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse topic classifications JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Calculate precision and recall from classifications
+        if (!classifications.isEmpty()) {
+            final long onTopicCount = classifications.stream()
+                    .filter(TopicAdherenceExplanation.TopicClassificationItem::isOnTopic)
+                    .count();
+            precision = (double) onTopicCount / classifications.size();
+
+            final long coveredReferenceCount = classifications.stream()
+                    .filter(TopicAdherenceExplanation.TopicClassificationItem::isOnTopic)
+                    .map(TopicAdherenceExplanation.TopicClassificationItem::getMatchedReferenceTopic)
+                    .filter(t -> t != null && !t.isEmpty())
+                    .distinct()
+                    .count();
+            recall = referenceTopics.isEmpty() ? 0.0 : (double) coveredReferenceCount / referenceTopics.size();
+        }
+
+        return Optional.of(TopicAdherenceExplanation.builder()
+                .score(score)
+                .language(language)
+                .mode(mode)
+                .precision(precision)
+                .recall(recall)
+                .extractedTopics(extractedTopics)
+                .referenceTopics(referenceTopics)
+                .classifications(classifications)
+                .build());
+    }
+
+    private void extractReferenceTopicsFromRequest(final String request, final List<String> referenceTopics) {
+        // Extract "Reference Topics:" from prompt
+        if (request.contains("Reference Topics")) {
+            int start = request.indexOf("Reference Topics");
+            // Skip past the label
+            start = request.indexOf(":", start);
+            if (start > 0) {
+                start++;
+                // Find where topics list ends
+                int end = request.length();
+                final String[] sectionMarkers = {"Instructions:", "Respond with", "Your task"};
+                for (final String marker : sectionMarkers) {
+                    final int markerIdx = request.indexOf(marker, start);
+                    if (markerIdx > start && markerIdx < end) {
+                        end = markerIdx;
+                    }
+                }
+                final String topicsSection = request.substring(start, end).trim();
+                // Parse topics (typically as "- topic1\n- topic2" or comma-separated)
+                for (final String line : topicsSection.split("\n")) {
+                    String topic = line.trim();
+                    if (topic.startsWith("-")) {
+                        topic = topic.substring(1).trim();
+                    }
+                    if (!topic.isEmpty()) {
+                        referenceTopics.add(topic);
+                    }
+                }
+            }
+        }
+    }
+
+    private Optional<ScoreExplanation> extractContextRelevance(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String userInput = "";
+        final List<ContextRelevanceExplanation.ContextEvaluation> contextEvaluations = new ArrayList<>();
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract user input from request
+            if (step.getRequest() != null && userInput.isEmpty()) {
+                userInput = extractUserInputFromRequest(step.getRequest());
+                if (userInput.isEmpty()) {
+                    userInput = extractQuestionFromRequest(step.getRequest());
+                }
+            }
+
+            // Extract context evaluations from EvaluateRelevance steps
+            if (stepName != null && stepName.startsWith("EvaluateRelevance")) {
+                // Extract context text from request
+                final String context = step.getRequest() != null ? extractContextFromRequest(step.getRequest()) : "";
+
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            if (json.has("score")) {
+                                final int rawScore = json.get("score").asInt();
+                                final double normalizedScore = rawScore / 2.0;
+                                final String reasoning = getTextSafe(json, "reasoning");
+
+                                contextEvaluations.add(ContextRelevanceExplanation.ContextEvaluation.builder()
+                                        .context(context)
+                                        .rawScore(rawScore)
+                                        .normalizedScore(normalizedScore)
+                                        .reasoning(reasoning)
+                                        .build());
+                                break; // Use first successful model's evaluation for this context
+                            }
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse context relevance JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        return Optional.of(ContextRelevanceExplanation.builder()
+                .score(score)
+                .language(language)
+                .userInput(userInput)
+                .contextEvaluations(contextEvaluations)
+                .build());
+    }
+
+    private Optional<ScoreExplanation> extractResponseGroundedness(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String context = "";
+        int rawScore = 0;
+        String reasoning = "";
+        boolean usedHeuristics = false;
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Check if heuristics were used
+            if (stepName != null && stepName.equals("ApplyHeuristics")) {
+                usedHeuristics = true;
+                // Extract response from request
+                if (step.getRequest() != null && response.isEmpty()) {
+                    response = extractResponseFromRequest(step.getRequest());
+                }
+            }
+
+            // Extract groundedness evaluation from EvaluateGroundedness step
+            if (stepName != null && stepName.equals("EvaluateGroundedness")) {
+                // Extract response and context from request
+                if (step.getRequest() != null) {
+                    if (response.isEmpty()) {
+                        response = extractResponseFromRequest(step.getRequest());
+                    }
+                    context = extractContextFromRequest(step.getRequest());
+                }
+
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            if (json.has("score")) {
+                                rawScore = json.get("score").asInt();
+                                reasoning = getTextSafe(json, "reasoning");
+                                break; // Use first successful model's evaluation
+                            }
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse response groundedness JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        // If heuristics returned early with score 1.0, set rawScore to 2
+        if (usedHeuristics && score != null && score >= 1.0 && rawScore == 0) {
+            rawScore = 2;
+            reasoning = "Heuristic match - response exactly matches or is contained in context";
+        }
+
+        return Optional.of(ResponseGroundednessExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .context(context)
+                .rawScore(rawScore)
+                .reasoning(reasoning)
+                .usedHeuristics(usedHeuristics)
+                .build());
+    }
+
+    private Optional<ScoreExplanation> extractAnswerAccuracy(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        int rawScore = 0;
+        String reasoning = "";
+        boolean usedDualJudge = false;
+        Integer confirmationScore = null;
+        String confirmationReasoning = "";
+
+        for (final StepExecutionData step : steps) {
+            final String stepName = step.getStepName();
+
+            // Extract initial judgment
+            if (stepName != null && stepName.equals("InitialJudgment")) {
+                // Extract response and reference from request
+                if (step.getRequest() != null) {
+                    response = extractResponseFromRequest(step.getRequest());
+                    reference = extractReferenceFromRequest(step.getRequest());
+                }
+
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            if (json.has("score")) {
+                                rawScore = json.get("score").asInt();
+                                reasoning = getTextSafe(json, "reasoning");
+                                break; // Use first successful model's evaluation
+                            }
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse answer accuracy initial JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            // Extract confirmation judgment if present
+            if (stepName != null && stepName.equals("ConfirmJudgment")) {
+                usedDualJudge = true;
+
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            if (json.has("score")) {
+                                confirmationScore = json.get("score").asInt();
+                                confirmationReasoning = getTextSafe(json, "reasoning");
+                                break; // Use first successful model's evaluation
+                            }
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse answer accuracy confirmation JSON: {}", e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        return Optional.of(AnswerAccuracyExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .rawScore(rawScore)
+                .reasoning(reasoning)
+                .usedDualJudge(usedDualJudge)
+                .confirmationScore(confirmationScore)
+                .confirmationReasoning(confirmationReasoning)
+                .build());
+    }
+
+    // ==================== NLP Metrics (Non-LLM) ====================
+
+    private Optional<ScoreExplanation> extractBleuScore(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        int maxNgram = 4;
+        boolean smoothing = true;
+
+        // Extract config parameters
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("maxNgram")) {
+                    maxNgram = configJson.get("maxNgram").asInt(4);
+                }
+                if (configJson.has("smoothing")) {
+                    smoothing = configJson.get("smoothing").asBoolean(true);
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse BLEU score config: {}", e.getMessage());
+            }
+        }
+
+        // Extract response and reference from steps (if available)
+        for (final StepExecutionData step : steps) {
+            if (step.getRequest() != null) {
+                if (response.isEmpty()) {
+                    response = extractResponseFromRequest(step.getRequest());
+                }
+                if (reference.isEmpty()) {
+                    reference = extractReferenceFromRequest(step.getRequest());
+                }
+            }
+        }
+
+        return Optional.of(BleuScoreExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .maxNgram(maxNgram)
+                .smoothing(smoothing)
+                .build());
+    }
+
+    private Optional<ScoreExplanation> extractRougeScore(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        String rougeType = "ROUGE_L";
+        String mode = "FMEASURE";
+
+        // Extract config parameters
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("rougeType")) {
+                    rougeType = configJson.get("rougeType").asText("ROUGE_L");
+                }
+                if (configJson.has("mode")) {
+                    mode = configJson.get("mode").asText("FMEASURE");
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse ROUGE score config: {}", e.getMessage());
+            }
+        }
+
+        // Extract response and reference from steps (if available)
+        for (final StepExecutionData step : steps) {
+            if (step.getRequest() != null) {
+                if (response.isEmpty()) {
+                    response = extractResponseFromRequest(step.getRequest());
+                }
+                if (reference.isEmpty()) {
+                    reference = extractReferenceFromRequest(step.getRequest());
+                }
+            }
+        }
+
+        return Optional.of(RougeScoreExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .rougeType(rougeType)
+                .mode(mode)
+                .build());
+    }
+
+    private Optional<ScoreExplanation> extractChrfScore(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        int charNgramOrder = 6;
+        int wordNgramOrder = 0;
+        double beta = 2.0;
+
+        // Extract config parameters
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("charNgramOrder")) {
+                    charNgramOrder = configJson.get("charNgramOrder").asInt(6);
+                }
+                if (configJson.has("wordNgramOrder")) {
+                    wordNgramOrder = configJson.get("wordNgramOrder").asInt(0);
+                }
+                if (configJson.has("beta")) {
+                    beta = configJson.get("beta").asDouble(2.0);
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse chrF score config: {}", e.getMessage());
+            }
+        }
+
+        // Extract response and reference from steps (if available)
+        for (final StepExecutionData step : steps) {
+            if (step.getRequest() != null) {
+                if (response.isEmpty()) {
+                    response = extractResponseFromRequest(step.getRequest());
+                }
+                if (reference.isEmpty()) {
+                    reference = extractReferenceFromRequest(step.getRequest());
+                }
+            }
+        }
+
+        return Optional.of(ChrfScoreExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .charNgramOrder(charNgramOrder)
+                .wordNgramOrder(wordNgramOrder)
+                .beta(beta)
+                .build());
+    }
+
+    private Optional<ScoreExplanation> extractStringSimilarity(
+            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+        String response = "";
+        String reference = "";
+        String distanceMeasure = "JARO_WINKLER";
+        boolean caseSensitive = false;
+
+        // Extract config parameters
+        if (config != null) {
+            try {
+                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                if (configJson.has("distanceMeasure")) {
+                    distanceMeasure = configJson.get("distanceMeasure").asText("JARO_WINKLER");
+                }
+                if (configJson.has("caseSensitive")) {
+                    caseSensitive = configJson.get("caseSensitive").asBoolean(false);
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to parse string similarity config: {}", e.getMessage());
+            }
+        }
+
+        // Extract response and reference from steps (if available)
+        for (final StepExecutionData step : steps) {
+            if (step.getRequest() != null) {
+                if (response.isEmpty()) {
+                    response = extractResponseFromRequest(step.getRequest());
+                }
+                if (reference.isEmpty()) {
+                    reference = extractReferenceFromRequest(step.getRequest());
+                }
+            }
+        }
+
+        return Optional.of(StringSimilarityExplanation.builder()
+                .score(score)
+                .language(language)
+                .response(response)
+                .reference(reference)
+                .distanceMeasure(distanceMeasure)
+                .caseSensitive(caseSensitive)
+                .build());
     }
 }

@@ -103,7 +103,7 @@ public class ContextRecallMetric extends AbstractMultiModelMetric<ContextRecallM
                 .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             log.debug("Computing LLM-based context recall evaluation");
 
             // ========== Step 1: Classify statements ==========

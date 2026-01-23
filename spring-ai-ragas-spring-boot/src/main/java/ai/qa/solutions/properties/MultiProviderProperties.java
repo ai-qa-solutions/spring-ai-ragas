@@ -1,7 +1,9 @@
 package ai.qa.solutions.properties;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -83,6 +85,45 @@ public class MultiProviderProperties {
      * Global default options applied to all embedding models when individual options are not specified.
      */
     private EmbeddingDefaultOptions embeddingDefaultOptions = new EmbeddingDefaultOptions();
+
+    /**
+     * Configuration for external Spring AI starters (GigaChat, Anthropic, Ollama, etc.).
+     * Allows overriding model IDs, enabling/disabling specific starters.
+     * Key is the starter name (e.g., "gigachat", "anthropic", "ollama").
+     */
+    private Map<String, ExternalStarterConfig> externalStarters = new HashMap<>();
+
+    /**
+     * Configuration for an external Spring AI starter.
+     */
+    @Getter
+    @Setter
+    public static class ExternalStarterConfig {
+
+        /**
+         * Whether this starter is enabled. Default is true.
+         */
+        private boolean enabled = true;
+
+        /**
+         * List of chat model IDs to register from this starter.
+         * Each model ID will create a separate ChatClient entry.
+         * If empty, the model ID will be auto-detected from the ChatModel bean.
+         */
+        private List<String> chatModels = new ArrayList<>();
+
+        /**
+         * List of embedding model IDs to register from this starter.
+         * If empty, the model ID will be auto-detected from the EmbeddingModel bean.
+         */
+        private List<String> embeddingModels = new ArrayList<>();
+
+        /**
+         * Whether to include the embedding model from this starter.
+         * Default is true.
+         */
+        private boolean includeEmbedding = true;
+    }
 
     /**
      * Configuration for an OpenAI-compatible API provider.

@@ -24,6 +24,13 @@
             <groupId>io.github.ai-qa-solutions</groupId>
             <artifactId>spring-ai-ragas-multi-model</artifactId>
         </dependency>
+
+        <!-- Apache Commons Text for NLP metrics (BLEU, ROUGE, string similarity) -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.11.0</version>
+        </dependency>
     </dependencies>
 
 </project>

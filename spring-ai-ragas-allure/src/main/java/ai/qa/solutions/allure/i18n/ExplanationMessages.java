@@ -306,7 +306,440 @@ public final class ExplanationMessages {
                 Map.entry("rubricsScore.step3.title", "Score calculation"),
                 Map.entry("rubricsScore.step3.desc", "Normalizing selected level to 0-1 scale."),
                 Map.entry("rubricsScore.meaning", "Selected level %d: %s"),
-                Map.entry("rubricsScore.level", "Level %d"));
+                Map.entry("rubricsScore.level", "Level %d"),
+
+                // SemanticSimilarity
+                Map.entry(
+                        "semanticSimilarity.description",
+                        "This metric measures how semantically similar the AI response is to the reference. "
+                                + "It uses embedding models to compute vector representations and cosine similarity."),
+                Map.entry("semanticSimilarity.response", "Response"),
+                Map.entry("semanticSimilarity.reference", "Reference"),
+                Map.entry("semanticSimilarity.step1.title", "Input texts"),
+                Map.entry("semanticSimilarity.step1.desc", "The response and reference texts to compare."),
+                Map.entry("semanticSimilarity.step2.title", "Computing embeddings"),
+                Map.entry(
+                        "semanticSimilarity.step2.desc",
+                        "Converting response and reference to vector representations using embedding models."),
+                Map.entry("semanticSimilarity.step2.output", "Embeddings computed by %d models"),
+                Map.entry("semanticSimilarity.step3.title", "Computing cosine similarity"),
+                Map.entry(
+                        "semanticSimilarity.step3.desc",
+                        "Calculating cosine similarity between response and reference embeddings."),
+                Map.entry("semanticSimilarity.step3.outputThreshold", "%s (threshold: %.2f)"),
+                Map.entry("semanticSimilarity.formula", "cosine_similarity(embed(response), embed(reference))"),
+                Map.entry(
+                        "semanticSimilarity.meaning.excellent",
+                        "Excellent - response is semantically nearly identical to reference"),
+                Map.entry("semanticSimilarity.meaning.good", "Good - response conveys similar meaning to reference"),
+                Map.entry(
+                        "semanticSimilarity.meaning.moderate", "Moderate - response is somewhat related to reference"),
+                Map.entry("semanticSimilarity.meaning.poor", "Poor - response differs significantly from reference"),
+                Map.entry("semanticSimilarity.meaning.passThreshold", "PASS - similarity >= threshold (%.2f)"),
+                Map.entry("semanticSimilarity.meaning.failThreshold", "FAIL - similarity < threshold (%.2f)"),
+                Map.entry("semanticSimilarity.scale.excellent", "Nearly identical meaning"),
+                Map.entry("semanticSimilarity.scale.good", "Similar meaning"),
+                Map.entry("semanticSimilarity.scale.moderate", "Somewhat related"),
+                Map.entry("semanticSimilarity.scale.poor", "Different meanings"),
+
+                // FactualCorrectness
+                Map.entry(
+                        "factualCorrectness.description",
+                        "This metric checks: are the facts in the AI response correct? "
+                                + "We decompose response and reference into atomic claims and verify each using NLI."),
+                Map.entry("factualCorrectness.step1.title", "Decomposing response into claims"),
+                Map.entry(
+                        "factualCorrectness.step1.desc",
+                        "The AI response is broken down into individual atomic claims that can be verified."),
+                Map.entry("factualCorrectness.step1.output", "Extracted %d claims from response"),
+                Map.entry("factualCorrectness.step2.title", "Decomposing reference into claims"),
+                Map.entry(
+                        "factualCorrectness.step2.desc",
+                        "The reference answer is broken down into individual atomic claims."),
+                Map.entry("factualCorrectness.step2.output", "Extracted %d claims from reference"),
+                Map.entry("factualCorrectness.step3.title", "Verifying claims with NLI"),
+                Map.entry(
+                        "factualCorrectness.step3.desc",
+                        "Each claim is verified using Natural Language Inference: SUPPORTED, CONTRADICTED, or NEUTRAL."),
+                Map.entry("factualCorrectness.step3.output", "Precision: %d/%d supported, Recall: %d/%d supported"),
+                Map.entry("factualCorrectness.step4.title", "Computing final score"),
+                Map.entry("factualCorrectness.step4.desc", "Calculating %s score from precision and recall."),
+                Map.entry("factualCorrectness.formula", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry("factualCorrectness.formula.f1", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry(
+                        "factualCorrectness.formula.precision",
+                        "Precision = supported response claims / total response claims"),
+                Map.entry(
+                        "factualCorrectness.formula.recall",
+                        "Recall = supported reference claims / total reference claims"),
+                Map.entry(
+                        "factualCorrectness.meaning.excellent",
+                        "Excellent - all claims are factually correct and complete"),
+                Map.entry("factualCorrectness.meaning.good", "Good - most claims are correct with minor omissions"),
+                Map.entry("factualCorrectness.meaning.moderate", "Moderate - some facts are incorrect or missing"),
+                Map.entry("factualCorrectness.meaning.poor", "Poor - many factual errors or significant omissions"),
+                Map.entry("factualCorrectness.scale.excellent", "All claims verified as correct"),
+                Map.entry("factualCorrectness.scale.good", "Most claims are correct"),
+                Map.entry("factualCorrectness.scale.moderate", "Some claims incorrect or missing"),
+                Map.entry("factualCorrectness.scale.poor", "Many factual errors"),
+
+                // NLI Verdicts
+                Map.entry("verdict.supported", "SUPPORTED"),
+                Map.entry("verdict.contradicted", "CONTRADICTED"),
+                Map.entry("verdict.neutral", "NEUTRAL"),
+
+                // AnswerCorrectness
+                Map.entry(
+                        "answerCorrectness.description",
+                        "This metric combines factual correctness and semantic similarity to evaluate answer quality. "
+                                + "It weighs both whether facts are correct and whether the meaning is preserved."),
+                Map.entry("answerCorrectness.step1.title", "Input texts"),
+                Map.entry("answerCorrectness.step1.desc", "The response and reference texts to compare."),
+                Map.entry("answerCorrectness.step2.title", "Computing factual correctness"),
+                Map.entry(
+                        "answerCorrectness.step2.desc",
+                        "Evaluating factual correctness using claims decomposition and NLI verification."),
+                Map.entry("answerCorrectness.step3.title", "Computing semantic similarity"),
+                Map.entry(
+                        "answerCorrectness.step3.desc",
+                        "Calculating semantic similarity using embeddings and cosine similarity."),
+                Map.entry("answerCorrectness.step4.title", "Combining scores"),
+                Map.entry("answerCorrectness.step4.desc", "Computing weighted average of factual and semantic scores."),
+                Map.entry("answerCorrectness.factualScore", "Factual correctness"),
+                Map.entry("answerCorrectness.semanticScore", "Semantic similarity"),
+                Map.entry("answerCorrectness.factual", "factual"),
+                Map.entry("answerCorrectness.semantic", "semantic"),
+                Map.entry("common.response", "Response"),
+                Map.entry("common.reference", "Reference"),
+                Map.entry(
+                        "answerCorrectness.meaning.excellent",
+                        "Excellent - response is both factually correct and semantically aligned"),
+                Map.entry("answerCorrectness.meaning.good", "Good - response is mostly correct with high similarity"),
+                Map.entry("answerCorrectness.meaning.moderate", "Moderate - some factual issues or semantic drift"),
+                Map.entry("answerCorrectness.meaning.poor", "Poor - significant factual errors or semantic mismatch"),
+                Map.entry("answerCorrectness.scale.excellent", "Both factually correct and semantically aligned"),
+                Map.entry("answerCorrectness.scale.good", "Mostly correct with good similarity"),
+                Map.entry("answerCorrectness.scale.moderate", "Some issues with facts or meaning"),
+                Map.entry("answerCorrectness.scale.poor", "Significant errors or mismatch"),
+
+                // AgentGoalAccuracy
+                Map.entry(
+                        "agentGoalAccuracy.description",
+                        "This metric evaluates whether an AI agent achieved its intended goal. "
+                                + "It analyzes multi-turn conversations to determine goal completion."),
+                Map.entry("agentGoalAccuracy.step.inferGoal.title", "Inferring goal from conversation"),
+                Map.entry(
+                        "agentGoalAccuracy.step.inferGoal.desc",
+                        "LLM analyzes the conversation to infer what the user's primary goal was."),
+                Map.entry("agentGoalAccuracy.step.evaluateOutcome.title", "Evaluating outcome"),
+                Map.entry(
+                        "agentGoalAccuracy.step.evaluateOutcome.desc",
+                        "Determining if the agent's actions successfully achieved the inferred goal."),
+                Map.entry("agentGoalAccuracy.step.compareOutcome.title", "Comparing with expected outcome"),
+                Map.entry(
+                        "agentGoalAccuracy.step.compareOutcome.desc",
+                        "Comparing the conversation outcome with the provided expected goal."),
+                Map.entry("agentGoalAccuracy.goal", "Goal"),
+                Map.entry("agentGoalAccuracy.expectedOutcome", "Expected outcome"),
+                Map.entry("agentGoalAccuracy.formula", "Binary: 1.0 if goal achieved, 0.0 otherwise"),
+                Map.entry("agentGoalAccuracy.verdict.achieved", "GOAL ACHIEVED"),
+                Map.entry("agentGoalAccuracy.verdict.notAchieved", "GOAL NOT ACHIEVED"),
+                Map.entry("agentGoalAccuracy.level.achieved", "Achieved"),
+                Map.entry("agentGoalAccuracy.level.notAchieved", "Not Achieved"),
+                Map.entry("agentGoalAccuracy.meaning.achieved", "The agent successfully completed the intended goal"),
+                Map.entry("agentGoalAccuracy.meaning.notAchieved", "The agent failed to complete the intended goal"),
+                Map.entry("agentGoalAccuracy.scale.achieved", "Goal fully accomplished by the agent"),
+                Map.entry("agentGoalAccuracy.scale.notAchieved", "Goal not accomplished - action incomplete or failed"),
+                Map.entry("common.notAvailable", "Not available"),
+
+                // ToolCallAccuracy
+                Map.entry(
+                        "toolCallAccuracy.description",
+                        "This metric evaluates accuracy of agent's tool calls against expected reference calls. "
+                                + "It compares actual tool invocations with expected ones using F1 score."),
+                Map.entry("toolCallAccuracy.step.alignToolCalls.title", "Aligning tool calls"),
+                Map.entry(
+                        "toolCallAccuracy.step.alignToolCalls.desc",
+                        "Matching actual tool calls with reference tool calls based on tool name and arguments."),
+                Map.entry("toolCallAccuracy.step.computePrecisionRecall.title", "Computing precision and recall"),
+                Map.entry(
+                        "toolCallAccuracy.step.computePrecisionRecall.desc",
+                        "Calculating precision (correct calls / total actual) and recall (correct calls / total reference)."),
+                Map.entry("toolCallAccuracy.step.computeScore.title", "Computing F1 score"),
+                Map.entry(
+                        "toolCallAccuracy.step.computeScore.desc",
+                        "Computing the final F1 score as harmonic mean of precision and recall."),
+                Map.entry("toolCallAccuracy.formula", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry("toolCallAccuracy.mode.strict", "STRICT"),
+                Map.entry("toolCallAccuracy.mode.flexible", "FLEXIBLE"),
+                Map.entry("toolCallAccuracy.modeLabel", "Mode"),
+                Map.entry("toolCallAccuracy.precisionLabel", "Precision"),
+                Map.entry("toolCallAccuracy.recallLabel", "Recall"),
+                Map.entry("toolCallAccuracy.matchedLabel", "Matched"),
+                Map.entry("toolCallAccuracy.notMatchedLabel", "Not Matched"),
+                Map.entry("toolCallAccuracy.toolName", "Tool"),
+                Map.entry("toolCallAccuracy.arguments", "Arguments"),
+                Map.entry("toolCallAccuracy.matchScore", "Match Score"),
+                Map.entry(
+                        "toolCallAccuracy.meaning.excellent",
+                        "Excellent - all tool calls match expected calls perfectly"),
+                Map.entry("toolCallAccuracy.meaning.good", "Good - most tool calls are correct"),
+                Map.entry("toolCallAccuracy.meaning.moderate", "Moderate - some tool calls are incorrect or missing"),
+                Map.entry("toolCallAccuracy.meaning.poor", "Poor - many tool calls are incorrect or missing"),
+                Map.entry("toolCallAccuracy.scale.excellent", "All tool calls match"),
+                Map.entry("toolCallAccuracy.scale.good", "Most tool calls match"),
+                Map.entry("toolCallAccuracy.scale.moderate", "Some tool calls match"),
+                Map.entry("toolCallAccuracy.scale.poor", "Few tool calls match"),
+
+                // TopicAdherence
+                Map.entry(
+                        "topicAdherence.description",
+                        "This metric evaluates whether conversation topics adhere to expected reference topics. "
+                                + "It extracts topics from the conversation and classifies them against reference topics."),
+                Map.entry("topicAdherence.step.extractTopics.title", "Extracting topics"),
+                Map.entry(
+                        "topicAdherence.step.extractTopics.desc",
+                        "LLM analyzes the conversation to extract all discussed topics."),
+                Map.entry("topicAdherence.step.classifyTopics.title", "Classifying topics"),
+                Map.entry(
+                        "topicAdherence.step.classifyTopics.desc",
+                        "Each extracted topic is classified as on-topic or off-topic against reference topics."),
+                Map.entry("topicAdherence.step.computeScore.title", "Computing score"),
+                Map.entry(
+                        "topicAdherence.step.computeScore.desc",
+                        "Computing the final score based on the selected mode (F1, Precision, or Recall)."),
+                Map.entry("topicAdherence.conversationLabel", "Conversation"),
+                Map.entry("topicAdherence.referenceTopicsLabel", "Reference topics"),
+                Map.entry("topicAdherence.extractedTopicsCount", "Topics extracted"),
+                Map.entry("topicAdherence.extractedLabel", "Extracted"),
+                Map.entry("topicAdherence.onTopicLabel", "On topic"),
+                Map.entry("topicAdherence.offTopicLabel", "Off topic"),
+                Map.entry("topicAdherence.modeLabel", "Mode"),
+                Map.entry("topicAdherence.precisionLabel", "Precision"),
+                Map.entry("topicAdherence.recallLabel", "Recall"),
+                Map.entry("topicAdherence.mode.f1", "F1 (balanced)"),
+                Map.entry("topicAdherence.mode.precision", "Precision"),
+                Map.entry("topicAdherence.mode.recall", "Recall"),
+                Map.entry("topicAdherence.formula.f1", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry("topicAdherence.formula.precision", "Precision = on-topic / total extracted"),
+                Map.entry("topicAdherence.formula.recall", "Recall = covered reference / total reference"),
+                Map.entry(
+                        "topicAdherence.meaning.excellent",
+                        "Excellent - conversation stayed perfectly on topic with all reference topics covered"),
+                Map.entry("topicAdherence.meaning.good", "Good - conversation mostly on topic"),
+                Map.entry("topicAdherence.meaning.moderate", "Moderate - some off-topic discussions"),
+                Map.entry("topicAdherence.meaning.poor", "Poor - significant topic drift"),
+                Map.entry("topicAdherence.scale.excellent", "All topics aligned with reference"),
+                Map.entry("topicAdherence.scale.good", "Most topics on target"),
+                Map.entry("topicAdherence.scale.moderate", "Some topic drift"),
+                Map.entry("topicAdherence.scale.poor", "Significant off-topic discussions"),
+
+                // ContextRelevance (NVIDIA-style)
+                Map.entry(
+                        "contextRelevance.description",
+                        "This metric evaluates whether the retrieved contexts are relevant to the user's question. "
+                                + "Each context is scored on a 0-2 scale, then normalized to 0-1."),
+                Map.entry("contextRelevance.step.evaluateContext.title", "Evaluating context"),
+                Map.entry(
+                        "contextRelevance.step.evaluateContext.desc",
+                        "LLM evaluates context relevance for answering the question."),
+                Map.entry("contextRelevance.rawScoreLabel", "Relevance"),
+                Map.entry("contextRelevance.verdict.fullyRelevant", "Fully relevant (2/2)"),
+                Map.entry("contextRelevance.verdict.partiallyRelevant", "Partially relevant (1/2)"),
+                Map.entry("contextRelevance.verdict.notRelevant", "Not relevant (0/2)"),
+                Map.entry("contextRelevance.formula", "Average of normalized scores (score/2) across all contexts"),
+                Map.entry(
+                        "contextRelevance.meaning.excellent", "Excellent - all retrieved contexts are highly relevant"),
+                Map.entry("contextRelevance.meaning.good", "Good - most contexts contain relevant information"),
+                Map.entry(
+                        "contextRelevance.meaning.moderate",
+                        "Moderate - contexts have mixed relevance to the question"),
+                Map.entry("contextRelevance.meaning.poor", "Poor - contexts are mostly irrelevant to the question"),
+                Map.entry("contextRelevance.scale.excellent", "All contexts fully relevant"),
+                Map.entry("contextRelevance.scale.good", "Most contexts relevant"),
+                Map.entry("contextRelevance.scale.moderate", "Mixed relevance"),
+                Map.entry("contextRelevance.scale.poor", "Mostly irrelevant contexts"),
+                Map.entry("contextRelevance.avgLabel", "Average"),
+
+                // ResponseGroundedness (NVIDIA-style)
+                Map.entry(
+                        "responseGroundedness.description",
+                        "This metric evaluates whether the response is grounded in (supported by) the retrieved contexts. "
+                                + "It uses a 0-2 scoring scale normalized to 0-1."),
+                Map.entry("responseGroundedness.step.heuristics.title", "Apply heuristics"),
+                Map.entry(
+                        "responseGroundedness.step.heuristics.desc",
+                        "Check for exact matches or response contained in context."),
+                Map.entry("responseGroundedness.step.evaluate.title", "Evaluate groundedness"),
+                Map.entry(
+                        "responseGroundedness.step.evaluate.desc",
+                        "LLM evaluates how well the response is supported by the context."),
+                Map.entry("responseGroundedness.rawScoreLabel", "Groundedness"),
+                Map.entry("responseGroundedness.heuristics.match", "Heuristic match found - response is grounded"),
+                Map.entry("responseGroundedness.heuristics.noMatch", "No heuristic match - using LLM evaluation"),
+                Map.entry("responseGroundedness.verdict.fullyGrounded", "Fully grounded (2/2)"),
+                Map.entry("responseGroundedness.verdict.partiallyGrounded", "Partially grounded (1/2)"),
+                Map.entry("responseGroundedness.verdict.notGrounded", "Not grounded (0/2)"),
+                Map.entry("responseGroundedness.formula", "Normalized score = raw_score / 2"),
+                Map.entry("responseGroundedness.calculation.heuristic", "Heuristic match = 1.0"),
+                Map.entry(
+                        "responseGroundedness.meaning.excellent",
+                        "Excellent - response is completely supported by context"),
+                Map.entry("responseGroundedness.meaning.good", "Good - response is mostly supported by context"),
+                Map.entry(
+                        "responseGroundedness.meaning.moderate",
+                        "Moderate - response is partially supported by context"),
+                Map.entry(
+                        "responseGroundedness.meaning.poor",
+                        "Poor - response contains significant unsupported information"),
+                Map.entry("responseGroundedness.scale.excellent", "Response fully grounded in context"),
+                Map.entry("responseGroundedness.scale.good", "Response mostly grounded"),
+                Map.entry("responseGroundedness.scale.moderate", "Response partially grounded"),
+                Map.entry("responseGroundedness.scale.poor", "Response contains unsupported claims"),
+
+                // AnswerAccuracy (NVIDIA-style)
+                Map.entry(
+                        "answerAccuracy.description",
+                        "This metric evaluates whether the AI response accurately matches the reference answer. "
+                                + "It uses a 0-2 scoring scale normalized to 0-1."),
+                Map.entry("answerAccuracy.step.initial.title", "Initial judgment"),
+                Map.entry("answerAccuracy.step.initial.desc", "LLM evaluates accuracy of response against reference."),
+                Map.entry("answerAccuracy.step.confirm.title", "Confirmation judgment"),
+                Map.entry("answerAccuracy.step.confirm.desc", "Second LLM confirms or adjusts the initial assessment."),
+                Map.entry("answerAccuracy.rawScoreLabel", "Accuracy"),
+                Map.entry("answerAccuracy.initialAssessmentLabel", "Initial assessment"),
+                Map.entry("answerAccuracy.finalScoreLabel", "Final score"),
+                Map.entry("answerAccuracy.verdict.fullyCorrect", "Fully correct (2/2)"),
+                Map.entry("answerAccuracy.verdict.partiallyCorrect", "Partially correct (1/2)"),
+                Map.entry("answerAccuracy.verdict.incorrect", "Incorrect (0/2)"),
+                Map.entry("answerAccuracy.formula", "Normalized score = raw_score / 2"),
+                Map.entry("answerAccuracy.meaning.excellent", "Excellent - response accurately matches the reference"),
+                Map.entry("answerAccuracy.meaning.good", "Good - response mostly matches the reference"),
+                Map.entry("answerAccuracy.meaning.moderate", "Moderate - response partially matches the reference"),
+                Map.entry("answerAccuracy.meaning.poor", "Poor - response is inaccurate or contradicts the reference"),
+                Map.entry("answerAccuracy.scale.excellent", "Response fully matches reference"),
+                Map.entry("answerAccuracy.scale.good", "Response mostly matches reference"),
+                Map.entry("answerAccuracy.scale.moderate", "Response partially matches reference"),
+                Map.entry("answerAccuracy.scale.poor", "Response is inaccurate"),
+
+                // BLEU Score (NLP metric)
+                Map.entry(
+                        "bleuScore.description",
+                        "BLEU (Bilingual Evaluation Understudy) measures n-gram overlap between "
+                                + "the response and reference texts. Higher scores indicate better text similarity."),
+                Map.entry("bleuScore.step1.title", "Input texts"),
+                Map.entry("bleuScore.step1.desc", "The response and reference texts to compare."),
+                Map.entry("bleuScore.step2.title", "Configuration"),
+                Map.entry("bleuScore.step2.desc", "BLEU metric configuration parameters."),
+                Map.entry("bleuScore.step2.output", "Max n-gram: %d, Smoothing: %s"),
+                Map.entry("bleuScore.step3.title", "Computing n-gram precision"),
+                Map.entry("bleuScore.step3.desc", "Calculating precision for n-grams from 1 to %d."),
+                Map.entry("bleuScore.step4.title", "Computing BLEU score"),
+                Map.entry("bleuScore.step4.desc", "Combining n-gram precisions with brevity penalty."),
+                Map.entry("bleuScore.formula", "BLEU = BP × exp(Σ wₙ × log(pₙ))"),
+                Map.entry("bleuScore.meaning.excellent", "Excellent - texts are nearly identical"),
+                Map.entry("bleuScore.meaning.good", "Good - high n-gram overlap between texts"),
+                Map.entry("bleuScore.meaning.moderate", "Moderate - partial n-gram overlap"),
+                Map.entry("bleuScore.meaning.poor", "Poor - low text similarity"),
+                Map.entry("bleuScore.scale.excellent", "Near-identical texts"),
+                Map.entry("bleuScore.scale.good", "High similarity"),
+                Map.entry("bleuScore.scale.moderate", "Moderate similarity"),
+                Map.entry("bleuScore.scale.poor", "Low similarity"),
+
+                // ROUGE Score (NLP metric)
+                Map.entry(
+                        "rougeScore.description",
+                        "ROUGE (Recall-Oriented Understudy for Gisting Evaluation) measures overlap "
+                                + "between response and reference using unigrams, bigrams, or longest common subsequence."),
+                Map.entry("rougeScore.step1.title", "Input texts"),
+                Map.entry("rougeScore.step1.desc", "The response and reference texts to compare."),
+                Map.entry("rougeScore.step2.title", "Configuration"),
+                Map.entry("rougeScore.step2.desc", "ROUGE metric configuration parameters."),
+                Map.entry("rougeScore.step2.output", "Type: %s, Mode: %s"),
+                Map.entry("rougeScore.step3.title", "Computing %s overlap"),
+                Map.entry("rougeScore.rouge1.desc", "Counting unigram (single word) matches between texts."),
+                Map.entry("rougeScore.rouge2.desc", "Counting bigram (two consecutive words) matches between texts."),
+                Map.entry("rougeScore.rougeL.desc", "Finding longest common subsequence between texts."),
+                Map.entry("rougeScore.step4.title", "Computing score"),
+                Map.entry("rougeScore.step4.desc", "Calculating %s from overlap statistics."),
+                Map.entry("rougeScore.mode.precision", "Precision"),
+                Map.entry("rougeScore.mode.recall", "Recall"),
+                Map.entry("rougeScore.mode.fmeasure", "F-measure"),
+                Map.entry("rougeScore.formula.precision", "Precision = matched / response_length"),
+                Map.entry("rougeScore.formula.recall", "Recall = matched / reference_length"),
+                Map.entry("rougeScore.formula.fmeasure", "F1 = 2 × (P × R) / (P + R)"),
+                Map.entry("rougeScore.meaning.excellent", "Excellent - very high text overlap"),
+                Map.entry("rougeScore.meaning.good", "Good - significant text overlap"),
+                Map.entry("rougeScore.meaning.moderate", "Moderate - partial text overlap"),
+                Map.entry("rougeScore.meaning.poor", "Poor - low text overlap"),
+                Map.entry("rougeScore.scale.excellent", "Very high overlap"),
+                Map.entry("rougeScore.scale.good", "Good overlap"),
+                Map.entry("rougeScore.scale.moderate", "Partial overlap"),
+                Map.entry("rougeScore.scale.poor", "Low overlap"),
+
+                // chrF Score (NLP metric)
+                Map.entry(
+                        "chrfScore.description",
+                        "chrF (Character n-gram F-score) measures character-level overlap between texts. "
+                                + "chrF++ also includes word n-grams for improved accuracy."),
+                Map.entry("chrfScore.step1.title", "Input texts"),
+                Map.entry("chrfScore.step1.desc", "The response and reference texts to compare."),
+                Map.entry("chrfScore.step2.title", "Configuration"),
+                Map.entry("chrfScore.step2.desc", "chrF metric configuration parameters."),
+                Map.entry("chrfScore.step2.output", "Variant: %s, Char n-gram: %d, Word n-gram: %d, Beta: %.1f"),
+                Map.entry("chrfScore.step3.title", "Computing character n-gram overlap"),
+                Map.entry("chrfScore.step3.desc", "Calculating character n-gram matches (1 to %d)."),
+                Map.entry("chrfScore.step4.title", "Computing word n-gram overlap"),
+                Map.entry("chrfScore.step4.desc", "Calculating word n-gram matches (1 to %d)."),
+                Map.entry("chrfScore.step5.title", "Computing chrF score"),
+                Map.entry("chrfScore.step5.desc", "Combining character and word scores with beta=%.1f."),
+                Map.entry("chrfScore.formula", "chrF = (1 + β²) × (P × R) / (β² × P + R)"),
+                Map.entry("chrfScore.meaning.excellent", "Excellent - very high character-level similarity"),
+                Map.entry("chrfScore.meaning.good", "Good - high character overlap"),
+                Map.entry("chrfScore.meaning.moderate", "Moderate - partial character overlap"),
+                Map.entry("chrfScore.meaning.poor", "Poor - low character similarity"),
+                Map.entry("chrfScore.scale.excellent", "Near-identical characters"),
+                Map.entry("chrfScore.scale.good", "High character similarity"),
+                Map.entry("chrfScore.scale.moderate", "Partial character overlap"),
+                Map.entry("chrfScore.scale.poor", "Low character similarity"),
+
+                // String Similarity (NLP metric)
+                Map.entry(
+                        "stringSimilarity.description",
+                        "String similarity measures edit distance between texts using algorithms like "
+                                + "Levenshtein, Jaro, Jaro-Winkler, or Hamming distance."),
+                Map.entry("stringSimilarity.step1.title", "Input texts"),
+                Map.entry("stringSimilarity.step1.desc", "The response and reference texts to compare."),
+                Map.entry("stringSimilarity.step2.title", "Configuration"),
+                Map.entry("stringSimilarity.step2.desc", "String similarity configuration parameters."),
+                Map.entry("stringSimilarity.step2.output", "Algorithm: %s, Case sensitive: %s"),
+                Map.entry("stringSimilarity.step3.title", "Computing %s similarity"),
+                Map.entry("stringSimilarity.caseSensitive.yes", "Yes"),
+                Map.entry("stringSimilarity.caseSensitive.no", "No"),
+                Map.entry(
+                        "stringSimilarity.algorithm.levenshtein",
+                        "Counting minimum edits (insert/delete/replace) to transform one text into another."),
+                Map.entry(
+                        "stringSimilarity.algorithm.hamming",
+                        "Counting positions where characters differ (requires equal length strings)."),
+                Map.entry(
+                        "stringSimilarity.algorithm.jaro",
+                        "Computing similarity based on matching characters and transpositions."),
+                Map.entry(
+                        "stringSimilarity.algorithm.jaroWinkler",
+                        "Jaro similarity with prefix bonus for strings that match from the beginning."),
+                Map.entry("stringSimilarity.formula.levenshtein", "Similarity = 1 - (edit_distance / max_length)"),
+                Map.entry("stringSimilarity.formula.hamming", "Similarity = 1 - (different_positions / length)"),
+                Map.entry("stringSimilarity.formula.jaro", "Jaro = (m/|s₁| + m/|s₂| + (m-t)/m) / 3"),
+                Map.entry("stringSimilarity.formula.jaroWinkler", "JW = Jaro + (prefix × p × (1 - Jaro))"),
+                Map.entry("stringSimilarity.meaning.excellent", "Excellent - strings are nearly identical"),
+                Map.entry("stringSimilarity.meaning.good", "Good - strings are very similar"),
+                Map.entry("stringSimilarity.meaning.moderate", "Moderate - strings have some similarity"),
+                Map.entry("stringSimilarity.meaning.poor", "Poor - strings are quite different"),
+                Map.entry("stringSimilarity.scale.excellent", "Near-identical strings"),
+                Map.entry("stringSimilarity.scale.good", "Very similar strings"),
+                Map.entry("stringSimilarity.scale.moderate", "Some similarity"),
+                Map.entry("stringSimilarity.scale.poor", "Different strings"));
     }
 
     private static Map<String, String> russianMessages() {
@@ -555,6 +988,453 @@ public final class ExplanationMessages {
                 Map.entry("rubricsScore.step3.title", "Расчёт скора"),
                 Map.entry("rubricsScore.step3.desc", "Нормализуем выбранный уровень к шкале 0-1."),
                 Map.entry("rubricsScore.meaning", "Выбран уровень %d: %s"),
-                Map.entry("rubricsScore.level", "Уровень %d"));
+                Map.entry("rubricsScore.level", "Уровень %d"),
+
+                // SemanticSimilarity
+                Map.entry(
+                        "semanticSimilarity.description",
+                        "Метрика измеряет семантическое сходство между ответом AI и эталоном. "
+                                + "Используются модели эмбеддингов для векторного представления и косинусного сходства."),
+                Map.entry("semanticSimilarity.response", "Ответ"),
+                Map.entry("semanticSimilarity.reference", "Эталон"),
+                Map.entry("semanticSimilarity.step1.title", "Входные тексты"),
+                Map.entry("semanticSimilarity.step1.desc", "Ответ и эталонный текст для сравнения."),
+                Map.entry("semanticSimilarity.step2.title", "Вычисление эмбеддингов"),
+                Map.entry(
+                        "semanticSimilarity.step2.desc",
+                        "Преобразование ответа и эталона в векторные представления с помощью моделей эмбеддингов."),
+                Map.entry("semanticSimilarity.step2.output", "Эмбеддинги вычислены %d моделями"),
+                Map.entry("semanticSimilarity.step3.title", "Вычисление косинусного сходства"),
+                Map.entry(
+                        "semanticSimilarity.step3.desc",
+                        "Расчёт косинусного сходства между эмбеддингами ответа и эталона."),
+                Map.entry("semanticSimilarity.step3.outputThreshold", "%s (порог: %.2f)"),
+                Map.entry("semanticSimilarity.formula", "cosine_similarity(embed(ответ), embed(эталон))"),
+                Map.entry(
+                        "semanticSimilarity.meaning.excellent", "Отлично - ответ семантически почти идентичен эталону"),
+                Map.entry("semanticSimilarity.meaning.good", "Хорошо - ответ передаёт схожий смысл с эталоном"),
+                Map.entry("semanticSimilarity.meaning.moderate", "Средне - ответ частично связан с эталоном"),
+                Map.entry("semanticSimilarity.meaning.poor", "Плохо - ответ значительно отличается от эталона"),
+                Map.entry("semanticSimilarity.meaning.passThreshold", "PASS - сходство >= порога (%.2f)"),
+                Map.entry("semanticSimilarity.meaning.failThreshold", "FAIL - сходство < порога (%.2f)"),
+                Map.entry("semanticSimilarity.scale.excellent", "Почти идентичный смысл"),
+                Map.entry("semanticSimilarity.scale.good", "Схожий смысл"),
+                Map.entry("semanticSimilarity.scale.moderate", "Частично связаны"),
+                Map.entry("semanticSimilarity.scale.poor", "Разный смысл"),
+
+                // FactualCorrectness
+                Map.entry(
+                        "factualCorrectness.description",
+                        "Метрика проверяет: верны ли факты в ответе AI? "
+                                + "Мы разбиваем ответ и эталон на атомарные утверждения и проверяем каждое с помощью NLI."),
+                Map.entry("factualCorrectness.step1.title", "Разбиение ответа на утверждения"),
+                Map.entry(
+                        "factualCorrectness.step1.desc",
+                        "Ответ AI разбивается на отдельные атомарные утверждения, которые можно проверить."),
+                Map.entry("factualCorrectness.step1.output", "Извлечено %d утверждений из ответа"),
+                Map.entry("factualCorrectness.step2.title", "Разбиение эталона на утверждения"),
+                Map.entry(
+                        "factualCorrectness.step2.desc",
+                        "Эталонный ответ разбивается на отдельные атомарные утверждения."),
+                Map.entry("factualCorrectness.step2.output", "Извлечено %d утверждений из эталона"),
+                Map.entry("factualCorrectness.step3.title", "Проверка утверждений с помощью NLI"),
+                Map.entry(
+                        "factualCorrectness.step3.desc",
+                        "Каждое утверждение проверяется методом NLI: ПОДТВЕРЖДЕНО, ПРОТИВОРЕЧИТ или НЕЙТРАЛЬНО."),
+                Map.entry(
+                        "factualCorrectness.step3.output", "Precision: %d/%d подтверждено, Recall: %d/%d подтверждено"),
+                Map.entry("factualCorrectness.step4.title", "Расчёт итогового скора"),
+                Map.entry("factualCorrectness.step4.desc", "Вычисляем %s скор из precision и recall."),
+                Map.entry("factualCorrectness.formula", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry("factualCorrectness.formula.f1", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry(
+                        "factualCorrectness.formula.precision",
+                        "Precision = подтверждённые утверждения ответа / всего утверждений ответа"),
+                Map.entry(
+                        "factualCorrectness.formula.recall",
+                        "Recall = подтверждённые утверждения эталона / всего утверждений эталона"),
+                Map.entry("factualCorrectness.meaning.excellent", "Отлично - все утверждения фактически верны и полны"),
+                Map.entry(
+                        "factualCorrectness.meaning.good",
+                        "Хорошо - большинство утверждений верны с незначительными пропусками"),
+                Map.entry("factualCorrectness.meaning.moderate", "Средне - часть фактов неверна или отсутствует"),
+                Map.entry(
+                        "factualCorrectness.meaning.poor",
+                        "Плохо - много фактических ошибок или значительные пропуски"),
+                Map.entry("factualCorrectness.scale.excellent", "Все утверждения подтверждены как верные"),
+                Map.entry("factualCorrectness.scale.good", "Большинство утверждений верны"),
+                Map.entry("factualCorrectness.scale.moderate", "Часть утверждений неверна или отсутствует"),
+                Map.entry("factualCorrectness.scale.poor", "Много фактических ошибок"),
+
+                // NLI Verdicts
+                Map.entry("verdict.supported", "ПОДТВЕРЖДЕНО"),
+                Map.entry("verdict.contradicted", "ПРОТИВОРЕЧИТ"),
+                Map.entry("verdict.neutral", "НЕЙТРАЛЬНО"),
+
+                // AnswerCorrectness
+                Map.entry(
+                        "answerCorrectness.description",
+                        "Метрика объединяет фактическую корректность и семантическое сходство для оценки качества ответа. "
+                                + "Учитывает как правильность фактов, так и сохранение смысла."),
+                Map.entry("answerCorrectness.step1.title", "Входные тексты"),
+                Map.entry("answerCorrectness.step1.desc", "Ответ и эталонный текст для сравнения."),
+                Map.entry("answerCorrectness.step2.title", "Вычисление фактической корректности"),
+                Map.entry(
+                        "answerCorrectness.step2.desc",
+                        "Оценка фактической корректности с помощью декомпозиции утверждений и NLI-верификации."),
+                Map.entry("answerCorrectness.step3.title", "Вычисление семантического сходства"),
+                Map.entry(
+                        "answerCorrectness.step3.desc",
+                        "Расчёт семантического сходства с использованием эмбеддингов и косинусного сходства."),
+                Map.entry("answerCorrectness.step4.title", "Комбинирование оценок"),
+                Map.entry(
+                        "answerCorrectness.step4.desc",
+                        "Вычисление взвешенного среднего фактической и семантической оценок."),
+                Map.entry("answerCorrectness.factualScore", "Фактическая корректность"),
+                Map.entry("answerCorrectness.semanticScore", "Семантическое сходство"),
+                Map.entry("answerCorrectness.factual", "факт"),
+                Map.entry("answerCorrectness.semantic", "семант"),
+                Map.entry("common.response", "Ответ"),
+                Map.entry("common.reference", "Эталон"),
+                Map.entry(
+                        "answerCorrectness.meaning.excellent",
+                        "Отлично - ответ фактически корректен и семантически согласован"),
+                Map.entry("answerCorrectness.meaning.good", "Хорошо - ответ в основном корректен с высоким сходством"),
+                Map.entry("answerCorrectness.meaning.moderate", "Средне - некоторые проблемы с фактами или семантикой"),
+                Map.entry(
+                        "answerCorrectness.meaning.poor",
+                        "Плохо - значительные фактические ошибки или семантическое несоответствие"),
+                Map.entry("answerCorrectness.scale.excellent", "Фактически корректен и семантически согласован"),
+                Map.entry("answerCorrectness.scale.good", "В основном корректен с хорошим сходством"),
+                Map.entry("answerCorrectness.scale.moderate", "Проблемы с фактами или смыслом"),
+                Map.entry("answerCorrectness.scale.poor", "Значительные ошибки или несоответствие"),
+
+                // AgentGoalAccuracy
+                Map.entry(
+                        "agentGoalAccuracy.description",
+                        "Метрика оценивает, достиг ли AI-агент поставленной цели. "
+                                + "Анализирует многоходовые диалоги для определения достижения цели."),
+                Map.entry("agentGoalAccuracy.step.inferGoal.title", "Вывод цели из диалога"),
+                Map.entry(
+                        "agentGoalAccuracy.step.inferGoal.desc",
+                        "LLM анализирует диалог, чтобы понять, какова была основная цель пользователя."),
+                Map.entry("agentGoalAccuracy.step.evaluateOutcome.title", "Оценка результата"),
+                Map.entry(
+                        "agentGoalAccuracy.step.evaluateOutcome.desc",
+                        "Определение того, успешно ли действия агента достигли выведенной цели."),
+                Map.entry("agentGoalAccuracy.step.compareOutcome.title", "Сравнение с ожидаемым результатом"),
+                Map.entry(
+                        "agentGoalAccuracy.step.compareOutcome.desc",
+                        "Сравнение результата диалога с предоставленной ожидаемой целью."),
+                Map.entry("agentGoalAccuracy.goal", "Цель"),
+                Map.entry("agentGoalAccuracy.expectedOutcome", "Ожидаемый результат"),
+                Map.entry("agentGoalAccuracy.formula", "Бинарно: 1.0 если цель достигнута, 0.0 иначе"),
+                Map.entry("agentGoalAccuracy.verdict.achieved", "ЦЕЛЬ ДОСТИГНУТА"),
+                Map.entry("agentGoalAccuracy.verdict.notAchieved", "ЦЕЛЬ НЕ ДОСТИГНУТА"),
+                Map.entry("agentGoalAccuracy.level.achieved", "Достигнуто"),
+                Map.entry("agentGoalAccuracy.level.notAchieved", "Не достигнуто"),
+                Map.entry("agentGoalAccuracy.meaning.achieved", "Агент успешно выполнил поставленную цель"),
+                Map.entry("agentGoalAccuracy.meaning.notAchieved", "Агент не смог выполнить поставленную цель"),
+                Map.entry("agentGoalAccuracy.scale.achieved", "Цель полностью выполнена агентом"),
+                Map.entry("agentGoalAccuracy.scale.notAchieved", "Цель не выполнена - действие неполное или неудачное"),
+                Map.entry("common.notAvailable", "Недоступно"),
+
+                // ToolCallAccuracy
+                Map.entry(
+                        "toolCallAccuracy.description",
+                        "Метрика оценивает точность вызовов инструментов агента относительно ожидаемых эталонных вызовов. "
+                                + "Сравнивает фактические вызовы инструментов с ожидаемыми с помощью F1-оценки."),
+                Map.entry("toolCallAccuracy.step.alignToolCalls.title", "Сопоставление вызовов инструментов"),
+                Map.entry(
+                        "toolCallAccuracy.step.alignToolCalls.desc",
+                        "Сопоставление фактических вызовов с эталонными по имени инструмента и аргументам."),
+                Map.entry("toolCallAccuracy.step.computePrecisionRecall.title", "Вычисление precision и recall"),
+                Map.entry(
+                        "toolCallAccuracy.step.computePrecisionRecall.desc",
+                        "Расчёт precision (верные вызовы / всего фактических) и recall (верные вызовы / всего эталонных)."),
+                Map.entry("toolCallAccuracy.step.computeScore.title", "Вычисление F1-оценки"),
+                Map.entry(
+                        "toolCallAccuracy.step.computeScore.desc",
+                        "Вычисление итоговой F1-оценки как гармонического среднего precision и recall."),
+                Map.entry("toolCallAccuracy.formula", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry("toolCallAccuracy.mode.strict", "СТРОГИЙ"),
+                Map.entry("toolCallAccuracy.mode.flexible", "ГИБКИЙ"),
+                Map.entry("toolCallAccuracy.modeLabel", "Режим"),
+                Map.entry("toolCallAccuracy.precisionLabel", "Precision"),
+                Map.entry("toolCallAccuracy.recallLabel", "Recall"),
+                Map.entry("toolCallAccuracy.matchedLabel", "Совпадает"),
+                Map.entry("toolCallAccuracy.notMatchedLabel", "Не совпадает"),
+                Map.entry("toolCallAccuracy.toolName", "Инструмент"),
+                Map.entry("toolCallAccuracy.arguments", "Аргументы"),
+                Map.entry("toolCallAccuracy.matchScore", "Оценка совпадения"),
+                Map.entry(
+                        "toolCallAccuracy.meaning.excellent",
+                        "Отлично - все вызовы инструментов точно совпадают с ожидаемыми"),
+                Map.entry("toolCallAccuracy.meaning.good", "Хорошо - большинство вызовов инструментов корректны"),
+                Map.entry(
+                        "toolCallAccuracy.meaning.moderate",
+                        "Средне - часть вызовов инструментов некорректна или отсутствует"),
+                Map.entry(
+                        "toolCallAccuracy.meaning.poor",
+                        "Плохо - много вызовов инструментов некорректно или отсутствует"),
+                Map.entry("toolCallAccuracy.scale.excellent", "Все вызовы совпадают"),
+                Map.entry("toolCallAccuracy.scale.good", "Большинство вызовов совпадают"),
+                Map.entry("toolCallAccuracy.scale.moderate", "Часть вызовов совпадает"),
+                Map.entry("toolCallAccuracy.scale.poor", "Мало вызовов совпадает"),
+
+                // TopicAdherence
+                Map.entry(
+                        "topicAdherence.description",
+                        "Метрика оценивает, соответствуют ли темы разговора ожидаемым референсным темам. "
+                                + "Извлекает темы из диалога и классифицирует их относительно эталонных тем."),
+                Map.entry("topicAdherence.step.extractTopics.title", "Извлечение тем"),
+                Map.entry(
+                        "topicAdherence.step.extractTopics.desc",
+                        "LLM анализирует диалог для извлечения всех обсуждаемых тем."),
+                Map.entry("topicAdherence.step.classifyTopics.title", "Классификация тем"),
+                Map.entry(
+                        "topicAdherence.step.classifyTopics.desc",
+                        "Каждая извлечённая тема классифицируется как соответствующая или не соответствующая эталонным темам."),
+                Map.entry("topicAdherence.step.computeScore.title", "Вычисление оценки"),
+                Map.entry(
+                        "topicAdherence.step.computeScore.desc",
+                        "Вычисление итоговой оценки на основе выбранного режима (F1, Precision или Recall)."),
+                Map.entry("topicAdherence.conversationLabel", "Диалог"),
+                Map.entry("topicAdherence.referenceTopicsLabel", "Референсные темы"),
+                Map.entry("topicAdherence.extractedTopicsCount", "Извлечено тем"),
+                Map.entry("topicAdherence.extractedLabel", "Извлечено"),
+                Map.entry("topicAdherence.onTopicLabel", "По теме"),
+                Map.entry("topicAdherence.offTopicLabel", "Не по теме"),
+                Map.entry("topicAdherence.modeLabel", "Режим"),
+                Map.entry("topicAdherence.precisionLabel", "Precision"),
+                Map.entry("topicAdherence.recallLabel", "Recall"),
+                Map.entry("topicAdherence.mode.f1", "F1 (сбалансированный)"),
+                Map.entry("topicAdherence.mode.precision", "Precision"),
+                Map.entry("topicAdherence.mode.recall", "Recall"),
+                Map.entry("topicAdherence.formula.f1", "F1 = 2 × (precision × recall) / (precision + recall)"),
+                Map.entry("topicAdherence.formula.precision", "Precision = по теме / всего извлечено"),
+                Map.entry("topicAdherence.formula.recall", "Recall = покрыто референсных / всего референсных"),
+                Map.entry(
+                        "topicAdherence.meaning.excellent",
+                        "Отлично - диалог полностью по теме, все референсные темы охвачены"),
+                Map.entry("topicAdherence.meaning.good", "Хорошо - диалог в основном по теме"),
+                Map.entry("topicAdherence.meaning.moderate", "Средне - есть отклонения от темы"),
+                Map.entry("topicAdherence.meaning.poor", "Плохо - значительные отклонения от темы"),
+                Map.entry("topicAdherence.scale.excellent", "Все темы соответствуют эталону"),
+                Map.entry("topicAdherence.scale.good", "Большинство тем соответствуют"),
+                Map.entry("topicAdherence.scale.moderate", "Есть отклонения от темы"),
+                Map.entry("topicAdherence.scale.poor", "Значительные отклонения от темы"),
+
+                // ContextRelevance (NVIDIA-style)
+                Map.entry(
+                        "contextRelevance.description",
+                        "Метрика оценивает, релевантны ли извлечённые контексты вопросу пользователя. "
+                                + "Каждый контекст оценивается по шкале 0-2, затем нормализуется к 0-1."),
+                Map.entry("contextRelevance.step.evaluateContext.title", "Оценка контекста"),
+                Map.entry(
+                        "contextRelevance.step.evaluateContext.desc",
+                        "LLM оценивает релевантность контекста для ответа на вопрос."),
+                Map.entry("contextRelevance.rawScoreLabel", "Релевантность"),
+                Map.entry("contextRelevance.verdict.fullyRelevant", "Полностью релевантен (2/2)"),
+                Map.entry("contextRelevance.verdict.partiallyRelevant", "Частично релевантен (1/2)"),
+                Map.entry("contextRelevance.verdict.notRelevant", "Нерелевантен (0/2)"),
+                Map.entry("contextRelevance.formula", "Среднее нормализованных оценок (оценка/2) по всем контекстам"),
+                Map.entry(
+                        "contextRelevance.meaning.excellent", "Отлично - все извлечённые контексты высоко релевантны"),
+                Map.entry(
+                        "contextRelevance.meaning.good",
+                        "Хорошо - большинство контекстов содержат релевантную информацию"),
+                Map.entry(
+                        "contextRelevance.meaning.moderate",
+                        "Средне - контексты имеют смешанную релевантность к вопросу"),
+                Map.entry("contextRelevance.meaning.poor", "Плохо - контексты в основном нерелевантны вопросу"),
+                Map.entry("contextRelevance.scale.excellent", "Все контексты полностью релевантны"),
+                Map.entry("contextRelevance.scale.good", "Большинство контекстов релевантны"),
+                Map.entry("contextRelevance.scale.moderate", "Смешанная релевантность"),
+                Map.entry("contextRelevance.scale.poor", "В основном нерелевантные контексты"),
+                Map.entry("contextRelevance.avgLabel", "Среднее"),
+
+                // ResponseGroundedness (NVIDIA-style)
+                Map.entry(
+                        "responseGroundedness.description",
+                        "Метрика оценивает, обоснован ли ответ извлечёнными контекстами. "
+                                + "Использует шкалу 0-2, нормализованную к 0-1."),
+                Map.entry("responseGroundedness.step.heuristics.title", "Применение эвристик"),
+                Map.entry(
+                        "responseGroundedness.step.heuristics.desc",
+                        "Проверка точных совпадений или содержания ответа в контексте."),
+                Map.entry("responseGroundedness.step.evaluate.title", "Оценка обоснованности"),
+                Map.entry(
+                        "responseGroundedness.step.evaluate.desc",
+                        "LLM оценивает, насколько ответ подтверждается контекстом."),
+                Map.entry("responseGroundedness.rawScoreLabel", "Обоснованность"),
+                Map.entry("responseGroundedness.heuristics.match", "Эвристика сработала - ответ обоснован"),
+                Map.entry(
+                        "responseGroundedness.heuristics.noMatch", "Эвристика не сработала - используется LLM оценка"),
+                Map.entry("responseGroundedness.verdict.fullyGrounded", "Полностью обоснован (2/2)"),
+                Map.entry("responseGroundedness.verdict.partiallyGrounded", "Частично обоснован (1/2)"),
+                Map.entry("responseGroundedness.verdict.notGrounded", "Необоснован (0/2)"),
+                Map.entry("responseGroundedness.formula", "Нормализованная оценка = сырая_оценка / 2"),
+                Map.entry("responseGroundedness.calculation.heuristic", "Эвристическое совпадение = 1.0"),
+                Map.entry(
+                        "responseGroundedness.meaning.excellent",
+                        "Отлично - ответ полностью подтверждается контекстом"),
+                Map.entry("responseGroundedness.meaning.good", "Хорошо - ответ в основном подтверждается контекстом"),
+                Map.entry("responseGroundedness.meaning.moderate", "Средне - ответ частично подтверждается контекстом"),
+                Map.entry(
+                        "responseGroundedness.meaning.poor",
+                        "Плохо - ответ содержит значительную неподтверждённую информацию"),
+                Map.entry("responseGroundedness.scale.excellent", "Ответ полностью обоснован контекстом"),
+                Map.entry("responseGroundedness.scale.good", "Ответ в основном обоснован"),
+                Map.entry("responseGroundedness.scale.moderate", "Ответ частично обоснован"),
+                Map.entry("responseGroundedness.scale.poor", "Ответ содержит неподтверждённые утверждения"),
+
+                // AnswerAccuracy (NVIDIA-style)
+                Map.entry(
+                        "answerAccuracy.description",
+                        "Метрика оценивает, насколько точно ответ AI соответствует эталонному ответу. "
+                                + "Использует шкалу 0-2, нормализованную к 0-1."),
+                Map.entry("answerAccuracy.step.initial.title", "Первичная оценка"),
+                Map.entry("answerAccuracy.step.initial.desc", "LLM оценивает точность ответа относительно эталона."),
+                Map.entry("answerAccuracy.step.confirm.title", "Подтверждающая оценка"),
+                Map.entry(
+                        "answerAccuracy.step.confirm.desc",
+                        "Вторая LLM подтверждает или корректирует первичную оценку."),
+                Map.entry("answerAccuracy.rawScoreLabel", "Точность"),
+                Map.entry("answerAccuracy.initialAssessmentLabel", "Первичная оценка"),
+                Map.entry("answerAccuracy.finalScoreLabel", "Итоговая оценка"),
+                Map.entry("answerAccuracy.verdict.fullyCorrect", "Полностью верно (2/2)"),
+                Map.entry("answerAccuracy.verdict.partiallyCorrect", "Частично верно (1/2)"),
+                Map.entry("answerAccuracy.verdict.incorrect", "Неверно (0/2)"),
+                Map.entry("answerAccuracy.formula", "Нормализованная оценка = сырая_оценка / 2"),
+                Map.entry("answerAccuracy.meaning.excellent", "Отлично - ответ точно соответствует эталону"),
+                Map.entry("answerAccuracy.meaning.good", "Хорошо - ответ в основном соответствует эталону"),
+                Map.entry("answerAccuracy.meaning.moderate", "Средне - ответ частично соответствует эталону"),
+                Map.entry("answerAccuracy.meaning.poor", "Плохо - ответ неточен или противоречит эталону"),
+                Map.entry("answerAccuracy.scale.excellent", "Ответ полностью соответствует эталону"),
+                Map.entry("answerAccuracy.scale.good", "Ответ в основном соответствует эталону"),
+                Map.entry("answerAccuracy.scale.moderate", "Ответ частично соответствует эталону"),
+                Map.entry("answerAccuracy.scale.poor", "Ответ неточен"),
+
+                // BLEU Score (NLP metric)
+                Map.entry(
+                        "bleuScore.description",
+                        "BLEU (Bilingual Evaluation Understudy) измеряет перекрытие n-грамм между "
+                                + "ответом и эталоном. Чем выше скор, тем больше схожесть текстов."),
+                Map.entry("bleuScore.step1.title", "Входные тексты"),
+                Map.entry("bleuScore.step1.desc", "Ответ и эталонный текст для сравнения."),
+                Map.entry("bleuScore.step2.title", "Конфигурация"),
+                Map.entry("bleuScore.step2.desc", "Параметры конфигурации метрики BLEU."),
+                Map.entry("bleuScore.step2.output", "Макс. n-грамм: %d, Сглаживание: %s"),
+                Map.entry("bleuScore.step3.title", "Вычисление точности n-грамм"),
+                Map.entry("bleuScore.step3.desc", "Расчёт точности для n-грамм от 1 до %d."),
+                Map.entry("bleuScore.step4.title", "Вычисление BLEU скора"),
+                Map.entry("bleuScore.step4.desc", "Комбинирование точностей n-грамм со штрафом за краткость."),
+                Map.entry("bleuScore.formula", "BLEU = BP × exp(Σ wₙ × log(pₙ))"),
+                Map.entry("bleuScore.meaning.excellent", "Отлично - тексты практически идентичны"),
+                Map.entry("bleuScore.meaning.good", "Хорошо - высокое перекрытие n-грамм"),
+                Map.entry("bleuScore.meaning.moderate", "Средне - частичное перекрытие n-грамм"),
+                Map.entry("bleuScore.meaning.poor", "Плохо - низкое сходство текстов"),
+                Map.entry("bleuScore.scale.excellent", "Почти идентичные тексты"),
+                Map.entry("bleuScore.scale.good", "Высокое сходство"),
+                Map.entry("bleuScore.scale.moderate", "Умеренное сходство"),
+                Map.entry("bleuScore.scale.poor", "Низкое сходство"),
+
+                // ROUGE Score (NLP metric)
+                Map.entry(
+                        "rougeScore.description",
+                        "ROUGE (Recall-Oriented Understudy for Gisting Evaluation) измеряет перекрытие "
+                                + "между ответом и эталоном по униграммам, биграммам или наибольшей общей подпоследовательности."),
+                Map.entry("rougeScore.step1.title", "Входные тексты"),
+                Map.entry("rougeScore.step1.desc", "Ответ и эталонный текст для сравнения."),
+                Map.entry("rougeScore.step2.title", "Конфигурация"),
+                Map.entry("rougeScore.step2.desc", "Параметры конфигурации метрики ROUGE."),
+                Map.entry("rougeScore.step2.output", "Тип: %s, Режим: %s"),
+                Map.entry("rougeScore.step3.title", "Вычисление перекрытия %s"),
+                Map.entry("rougeScore.rouge1.desc", "Подсчёт совпадений униграмм (отдельных слов) между текстами."),
+                Map.entry(
+                        "rougeScore.rouge2.desc",
+                        "Подсчёт совпадений биграмм (двух последовательных слов) между текстами."),
+                Map.entry("rougeScore.rougeL.desc", "Поиск наибольшей общей подпоследовательности между текстами."),
+                Map.entry("rougeScore.step4.title", "Вычисление скора"),
+                Map.entry("rougeScore.step4.desc", "Расчёт %s из статистики перекрытия."),
+                Map.entry("rougeScore.mode.precision", "Точность"),
+                Map.entry("rougeScore.mode.recall", "Полнота"),
+                Map.entry("rougeScore.mode.fmeasure", "F-мера"),
+                Map.entry("rougeScore.formula.precision", "Precision = совпадения / длина_ответа"),
+                Map.entry("rougeScore.formula.recall", "Recall = совпадения / длина_эталона"),
+                Map.entry("rougeScore.formula.fmeasure", "F1 = 2 × (P × R) / (P + R)"),
+                Map.entry("rougeScore.meaning.excellent", "Отлично - очень высокое перекрытие текстов"),
+                Map.entry("rougeScore.meaning.good", "Хорошо - значительное перекрытие текстов"),
+                Map.entry("rougeScore.meaning.moderate", "Средне - частичное перекрытие текстов"),
+                Map.entry("rougeScore.meaning.poor", "Плохо - низкое перекрытие текстов"),
+                Map.entry("rougeScore.scale.excellent", "Очень высокое перекрытие"),
+                Map.entry("rougeScore.scale.good", "Хорошее перекрытие"),
+                Map.entry("rougeScore.scale.moderate", "Частичное перекрытие"),
+                Map.entry("rougeScore.scale.poor", "Низкое перекрытие"),
+
+                // chrF Score (NLP metric)
+                Map.entry(
+                        "chrfScore.description",
+                        "chrF (Character n-gram F-score) измеряет перекрытие на уровне символов между текстами. "
+                                + "chrF++ также включает словесные n-граммы для повышения точности."),
+                Map.entry("chrfScore.step1.title", "Входные тексты"),
+                Map.entry("chrfScore.step1.desc", "Ответ и эталонный текст для сравнения."),
+                Map.entry("chrfScore.step2.title", "Конфигурация"),
+                Map.entry("chrfScore.step2.desc", "Параметры конфигурации метрики chrF."),
+                Map.entry(
+                        "chrfScore.step2.output",
+                        "Вариант: %s, Символьные n-граммы: %d, Словесные n-граммы: %d, Beta: %.1f"),
+                Map.entry("chrfScore.step3.title", "Вычисление перекрытия символьных n-грамм"),
+                Map.entry("chrfScore.step3.desc", "Расчёт совпадений символьных n-грамм (от 1 до %d)."),
+                Map.entry("chrfScore.step4.title", "Вычисление перекрытия словесных n-грамм"),
+                Map.entry("chrfScore.step4.desc", "Расчёт совпадений словесных n-грамм (от 1 до %d)."),
+                Map.entry("chrfScore.step5.title", "Вычисление chrF скора"),
+                Map.entry("chrfScore.step5.desc", "Комбинирование символьных и словесных скоров с beta=%.1f."),
+                Map.entry("chrfScore.formula", "chrF = (1 + β²) × (P × R) / (β² × P + R)"),
+                Map.entry("chrfScore.meaning.excellent", "Отлично - очень высокое сходство на уровне символов"),
+                Map.entry("chrfScore.meaning.good", "Хорошо - высокое перекрытие символов"),
+                Map.entry("chrfScore.meaning.moderate", "Средне - частичное перекрытие символов"),
+                Map.entry("chrfScore.meaning.poor", "Плохо - низкое сходство символов"),
+                Map.entry("chrfScore.scale.excellent", "Почти идентичные символы"),
+                Map.entry("chrfScore.scale.good", "Высокое сходство символов"),
+                Map.entry("chrfScore.scale.moderate", "Частичное перекрытие символов"),
+                Map.entry("chrfScore.scale.poor", "Низкое сходство символов"),
+
+                // String Similarity (NLP metric)
+                Map.entry(
+                        "stringSimilarity.description",
+                        "Метрика строкового сходства измеряет редакционное расстояние между текстами "
+                                + "с помощью алгоритмов Левенштейна, Джаро, Джаро-Винклера или Хэмминга."),
+                Map.entry("stringSimilarity.step1.title", "Входные тексты"),
+                Map.entry("stringSimilarity.step1.desc", "Ответ и эталонный текст для сравнения."),
+                Map.entry("stringSimilarity.step2.title", "Конфигурация"),
+                Map.entry("stringSimilarity.step2.desc", "Параметры конфигурации строкового сходства."),
+                Map.entry("stringSimilarity.step2.output", "Алгоритм: %s, Учёт регистра: %s"),
+                Map.entry("stringSimilarity.step3.title", "Вычисление сходства %s"),
+                Map.entry("stringSimilarity.caseSensitive.yes", "Да"),
+                Map.entry("stringSimilarity.caseSensitive.no", "Нет"),
+                Map.entry(
+                        "stringSimilarity.algorithm.levenshtein",
+                        "Подсчёт минимального числа операций (вставка/удаление/замена) для преобразования одного текста в другой."),
+                Map.entry(
+                        "stringSimilarity.algorithm.hamming",
+                        "Подсчёт позиций, где символы различаются (требуются строки одинаковой длины)."),
+                Map.entry(
+                        "stringSimilarity.algorithm.jaro",
+                        "Вычисление сходства на основе совпадающих символов и транспозиций."),
+                Map.entry("stringSimilarity.algorithm.jaroWinkler", "Сходство Джаро с бонусом за совпадающий префикс."),
+                Map.entry("stringSimilarity.formula.levenshtein", "Сходство = 1 - (расстояние / макс_длина)"),
+                Map.entry("stringSimilarity.formula.hamming", "Сходство = 1 - (различающиеся_позиции / длина)"),
+                Map.entry("stringSimilarity.formula.jaro", "Jaro = (m/|s₁| + m/|s₂| + (m-t)/m) / 3"),
+                Map.entry("stringSimilarity.formula.jaroWinkler", "JW = Jaro + (префикс × p × (1 - Jaro))"),
+                Map.entry("stringSimilarity.meaning.excellent", "Отлично - строки практически идентичны"),
+                Map.entry("stringSimilarity.meaning.good", "Хорошо - строки очень похожи"),
+                Map.entry("stringSimilarity.meaning.moderate", "Средне - строки частично похожи"),
+                Map.entry("stringSimilarity.meaning.poor", "Плохо - строки довольно разные"),
+                Map.entry("stringSimilarity.scale.excellent", "Почти идентичные строки"),
+                Map.entry("stringSimilarity.scale.good", "Очень похожие строки"),
+                Map.entry("stringSimilarity.scale.moderate", "Частичное сходство"),
+                Map.entry("stringSimilarity.scale.poor", "Разные строки"));
     }
 }

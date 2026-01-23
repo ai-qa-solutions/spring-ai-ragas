@@ -159,7 +159,7 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
                 .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             log.debug("Computing faithfulness evaluation with explicit flow");
 
             // Track excluded models across all steps

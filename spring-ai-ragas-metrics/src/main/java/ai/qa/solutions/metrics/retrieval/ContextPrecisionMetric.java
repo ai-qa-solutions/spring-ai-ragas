@@ -136,7 +136,7 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                 .metadata(Map.of("sample", sample, "config", config, "strategy", strategy))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             log.debug("Computing context precision evaluation with explicit flow");
 
             // Track excluded models across all steps

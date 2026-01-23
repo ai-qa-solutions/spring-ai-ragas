@@ -134,7 +134,7 @@ public class ContextEntityRecallMetric
                 .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             log.debug("Computing context entity recall evaluation with explicit flow");
 
             // Track excluded models across all steps

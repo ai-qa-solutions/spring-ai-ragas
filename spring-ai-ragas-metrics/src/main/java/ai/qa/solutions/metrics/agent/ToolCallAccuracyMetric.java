@@ -1,0 +1,253 @@
+package ai.qa.solutions.metrics.agent;
+
+import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.sample.Sample;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Tool Call Accuracy Metric - Evaluates accuracy of agent's tool calls.
+ * <p>
+ * This metric compares actual tool calls made by an agent against expected reference
+ * tool calls. It supports two modes:
+ * <ul>
+ *   <li>{@code STRICT} - Exact matching of tool names and arguments</li>
+ *   <li>{@code FLEXIBLE} - Allows partial argument matching based on threshold</li>
+ * </ul>
+ * <p>
+ * The score is computed as:
+ * - Precision: correct calls / total actual calls
+ * - Recall: correct calls / total reference calls
+ * - F1: harmonic mean of precision and recall
+ * <p>
+ * Required sample fields:
+ * <ul>
+ *   <li>{@code toolCalls} - Actual tool calls made by the agent</li>
+ *   <li>{@code referenceToolCalls} - Expected/correct tool calls</li>
+ * </ul>
+ */
+@Slf4j
+public class ToolCallAccuracyMetric extends AbstractMultiModelMetric<ToolCallAccuracyMetric.ToolCallAccuracyConfig> {
+
+    @Builder(toBuilder = true)
+    protected ToolCallAccuracyMetric(final MultiModelExecutor executor) {
+        super(executor);
+    }
+
+    @Override
+    public Double singleTurnScore(final ToolCallAccuracyConfig config, final Sample sample) {
+        return singleTurnScoreAsync(config, sample).join();
+    }
+
+    @Override
+    public CompletableFuture<Double> singleTurnScoreAsync(final ToolCallAccuracyConfig config, final Sample sample) {
+        final Instant startTime = Instant.now();
+        final List<String> modelIds =
+                config.models != null && !config.models.isEmpty() ? config.models : executor.getModelIds();
+
+        // Validate input
+        if (sample.getToolCalls() == null || sample.getToolCalls().isEmpty()) {
+            log.warn("No tool calls provided for Tool Call Accuracy evaluation");
+            return CompletableFuture.completedFuture(null);
+        }
+
+        if (sample.getReferenceToolCalls() == null
+                || sample.getReferenceToolCalls().isEmpty()) {
+            log.warn("No reference tool calls provided for Tool Call Accuracy evaluation");
+            return CompletableFuture.completedFuture(null);
+        }
+
+        final EvaluationNotifier notifier = createEvaluationNotifier();
+        final Mode mode = config.mode != null ? config.mode : Mode.STRICT;
+        final double threshold = config.argumentMatchThreshold != null ? config.argumentMatchThreshold : 0.8;
+
+        notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
+                .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(modelIds)
+                .totalSteps(3)
+                .metadata(Map.of("sample", sample, "config", config, "mode", mode))
+                .build());
+
+        return executor.runAsync(() -> {
+            final List<Sample.ToolCall> actualCalls = sample.getToolCalls();
+            final List<Sample.ToolCall> referenceCalls = sample.getReferenceToolCalls();
+
+            // Step 1: Align tool calls
+            notifier.beforeStep("AlignToolCalls", 0, 3);
+            final List<ToolCallMatch> matches = alignToolCalls(actualCalls, referenceCalls, mode, threshold);
+            notifier.afterComputeStep("AlignToolCalls", 0, 3, List.of());
+
+            // Step 2: Compute precision and recall
+            notifier.beforeStep("ComputePrecisionRecall", 1, 3);
+            final int truePositives =
+                    (int) matches.stream().filter(ToolCallMatch::isMatched).count();
+            final int falsePositives = actualCalls.size() - truePositives;
+            final int falseNegatives = referenceCalls.size() - truePositives;
+
+            final double precision = actualCalls.isEmpty() ? 0.0 : (double) truePositives / actualCalls.size();
+            final double recall = referenceCalls.isEmpty() ? 0.0 : (double) truePositives / referenceCalls.size();
+            notifier.afterComputeStep("ComputePrecisionRecall", 1, 3, List.of());
+
+            // Step 3: Compute F1 score
+            notifier.beforeStep("ComputeScore", 2, 3);
+            final double f1Score = (precision + recall) == 0 ? 0.0 : 2 * precision * recall / (precision + recall);
+            notifier.afterComputeStep("ComputeScore", 2, 3, List.of());
+
+            final Duration duration = Duration.between(startTime, Instant.now());
+            final Map<String, Double> modelScores = new HashMap<>();
+            modelScores.put(modelIds.isEmpty() ? "default" : modelIds.get(0), f1Score);
+
+            notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
+                    .metricName(getName())
+                    .aggregatedScore(f1Score)
+                    .modelScores(modelScores)
+                    .excludedModels(List.of())
+                    .totalDuration(duration)
+                    .metadata(Map.of(
+                            "sample", sample,
+                            "config", config,
+                            "mode", mode,
+                            "precision", precision,
+                            "recall", recall,
+                            "truePositives", truePositives,
+                            "falsePositives", falsePositives,
+                            "falseNegatives", falseNegatives,
+                            "matches", matches))
+                    .build());
+
+            return f1Score;
+        });
+    }
+
+    private List<ToolCallMatch> alignToolCalls(
+            final List<Sample.ToolCall> actualCalls,
+            final List<Sample.ToolCall> referenceCalls,
+            final Mode mode,
+            final double threshold) {
+
+        final List<ToolCallMatch> matches = new ArrayList<>();
+        final List<Sample.ToolCall> unmatchedReferences = new ArrayList<>(referenceCalls);
+
+        for (final Sample.ToolCall actual : actualCalls) {
+            Sample.ToolCall bestMatch = null;
+            double bestScore = 0.0;
+
+            for (final Sample.ToolCall reference : unmatchedReferences) {
+                final double matchScore = computeMatchScore(actual, reference, mode, threshold);
+                if (matchScore > bestScore) {
+                    bestScore = matchScore;
+                    bestMatch = reference;
+                }
+            }
+
+            final boolean isMatched = mode == Mode.STRICT ? bestScore >= 1.0 : bestScore >= threshold;
+
+            if (isMatched && bestMatch != null) {
+                unmatchedReferences.remove(bestMatch);
+                matches.add(ToolCallMatch.builder()
+                        .actualCall(actual)
+                        .referenceCall(bestMatch)
+                        .matched(true)
+                        .matchScore(bestScore)
+                        .build());
+            } else {
+                matches.add(ToolCallMatch.builder()
+                        .actualCall(actual)
+                        .referenceCall(bestMatch)
+                        .matched(false)
+                        .matchScore(bestScore)
+                        .build());
+            }
+        }
+
+        return matches;
+    }
+
+    private double computeMatchScore(
+            final Sample.ToolCall actual, final Sample.ToolCall reference, final Mode mode, final double threshold) {
+
+        // Tool names must match
+        if (!Objects.equals(actual.name(), reference.name())) {
+            return 0.0;
+        }
+
+        final Map<String, Object> actualArgs = actual.arguments() != null ? actual.arguments() : Map.of();
+        final Map<String, Object> refArgs = reference.arguments() != null ? reference.arguments() : Map.of();
+
+        if (mode == Mode.STRICT) {
+            // Exact match required
+            return actualArgs.equals(refArgs) ? 1.0 : 0.0;
+        }
+
+        // Flexible mode: compute argument overlap
+        if (refArgs.isEmpty() && actualArgs.isEmpty()) {
+            return 1.0;
+        }
+
+        if (refArgs.isEmpty()) {
+            return 0.5; // No reference args but actual has args
+        }
+
+        int matchedArgs = 0;
+        for (final Map.Entry<String, Object> entry : refArgs.entrySet()) {
+            final Object actualValue = actualArgs.get(entry.getKey());
+            if (actualValue != null && Objects.equals(actualValue, entry.getValue())) {
+                matchedArgs++;
+            }
+        }
+
+        return (double) matchedArgs / refArgs.size();
+    }
+
+    /**
+     * Represents a match between actual and reference tool calls.
+     */
+    @Data
+    @Builder
+    public static class ToolCallMatch {
+        private final Sample.ToolCall actualCall;
+        private final Sample.ToolCall referenceCall;
+        private final boolean matched;
+        private final double matchScore;
+    }
+
+    /**
+     * Matching mode for tool call comparison.
+     */
+    public enum Mode {
+        /** Exact matching of tool names and arguments. */
+        STRICT,
+        /** Flexible matching allowing partial argument matches based on threshold. */
+        FLEXIBLE
+    }
+
+    @Data
+    @Builder
+    public static class ToolCallAccuracyConfig implements MetricConfiguration {
+        @Singular
+        private List<String> models;
+
+        /** Matching mode: STRICT or FLEXIBLE. */
+        @Builder.Default
+        private Mode mode = Mode.STRICT;
+
+        /** Threshold for argument matching in FLEXIBLE mode (0.0-1.0). */
+        @Builder.Default
+        private Double argumentMatchThreshold = 0.8;
+    }
+}

@@ -227,7 +227,7 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                 .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             log.debug("Computing response relevancy evaluation with explicit flow");
 
             // Track excluded models across all steps

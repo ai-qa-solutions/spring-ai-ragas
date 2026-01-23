@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 @DisplayName("MultiModelExecutorAutoconfiguration Tests")
 class MultiModelExecutorAutoconfigurationTest {
@@ -88,11 +87,17 @@ class MultiModelExecutorAutoconfigurationTest {
         }
 
         @Test
-        @DisplayName("Should use provided AsyncTaskExecutor")
-        void shouldUseProvidedTaskExecutor() {
+        @DisplayName("Should create dedicated ragasMetricExecutor and ragasHttpExecutor")
+        void shouldCreateRagasExecutors() {
             contextRunner.withUserConfiguration(FullDependenciesConfig.class).run(context -> {
                 assertThat(context).hasSingleBean(MultiModelExecutor.class);
-                assertThat(context).hasSingleBean(AsyncTaskExecutor.class);
+                assertThat(context).hasBean("ragasMetricExecutor");
+                assertThat(context).hasBean("ragasHttpExecutor");
+                AsyncTaskExecutor metricExecutor = context.getBean("ragasMetricExecutor", AsyncTaskExecutor.class);
+                AsyncTaskExecutor httpExecutor = context.getBean("ragasHttpExecutor", AsyncTaskExecutor.class);
+                assertThat(metricExecutor).isNotNull();
+                assertThat(httpExecutor).isNotNull();
+                assertThat(metricExecutor).isNotSameAs(httpExecutor);
             });
         }
     }
@@ -110,10 +115,13 @@ class MultiModelExecutorAutoconfigurationTest {
         }
 
         @Test
-        @DisplayName("Should fail without AsyncTaskExecutor")
-        void shouldFailWithoutTaskExecutor() {
+        @DisplayName("Should create executor even without external AsyncTaskExecutor (creates own)")
+        void shouldCreateWithoutExternalTaskExecutor() {
             contextRunner.withUserConfiguration(NoTaskExecutorConfig.class).run(context -> {
-                assertThat(context).hasFailed();
+                // Autoconfiguration creates its own ragasMetricExecutor and ragasHttpExecutor
+                assertThat(context).hasSingleBean(MultiModelExecutor.class);
+                assertThat(context).hasBean("ragasMetricExecutor");
+                assertThat(context).hasBean("ragasHttpExecutor");
             });
         }
     }
@@ -132,11 +140,6 @@ class MultiModelExecutorAutoconfigurationTest {
             EmbeddingModel model = mock(EmbeddingModel.class);
             return new EmbeddingModelStore(Map.of("embed-1", model), model);
         }
-
-        @Bean
-        AsyncTaskExecutor taskExecutor() {
-            return new SimpleAsyncTaskExecutor();
-        }
     }
 
     @Configuration
@@ -146,11 +149,6 @@ class MultiModelExecutorAutoconfigurationTest {
             ChatClient client = mock(ChatClient.class);
             return new ChatClientStore(Map.of("model-1", client), client);
         }
-
-        @Bean
-        AsyncTaskExecutor taskExecutor() {
-            return new SimpleAsyncTaskExecutor();
-        }
     }
 
     @Configuration
@@ -159,11 +157,6 @@ class MultiModelExecutorAutoconfigurationTest {
         EmbeddingModelStore embeddingModelStore() {
             EmbeddingModel model = mock(EmbeddingModel.class);
             return new EmbeddingModelStore(Map.of("embed-1", model), model);
-        }
-
-        @Bean
-        AsyncTaskExecutor taskExecutor() {
-            return new SimpleAsyncTaskExecutor();
         }
     }
 

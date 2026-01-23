@@ -36,6 +36,13 @@
             <artifactId>spring-ai-starter-model-openai</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Test: GigaChat starter for external starter integration tests -->
+        <dependency>
+            <groupId>chat.giga</groupId>
+            <artifactId>spring-ai-starter-model-gigachat</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -1,5 +1,6 @@
 package ai.qa.solutions.config.detector;
 
+import ai.qa.solutions.properties.MultiProviderProperties.ExternalStarterConfig;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 
 /**
@@ -24,11 +26,17 @@ import org.springframework.ai.openai.OpenAiChatModel;
  * <p>Each detected ChatModel is wrapped in a ChatClient and registered
  * in the ChatClientStore using the model's default name.</p>
  *
- * <p>Example:</p>
+ * <p>Supports explicit model configuration via {@link ExternalStarterConfig}:</p>
  * <pre>{@code
- * ExternalChatModelDetector detector = new ExternalChatModelDetector();
- * Map<String, List<ChatClient>> clients = detector.detect(allChatModelBeans);
- * // Returns: {"GigaChat" -> [ChatClient], "claude-3-opus" -> [ChatClient]}
+ * spring:
+ *   ai:
+ *     ragas:
+ *       providers:
+ *         external-starters:
+ *           gigachat:
+ *             chat-models:
+ *               - GigaChat-2-Max
+ *               - GigaChat-2-Pro
  * }</pre>
  */
 @Slf4j
@@ -40,10 +48,12 @@ public class ExternalChatModelDetector {
      * OpenAiChatModel beans are skipped as they are handled separately
      * via the mutate() pattern in {@link ai.qa.solutions.config.factory.OpenAiCompatibleModelFactory}.
      *
-     * @param allChatModels map of bean name to ChatModel from Spring context
+     * @param allChatModels    map of bean name to ChatModel from Spring context
+     * @param externalStarters configuration for external starters (may be null)
      * @return map of model ID to list of ChatClients
      */
-    public Map<String, List<ChatClient>> detect(final Map<String, ChatModel> allChatModels) {
+    public Map<String, List<ChatClient>> detect(
+            final Map<String, ChatModel> allChatModels, final Map<String, ExternalStarterConfig> externalStarters) {
         final Map<String, List<ChatClient>> result = new LinkedHashMap<>();
 
         if (allChatModels == null || allChatModels.isEmpty()) {
@@ -60,20 +70,98 @@ public class ExternalChatModelDetector {
                 continue;
             }
 
-            final String modelId = resolveModelId(beanName, chatModel);
-            final ChatClient client = ChatClient.builder(chatModel).build();
+            final String starterName = resolveStarterName(chatModel);
+            final ExternalStarterConfig config = findConfig(starterName, externalStarters);
 
-            result.computeIfAbsent(modelId, k -> new ArrayList<>()).add(client);
+            if (config != null && !config.isEnabled()) {
+                log.debug("Skipping disabled external starter: {}", starterName);
+                continue;
+            }
 
-            log.info(
-                    "Detected external ChatModel: {} (type: {}, modelId: {})",
-                    beanName,
-                    chatModel.getClass().getSimpleName(),
-                    modelId);
+            if (config != null && !config.getChatModels().isEmpty()) {
+                // Explicit model list configured - create ChatClient for each model
+                for (final String modelId : config.getChatModels()) {
+                    final ChatClient client = ChatClient.builder(chatModel)
+                            .defaultOptions(ChatOptions.builder().model(modelId).build())
+                            .build();
+                    result.computeIfAbsent(modelId, k -> new ArrayList<>()).add(client);
+
+                    log.info(
+                            "Registered external ChatModel: {} -> {} (type: {})",
+                            starterName,
+                            modelId,
+                            chatModel.getClass().getSimpleName());
+                }
+            } else {
+                // Auto-detect model ID from bean
+                final String modelId = resolveModelId(beanName, chatModel);
+                final ChatClient client = ChatClient.builder(chatModel).build();
+                result.computeIfAbsent(modelId, k -> new ArrayList<>()).add(client);
+
+                log.info(
+                        "Detected external ChatModel: {} (type: {}, modelId: {})",
+                        beanName,
+                        chatModel.getClass().getSimpleName(),
+                        modelId);
+            }
         }
 
-        log.info("Detected {} external ChatModel beans", result.size());
+        log.info("Detected {} external ChatModel entries", result.size());
         return result;
+    }
+
+    /**
+     * Backward compatible method without external starters config.
+     *
+     * @param allChatModels map of bean name to ChatModel from Spring context
+     * @return map of model ID to list of ChatClients
+     */
+    public Map<String, List<ChatClient>> detect(final Map<String, ChatModel> allChatModels) {
+        return detect(allChatModels, null);
+    }
+
+    /**
+     * Resolves starter name from ChatModel class.
+     *
+     * @param chatModel the chat model
+     * @return starter name (e.g., "gigachat", "anthropic")
+     */
+    private String resolveStarterName(final ChatModel chatModel) {
+        final String className = chatModel.getClass().getSimpleName().toLowerCase();
+        if (className.contains("gigachat")) {
+            return "gigachat";
+        }
+        if (className.contains("anthropic") || className.contains("claude")) {
+            return "anthropic";
+        }
+        if (className.contains("ollama")) {
+            return "ollama";
+        }
+        if (className.contains("vertex") || className.contains("gemini")) {
+            return "vertex";
+        }
+        return className.replace("chatmodel", "").replace("model", "");
+    }
+
+    /**
+     * Finds configuration for starter by name (case-insensitive).
+     */
+    private ExternalStarterConfig findConfig(
+            final String starterName, final Map<String, ExternalStarterConfig> externalStarters) {
+        if (externalStarters == null || externalStarters.isEmpty()) {
+            return null;
+        }
+        // Try exact match first
+        if (externalStarters.containsKey(starterName)) {
+            return externalStarters.get(starterName);
+        }
+        // Try case-insensitive match
+        for (final Map.Entry<String, ExternalStarterConfig> entry : externalStarters.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(starterName)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     /**

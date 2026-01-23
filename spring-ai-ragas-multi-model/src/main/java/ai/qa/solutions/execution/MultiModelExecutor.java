@@ -61,32 +61,54 @@ public class MultiModelExecutor {
     @Nullable
     private final EmbeddingModelStore embeddingModelStore;
 
-    private final AsyncTaskExecutor taskExecutor;
+    private final AsyncTaskExecutor metricExecutor;
+    private final AsyncTaskExecutor httpExecutor;
 
     /**
-     * Creates a new executor without embedding support.
+     * Creates a new executor without embedding support (single executor for both layers).
      *
      * @param chatClientStore store of configured AI model clients
-     * @param taskExecutor    executor for parallel async operations
+     * @param taskExecutor    executor for all async operations
      */
     public MultiModelExecutor(final ChatClientStore chatClientStore, final AsyncTaskExecutor taskExecutor) {
-        this(chatClientStore, null, taskExecutor);
+        this(chatClientStore, null, taskExecutor, taskExecutor);
     }
 
     /**
-     * Creates a new executor with embedding support.
+     * Creates a new executor with embedding support (single executor for both layers).
      *
      * @param chatClientStore     store of configured AI model clients
      * @param embeddingModelStore store of configured embedding models (nullable)
-     * @param taskExecutor        executor for parallel async operations
+     * @param taskExecutor        executor for all async operations
      */
     public MultiModelExecutor(
             final ChatClientStore chatClientStore,
             @Nullable final EmbeddingModelStore embeddingModelStore,
             final AsyncTaskExecutor taskExecutor) {
+        this(chatClientStore, embeddingModelStore, taskExecutor, taskExecutor);
+    }
+
+    /**
+     * Creates a new executor with separate executors for metrics and HTTP operations.
+     * <p>
+     * Using separate executors prevents deadlocks when metrics wait for HTTP responses.
+     * The metric executor handles outer async tasks (runAsync), while the HTTP executor
+     * handles LLM and embedding API calls.
+     *
+     * @param chatClientStore     store of configured AI model clients
+     * @param embeddingModelStore store of configured embedding models (nullable)
+     * @param metricExecutor      executor for metric-level async operations (runAsync)
+     * @param httpExecutor        executor for HTTP/LLM API calls
+     */
+    public MultiModelExecutor(
+            final ChatClientStore chatClientStore,
+            @Nullable final EmbeddingModelStore embeddingModelStore,
+            final AsyncTaskExecutor metricExecutor,
+            final AsyncTaskExecutor httpExecutor) {
         this.chatClientStore = Objects.requireNonNull(chatClientStore, "chatClientStore");
         this.embeddingModelStore = embeddingModelStore;
-        this.taskExecutor = Objects.requireNonNull(taskExecutor, "taskExecutor");
+        this.metricExecutor = Objects.requireNonNull(metricExecutor, "metricExecutor");
+        this.httpExecutor = Objects.requireNonNull(httpExecutor, "httpExecutor");
     }
 
     // ============ LLM Operations - All Models ============
@@ -180,7 +202,7 @@ public class MultiModelExecutor {
      */
     public <R> CompletableFuture<ModelResult<R>> executeLlmOnModelAsync(
             final String modelId, final String prompt, final Class<R> responseType) {
-        return taskExecutor.submitCompletable(() -> {
+        return httpExecutor.submitCompletable(() -> {
             final Instant start = Instant.now();
             try {
                 final ChatClient client = chatClientStore.get(modelId);
@@ -279,7 +301,7 @@ public class MultiModelExecutor {
      */
     public CompletableFuture<ModelResult<float[]>> executeEmbeddingOnModelAsync(
             final String modelId, final String text) {
-        return taskExecutor.submitCompletable(() -> {
+        return httpExecutor.submitCompletable(() -> {
             final Instant start = Instant.now();
             try {
                 if (embeddingModelStore == null) {
@@ -317,7 +339,7 @@ public class MultiModelExecutor {
      */
     public CompletableFuture<ModelResult<List<float[]>>> executeEmbeddingsOnModelAsync(
             final String modelId, final List<String> texts) {
-        return taskExecutor.submitCompletable(() -> {
+        return httpExecutor.submitCompletable(() -> {
             final Instant start = Instant.now();
             final String request = String.join(", ", texts);
             try {
@@ -337,6 +359,26 @@ public class MultiModelExecutor {
                 return ModelResult.failure(modelId, duration, request, e);
             }
         });
+    }
+
+    // ============ Async Execution ============
+
+    /**
+     * Executes a task asynchronously using the metric executor.
+     * <p>
+     * This method should be used by metrics instead of {@code CompletableFuture.supplyAsync()}
+     * to ensure all async operations use the Spring-managed executor rather than the
+     * common ForkJoinPool.
+     * <p>
+     * Uses the metric executor (separate from HTTP executor) to prevent deadlocks
+     * when metrics wait for HTTP responses.
+     *
+     * @param task the task to execute
+     * @param <T>  the result type
+     * @return future with the task result
+     */
+    public <T> CompletableFuture<T> runAsync(final java.util.concurrent.Callable<T> task) {
+        return metricExecutor.submitCompletable(task);
     }
 
     // ============ Utility Methods ============

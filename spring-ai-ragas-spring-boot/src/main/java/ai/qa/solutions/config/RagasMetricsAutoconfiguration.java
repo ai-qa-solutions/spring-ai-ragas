@@ -3,9 +3,22 @@ package ai.qa.solutions.config;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.impl.LoggingMetricExecutionListener;
+import ai.qa.solutions.metrics.agent.AgentGoalAccuracyMetric;
+import ai.qa.solutions.metrics.agent.ToolCallAccuracyMetric;
+import ai.qa.solutions.metrics.agent.TopicAdherenceMetric;
 import ai.qa.solutions.metrics.general.AspectCriticMetric;
 import ai.qa.solutions.metrics.general.RubricsScoreMetric;
 import ai.qa.solutions.metrics.general.SimpleCriteriaScoreMetric;
+import ai.qa.solutions.metrics.nlp.BleuScoreMetric;
+import ai.qa.solutions.metrics.nlp.ChrfScoreMetric;
+import ai.qa.solutions.metrics.nlp.RougeScoreMetric;
+import ai.qa.solutions.metrics.nlp.StringSimilarityMetric;
+import ai.qa.solutions.metrics.nvidia.AnswerAccuracyMetric;
+import ai.qa.solutions.metrics.nvidia.ContextRelevanceMetric;
+import ai.qa.solutions.metrics.nvidia.ResponseGroundednessMetric;
+import ai.qa.solutions.metrics.response.AnswerCorrectnessMetric;
+import ai.qa.solutions.metrics.response.FactualCorrectnessMetric;
+import ai.qa.solutions.metrics.response.SemanticSimilarityMetric;
 import ai.qa.solutions.metrics.retrieval.ContextEntityRecallMetric;
 import ai.qa.solutions.metrics.retrieval.ContextPrecisionMetric;
 import ai.qa.solutions.metrics.retrieval.ContextRecallMetric;
@@ -14,6 +27,7 @@ import ai.qa.solutions.metrics.retrieval.NoiseSensitivityMetric;
 import ai.qa.solutions.metrics.retrieval.ResponseRelevancyMetric;
 import ai.qa.solutions.properties.RagasMetricsProperties;
 import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -97,11 +111,15 @@ public class RagasMetricsAutoconfiguration {
      */
     @Bean
     public RestClientCustomizer http11RestClientCustomizer() {
-        log.info("Configuring RestClient to use HTTP/1.1 to avoid concurrent stream limits");
+        log.info("Configuring RestClient to use HTTP/1.1 with 5 min timeout");
         return builder -> {
-            HttpClient httpClient =
-                    HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
-            builder.requestFactory(new JdkClientHttpRequestFactory(httpClient));
+            final HttpClient httpClient = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .connectTimeout(Duration.ofMinutes(5))
+                    .build();
+            final JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
+            factory.setReadTimeout(Duration.ofMinutes(5));
+            builder.requestFactory(factory);
         };
     }
 
@@ -159,5 +177,91 @@ public class RagasMetricsAutoconfiguration {
     public ResponseRelevancyMetric responseRelevancyMetric(
             final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
         return ResponseRelevancyMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public SemanticSimilarityMetric semanticSimilarityMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return SemanticSimilarityMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public FactualCorrectnessMetric factualCorrectnessMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return FactualCorrectnessMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public AnswerCorrectnessMetric answerCorrectnessMetric(
+            final MultiModelExecutor executor,
+            final FactualCorrectnessMetric factualCorrectnessMetric,
+            final SemanticSimilarityMetric semanticSimilarityMetric,
+            final List<MetricExecutionListener> listeners) {
+        return AnswerCorrectnessMetric.builder()
+                .executor(executor)
+                .factualCorrectnessMetric(factualCorrectnessMetric)
+                .semanticSimilarityMetric(semanticSimilarityMetric)
+                .build()
+                .withListeners(listeners);
+    }
+
+    // ==================== Agent Metrics ====================
+
+    @Bean
+    public AgentGoalAccuracyMetric agentGoalAccuracyMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return AgentGoalAccuracyMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public ToolCallAccuracyMetric toolCallAccuracyMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return ToolCallAccuracyMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public TopicAdherenceMetric topicAdherenceMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return TopicAdherenceMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public ContextRelevanceMetric contextRelevanceMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return ContextRelevanceMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public ResponseGroundednessMetric responseGroundednessMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return ResponseGroundednessMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    @Bean
+    public AnswerAccuracyMetric answerAccuracyMetric(
+            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
+        return AnswerAccuracyMetric.builder().executor(executor).build().withListeners(listeners);
+    }
+
+    // ==================== NLP Metrics (Non-LLM) ====================
+
+    @Bean
+    public BleuScoreMetric bleuScoreMetric() {
+        return new BleuScoreMetric();
+    }
+
+    @Bean
+    public RougeScoreMetric rougeScoreMetric() {
+        return new RougeScoreMetric();
+    }
+
+    @Bean
+    public ChrfScoreMetric chrfScoreMetric() {
+        return new ChrfScoreMetric();
+    }
+
+    @Bean
+    public StringSimilarityMetric stringSimilarityMetric() {
+        return new StringSimilarityMetric();
     }
 }

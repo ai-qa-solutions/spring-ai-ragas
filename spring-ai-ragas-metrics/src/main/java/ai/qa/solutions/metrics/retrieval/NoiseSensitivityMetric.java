@@ -189,7 +189,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                 .metadata(Map.of("sample", sample, "config", config, "mode", config.getMode()))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             log.debug("Computing noise sensitivity evaluation with explicit flow");
 
             // Track excluded models across all steps

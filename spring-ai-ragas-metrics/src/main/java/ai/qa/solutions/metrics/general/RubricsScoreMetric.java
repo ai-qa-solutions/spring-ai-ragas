@@ -81,7 +81,7 @@ public class RubricsScoreMetric extends AbstractMultiModelMetric<RubricsScoreMet
                 .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
-        return CompletableFuture.supplyAsync(() -> {
+        return executor.runAsync(() -> {
             // ========== Step 1: Evaluate ==========
             notifier.beforeStep("Evaluate", 0, 1);
 

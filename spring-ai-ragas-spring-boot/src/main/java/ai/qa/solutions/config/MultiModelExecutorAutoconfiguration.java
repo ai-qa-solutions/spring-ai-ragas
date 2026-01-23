@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * Spring Boot autoconfiguration for the multimodel execution framework.
@@ -36,21 +37,76 @@ import org.springframework.core.task.AsyncTaskExecutor;
 public class MultiModelExecutorAutoconfiguration {
 
     /**
+     * Creates a task executor for RAGAS metric-level operations.
+     * <p>
+     * This executor handles the outer async layer - metric evaluation tasks.
+     * It is separate from HTTP executor to prevent deadlocks when metrics
+     * wait for HTTP responses while holding threads from this pool.
+     * <p>
+     * Configure this pool based on how many metrics you want to evaluate in parallel.
+     *
+     * @return a configured task executor for metric operations
+     */
+    @Bean(name = "ragasMetricExecutor")
+    public AsyncTaskExecutor ragasMetricExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(32);
+        executor.setQueueCapacity(200);
+        executor.setThreadNamePrefix("ragas-metric-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(60);
+        executor.initialize();
+        return executor;
+    }
+
+    /**
+     * Creates a task executor for RAGAS HTTP/LLM operations.
+     * <p>
+     * This executor handles HTTP requests to LLM APIs. It is separate from
+     * the metric executor to prevent deadlocks - metric tasks can safely
+     * wait on HTTP tasks without blocking the HTTP pool.
+     * <p>
+     * Configure this pool based on how many concurrent LLM API requests
+     * your infrastructure can handle.
+     *
+     * @return a configured task executor for HTTP operations
+     */
+    @Bean(name = "ragasHttpExecutor")
+    public AsyncTaskExecutor ragasHttpExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(64);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("ragas-http-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(120);
+        executor.initialize();
+        return executor;
+    }
+
+    /**
      * Creates the main {@link MultiModelExecutor} bean.
      * <p>
      * This bean is responsible for executing LLM and embedding calls across multiple AI models.
-     * It is stateless and does not manage listeners - metrics own their listeners directly.
+     * It uses two separate executors to prevent deadlocks:
+     * <ul>
+     *   <li>{@code ragasMetricExecutor} - for metric-level async operations (runAsync)</li>
+     *   <li>{@code ragasHttpExecutor} - for HTTP/LLM API calls</li>
+     * </ul>
      *
      * @param chatClientStore      store of configured AI model clients
      * @param embeddingModelStore  store of configured embedding models (optional)
-     * @param taskExecutor         executor for parallel async operations
+     * @param ragasMetricExecutor  executor for metric-level async operations
+     * @param ragasHttpExecutor    executor for HTTP/LLM API calls
      * @return a configured multi-model executor
      */
     @Bean
     public MultiModelExecutor multiModelExecutor(
             final ChatClientStore chatClientStore,
             @Autowired(required = false) final EmbeddingModelStore embeddingModelStore,
-            final AsyncTaskExecutor taskExecutor) {
-        return new MultiModelExecutor(chatClientStore, embeddingModelStore, taskExecutor);
+            final AsyncTaskExecutor ragasMetricExecutor,
+            final AsyncTaskExecutor ragasHttpExecutor) {
+        return new MultiModelExecutor(chatClientStore, embeddingModelStore, ragasMetricExecutor, ragasHttpExecutor);
     }
 }
