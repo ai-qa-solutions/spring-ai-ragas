@@ -603,6 +603,31 @@ class NoiseSensitivityTest {
         log.info("Noise Sensitivity Score: {}", score);
         assertTrue(score <= 0.3, "Ожидается низкая оценка чувствительности (хорошая устойчивость)");
     }
+
+    @Test
+    @DisplayName("NoiseSensitivity: Режим IRRELEVANT — измерение влияния нерелевантных контекстов")
+    void testIrrelevantMode() {
+        Sample sample = Sample.builder()
+                .userInput("Какая столица Франции?")
+                .response("Париж — столица Франции. Там прекрасная погода круглый год.")
+                .reference("Париж — столица Франции.")
+                .retrievedContexts(List.of(
+                        "Париж — столица и крупнейший город Франции.",  // Релевантный
+                        "Погода в Париже меняется в зависимости от сезона.",  // Нерелевантный
+                        "Французская кухня славится круассанами и вином."))  // Нерелевантный
+                .build();
+
+        NoiseSensitivityMetric.NoiseSensitivityConfig config =
+                NoiseSensitivityMetric.NoiseSensitivityConfig.builder()
+                        .mode(NoiseSensitivityMetric.NoiseSensitivityMode.IRRELEVANT)
+                        .build();
+
+        Double score = noiseSensitivityMetric.singleTurnScore(config, sample);
+
+        log.info("Noise Sensitivity (IRRELEVANT) Score: {}", score);
+        // Оценка измеряет ошибки от нерелевантных контекстов — меньше лучше
+        assertTrue(score >= 0.0 && score <= 1.0, "Оценка должна быть в допустимом диапазоне");
+    }
 }
 ```
 
@@ -754,6 +779,27 @@ class ResponseRelevancyTest {
 
         log.info("Response Relevancy Score: {}", score);
         assertTrue(score < 0.1, "Ожидается нулевая оценка для уклончивого ответа");
+    }
+
+    @Test
+    @DisplayName("ResponseRelevancy: Настройка numberOfQuestions для более надёжной оценки")
+    void testCustomNumberOfQuestions() {
+        Sample sample = Sample.builder()
+                .userInput("Объясните квантовую запутанность и её применения")
+                .response("Квантовая запутанность — это явление, при котором частицы становятся " +
+                        "взаимосвязанными. Она применяется в квантовых вычислениях и криптографии.")
+                .build();
+
+        // Больше вопросов для сложных тем обеспечивает более надёжные оценки сходства
+        ResponseRelevancyMetric.ResponseRelevancyConfig config =
+                ResponseRelevancyMetric.ResponseRelevancyConfig.builder()
+                        .numberOfQuestions(5)  // Больше вопросов для лучшего покрытия
+                        .build();
+
+        Double score = responseRelevancyMetric.singleTurnScore(config, sample);
+
+        log.info("Response Relevancy Score (5 вопросов): {}", score);
+        assertTrue(score >= 0.7, "Ожидается хорошая оценка для релевантного ответа");
     }
 }
 ```

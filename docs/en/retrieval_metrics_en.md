@@ -604,6 +604,31 @@ class NoiseSensitivityTest {
         log.info("Noise Sensitivity Score: {}", score);
         assertTrue(score <= 0.3, "Expected low sensitivity score (good robustness)");
     }
+
+    @Test
+    @DisplayName("NoiseSensitivity: IRRELEVANT mode - measuring irrelevant context impact")
+    void testIrrelevantMode() {
+        Sample sample = Sample.builder()
+                .userInput("What is the capital of France?")
+                .response("Paris is the capital of France. It has beautiful weather year-round.")
+                .reference("Paris is the capital of France.")
+                .retrievedContexts(List.of(
+                        "Paris is the capital and largest city of France.",  // Relevant
+                        "The weather in Paris varies with distinct seasons.",  // Irrelevant
+                        "French cuisine is famous for croissants and wine."))  // Irrelevant
+                .build();
+
+        NoiseSensitivityMetric.NoiseSensitivityConfig config =
+                NoiseSensitivityMetric.NoiseSensitivityConfig.builder()
+                        .mode(NoiseSensitivityMetric.NoiseSensitivityMode.IRRELEVANT)
+                        .build();
+
+        Double score = noiseSensitivityMetric.singleTurnScore(config, sample);
+
+        log.info("Noise Sensitivity (IRRELEVANT) Score: {}", score);
+        // Score measures errors from irrelevant contexts - lower is better
+        assertTrue(score >= 0.0 && score <= 1.0, "Score should be in valid range");
+    }
 }
 ```
 
@@ -755,6 +780,27 @@ class ResponseRelevancyTest {
 
         log.info("Response Relevancy Score: {}", score);
         assertTrue(score < 0.1, "Expected zero score for noncommittal answer");
+    }
+
+    @Test
+    @DisplayName("ResponseRelevancy: Custom numberOfQuestions for more robust evaluation")
+    void testCustomNumberOfQuestions() {
+        Sample sample = Sample.builder()
+                .userInput("Explain quantum entanglement and its applications")
+                .response("Quantum entanglement is a phenomenon where particles become " +
+                        "interconnected. It has applications in quantum computing and cryptography.")
+                .build();
+
+        // Use more questions for complex topics to get more robust similarity scores
+        ResponseRelevancyMetric.ResponseRelevancyConfig config =
+                ResponseRelevancyMetric.ResponseRelevancyConfig.builder()
+                        .numberOfQuestions(5)  // More questions for better coverage
+                        .build();
+
+        Double score = responseRelevancyMetric.singleTurnScore(config, sample);
+
+        log.info("Response Relevancy Score (5 questions): {}", score);
+        assertTrue(score >= 0.7, "Expected good score for relevant answer");
     }
 }
 ```
