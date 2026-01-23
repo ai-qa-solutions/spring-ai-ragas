@@ -1,0 +1,3175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolCallAccuracyMetric - Evaluation Report</title>
+    <style>
+        :root {
+            /* Allure 3 color scheme (day/light theme) */
+            --color-excellent: #09a232;
+            --color-good: #09a232;
+            --color-moderate: #eb9b46;
+            --color-poor: #eb5146;
+            --color-unknown: #7281a1;
+            --color-bg: #ffffff;
+            --color-border: #e8edf1;
+            --color-text: #1b2129;
+            --color-text-secondary: #677281;
+            --color-code-bg: #f1f5f7;
+            --color-header-bg: #2c343f;
+            --color-accent: #2c67e8;
+            --brand-green: #16b67b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--color-text);
+            background: var(--color-bg);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .report-header {
+            background: var(--color-header-bg);
+            color: #f6fafe;
+            padding: 24px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+        }
+
+        .report-header h1 {
+            margin: 0 0 16px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .score-badge {
+            font-size: 20px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .score-badge.excellent { background: var(--color-excellent); }
+        .score-badge.good { background: var(--color-good); }
+        .score-badge.moderate { background: var(--color-moderate); }
+        .score-badge.poor { background: var(--color-poor); }
+        .score-badge.unknown { background: var(--color-unknown); }
+
+        .duration, .timestamp {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .report-block {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .block-header {
+            background: #f5f5f5;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .block-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .block-content {
+            padding: 24px;
+        }
+
+        .chart-container {
+            margin-bottom: 24px;
+        }
+
+        .chart-container h3 {
+            font-size: 16px;
+            margin: 0 0 12px 0;
+            color: var(--color-text-secondary);
+        }
+
+        .chart-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .sample-section {
+            margin-top: 24px;
+        }
+
+        .sample-section h3 {
+            font-size: 16px;
+            margin: 0 0 16px 0;
+        }
+
+        .sample-item {
+            margin-bottom: 16px;
+        }
+
+        .sample-item dt {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .sample-item dd {
+            margin: 0;
+        }
+
+        pre {
+            background: var(--color-code-bg);
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .step-execution {
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .step-header {
+            background: #f5f5f5;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .step-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .step-type-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .step-type-badge.llm { background: #2c67e8; color: white; }
+        .step-type-badge.embedding { background: #7a2ce8; color: white; }
+        .step-type-badge.compute { background: #eb9b46; color: white; }
+
+        .step-duration {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .step-stats {
+            font-size: 13px;
+        }
+
+        .step-stats .success { color: var(--color-good); }
+        .step-stats .failure { color: var(--color-poor); }
+
+        .step-content {
+            padding: 16px;
+        }
+
+        .prompt-section, .model-results {
+            margin-bottom: 16px;
+        }
+
+        .prompt-section h4, .model-results h4 {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            color: var(--color-text-secondary);
+        }
+
+        .model-result {
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .model-result.success { border-left: 4px solid var(--color-good); }
+        .model-result.failure { border-left: 4px solid var(--color-poor); }
+
+        .model-header {
+            background: #fafafa;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .model-id {
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        .model-status {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .model-result.success .model-status { background: #e8f5e9; color: var(--color-good); }
+        .model-result.failure .model-status { background: #ffebee; color: var(--color-poor); }
+
+        .model-duration {
+            color: var(--color-text-secondary);
+        }
+
+        .model-response, .model-error {
+            padding: 12px;
+        }
+
+        .model-response h5, .model-error h5 {
+            font-size: 12px;
+            margin: 0 0 8px 0;
+            color: var(--color-text-secondary);
+        }
+
+        .exclusions-section {
+            margin-top: 24px;
+        }
+
+        .exclusions-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .exclusions-table th, .exclusions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .exclusions-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .methodology-content {
+            line-height: 1.8;
+        }
+
+        .methodology-content h1 { font-size: 20px; margin: 0 0 16px 0; }
+        .methodology-content h2 { font-size: 18px; margin: 24px 0 12px 0; }
+        .methodology-content h3 { font-size: 16px; margin: 20px 0 10px 0; }
+
+        .methodology-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .methodology-content th, .methodology-content td {
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            text-align: left;
+        }
+
+        .methodology-content th {
+            background: #f5f5f5;
+        }
+
+        .methodology-content code {
+            background: var(--color-code-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        .steps-schema {
+            margin: 24px 0;
+        }
+
+        .steps-diagram {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .step-box {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .step-box.llm { background: #e3f2fd; border-color: #2c67e8; }
+        .step-box.embedding { background: #f3e5f5; border-color: #7a2ce8; }
+        .step-box.compute { background: #fff3e0; border-color: #eb9b46; }
+
+        .step-number {
+            font-weight: 700;
+            margin-right: 4px;
+        }
+
+        .step-arrow {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+        }
+
+        details {
+            margin-top: 8px;
+        }
+
+        details summary {
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .context-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .context-list li {
+            margin-bottom: 12px;
+        }
+
+        /* Collapsible block styles */
+        .block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .block-header:hover {
+            background: #eeeeee;
+        }
+
+        .collapse-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .collapse-btn:hover {
+            background: #d0d0d0;
+            color: #333;
+        }
+
+        .block-content {
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.2s ease-out;
+            overflow: hidden;
+        }
+
+        .report-block.collapsed .block-content {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+        }
+
+        .report-block.collapsed .block-header {
+            border-bottom: none;
+        }
+
+        /* Trace Viewer - Langfuse style */
+        .trace-viewer {
+            display: flex;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            overflow: hidden;
+            min-height: 500px;
+            max-height: 700px;
+        }
+
+        .trace-tree {
+            width: 320px;
+            min-width: 280px;
+            border-right: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+        }
+
+        .tree-header {
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            border-bottom: 1px solid var(--color-border);
+            background: #f5f5f5;
+        }
+
+        .tree-content {
+            overflow-y: auto;
+            flex: 1;
+            padding: 8px 0;
+        }
+
+        .tree-node {
+            user-select: none;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            gap: 8px;
+            border-left: 3px solid transparent;
+        }
+
+        .tree-item:hover {
+            background: #f0f0f0;
+        }
+
+        .tree-item.selected {
+            background: #e3f2fd;
+            border-left-color: #2c67e8;
+        }
+
+        .tree-item.error {
+            color: var(--color-poor);
+        }
+
+        .model-item {
+            padding-left: 32px;
+        }
+
+        .tree-expand {
+            width: 16px;
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .tree-expand.has-children {
+            cursor: pointer;
+        }
+
+        .tree-type-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .tree-type-badge.llm { background: #e3f2fd; color: #1565c0; }
+        .tree-type-badge.embedding { background: #f3e5f5; color: #7b1fa2; }
+        .tree-type-badge.compute { background: #fff3e0; color: #e65100; }
+        .tree-type-badge.model { background: #e8f5e9; color: #09a232; }
+
+        .tree-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .tree-duration {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            flex-shrink: 0;
+        }
+
+        .tree-error-badge {
+            background: var(--color-poor);
+            color: white;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .tree-children {
+            border-left: 1px dashed #ccc;
+            margin-left: 20px;
+        }
+
+        /* Right panel: Details */
+        .trace-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .details-header {
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 1px solid var(--color-border);
+            background: #f5f5f5;
+        }
+
+        .details-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .details-placeholder {
+            color: var(--color-text-secondary);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .detail-type-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .detail-type-badge.llm { background: #e3f2fd; color: #1565c0; }
+        .detail-type-badge.embedding { background: #f3e5f5; color: #7b1fa2; }
+        .detail-type-badge.compute { background: #fff3e0; color: #e65100; }
+        .detail-type-badge.model { background: #e8f5e9; color: #09a232; }
+
+        .detail-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .detail-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .detail-status.success { background: #e8f5e9; color: var(--color-good); }
+        .detail-status.error { background: #ffebee; color: var(--color-poor); }
+
+        .detail-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .meta-item {
+            font-size: 13px;
+        }
+
+        .meta-label {
+            color: var(--color-text-secondary);
+        }
+
+        .detail-section-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-code {
+            background: var(--color-code-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 12px;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .detail-code.error {
+            background: #ffebee;
+            border-color: #ffcdd2;
+            color: var(--color-poor);
+        }
+
+        .detail-code.stack-trace {
+            font-size: 11px;
+            max-height: 200px;
+            color: var(--color-text-secondary);
+        }
+
+        .compute-info {
+            background: #fff3e0;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            padding: 12px;
+        }
+
+        .compute-info p {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+        }
+
+        .outputs-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .output-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: #fafafa;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .output-item:hover {
+            background: #f0f0f0;
+        }
+
+        .output-item.error {
+            border-left: 3px solid var(--color-poor);
+        }
+
+        .output-item.success {
+            border-left: 3px solid var(--color-good);
+        }
+
+        .output-model {
+            flex: 1;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .output-duration {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+        }
+
+        .output-status {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .output-status.success { background: #e8f5e9; color: var(--color-good); }
+        .output-status.error { background: #ffebee; color: var(--color-poor); }
+
+        /* Score Explanation Styles */
+        .explanation-viewer {
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .explanation-intro {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: linear-gradient(to right, #f8f9fa, #fff);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .explanation-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .explanation-icon .icon-good {
+            color: var(--color-good);
+        }
+
+        .explanation-icon .icon-bad {
+            color: var(--color-poor);
+        }
+
+        .explanation-icon .icon-info {
+            color: #2c67e8;
+        }
+
+        .explanation-summary {
+            flex: 1;
+        }
+
+        .explanation-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .explanation-simple {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        .explanation-main {
+            display: flex;
+            min-height: 400px;
+            max-height: 600px;
+        }
+
+        .explanation-tree {
+            width: 280px;
+            min-width: 240px;
+            border-right: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+        }
+
+        .explanation-tree .tree-header {
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            border-bottom: 1px solid var(--color-border);
+            background: #f5f5f5;
+        }
+
+        .explanation-tree .tree-content {
+            overflow-y: auto;
+            flex: 1;
+            padding: 8px 0;
+        }
+
+        .exp-tree-node {
+            user-select: none;
+        }
+
+        .exp-tree-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            gap: 10px;
+            border-left: 3px solid transparent;
+            transition: all 0.15s ease;
+        }
+
+        .exp-tree-item:hover {
+            background: #f0f0f0;
+        }
+
+        .exp-tree-item.selected {
+            background: #e3f2fd;
+            border-left-color: #2c67e8;
+        }
+
+        .exp-tree-number {
+            width: 24px;
+            height: 24px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .exp-tree-item.selected .exp-tree-number {
+            background: #2c67e8;
+            color: white;
+        }
+
+        .interpretation-node .exp-tree-number {
+            background: #eb9b46;
+            color: white;
+        }
+
+        .exp-tree-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .exp-tree-delta {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: #fff3e0;
+            color: #e65100;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .explanation-details {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Explanation detail styles */
+        .exp-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .exp-step-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: #e3f2fd;
+            color: #1565c0;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .exp-step-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .exp-detail-description {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .exp-input-section {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 4px;
+        }
+
+        .exp-input-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1565c0;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .exp-input-data {
+            font-size: 14px;
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+
+        .exp-output-summary {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .exp-section-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .exp-items-section {
+            margin-bottom: 20px;
+        }
+
+        .exp-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .exp-item {
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        .exp-item.passed {
+            border-left: 4px solid var(--color-good);
+            background: #f1f8e9;
+        }
+
+        .exp-item.failed {
+            border-left: 4px solid var(--color-poor);
+            background: #ffebee;
+        }
+
+        /* Neutral items (rubrics unselected levels) */
+        .exp-item.neutral {
+            border-left: 4px solid #e0e0e0;
+            background: #f5f5f5;
+        }
+
+        /* Rubrics position-based colors */
+        .exp-item.score-poor {
+            border-left: 4px solid var(--color-poor);
+            background: #ffebee;
+        }
+
+        .exp-item.score-moderate {
+            border-left: 4px solid var(--color-moderate);
+            background: #fff3e0;
+        }
+
+        .exp-item.score-good {
+            border-left: 4px solid var(--color-good);
+            background: #e8f5e9;
+        }
+
+        .exp-item-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .exp-item-index {
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            min-width: 24px;
+        }
+
+        .exp-item-content {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .exp-item-verdict {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .exp-item-verdict.passed {
+            background: #e8f5e9;
+            color: var(--color-good);
+        }
+
+        .exp-item-verdict.failed {
+            background: #ffebee;
+            color: var(--color-poor);
+        }
+
+        /* Neutral verdict (rubrics unselected) */
+        .exp-item-verdict.neutral {
+            background: #f5f5f5;
+            color: #757575;
+        }
+
+        /* Rubrics position-based verdict colors */
+        .exp-item-verdict.score-poor {
+            background: #ffebee;
+            color: var(--color-poor);
+        }
+
+        .exp-item-verdict.score-moderate {
+            background: #fff3e0;
+            color: var(--color-moderate);
+        }
+
+        .exp-item-verdict.score-good {
+            background: #e8f5e9;
+            color: var(--color-good);
+        }
+
+        .exp-item-reason {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            padding-left: 32px;
+            font-style: italic;
+        }
+
+        .exp-item-source {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #9e9e9e;
+            padding-left: 32px;
+        }
+
+        /* Model disagreement section */
+        .exp-disagreement-section {
+            margin-top: 20px;
+            padding: 16px;
+            background: #fff3e0;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+        }
+
+        .exp-disagreement-grid {
+            display: flex;
+            gap: 16px;
+        }
+
+        .exp-disagreement-col {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .exp-col-header {
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ffe0b2;
+        }
+
+        .exp-disagreement-col.agree .exp-col-header {
+            color: var(--color-good);
+        }
+
+        .exp-disagreement-col.disagree .exp-col-header {
+            color: var(--color-poor);
+        }
+
+        .exp-model-item {
+            font-size: 12px;
+            font-family: monospace;
+            padding: 4px 0;
+        }
+
+        /* Model numeric results section */
+        .exp-model-results-section {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+        }
+
+        .exp-model-results-table {
+            margin-top: 12px;
+        }
+
+        .exp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .exp-table th,
+        .exp-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .exp-table th {
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f5f5f5;
+        }
+
+        .exp-table td:first-child {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .exp-table td:last-child {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .exp-table tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* Per-model breakdown styles */
+        .exp-models-breakdown {
+            margin-top: 16px;
+        }
+
+        .exp-model-card {
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .exp-model-card.error {
+            border-color: var(--color-poor);
+            background: #fff5f5;
+        }
+
+        .exp-model-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #f8f9fa;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .exp-model-header:hover {
+            background: #eef0f2;
+        }
+
+        .exp-model-expand {
+            font-size: 10px;
+            color: #666;
+            width: 14px;
+        }
+
+        .exp-model-name {
+            flex: 1;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .exp-model-calc {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .exp-model-score {
+            font-weight: 600;
+            font-size: 13px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .exp-model-status.error {
+            color: var(--color-poor);
+            font-weight: 600;
+        }
+
+        .exp-model-details {
+            padding: 12px 14px;
+            border-top: 1px solid var(--color-border);
+            background: #fafafa;
+        }
+
+        .exp-model-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .exp-model-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .exp-model-item.passed {
+            background: #e8f5e9;
+            border-left: 3px solid var(--color-good);
+        }
+
+        .exp-model-item.failed {
+            background: #ffebee;
+            border-left: 3px solid var(--color-poor);
+        }
+
+        .exp-model-item.neutral {
+            background: #f5f5f5;
+            border-left: 3px solid #9e9e9e;
+        }
+
+        .exp-item-marker {
+            font-weight: 600;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .exp-item-marker.passed {
+            color: var(--color-good);
+        }
+
+        .exp-item-marker.failed {
+            color: var(--color-poor);
+        }
+
+        .exp-item-marker.neutral {
+            color: #757575;
+        }
+
+        .exp-item-text {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .exp-item-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .exp-item-badge.passed {
+            background: var(--color-good);
+            color: white;
+        }
+
+        .exp-item-badge.failed {
+            background: var(--color-poor);
+            color: white;
+        }
+
+        .exp-item-badge.neutral {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .exp-no-items {
+            color: var(--color-text-secondary);
+            font-style: italic;
+            padding: 8px;
+        }
+
+        /* Score breakdown styles */
+        .exp-scores-breakdown {
+            margin-top: 16px;
+        }
+
+        .exp-scores-table {
+            margin: 12px 0;
+        }
+
+        .exp-scores-table .model-name-cell {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .exp-scores-table .score-cell {
+            font-weight: 600;
+            text-align: right;
+            min-width: 80px;
+        }
+
+        .score-excellent { color: var(--color-excellent); }
+        .score-good { color: var(--color-good); }
+        .score-moderate { color: var(--color-moderate); }
+        .score-poor { color: var(--color-poor); }
+
+        .exp-aggregation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f0f4f8;
+            border-radius: 6px;
+            border: 2px solid var(--color-border);
+            margin-top: 12px;
+        }
+
+        .exp-aggregation-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .exp-aggregation-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Interpretation styles */
+        .exp-interpretation {
+            max-width: 600px;
+        }
+
+        .exp-formula-section,
+        .exp-calculation-section {
+            margin-bottom: 16px;
+        }
+
+        .exp-formula-label,
+        .exp-calculation-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .exp-formula,
+        .exp-calculation {
+            font-family: monospace;
+            font-size: 14px;
+            background: var(--color-code-bg);
+            padding: 10px 14px;
+            border-radius: 4px;
+            border: 1px solid var(--color-border);
+        }
+
+        .exp-result-section {
+            margin: 24px 0;
+            text-align: center;
+            padding: 24px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .exp-result-score {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .exp-result-score.good {
+            color: var(--color-good);
+        }
+
+        .exp-result-score.bad {
+            color: var(--color-poor);
+        }
+
+        .exp-result-meaning {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .exp-scale-section {
+            margin-top: 24px;
+        }
+
+        .exp-scale-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .exp-scale-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            background: #fafafa;
+            border: 1px solid transparent;
+        }
+
+        .exp-scale-item.current {
+            background: #e3f2fd;
+            border-color: #2c67e8;
+        }
+
+        .exp-scale-marker {
+            width: 20px;
+            color: #2c67e8;
+            font-weight: bold;
+        }
+
+        .exp-scale-name {
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .exp-scale-range {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            min-width: 60px;
+        }
+
+        .exp-scale-desc {
+            flex: 1;
+            color: var(--color-text-secondary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .exp-scale-current {
+            font-size: 10px;
+            padding: 2px 8px;
+            background: #2c67e8;
+            color: white;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Rubric scale color classes */
+        .exp-scale-item.neutral {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+
+        .exp-scale-item.score-poor {
+            background: #ffebee;
+            border-color: #eb5146;
+        }
+
+        .exp-scale-item.score-moderate {
+            background: #fff3e0;
+            border-color: #eb9b46;
+        }
+
+        .exp-scale-item.score-good {
+            background: #e8f5e9;
+            border-color: #09a232;
+        }
+
+        .exp-scale-item.current.score-poor .exp-scale-current {
+            background: #eb5146;
+        }
+
+        .exp-scale-item.current.score-moderate .exp-scale-current {
+            background: #eb9b46;
+        }
+
+        .exp-scale-item.current.score-good .exp-scale-current {
+            background: #09a232;
+        }
+
+        .exp-scale-item.current.score-poor .exp-scale-marker {
+            color: #eb5146;
+        }
+
+        .exp-scale-item.current.score-moderate .exp-scale-marker {
+            color: #eb9b46;
+        }
+
+        .exp-scale-item.current.score-good .exp-scale-marker {
+            color: #09a232;
+        }
+
+        .no-explanation {
+            padding: 40px;
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <header class="report-header">
+            <h1>ToolCallAccuracyMetric - Evaluation Report</h1>
+            <div class="metadata">
+                <span class="score-badge excellent">100.00%</span>
+                <span class="duration">Duration: 13ms</span>
+                <span class="timestamp">2026-01-23T14:15:55.009015Z</span>
+            </div>
+        </header>
+
+        <section class="report-block" id="block-summary">
+            <div class="block-header" onclick="toggleBlock('block-summary')">
+                <h2>Summary</h2>
+                <button class="collapse-btn" aria-label="Toggle section">−</button>
+            </div>
+            <div class="block-content">
+<div class="chart-container">
+    <h3>Model Scores</h3>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 90" class="bar-chart">
+        <style>
+            .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
+            .scale-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
+            .score-label { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
+            .grid-line { stroke: #e8edf1; stroke-width: 1; }
+            .bar-excellent { fill: #09a232; }
+            .bar-good { fill: #09a232; }
+            .bar-moderate { fill: #eb9b46; }
+            .bar-poor { fill: #eb5146; }
+            .bar-excluded { fill: #7281a1; }
+        </style>
+                <line x1="150" y1="20" x2="150" y2="60" class="grid-line"/>
+                    <text x="150" y="80" class="scale-label">0</text>
+                <line x1="190" y1="20" x2="190" y2="60" class="grid-line"/>
+                <line x1="230" y1="20" x2="230" y2="60" class="grid-line"/>
+                    <text x="230" y="80" class="scale-label">0.2</text>
+                <line x1="270" y1="20" x2="270" y2="60" class="grid-line"/>
+                <line x1="310" y1="20" x2="310" y2="60" class="grid-line"/>
+                    <text x="310" y="80" class="scale-label">0.4</text>
+                <line x1="350" y1="20" x2="350" y2="60" class="grid-line"/>
+                <line x1="390" y1="20" x2="390" y2="60" class="grid-line"/>
+                    <text x="390" y="80" class="scale-label">0.6</text>
+                <line x1="430" y1="20" x2="430" y2="60" class="grid-line"/>
+                <line x1="470" y1="20" x2="470" y2="60" class="grid-line"/>
+                    <text x="470" y="80" class="scale-label">0.8</text>
+                <line x1="510" y1="20" x2="510" y2="60" class="grid-line"/>
+                <line x1="550" y1="20" x2="550" y2="60" class="grid-line"/>
+                    <text x="550" y="80" class="scale-label">1</text>
+            <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="37" class="score-label">1,0000</text>
+    </svg>
+</div>
+
+
+<div class="sample-section">
+    <h3>Input Sample</h3>
+    <dl>
+
+
+
+    </dl>
+</div>
+
+<div class="sample-section">
+    <h3>Models</h3>
+    <dl>
+        <div class="sample-item">
+            <dt>LLM Models</dt>
+            <dd><code>x-ai/grok-4.1-fast, google/gemini-2.5-flash, deepseek/deepseek-v3.2, google/gemini-3-flash-preview</code></dd>
+        </div>
+    </dl>
+</div>
+
+<div class="sample-section">
+    <h3>Configuration</h3>
+    <pre>{
+  &quot;models&quot; : [ ],
+  &quot;mode&quot; : &quot;STRICT&quot;,
+  &quot;argumentMatchThreshold&quot; : 0.8
+}</pre>
+</div>
+            </div>
+        </section>
+
+        <section class="report-block" id="block-explanation">
+            <div class="block-header" onclick="toggleBlock('block-explanation')">
+                <h2>Score Explanation</h2>
+                <button class="collapse-btn" aria-label="Toggle section">−</button>
+            </div>
+            <div class="block-content">
+
+
+<div class="explanation-viewer">
+    <div class="explanation-intro">
+        <div class="explanation-icon">
+                <span class="icon-info">i</span>
+        </div>
+        <div class="explanation-summary">
+            <div class="explanation-title">Why this score?</div>
+            <div class="explanation-simple">This metric evaluates accuracy of agent&#39;s tool calls against expected reference calls. It compares actual tool invocations with expected ones using F1 score.</div>
+        </div>
+    </div>
+
+    <div class="explanation-main">
+        <div class="explanation-tree">
+            <div class="tree-header">Steps</div>
+            <div class="tree-content">
+                <div class="exp-tree-node" data-step="0">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(0)">
+                        <span class="exp-tree-number">1</span>
+                        <span class="exp-tree-name">Aligning tool calls</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="1">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(1)">
+                        <span class="exp-tree-number">2</span>
+                        <span class="exp-tree-name">Computing precision and recall</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="2">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(2)">
+                        <span class="exp-tree-number">3</span>
+                        <span class="exp-tree-name">Computing F1 score</span>
+                    </div>
+                </div>
+
+                <div class="exp-tree-node interpretation-node" data-step="interpretation">
+                    <div class="exp-tree-item selected" onclick="selectExplanationStep('interpretation')">
+                        <span class="exp-tree-number">&#10148;</span>
+                        <span class="exp-tree-name">Interpretation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="explanation-details">
+            <div id="exp-details-content">
+
+
+<div class="exp-interpretation">
+    <div class="exp-detail-header">
+        <span class="exp-step-title">Interpretation</span>
+    </div>
+
+    <div class="exp-formula-section">
+        <div class="exp-formula-label">Formula</div>
+        <div class="exp-formula">F1 = 2 × (precision × recall) / (precision + recall)</div>
+    </div>
+
+    <div class="exp-calculation-section">
+        <div class="exp-calculation-label">Calculation</div>
+        <div class="exp-calculation">2 × (1,00 × 1,00) / (1,00 + 1,00) = 1,00</div>
+    </div>
+
+    <div class="exp-result-section">
+        <div class="exp-result-score ">
+            100.00%
+        </div>
+        <div class="exp-result-meaning">Excellent - all tool calls match expected calls perfectly</div>
+    </div>
+
+    <div class="exp-scale-section">
+        <div class="exp-section-title">Scale</div>
+        <div class="exp-scale-list">
+            <div class="exp-scale-item current">
+                <span class="exp-scale-marker">
+                    &#9658;
+                </span>
+                <span class="exp-scale-name">Excellent</span>
+                <span class="exp-scale-range">90-100%</span>
+                <span class="exp-scale-desc" title="All tool calls match">All tool calls match</span>
+                <span class="exp-scale-current">YOUR RESULT</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
+                <span class="exp-scale-name">Good</span>
+                <span class="exp-scale-range">70-89%</span>
+                <span class="exp-scale-desc" title="Most tool calls match">Most tool calls match</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
+                <span class="exp-scale-name">Moderate</span>
+                <span class="exp-scale-range">50-69%</span>
+                <span class="exp-scale-desc" title="Some tool calls match">Some tool calls match</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
+                <span class="exp-scale-name">Poor</span>
+                <span class="exp-scale-range">0-49%</span>
+                <span class="exp-scale-desc" title="Few tool calls match">Few tool calls match</span>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="explanation-data" type="application/json">
+{
+    "metricType": "tool-call-accuracy",
+    "hasFixedInterpretation": false,
+    "executionSteps": [
+        {
+            "stepName": "AlignToolCalls",
+            "stepType": "COMPUTE",
+            "modelResults": [
+            ]
+        },
+        {
+            "stepName": "ComputePrecisionRecall",
+            "stepType": "COMPUTE",
+            "modelResults": [
+            ]
+        },
+        {
+            "stepName": "ComputeScore",
+            "stepType": "COMPUTE",
+            "modelResults": [
+            ]
+        }
+    ],
+    "modelScores": {
+        "x-ai/grok-4.1-fast": 1
+    },
+    "aggregatedScore": 1,
+    "steps": [
+        {
+            "stepNumber": 1,
+            "stepName": "AlignToolCalls",
+            "title": "Aligning tool calls",
+            "description": "Matching actual tool calls with reference tool calls based on tool name and arguments.",
+            "inputData": "Mode: STRICT",
+            "outputSummary": "Matched: 0/0",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 2,
+            "stepName": "ComputePrecisionRecall",
+            "title": "Computing precision and recall",
+            "description": "Calculating precision (correct calls / total actual) and recall (correct calls / total reference).",
+            "inputData": "TP=0, FP=0, FN=0",
+            "outputSummary": "Precision: 1,00, Recall: 1,00",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 3,
+            "stepName": "ComputeScore",
+            "title": "Computing F1 score",
+            "description": "Computing the final F1 score as harmonic mean of precision and recall.",
+            "inputData": "Precision=1,00, Recall=1,00",
+            "outputSummary": "F1 = 1,00",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        }
+    ],
+    "interpretation": {
+        "formula": "F1 = 2 × (precision × recall) / (precision + recall)",
+        "calculation": "2 × (1,00 × 1,00) / (1,00 + 1,00) = 1,00",
+        "score": 1,
+        "scorePercent": "100.00%",
+        "level": "Excellent",
+        "isGood": null,
+        "meaning": "Excellent - all tool calls match expected calls perfectly",
+        "numerator": null,
+        "denominator": null,
+        "currentLevelIndex": 0,
+        "minLevel": 1,
+        "maxLevel": 5,
+        "scaleLevels": [
+            {
+                "name": "Excellent",
+                "range": "90-100%",
+                "description": "All tool calls match",
+                "current": true
+            },
+            {
+                "name": "Good",
+                "range": "70-89%",
+                "description": "Most tool calls match",
+                "current": false
+            },
+            {
+                "name": "Moderate",
+                "range": "50-69%",
+                "description": "Some tool calls match",
+                "current": false
+            },
+            {
+                "name": "Poor",
+                "range": "0-49%",
+                "description": "Few tool calls match",
+                "current": false
+            }
+        ]
+    }
+}
+</script>
+
+<script id="explanation-i18n" type="application/json">
+{
+    "step": "Step",
+    "formula": "Formula",
+    "calculation": "Calculation",
+    "result": "Result",
+    "interpretation": "Interpretation",
+    "scale": "Scale",
+    "currentLevel": "Current Level",
+    "items": "Items",
+    "verdict": "Verdict",
+    "reason": "Reason",
+    "source": "Source",
+    "modelDisagreement": "Model Disagreement",
+    "modelsAgree": "Models Agree",
+    "modelsDisagree": "Models Disagree",
+    "passed": "PASSED",
+    "failed": "FAILED",
+    "yourResult": "YOUR RESULT",
+    "modelResults": "Model Scores",
+    "model": "Model",
+    "score": "Score",
+    "level": "Level",
+    "averageModels": "Average (%d models):",
+    "nItems": "%d items",
+    "inputData": "Response",
+    "inputLabelReference": "Reference",
+    "inputLabelResponse": "Response",
+    "inputLabelUserInput": "User Input",
+    "inputLabelContexts": "Retrieved Contexts",
+    "inputLabelQuestionAnswer": "Question + Reference"
+}
+</script>
+
+<script>
+(function() {
+    const expData = JSON.parse(document.getElementById('explanation-data').textContent);
+    const i18n = JSON.parse(document.getElementById('explanation-i18n').textContent);
+    let selectedElement = null;
+
+    window.selectExplanationStep = function(stepIndex) {
+        // Clear previous selection
+        document.querySelectorAll('.exp-tree-item.selected').forEach(el => el.classList.remove('selected'));
+
+        // Select new item
+        let targetNode;
+        if (stepIndex === 'interpretation') {
+            targetNode = document.querySelector('.interpretation-node .exp-tree-item');
+        } else {
+            targetNode = document.querySelector(`.exp-tree-node[data-step="${stepIndex}"] .exp-tree-item`);
+        }
+        if (targetNode) {
+            targetNode.classList.add('selected');
+        }
+
+        // Render content
+        const detailsContent = document.getElementById('exp-details-content');
+
+        if (stepIndex === 'interpretation') {
+            detailsContent.innerHTML = renderInterpretation();
+        } else {
+            const step = expData.steps[stepIndex];
+            detailsContent.innerHTML = renderStep(step);
+        }
+    };
+
+    function renderStep(step) {
+        let html = `
+            <div class="exp-detail-header">
+                <span class="exp-step-badge">${i18n.step} ${step.stepNumber}</span>
+                <span class="exp-step-title">${escapeHtml(step.title)}</span>
+            </div>
+            <div class="exp-detail-description">${escapeHtml(step.description)}</div>
+        `;
+
+        // Always show inputData if available - this is the source text being analyzed
+        if (step.inputData) {
+            const inputLabel = getInputLabel(step.stepName);
+            html += `
+                <div class="exp-input-section">
+                    <div class="exp-input-label">${inputLabel}:</div>
+                    <div class="exp-input-data">${escapeHtml(step.inputData)}</div>
+                </div>
+            `;
+        }
+
+        // Show contexts from metadata if available (for ContextRecall)
+        if (step.metadata && step.metadata.contexts) {
+            html += `
+                <div class="exp-input-section">
+                    <div class="exp-input-label">${i18n.inputLabelContexts}:</div>
+                    <div class="exp-input-data exp-contexts-data">${escapeHtml(step.metadata.contexts)}</div>
+                </div>
+            `;
+        }
+
+        // Find matching execution step to get model results
+        const execStep = findExecutionStep(step.stepName);
+
+        // Always show outputSummary if available
+        if (step.outputSummary) {
+            html += `<div class="exp-output-summary">${escapeHtml(step.outputSummary)}</div>`;
+        }
+
+        // Always show static items if available (e.g., entity comparison results)
+        if (step.items && step.items.length > 0) {
+            html += renderStepItems(step);
+        }
+
+        // Special handling for ComputeScore step - show per-model score breakdown
+        if (step.stepName === 'ComputeScore' && expData.modelScores && Object.keys(expData.modelScores).length > 0) {
+            html += renderModelScoresBreakdown();
+        }
+        // If we have execution data with model results, show per-model breakdown
+        else if (execStep && execStep.modelResults && execStep.modelResults.length > 0) {
+            html += renderModelDetailsFromExecution(execStep, step);
+        }
+
+        // Model results - show numeric or agreement/disagreement
+        if (step.modelResults && step.modelResults.length > 0) {
+            const hasNumericResults = step.modelResults.some(m => m.numericResult !== null);
+            if (hasNumericResults) {
+                html += renderModelNumericResults(step);
+            } else if (step.hasModelDisagreement) {
+                html += renderModelDisagreement(step);
+            }
+        }
+
+        return html;
+    }
+
+    function findExecutionStep(stepName) {
+        if (!expData.executionSteps) return null;
+        // Map explanation step names to execution step names
+        const nameMap = {
+            // Faithfulness
+            'ExtractStatements': 'GenerateStatements',
+            'VerifyStatements': 'EvaluateFaithfulness',
+            // ContextRecall
+            'ClassifyStatements': 'ClassifyStatements',
+            // ContextEntityRecall - metric now reports 3 separate steps
+            'ExtractReferenceEntities': 'ExtractReferenceEntities',
+            'ExtractContextEntities': 'ExtractContextEntities',
+            'CompareEntities': 'ComputeEntityRecall',
+            // ContextPrecision
+            'EvaluateContexts': 'EvaluateAllContexts',
+            // ResponseRelevancy
+            'GenerateQuestions': 'GenerateQuestions',
+            'EmbedAndCompare': 'ComputeCosineSimilarity',
+            // NoiseSensitivity
+            'ExtractReferenceStatements': 'DecomposeReference',
+            'ExtractResponseStatements': 'DecomposeResponse',
+            'AnalyzeMatches': 'EvaluateGroundTruthToAnswer',
+            // AspectCritic, SimpleCriteria, RubricsScore
+            'EvaluateAspect': 'Evaluate',
+            'EvaluateCriteria': 'Evaluate',
+            'EvaluateRubrics': 'Evaluate',
+            'SelectLevel': 'Evaluate'
+        };
+        const execName = nameMap[stepName] || stepName;
+        return expData.executionSteps.find(s =>
+            s.stepName === execName ||
+            s.stepName === stepName ||
+            s.stepName.includes(stepName) ||
+            stepName.includes(s.stepName)
+        );
+    }
+
+    function renderModelDetailsFromExecution(execStep, explStep) {
+        if (!execStep.modelResults || execStep.modelResults.length === 0) {
+            return renderStepItems(explStep);
+        }
+
+        const isRubrics = expData.metricType === 'rubrics-score';
+        const minLevel = expData.interpretation.minLevel || 1;
+        const maxLevel = expData.interpretation.maxLevel || 5;
+
+        let html = `<div class="exp-models-breakdown">
+            <div class="exp-section-title">${i18n.modelResults}</div>`;
+
+        execStep.modelResults.forEach(mr => {
+            if (!mr.success) {
+                html += `
+                    <div class="exp-model-card error">
+                        <div class="exp-model-header">
+                            <span class="exp-model-name">${escapeHtml(mr.modelId)}</span>
+                            <span class="exp-model-status error">ERROR</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Parse resultJson and extract items
+            const items = parseModelResult(mr.resultJson, expData.metricType, explStep.stepName);
+
+            // For rubrics: show level instead of pass/fail count
+            if (isRubrics && items.length > 0 && items[0].isRubricLevel) {
+                const level = items[0].rubricScore;
+                const colorClass = getRubricScoreColorClass(level, minLevel, maxLevel);
+                html += `
+                    <div class="exp-model-card">
+                        <div class="exp-model-header" onclick="toggleModelDetails(this)">
+                            <span class="exp-model-expand">▶</span>
+                            <span class="exp-model-name">${escapeHtml(mr.modelId)}</span>
+                            <span class="exp-model-calc ${colorClass}">${level} / ${maxLevel}</span>
+                        </div>
+                        <div class="exp-model-details" style="display: none;">
+                            ${renderModelItems(items)}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Count only items with actual pass/fail (not neutral)
+            const evaluatedItems = items.filter(i => i.passed !== null);
+            const passedCount = evaluatedItems.filter(i => i.passed === true).length;
+            const totalCount = evaluatedItems.length;
+            const isNeutral = totalCount === 0; // All items are extraction (neutral)
+            const score = totalCount > 0 ? (passedCount / totalCount * 100).toFixed(1) : '-';
+
+            html += `
+                <div class="exp-model-card">
+                    <div class="exp-model-header" onclick="toggleModelDetails(this)">
+                        <span class="exp-model-expand">▶</span>
+                        <span class="exp-model-name">${escapeHtml(mr.modelId)}</span>
+                        ${isNeutral
+                            ? `<span class="exp-model-calc neutral">${i18n.nItems.replace('%d', items.length)}</span>`
+                            : `<span class="exp-model-calc">${passedCount} / ${totalCount}</span>
+                               <span class="exp-model-score">${score}%</span>`
+                        }
+                    </div>
+                    <div class="exp-model-details" style="display: none;">
+                        ${renderModelItems(items)}
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        return html;
+    }
+
+    function parseModelResult(resultJson, metricType, stepName) {
+        if (!resultJson) return [];
+        try {
+            const data = JSON.parse(resultJson);
+
+            // RubricsScore: check metricType FIRST before any other checks
+            // Returns level as neutral item (not pass/fail)
+            if (metricType === 'rubrics-score' && typeof data.score === 'number') {
+                return [{
+                    content: data.reasoning || data.reason || 'Rubric evaluation',
+                    passed: null, // null = neutral, this is a level not pass/fail
+                    verdict: 'SCORE: ' + data.score,
+                    reason: data.reasoning || data.reason || '',
+                    isRubricLevel: true,
+                    rubricScore: data.score
+                }];
+            }
+
+            // Faithfulness & NoiseSensitivity verdicts
+            if (data.verdicts && Array.isArray(data.verdicts)) {
+                const isNoise = metricType === 'noise-sensitivity';
+                return data.verdicts.map(v => ({
+                    content: v.statement || '',
+                    passed: v.verdict === 1 || v.verdict === true,
+                    verdict: (v.verdict === 1 || v.verdict === true)
+                        ? (isNoise ? 'OK' : 'FAITHFUL')
+                        : (isNoise ? 'ERROR' : 'UNFAITHFUL'),
+                    reason: v.reason || ''
+                }));
+            }
+
+            // Context recall classifications
+            if (data.classifications && Array.isArray(data.classifications)) {
+                return data.classifications.map(c => ({
+                    content: c.statement || '',
+                    passed: c.attributed === 1 || c.attributed === true,
+                    verdict: (c.attributed === 1 || c.attributed === true) ? 'FOUND' : 'MISSING',
+                    reason: c.reason || ''
+                }));
+            }
+
+            // Statement extraction (Faithfulness, NoiseSensitivity) - neutral, no pass/fail
+            if (data.statements && Array.isArray(data.statements)) {
+                return data.statements.map(s => ({
+                    content: typeof s === 'string' ? s : (s.statement || JSON.stringify(s)),
+                    passed: null, // null means neutral - no pass/fail for extraction
+                    verdict: '',
+                    reason: ''
+                }));
+            }
+
+            // Generated questions (ResponseRelevancy)
+            if (data.questions && Array.isArray(data.questions)) {
+                return data.questions.map(q => {
+                    const text = typeof q === 'string' ? q : (q.question || '');
+                    const isNoncommittal = q.noncommittal === 1 || q.noncommittal === true;
+                    // Only mark as failed if noncommittal flag is explicitly set
+                    const hasNoncommittalFlag = typeof q === 'object' && typeof q.noncommittal !== 'undefined';
+                    return {
+                        content: text,
+                        passed: hasNoncommittalFlag ? !isNoncommittal : null, // null if no flag
+                        verdict: isNoncommittal ? 'NONCOMMITTAL' : '',
+                        reason: ''
+                    };
+                });
+            }
+
+            // Entities (ContextEntityRecall) - neutral, no pass/fail for extraction
+            if (data.entities && Array.isArray(data.entities)) {
+                return data.entities.map(e => ({
+                    content: typeof e === 'string' ? e : JSON.stringify(e),
+                    passed: null, // null means neutral
+                    verdict: '',
+                    reason: ''
+                }));
+            }
+
+            // ContextPrecision: { relevant: Boolean, reasoning }
+            if (typeof data.relevant !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Context relevance',
+                    passed: data.relevant === true,
+                    verdict: data.relevant ? 'RELEVANT' : 'NOT RELEVANT',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AspectCritic: { verdict: Boolean, reasoning }
+            if (typeof data.verdict !== 'undefined' && typeof data.reasoning !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Evaluation result',
+                    passed: data.verdict === 1 || data.verdict === true,
+                    verdict: (data.verdict === 1 || data.verdict === true) ? 'PASS' : 'FAIL',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // SimpleCriteria: { score: Double, reasoning }
+            if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Score evaluation',
+                    passed: true,
+                    verdict: 'Score: ' + data.score,
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // Single verdict fallback
+            if (typeof data.verdict !== 'undefined') {
+                return [{
+                    content: data.reason || data.reasoning || 'Evaluation result',
+                    passed: data.verdict === 1 || data.verdict === true,
+                    verdict: (data.verdict === 1 || data.verdict === true) ? 'PASS' : 'FAIL',
+                    reason: data.reason || data.reasoning || ''
+                }];
+            }
+
+            // Numeric array (cosine similarity scores)
+            if (Array.isArray(data)) {
+                return data.slice(0, 5).map((score, idx) => ({
+                    content: `Similarity ${idx + 1}: ${(score * 100).toFixed(2)}%`,
+                    passed: score >= 0.5,
+                    verdict: (score * 100).toFixed(2) + '%',
+                    reason: ''
+                }));
+            }
+
+            // Single numeric result
+            if (typeof data === 'number') {
+                return [{
+                    content: `Score: ${(data * 100).toFixed(2)}%`,
+                    passed: data >= 0.5,
+                    verdict: (data * 100).toFixed(2) + '%',
+                    reason: ''
+                }];
+            }
+
+        } catch (e) {
+            console.debug('Failed to parse model result:', e);
+        }
+        return [];
+    }
+
+    function renderModelItems(items) {
+        if (items.length === 0) return '<div class="exp-no-items">No items</div>';
+
+        // For embedding/numeric results, show abbreviated view
+        if (items.length === 1 && items[0].content.startsWith('Score:')) {
+            return `<div class="exp-model-item">${escapeHtml(items[0].content)}</div>`;
+        }
+
+        let html = '<div class="exp-model-items-list">';
+        items.forEach((item, idx) => {
+            // Handle neutral items (passed === null) - no coloring
+            const isNeutral = item.passed === null;
+            const statusClass = isNeutral ? 'neutral' : (item.passed ? 'passed' : 'failed');
+            const marker = isNeutral ? '•' : (item.passed ? '✓' : '✗');
+            // For rubrics, show full reasoning text (no truncation)
+            const displayText = item.isRubricLevel
+                ? escapeHtml(item.content)
+                : escapeHtml(truncate(item.content, 150));
+            html += `
+                <div class="exp-model-item ${statusClass}">
+                    <span class="exp-item-marker ${statusClass}">${marker}</span>
+                    <span class="exp-item-text">${displayText}</span>
+                    ${item.verdict ? `<span class="exp-item-badge ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
+                </div>
+            `;
+        });
+        html += '</div>';
+        return html;
+    }
+
+    function truncate(str, maxLen) {
+        if (!str || str.length <= maxLen) return str;
+        return str.substring(0, maxLen) + '...';
+    }
+
+    function renderStepItems(step) {
+        if (!step.items || step.items.length === 0) return '';
+
+        const isRubrics = expData.metricType === 'rubrics-score';
+        const minLevel = expData.interpretation.minLevel || 1;
+        const maxLevel = expData.interpretation.maxLevel || 5;
+
+        let html = `<div class="exp-items-section">
+            <div class="exp-section-title">${i18n.items} (${step.items.length})</div>
+            <div class="exp-items-list">`;
+
+        step.items.forEach(item => {
+            let statusClass = '';
+            if (isRubrics && step.stepName === 'DefineRubric') {
+                // For rubrics: unselected = neutral, selected = color by position
+                if (item.passed === true) {
+                    // Selected level - use position-based color
+                    statusClass = getRubricScoreColorClass(item.index, minLevel, maxLevel);
+                } else {
+                    // Unselected levels - neutral gray
+                    statusClass = 'neutral';
+                }
+            } else {
+                // Standard logic for other metrics
+                statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
+            }
+
+            html += `
+                <div class="exp-item ${statusClass}">
+                    <div class="exp-item-main">
+                        <span class="exp-item-index">${item.index}.</span>
+                        <span class="exp-item-content">${escapeHtml(item.content)}</span>
+                        ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
+                    </div>
+                    ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
+                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
+                </div>
+            `;
+        });
+
+        html += '</div></div>';
+        return html;
+    }
+
+    window.toggleModelDetails = function(header) {
+        const details = header.nextElementSibling;
+        const expand = header.querySelector('.exp-model-expand');
+        if (details) {
+            const isHidden = details.style.display === 'none';
+            details.style.display = isHidden ? 'block' : 'none';
+            expand.textContent = isHidden ? '▼' : '▶';
+        }
+    };
+
+    function renderModelScoresBreakdown() {
+        const scores = expData.modelScores;
+        const modelIds = Object.keys(scores);
+        if (modelIds.length === 0) return '';
+
+        const isRubrics = expData.metricType === 'rubrics-score';
+        const isInverted = expData.metricType === 'noise-sensitivity';
+        const minLevel = expData.interpretation.minLevel || 1;
+        const maxLevel = expData.interpretation.maxLevel || 5;
+        const aggregated = expData.aggregatedScore;
+
+        let html = `
+            <div class="exp-scores-breakdown">
+                <div class="exp-section-title">${i18n.modelResults}</div>
+                <div class="exp-scores-table">
+                    <table class="exp-table">
+                        <thead>
+                            <tr>
+                                <th>${i18n.model}</th>
+                                <th>${isRubrics ? i18n.level : i18n.score}</th>
+                                ${isRubrics ? '<th>' + i18n.score + '</th>' : ''}
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+
+        modelIds.forEach(modelId => {
+            const rawScore = scores[modelId];
+            if (isRubrics) {
+                // For rubrics: display level "2 / 5" and normalized percent
+                const level = Math.round(rawScore);
+                const displayLevel = level + ' / ' + maxLevel;
+                const normalizedScore = (maxLevel > minLevel)
+                    ? (level - minLevel) / (maxLevel - minLevel)
+                    : 0;
+                const normalizedPercent = (normalizedScore * 100).toFixed(1) + '%';
+                const colorClass = getRubricScoreColorClass(level, minLevel, maxLevel);
+                html += `
+                    <tr>
+                        <td class="model-name-cell">${escapeHtml(modelId)}</td>
+                        <td class="score-cell ${colorClass}">${displayLevel}</td>
+                        <td class="score-cell">${normalizedPercent}</td>
+                    </tr>
+                `;
+            } else {
+                // Standard percentage display
+                const percent = (rawScore * 100).toFixed(2) + '%';
+                const colorClass = getScoreColorClass(rawScore, isInverted);
+                html += `
+                    <tr>
+                        <td class="model-name-cell">${escapeHtml(modelId)}</td>
+                        <td class="score-cell ${colorClass}">${percent}</td>
+                    </tr>
+                `;
+            }
+        });
+
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+        `;
+
+        // Show aggregation
+        if (aggregated !== null && modelIds.length > 1) {
+            if (isRubrics) {
+                const avgLevel = aggregated;
+                const normalizedScore = (maxLevel > minLevel)
+                    ? (avgLevel - minLevel) / (maxLevel - minLevel)
+                    : 0;
+                const normalizedPercent = (normalizedScore * 100).toFixed(1) + '%';
+                const colorClass = getRubricScoreColorClass(avgLevel, minLevel, maxLevel);
+                html += `
+                    <div class="exp-aggregation">
+                        <div class="exp-aggregation-label">${i18n.averageModels.replace('%d', modelIds.length)}</div>
+                        <div class="exp-aggregation-value ${colorClass}">
+                            ${avgLevel.toFixed(1)} → ${normalizedPercent}
+                        </div>
+                    </div>
+                `;
+            } else {
+                const avgPercent = (aggregated * 100).toFixed(2) + '%';
+                const avgColorClass = getScoreColorClass(aggregated, isInverted);
+                html += `
+                    <div class="exp-aggregation">
+                        <div class="exp-aggregation-label">${i18n.averageModels.replace('%d', modelIds.length)}</div>
+                        <div class="exp-aggregation-value ${avgColorClass}">${avgPercent}</div>
+                    </div>
+                `;
+            }
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Determines color class for rubric level based on position in scale.
+     * @param level - current level (e.g., 2)
+     * @param minLevel - minimum level in scale (e.g., 1)
+     * @param maxLevel - maximum level in scale (e.g., 5 or 9)
+     * @returns CSS class: 'score-poor', 'score-moderate', or 'score-good'
+     */
+    function getRubricScoreColorClass(level, minLevel, maxLevel) {
+        if (maxLevel === minLevel) return 'score-moderate';
+
+        // Position of level in scale (0.0 = minimum, 1.0 = maximum)
+        const position = (level - minLevel) / (maxLevel - minLevel);
+
+        // First 33% - red (poor), middle 33% - yellow (moderate), top 33% - green (good)
+        if (position <= 0.33) return 'score-poor';
+        if (position <= 0.66) return 'score-moderate';
+        return 'score-good';
+    }
+
+    function getScoreColorClass(score, isInverted) {
+        if (isInverted) {
+            // Lower is better (NoiseSensitivity)
+            if (score <= 0.1) return 'score-excellent';
+            if (score <= 0.3) return 'score-good';
+            if (score <= 0.5) return 'score-moderate';
+            return 'score-poor';
+        } else {
+            // Higher is better
+            if (score >= 0.8) return 'score-excellent';
+            if (score >= 0.6) return 'score-good';
+            if (score >= 0.4) return 'score-moderate';
+            return 'score-poor';
+        }
+    }
+
+    function renderModelNumericResults(step) {
+        const hasRatios = step.modelResults.some(m => m.numerator !== null && m.denominator !== null);
+
+        let html = `
+            <div class="exp-model-results-section">
+                <div class="exp-section-title">${i18n.modelResults || 'Model Results'}</div>
+                <div class="exp-model-results-table">
+                    <table class="exp-table">
+                        <thead>
+                            <tr>
+                                <th>${i18n.model || 'Model'}</th>
+                                ${hasRatios ? '<th>Calculation</th>' : ''}
+                                <th>${i18n.score || 'Score'}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+
+        step.modelResults.forEach(m => {
+            const score = m.numericResult !== null ? (m.numericResult * 100).toFixed(2) + '%' : '-';
+            const calculation = (m.numerator !== null && m.denominator !== null)
+                ? `${m.numerator} / ${m.denominator}`
+                : '';
+            const rowClass = m.success ? '' : 'error-row';
+            html += `
+                <tr class="${rowClass}">
+                    <td>${escapeHtml(m.modelId)}</td>
+                    ${hasRatios ? `<td class="calculation-cell">${calculation}</td>` : ''}
+                    <td class="score-cell">${score}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        return html;
+    }
+
+    function renderModelDisagreement(step) {
+        const agreed = step.modelResults.filter(m => m.verdict === true);
+        const disagreed = step.modelResults.filter(m => m.verdict === false);
+
+        let html = `
+            <div class="exp-disagreement-section">
+                <div class="exp-section-title">${i18n.modelDisagreement}</div>
+                <div class="exp-disagreement-grid">
+        `;
+
+        if (agreed.length > 0) {
+            html += `
+                <div class="exp-disagreement-col agree">
+                    <div class="exp-col-header">${i18n.modelsAgree} (${agreed.length})</div>
+                    ${agreed.map(m => `<div class="exp-model-item">${escapeHtml(m.modelId)}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        if (disagreed.length > 0) {
+            html += `
+                <div class="exp-disagreement-col disagree">
+                    <div class="exp-col-header">${i18n.modelsDisagree} (${disagreed.length})</div>
+                    ${disagreed.map(m => `<div class="exp-model-item">${escapeHtml(m.modelId)}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        html += '</div></div>';
+        return html;
+    }
+
+    function renderInterpretation() {
+        const interp = expData.interpretation;
+        const isRubrics = expData.metricType === 'rubrics-score';
+        const minLevel = interp.minLevel || 1;
+        const maxLevel = interp.maxLevel || 5;
+
+        let html = `
+            <div class="exp-interpretation">
+                <div class="exp-detail-header">
+                    <span class="exp-step-title">${i18n.interpretation}</span>
+                </div>
+
+                <div class="exp-formula-section">
+                    <div class="exp-formula-label">${i18n.formula}</div>
+                    <div class="exp-formula">${escapeHtml(interp.formula)}</div>
+                </div>
+
+                <div class="exp-calculation-section">
+                    <div class="exp-calculation-label">${i18n.calculation}</div>
+                    <div class="exp-calculation">${escapeHtml(interp.calculation)}</div>
+                </div>
+
+                <div class="exp-result-section">
+                    <div class="exp-result-score ${interp.isGood === true ? 'good' : (interp.isGood === false ? 'bad' : '')}">
+                        ${interp.scorePercent}
+                    </div>
+                    <div class="exp-result-meaning">${escapeHtml(interp.meaning)}</div>
+                </div>
+        `;
+
+        // Scale visualization
+        if (interp.scaleLevels && interp.scaleLevels.length > 0) {
+            html += `
+                <div class="exp-scale-section">
+                    <div class="exp-section-title">${i18n.scale}</div>
+                    <div class="exp-scale-list">
+            `;
+
+            interp.scaleLevels.forEach((level, idx) => {
+                const isCurrent = level.current || idx === interp.currentLevelIndex;
+                const levelNum = parseInt(level.range) || (interp.scaleLevels.length - idx);
+
+                // For rubrics: inactive levels are neutral (gray),
+                // current level gets dynamic color based on position
+                let colorClass = 'neutral';
+                if (isCurrent && isRubrics) {
+                    colorClass = getRubricScoreColorClass(levelNum, minLevel, maxLevel);
+                }
+
+                html += `
+                    <div class="exp-scale-item ${isCurrent ? 'current' : ''} ${colorClass}">
+                        <span class="exp-scale-marker">${isCurrent ? '&#9658;' : ''}</span>
+                        <span class="exp-scale-name">${escapeHtml(level.name)}</span>
+                        <span class="exp-scale-range">${escapeHtml(level.range)}</span>
+                        <span class="exp-scale-desc" title="${escapeHtml(level.description)}">${escapeHtml(level.description)}</span>
+                        ${isCurrent ? `<span class="exp-scale-current">${i18n.yourResult}</span>` : ''}
+                    </div>
+                `;
+            });
+
+            html += '</div></div>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    function getInputLabel(stepName) {
+        // Map step names to appropriate input labels
+        const labelMap = {
+            // NoiseSensitivity
+            'ExtractReferenceStatements': i18n.inputLabelReference,
+            'ExtractResponseStatements': i18n.inputLabelResponse,
+            // Faithfulness
+            'ExtractStatements': i18n.inputLabelResponse,
+            'VerifyStatements': i18n.inputLabelContexts,
+            // ContextRecall
+            'ClassifyStatements': i18n.inputLabelReference,
+            // ContextEntityRecall
+            'ExtractReferenceEntities': i18n.inputLabelReference,
+            'ExtractContextEntities': i18n.inputLabelContexts,
+            // ResponseRelevancy
+            'GenerateQuestions': i18n.inputLabelResponse,
+            'EmbedAndCompare': i18n.inputLabelUserInput,
+            // ContextPrecision
+            'EvaluateContexts': i18n.inputLabelQuestionAnswer,
+            // General metrics
+            'EvaluateAspect': i18n.inputLabelResponse,
+            'EvaluateCriteria': i18n.inputLabelResponse,
+            'EvaluateRubrics': i18n.inputLabelResponse,
+            'SelectLevel': i18n.inputLabelResponse
+        };
+        return labelMap[stepName] || i18n.inputData || 'Input Data';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+})();
+</script>
+
+            </div>
+        </section>
+
+        <section class="report-block collapsed" id="block-methodology">
+            <div class="block-header" onclick="toggleBlock('block-methodology')">
+                <h2>Methodology</h2>
+                <button class="collapse-btn" aria-label="Toggle section">+</button>
+            </div>
+            <div class="block-content">
+<div class="methodology-content">
+    <h1>Tool Call Accuracy Metric</h1>
+<h2>Glossary</h2>
+<ul>
+<li><strong>Agent</strong> — an AI-powered system capable of executing multi-turn conversations and taking actions</li>
+<li><strong>Tool Call</strong> — a structured invocation of an external function or API made by the agent</li>
+<li><strong>Reference Tool Calls</strong> — the expected correct sequence of tool invocations</li>
+<li><strong>F1 Score</strong> — harmonic mean of precision and recall, balancing both metrics</li>
+</ul>
+<h2>Description</h2>
+<p>The metric evaluates the accuracy of an AI agent's tool calls by comparing them against expected reference tool calls. It supports two matching modes:</p>
+<ul>
+<li><strong>STRICT</strong> — requires exact match of both tool names and all arguments</li>
+<li><strong>FLEXIBLE</strong> — allows partial argument matching based on a configurable threshold</li>
+</ul>
+<h2>Example</h2>
+<p><strong>Actual Tool Calls:</strong></p>
+<pre><code class="language-json">[
+  {&quot;name&quot;: &quot;search_flights&quot;, &quot;arguments&quot;: {&quot;from&quot;: &quot;NYC&quot;, &quot;to&quot;: &quot;LAX&quot;, &quot;date&quot;: &quot;2024-01-15&quot;}},
+  {&quot;name&quot;: &quot;book_flight&quot;, &quot;arguments&quot;: {&quot;flight_id&quot;: &quot;UA123&quot;, &quot;passengers&quot;: 1}}
+]
+</code></pre>
+<p><strong>Reference Tool Calls:</strong></p>
+<pre><code class="language-json">[
+  {&quot;name&quot;: &quot;search_flights&quot;, &quot;arguments&quot;: {&quot;from&quot;: &quot;NYC&quot;, &quot;to&quot;: &quot;LAX&quot;, &quot;date&quot;: &quot;2024-01-15&quot;}},
+  {&quot;name&quot;: &quot;book_flight&quot;, &quot;arguments&quot;: {&quot;flight_id&quot;: &quot;UA123&quot;, &quot;passengers&quot;: 1}}
+]
+</code></pre>
+<p><strong>Analysis:</strong></p>
+<ul>
+<li>Both tool names match</li>
+<li>All arguments match exactly</li>
+<li>Precision: 2/2 = 1.0</li>
+<li>Recall: 2/2 = 1.0</li>
+</ul>
+<p><strong>Score:</strong> <strong>1.0 (100%)</strong> — Perfect Match</p>
+<h2>Score Interpretation</h2>
+<table>
+<thead>
+<tr>
+<th>Score</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>90-100%</td>
+<td>Excellent — all tool calls match expected calls perfectly</td>
+</tr>
+<tr>
+<td>70-89%</td>
+<td>Good — most tool calls are correct</td>
+</tr>
+<tr>
+<td>50-69%</td>
+<td>Moderate — some tool calls are incorrect or missing</td>
+</tr>
+<tr>
+<td>0-49%</td>
+<td>Poor — many tool calls are incorrect or missing</td>
+</tr>
+</tbody>
+</table>
+<h2>Algorithm</h2>
+<h3>STRICT Mode</h3>
+<ol>
+<li><strong>Align Tool Calls</strong> — match actual calls with reference calls</li>
+<li><strong>Exact Match</strong> — tool name AND all arguments must match exactly</li>
+<li><strong>Compute Score</strong> — calculate F1 from precision and recall</li>
+</ol>
+<h3>FLEXIBLE Mode</h3>
+<ol>
+<li><strong>Align Tool Calls</strong> — match actual calls with reference calls by tool name</li>
+<li><strong>Partial Match</strong> — calculate argument overlap ratio</li>
+<li><strong>Apply Threshold</strong> — match if overlap &gt;= threshold (default 0.8)</li>
+<li><strong>Compute Score</strong> — calculate F1 from precision and recall</li>
+</ol>
+<h2>Formula</h2>
+<pre><code>Precision = True Positives / Total Actual Calls
+Recall = True Positives / Total Reference Calls
+F1 = 2 × (Precision × Recall) / (Precision + Recall)
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>True Positives</code> — actual calls that correctly match reference calls</li>
+<li><code>Total Actual Calls</code> — total number of tool calls made by the agent</li>
+<li><code>Total Reference Calls</code> — total number of expected tool calls</li>
+</ul>
+<h2>Configuration</h2>
+<pre><code class="language-java">ToolCallAccuracyConfig config = ToolCallAccuracyConfig.builder()
+    .mode(Mode.STRICT)  // or Mode.FLEXIBLE
+    .argumentMatchThreshold(0.8)  // for FLEXIBLE mode
+    .build();
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td><code>Mode</code></td>
+<td><code>STRICT</code></td>
+<td>Matching mode: STRICT or FLEXIBLE</td>
+</tr>
+<tr>
+<td><code>argumentMatchThreshold</code></td>
+<td><code>Double</code></td>
+<td><code>0.8</code></td>
+<td>Threshold for argument matching in FLEXIBLE mode (0.0-1.0)</td>
+</tr>
+</tbody>
+</table>
+<h2>Sample Requirements</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toolCalls</code></td>
+<td>Yes</td>
+<td>List of actual tool calls made by agent</td>
+</tr>
+<tr>
+<td><code>referenceToolCalls</code></td>
+<td>Yes</td>
+<td>List of expected/correct tool calls</td>
+</tr>
+</tbody>
+</table>
+<h3>ToolCall Structure</h3>
+<pre><code class="language-java">public record ToolCall(String name, Map&lt;String, Object&gt; arguments) {}
+</code></pre>
+<h2>Use Cases</h2>
+<ul>
+<li>Evaluating agent's ability to use correct tools</li>
+<li>Testing tool selection accuracy in multi-step workflows</li>
+<li>Validating argument passing correctness</li>
+<li>Measuring agent's understanding of task requirements</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li><a href="https://docs.ragas.io/">RAGAS Documentation</a></li>
+<li><a href="https://docs.ragas.io/en/latest/concepts/metrics/tool_call_accuracy.html">Tool Call Accuracy in Python RAGAS</a></li>
+</ul>
+
+</div>
+
+<div class="steps-schema">
+    <h3>Execution Flow</h3>
+    <div class="steps-diagram">
+            <div class="step-box compute">
+                <span class="step-number">1.</span>
+                <span class="step-name">AlignToolCalls</span>
+                <span class="step-type">[COMPUTE]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box compute">
+                <span class="step-number">2.</span>
+                <span class="step-name">ComputePrecisionRecall</span>
+                <span class="step-type">[COMPUTE]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box compute">
+                <span class="step-number">3.</span>
+                <span class="step-name">ComputeScore</span>
+                <span class="step-type">[COMPUTE]</span>
+            </div>
+    </div>
+</div>
+
+            </div>
+        </section>
+
+        <section class="report-block collapsed" id="block-execution">
+            <div class="block-header" onclick="toggleBlock('block-execution')">
+                <h2>Execution Log</h2>
+                <button class="collapse-btn" aria-label="Toggle section">+</button>
+            </div>
+            <div class="block-content">
+<div class="trace-viewer">
+    <div class="trace-tree">
+        <div class="tree-header">Trace</div>
+        <div class="tree-content">
+            <div class="tree-node step-node" data-step="0">
+                <div class="tree-item" onclick="selectStep(0)">
+                    <span class="tree-expand "
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        •
+                    </span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">AlignToolCalls</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="1">
+                <div class="tree-item" onclick="selectStep(1)">
+                    <span class="tree-expand "
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        •
+                    </span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">ComputePrecisionRecall</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="2">
+                <div class="tree-item" onclick="selectStep(2)">
+                    <span class="tree-expand "
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        •
+                    </span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">ComputeScore</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="trace-details">
+        <div class="details-header">
+            <span class="details-title">Select an item from the trace</span>
+        </div>
+        <div class="details-content" id="details-content">
+            <div class="details-placeholder">
+                Click on a step or model in the tree to view details
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="trace-i18n" type="application/json">
+{
+    "input": "Input / Prompt",
+    "output": "Output / Response",
+    "error": "Error",
+    "stackTrace": "Stack Trace",
+    "scoreCalculation": "Score Calculation",
+    "computeInfo": "This step aggregates results from previous LLM evaluations to compute the final score.",
+    "modelsEvaluated": "Models evaluated",
+    "successful": "Successful",
+    "modelOutputs": "Model Outputs",
+    "duration": "Duration",
+    "step": "Step",
+    "success": "Success",
+    "errorStatus": "Error",
+    "ok": "OK",
+    "failed": "FAILED"
+}
+</script>
+
+<script id="trace-data" type="application/json">
+{
+    "steps": [
+        {
+            "stepIndex": 0,
+            "stepName": "AlignToolCalls",
+            "stepType": "COMPUTE",
+            "durationMs": 0,
+            "request": null,
+            "isLlmStep": false,
+            "successCount": 0,
+            "failureCount": 0,
+            "modelResults": [
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 1,
+            "stepName": "ComputePrecisionRecall",
+            "stepType": "COMPUTE",
+            "durationMs": 0,
+            "request": null,
+            "isLlmStep": false,
+            "successCount": 0,
+            "failureCount": 0,
+            "modelResults": [
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 2,
+            "stepName": "ComputeScore",
+            "stepType": "COMPUTE",
+            "durationMs": 0,
+            "request": null,
+            "isLlmStep": false,
+            "successCount": 0,
+            "failureCount": 0,
+            "modelResults": [
+            ],
+            "embeddingResults": [
+            ]
+        }
+    ]
+}
+</script>
+
+<script>
+(function() {
+    const traceData = JSON.parse(document.getElementById('trace-data').textContent);
+    const i18n = JSON.parse(document.getElementById('trace-i18n').textContent);
+    let selectedElement = null;
+
+    window.toggleTreeNode = function(el) {
+        const node = el.closest('.step-node');
+        const children = node.querySelector('.tree-children');
+        if (children) {
+            const isHidden = children.style.display === 'none';
+            children.style.display = isHidden ? 'block' : 'none';
+            el.textContent = isHidden ? '▼' : '▶';
+        }
+    };
+
+    window.selectStep = function(stepIndex) {
+        const step = traceData.steps[stepIndex];
+        clearSelection();
+
+        const stepNode = document.querySelector(`.step-node[data-step="${stepIndex}"] > .tree-item`);
+        if (stepNode) {
+            stepNode.classList.add('selected');
+            selectedElement = stepNode;
+        }
+
+        let html = `
+            <div class="detail-section">
+                <div class="detail-header">
+                    <span class="detail-type-badge ${step.stepType.toLowerCase()}">${step.stepType}</span>
+                    <span class="detail-name">${escapeHtml(step.stepName)}</span>
+                </div>
+                <div class="detail-meta">
+                    <div class="meta-item"><span class="meta-label">${i18n.duration}:</span> ${step.durationMs}ms</div>
+                    <div class="meta-item"><span class="meta-label">${i18n.success}:</span> ${step.successCount}</div>
+                    <div class="meta-item"><span class="meta-label">${i18n.failed}:</span> ${step.failureCount}</div>
+                </div>
+            </div>
+        `;
+
+        if (step.isLlmStep && step.request) {
+            html += `
+                <div class="detail-section">
+                    <div class="detail-section-title">${i18n.input}</div>
+                    <pre class="detail-code">${escapeHtml(step.request)}</pre>
+                </div>
+            `;
+        }
+
+        if (step.stepType === 'COMPUTE') {
+            html += `
+                <div class="detail-section">
+                    <div class="detail-section-title">${i18n.scoreCalculation}</div>
+                    <div class="compute-info">
+                        <p>${i18n.computeInfo}</p>
+                        <div class="meta-item"><span class="meta-label">${i18n.modelsEvaluated}:</span> ${step.successCount + step.failureCount}</div>
+                        <div class="meta-item"><span class="meta-label">${i18n.successful}:</span> ${step.successCount}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (step.modelResults.length > 0) {
+            html += `
+                <div class="detail-section">
+                    <div class="detail-section-title">${i18n.modelOutputs} (${step.modelResults.length})</div>
+                    <div class="outputs-summary">
+            `;
+            step.modelResults.forEach((mr, idx) => {
+                const status = mr.success ? 'success' : 'error';
+                html += `
+                    <div class="output-item ${status}" onclick="selectModel(${stepIndex}, ${idx}, 'llm')">
+                        <span class="output-model">${escapeHtml(mr.modelId)}</span>
+                        <span class="output-duration">${mr.durationMs}ms</span>
+                        <span class="output-status ${status}">${mr.success ? i18n.ok : i18n.failed}</span>
+                    </div>
+                `;
+            });
+            html += '</div></div>';
+        }
+
+        document.getElementById('details-content').innerHTML = html;
+        document.querySelector('.details-title').textContent = step.stepName;
+    };
+
+    window.selectModel = function(stepIndex, modelIndex, type) {
+        const step = traceData.steps[stepIndex];
+        const model = type === 'llm' ? step.modelResults[modelIndex] : step.embeddingResults[modelIndex];
+        clearSelection();
+
+        const items = document.querySelectorAll(`.step-node[data-step="${stepIndex}"] .model-item`);
+        const targetIndex = type === 'llm' ? modelIndex : step.modelResults.length + modelIndex;
+        if (items[targetIndex]) {
+            items[targetIndex].classList.add('selected');
+            selectedElement = items[targetIndex];
+        }
+
+        // Expand parent if collapsed
+        const stepNode = document.querySelector(`.step-node[data-step="${stepIndex}"]`);
+        const children = stepNode.querySelector('.tree-children');
+        const expand = stepNode.querySelector('.tree-expand');
+        if (children && children.style.display === 'none') {
+            children.style.display = 'block';
+            expand.textContent = '▼';
+        }
+
+        let html = `
+            <div class="detail-section">
+                <div class="detail-header">
+                    <span class="detail-type-badge model">${type === 'llm' ? 'LLM' : 'EMBEDDING'}</span>
+                    <span class="detail-name">${escapeHtml(model.modelId)}</span>
+                    <span class="detail-status ${model.success ? 'success' : 'error'}">${model.success ? i18n.success : i18n.errorStatus}</span>
+                </div>
+                <div class="detail-meta">
+                    <div class="meta-item"><span class="meta-label">${i18n.duration}:</span> ${model.durationMs}ms</div>
+                    <div class="meta-item"><span class="meta-label">${i18n.step}:</span> ${step.stepName}</div>
+                </div>
+            </div>
+        `;
+
+        if (type === 'llm') {
+            if (step.request) {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-section-title">${i18n.input}</div>
+                        <pre class="detail-code">${escapeHtml(step.request)}</pre>
+                    </div>
+                `;
+            }
+
+            if (model.success && model.resultJson) {
+                let formattedJson = model.resultJson;
+                try {
+                    formattedJson = JSON.stringify(JSON.parse(model.resultJson), null, 2);
+                } catch(e) {}
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-section-title">${i18n.output}</div>
+                        <pre class="detail-code">${escapeHtml(formattedJson)}</pre>
+                    </div>
+                `;
+            }
+
+            if (!model.success) {
+                html += `
+                    <div class="detail-section error-section">
+                        <div class="detail-section-title">${i18n.error}</div>
+                        <pre class="detail-code error">${escapeHtml(model.errorMessage || i18n.error)}</pre>
+                    </div>
+                `;
+                if (model.stackTrace) {
+                    html += `
+                        <div class="detail-section">
+                            <details>
+                                <summary class="detail-section-title" style="cursor: pointer;">${i18n.stackTrace}</summary>
+                                <pre class="detail-code stack-trace">${escapeHtml(model.stackTrace)}</pre>
+                            </details>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        document.getElementById('details-content').innerHTML = html;
+        document.querySelector('.details-title').textContent = model.modelId;
+    };
+
+    function clearSelection() {
+        if (selectedElement) {
+            selectedElement.classList.remove('selected');
+        }
+        document.querySelectorAll('.tree-item.selected').forEach(el => el.classList.remove('selected'));
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Auto-select first step on load
+    if (traceData.steps.length > 0) {
+        selectStep(0);
+    }
+})();
+</script>
+
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function toggleBlock(blockId) {
+            const block = document.getElementById(blockId);
+            const btn = block.querySelector('.collapse-btn');
+            block.classList.toggle('collapsed');
+            btn.textContent = block.classList.contains('collapsed') ? '+' : '−';
+        }
+    </script>
+</body>
+</html>

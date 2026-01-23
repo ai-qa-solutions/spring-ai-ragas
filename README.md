@@ -268,11 +268,40 @@ See [pom.xml](pom.xml) for a complete setup example.
 ```
 
 Report examples:
+
+**General Purpose:**
 [AspectCritic](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AspectCriticMetric_en.html) |
 [SimpleCriteriaScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SimpleCriteriaScoreMetric_en.html) |
-[RubricsScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RubricsScoreMetric_en.html) |
+[RubricsScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RubricsScoreMetric_en.html)
+
+**Retrieval:**
 [Faithfulness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FaithfulnessMetric_en.html) |
-[ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_en.html)
+[ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_en.html) |
+[ContextRecall](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextRecallMetric_en.html) |
+[ContextEntityRecall](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextEntityRecallMetric_en.html) |
+[NoiseSensitivity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/NoiseSensitivityMetric_en.html) |
+[ResponseRelevancy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ResponseRelevancyMetric_en.html)
+
+**Agent:**
+[AgentGoalAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AgentGoalAccuracyMetric_en.html) |
+[ToolCallAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ToolCallAccuracyMetric_en.html) |
+[TopicAdherence](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/TopicAdherenceMetric_en.html)
+
+**Response:**
+[AnswerCorrectness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AnswerCorrectnessMetric_en.html) |
+[FactualCorrectness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FactualCorrectnessMetric_en.html) |
+[SemanticSimilarity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SemanticSimilarityMetric_en.html)
+
+**NVIDIA:**
+[AnswerAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AnswerAccuracyMetric_en.html) |
+[ContextRelevance](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextRelevanceMetric_en.html) |
+[ResponseGroundedness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ResponseGroundednessMetric_en.html)
+
+**NLP:**
+[BleuScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/BleuScoreMetric_en.html) |
+[RougeScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RougeScoreMetric_en.html) |
+[ChrfScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ChrfScoreMetric_en.html) |
+[StringSimilarity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/StringSimilarityMetric_en.html)
 
 Full documentation: [Allure Integration Guide](spring-ai-ragas-allure/README.md)
 
