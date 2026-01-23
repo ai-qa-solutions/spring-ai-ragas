@@ -30,25 +30,28 @@ spring:
         options:
           model: openai/text-embedding-3-small
           dimensions: 1024
-    # Chat models for multi-model evaluation
-    chat-models:
-      default-options:
-        temperature: 0.0
-        max-tokens: 1000
-        top-p: 1.0
-      list:
-        - { id: anthropic/claude-4.5-sonnet }
-        - { id: google/gemini-2.5-flash }
-        - { id: openai/gpt-4o-mini }
-        - { id: deepseek/deepseek-v3.2 }
-    # Embedding models for ResponseRelevancy
-    embedding-models:
-      default-options:
-        dimensions: 1024
-      list:
-        - id: openai/text-embedding-3-large
-          options: { dimensions: 3072 }
-        - id: qwen/qwen3-embedding-8b
+    ragas:
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: google/gemini-2.5-flash }
+              - { id: openai/gpt-4o-mini }
+              - { id: deepseek/deepseek-v3.2 }
+            embedding-models:
+              - { id: openai/text-embedding-3-large, dimensions: 3072 }
+              - { id: qwen/qwen3-embedding-8b, dimensions: 1024 }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 1000
+        embedding-default-options:
+          dimensions: 1024
   threads:
     virtual:
       enabled: true

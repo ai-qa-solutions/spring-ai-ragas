@@ -32,16 +32,22 @@ spring:
         options:
           model: google/gemini-2.5-flash
           temperature: 0.0
-    # Chat models for multi-model evaluation
-    chat-models:
-      default-options:
-        temperature: 0.1
-        max-tokens: 1000
-        top-p: 1.0
-      list:
-        - { id: anthropic/claude-4.5-sonnet }
-        - { id: google/gemini-2.5-flash }
-        - { id: openai/gpt-4o-mini }
+    ragas:
+      providers:
+        auto-detect-beans: false
+        openai-compatible:
+          - name: openrouter
+            base-url: https://openrouter.ai/api
+            api-key: ${OPENROUTER_API_KEY}
+            chat-models:
+              - { id: anthropic/claude-3.5-sonnet }
+              - { id: google/gemini-2.5-flash }
+              - { id: openai/gpt-4o-mini }
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.1
+          max-tokens: 1000
   threads:
     virtual:
       enabled: true
