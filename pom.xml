@@ -38,7 +38,7 @@
 
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas</artifactId>
-    <version>1.0.0</version>
+    <version>0.3.0</version>
     <packaging>pom</packaging>
 
     <modules>

@@ -19,6 +19,12 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 - **Мультиязычность**: Поддержка русского и английского языков
 - **Расширяемость**: Легко создавать собственные метрики
 
+## Совместимость версий
+
+| Spring AI RAGAS | RAGAS (Python) | Spring Boot | Spring AI |
+|-----------------|----------------|-------------|-----------|
+| 0.3.0           | 0.3.x          | 3.5.x       | 1.1.x     |
+
 ## Поддерживаемые метрики
 
 ### General Purpose Metrics (Общие метрики)
@@ -104,7 +110,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <version>0.3.0</version>
     <scope>test</scope>
 </dependency>
         <!-- И любые нужные вам стартеры из экосистемы spring-ai -->
@@ -119,7 +125,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 #### Gradle
 
 ```groovy
-testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
+testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:0.3.0'
 testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.2'
 ```
 
@@ -394,7 +400,7 @@ void evaluateRAG() {
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-allure</artifactId>
-    <version>1.0.0</version>
+    <version>0.3.0</version>
     <scope>test</scope>
 </dependency>
 ```

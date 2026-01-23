@@ -19,6 +19,12 @@ subjective. Spring AI RAGAS solves these problems:
 - **Multilingual**: Support for Russian and English languages
 - **Extensible**: Easy to create custom metrics
 
+## Version Compatibility
+
+| Spring AI RAGAS | RAGAS (Python) | Spring Boot | Spring AI |
+|-----------------|----------------|-------------|-----------|
+| 0.3.0           | 0.3.x          | 3.5.x       | 1.1.x     |
+
 ## Supported Metrics
 
 ### General Purpose Metrics
@@ -103,7 +109,7 @@ Full documentation: [NLP Metrics Guide](docs/en/nlp_metrics_en.md)
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <version>0.3.0</version>
     <scope>test</scope>
 </dependency>
 <!-- Add any required starters from spring-ai ecosystem -->
@@ -118,7 +124,7 @@ Full documentation: [NLP Metrics Guide](docs/en/nlp_metrics_en.md)
 #### Gradle
 
 ```groovy
-testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:1.0.0'
+testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:0.3.0'
 testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.2'
 ```
 
@@ -262,7 +268,7 @@ See [pom.xml](pom.xml) for a complete setup example.
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-allure</artifactId>
-    <version>1.0.0</version>
+    <version>0.3.0</version>
     <scope>test</scope>
 </dependency>
 ```
