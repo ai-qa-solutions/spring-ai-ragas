@@ -44,6 +44,49 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 Полная документация: [Руководство по метрикам извлечения](docs/ru/retrieval_metrics_ru.md)
 
+### Метрики агентов (Agent Metrics)
+
+|                                 Метрика                                  |                  Описание                   |
+|--------------------------------------------------------------------------|---------------------------------------------|
+| [AgentGoalAccuracy](docs/ru/agent_metrics_ru.md#agentgoalaccuracy)       | Достиг ли агент поставленной цели           |
+| [ToolCallAccuracy](docs/ru/agent_metrics_ru.md#toolcallaccuracy)         | Корректность вызовов инструментов/функций   |
+| [TopicAdherence](docs/ru/agent_metrics_ru.md#topicadherence)             | Следование теме в ходе разговора            |
+
+Полная документация: [Руководство по метрикам агентов](docs/ru/agent_metrics_ru.md)
+
+### Метрики ответов (Response Metrics)
+
+|                                    Метрика                                    |                    Описание                     |
+|-------------------------------------------------------------------------------|-------------------------------------------------|
+| [AnswerCorrectness](docs/ru/response_metrics_ru.md#answercorrectness)         | Общая корректность ответа                       |
+| [FactualCorrectness](docs/ru/response_metrics_ru.md#factualcorrectness)       | Фактическая точность утверждений                |
+| [SemanticSimilarity](docs/ru/response_metrics_ru.md#semanticsimilarity)       | Семантическое сходство (требует EmbeddingModel) |
+
+Полная документация: [Руководство по метрикам ответов](docs/ru/response_metrics_ru.md)
+
+### Метрики NVIDIA (NVIDIA Metrics)
+
+|                                   Метрика                                    |                Описание                 |
+|------------------------------------------------------------------------------|-----------------------------------------|
+| [AnswerAccuracy](docs/ru/nvidia_metrics_ru.md#answeraccuracy)                | Точность ответа в стиле NVIDIA          |
+| [ContextRelevance](docs/ru/nvidia_metrics_ru.md#contextrelevance)            | Оценка релевантности контекста          |
+| [ResponseGroundedness](docs/ru/nvidia_metrics_ru.md#responsegroundedness)    | Обоснованность ответа в контексте       |
+
+Полная документация: [Руководство по метрикам NVIDIA](docs/ru/nvidia_metrics_ru.md)
+
+### NLP метрики (без LLM)
+
+Эти метрики вычисляют сходство текстов напрямую, без вызовов LLM:
+
+|                              Метрика                               |                       Описание                        |
+|--------------------------------------------------------------------|-------------------------------------------------------|
+| [BleuScore](docs/ru/nlp_metrics_ru.md#bleuscore)                   | BLEU-оценка качества перевода                         |
+| [RougeScore](docs/ru/nlp_metrics_ru.md#rougescore)                 | ROUGE-оценка (ROUGE-1, ROUGE-2, ROUGE-L)              |
+| [ChrfScore](docs/ru/nlp_metrics_ru.md#chrfscore)                   | Символьная F-мера n-грамм (chrF/chrF++)               |
+| [StringSimilarity](docs/ru/nlp_metrics_ru.md#stringsimilarity)     | Метрики редакционного расстояния (Левенштейн, Джаро)  |
+
+Полная документация: [Руководство по NLP метрикам](docs/ru/nlp_metrics_ru.md)
+
 ## Быстрый старт
 
 ### Предварительные требования
@@ -369,23 +412,18 @@ void evaluateRAG() {
 
 ```
 spring-ai-ragas/
-├── spring-ai-ragas-metrics/              # Основная библиотека метрик
+├── spring-ai-ragas-metrics/              # Основная библиотека метрик (20+ метрик)
 │   └── ai.qa.solutions/
 │       ├── metric/                       # Базовые классы метрик
 │       │   ├── Metric                    # Интерфейс метрики
 │       │   └── AbstractMultiModelMetric  # Базовый класс для мультимодельных метрик
 │       └── metrics/
 │           ├── general/                  # Общие метрики
-│           │   ├── AspectCriticMetric
-│           │   ├── SimpleCriteriaScoreMetric
-│           │   └── RubricsScoreMetric
-│           └── retrieval/                # Метрики для RAG
-│               ├── ContextEntityRecallMetric
-│               ├── ContextPrecisionMetric
-│               ├── ContextRecallMetric
-│               ├── FaithfulnessMetric
-│               ├── NoiseSensitivityMetric
-│               └── ResponseRelevancyMetric
+│           ├── retrieval/                # Метрики для RAG
+│           ├── agent/                    # Метрики оценки агентов
+│           ├── response/                 # Метрики качества ответов
+│           ├── nvidia/                   # Метрики в стиле NVIDIA
+│           └── nlp/                      # NLP метрики (без LLM)
 │
 ├── spring-ai-ragas-multi-model/          # Мультимодельное выполнение
 │   └── ai.qa.solutions/
@@ -398,8 +436,11 @@ spring-ai-ragas/
 │
 ├── spring-ai-ragas-allure/               # Интеграция с Allure отчётами
 │   └── ai.qa.solutions.allure/
-│       ├── AllureMetricExecutionListener # Listener для Allure вложений
-│       └── templates/                    # Freemarker шаблоны отчётов
+│       ├── listener/                     # AllureMetricExecutionListener
+│       ├── nlp/                          # AllureNlpMetricHelper
+│       ├── explanation/                  # Классы объяснения оценок
+│       ├── methodology/                  # Документация методологии (en/ru)
+│       └── template/                     # Freemarker шаблоны отчётов
 │
 ├── spring-ai-ragas-spring-boot/          # Spring Boot автоконфигурация
 │   └── config/                           # Классы автоконфигурации

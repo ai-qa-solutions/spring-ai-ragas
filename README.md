@@ -44,6 +44,49 @@ Full documentation: [General Purpose Metrics Guide](docs/en/general_purpose_metr
 
 Full documentation: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 
+### Agent Metrics
+
+|                                  Metric                                  |                Description                |
+|--------------------------------------------------------------------------|-------------------------------------------|
+| [AgentGoalAccuracy](docs/en/agent_metrics_en.md#agentgoalaccuracy)       | Whether agent achieved its intended goal  |
+| [ToolCallAccuracy](docs/en/agent_metrics_en.md#toolcallaccuracy)         | Correctness of tool/function calls        |
+| [TopicAdherence](docs/en/agent_metrics_en.md#topicadherence)             | Staying on topic during conversation      |
+
+Full documentation: [Agent Metrics Guide](docs/en/agent_metrics_en.md)
+
+### Response Metrics
+
+|                                    Metric                                    |                  Description                   |
+|------------------------------------------------------------------------------|------------------------------------------------|
+| [AnswerCorrectness](docs/en/response_metrics_en.md#answercorrectness)        | Overall answer correctness                     |
+| [FactualCorrectness](docs/en/response_metrics_en.md#factualcorrectness)      | Factual accuracy of statements                 |
+| [SemanticSimilarity](docs/en/response_metrics_en.md#semanticsimilarity)      | Embedding-based similarity (requires EmbeddingModel) |
+
+Full documentation: [Response Metrics Guide](docs/en/response_metrics_en.md)
+
+### NVIDIA Metrics
+
+|                                   Metric                                    |              Description               |
+|-----------------------------------------------------------------------------|----------------------------------------|
+| [AnswerAccuracy](docs/en/nvidia_metrics_en.md#answeraccuracy)               | NVIDIA-style answer accuracy           |
+| [ContextRelevance](docs/en/nvidia_metrics_en.md#contextrelevance)           | Context relevance scoring              |
+| [ResponseGroundedness](docs/en/nvidia_metrics_en.md#responsegroundedness)   | Response grounding in context          |
+
+Full documentation: [NVIDIA Metrics Guide](docs/en/nvidia_metrics_en.md)
+
+### NLP Metrics (Non-LLM)
+
+These metrics compute text similarity directly without LLM calls:
+
+|                              Metric                               |                     Description                      |
+|-------------------------------------------------------------------|------------------------------------------------------|
+| [BleuScore](docs/en/nlp_metrics_en.md#bleuscore)                  | BLEU score for translation quality                   |
+| [RougeScore](docs/en/nlp_metrics_en.md#rougescore)                | ROUGE score (ROUGE-1, ROUGE-2, ROUGE-L)              |
+| [ChrfScore](docs/en/nlp_metrics_en.md#chrfscore)                  | Character n-gram F-score (chrF/chrF++)               |
+| [StringSimilarity](docs/en/nlp_metrics_en.md#stringsimilarity)    | Edit distance metrics (Levenshtein, Jaro, Jaro-Winkler) |
+
+Full documentation: [NLP Metrics Guide](docs/en/nlp_metrics_en.md)
+
 ## Quick Start
 
 ### Prerequisites
@@ -237,23 +280,18 @@ Full documentation: [Allure Integration Guide](spring-ai-ragas-allure/README.md)
 
 ```
 spring-ai-ragas/
-├── spring-ai-ragas-metrics/              # Core metrics library
+├── spring-ai-ragas-metrics/              # Core metrics library (20+ metrics)
 │   └── ai.qa.solutions/
 │       ├── metric/                       # Base metric classes
 │       │   ├── Metric                    # Metric interface
 │       │   └── AbstractMultiModelMetric  # Base class for multi-model metrics
 │       └── metrics/
 │           ├── general/                  # General purpose metrics
-│           │   ├── AspectCriticMetric
-│           │   ├── SimpleCriteriaScoreMetric
-│           │   └── RubricsScoreMetric
-│           └── retrieval/                # RAG evaluation metrics
-│               ├── ContextEntityRecallMetric
-│               ├── ContextPrecisionMetric
-│               ├── ContextRecallMetric
-│               ├── FaithfulnessMetric
-│               ├── NoiseSensitivityMetric
-│               └── ResponseRelevancyMetric
+│           ├── retrieval/                # RAG evaluation metrics
+│           ├── agent/                    # Agent evaluation metrics
+│           ├── response/                 # Response quality metrics
+│           ├── nvidia/                   # NVIDIA-style metrics
+│           └── nlp/                      # Non-LLM text similarity metrics
 │
 ├── spring-ai-ragas-multi-model/          # Multi-model execution
 │   └── ai.qa.solutions/
@@ -266,8 +304,11 @@ spring-ai-ragas/
 │
 ├── spring-ai-ragas-allure/               # Allure reporting integration
 │   └── ai.qa.solutions.allure/
-│       ├── AllureMetricExecutionListener # Listener for Allure attachments
-│       └── templates/                    # Freemarker report templates
+│       ├── listener/                     # AllureMetricExecutionListener
+│       ├── nlp/                          # AllureNlpMetricHelper
+│       ├── explanation/                  # Score explanation classes
+│       ├── methodology/                  # Metric methodology docs (en/ru)
+│       └── template/                     # Freemarker report templates
 │
 ├── spring-ai-ragas-spring-boot/          # Spring Boot autoconfiguration
 │   └── config/                           # Auto-configuration classes

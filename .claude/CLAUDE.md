@@ -16,8 +16,9 @@ Spring AI RAGAS is a Java library for evaluating LLM-based AI agents, inspired b
 
 ```
 spring-ai-ragas/
-├── spring-ai-ragas-metrics/        # Core metrics library (9 metrics)
+├── spring-ai-ragas-metrics/        # Core metrics library (20+ metrics)
 ├── spring-ai-ragas-multi-model/    # Multi-model execution engine
+├── spring-ai-ragas-allure/         # Allure reporting integration
 ├── spring-ai-ragas-spring-boot/    # Spring Boot autoconfiguration
 ├── spring-ai-ragas-spring-boot-starter/  # Convenience starter POM
 └── docs/                           # Documentation (en/, ru/)
@@ -27,6 +28,7 @@ spring-ai-ragas/
 
 ```
 spring-boot-starter → spring-boot → metrics → multi-model
+                                  ↘ allure
 ```
 
 ## Build Commands
@@ -93,9 +95,38 @@ Scores from multiple models are combined using `ScoreAggregator`:
 
 **Thread safety:** Listeners must implement `forEvaluation()` to return evaluation-specific instances.
 
+### Dual Executor Architecture
+
+To prevent deadlocks during parallel execution, the system uses two separate thread pools:
+
+- `ragasMetricExecutor` (core=4, max=32) - for metric-level async operations (`runAsync()`)
+- `ragasHttpExecutor` (core=8, max=64) - for HTTP/LLM API calls
+
+**Important:** Metrics must use `executor.runAsync()` instead of `CompletableFuture.supplyAsync()`.
+
+### NLP Metric Pattern
+
+NLP metrics (BLEU, ROUGE, chrF, StringSimilarity) do NOT use MultiModelExecutor:
+
+```java
+public class BleuScoreMetric implements Metric<BleuScoreConfig> {
+    @Override
+    public Double singleTurnScore(BleuScoreConfig config, Sample sample) {
+        // Direct computation, no LLM calls
+        return computeBleuScore(sample.getResponse(), sample.getReference(), config);
+    }
+}
+```
+
+For Allure reporting, use `AllureNlpMetricHelper`:
+
+```java
+AllureNlpMetricHelper.attachBleuScore(score, response, reference, maxNgram, smoothing, "en");
+```
+
 ## Available Metrics
 
-### General Purpose
+### General Purpose (LLM-based)
 
 - `AspectCriticMetric` - Binary evaluation (pass/fail)
 - `SimpleCriteriaScoreMetric` - Continuous scale (0-1)
@@ -109,6 +140,33 @@ Scores from multiple models are combined using `ScoreAggregator`:
 - `ContextEntityRecallMetric` - Entity coverage
 - `NoiseSensitivityMetric` - Robustness to irrelevant contexts
 - `ResponseRelevancyMetric` - Semantic relevance of response
+
+### Agent Metrics
+
+- `AgentGoalAccuracyMetric` - Whether agent achieved its goal
+- `ToolCallAccuracyMetric` - Correctness of tool/function calls
+- `TopicAdherenceMetric` - Staying on topic during conversation
+
+### Response Metrics
+
+- `AnswerCorrectnessMetric` - Overall answer correctness
+- `FactualCorrectnessMetric` - Factual accuracy of statements
+- `SemanticSimilarityMetric` - Embedding-based similarity (requires EmbeddingModel)
+
+### NVIDIA Metrics
+
+- `AnswerAccuracyMetric` - NVIDIA-style answer accuracy
+- `ContextRelevanceMetric` - Context relevance scoring
+- `ResponseGroundednessMetric` - Response grounding in context
+
+### NLP Metrics (Non-LLM)
+
+These metrics do NOT require LLM calls - they compute text similarity directly:
+
+- `BleuScoreMetric` - BLEU score for translation quality
+- `RougeScoreMetric` - ROUGE score (ROUGE-1, ROUGE-2, ROUGE-L)
+- `ChrfScoreMetric` - Character n-gram F-score (chrF/chrF++)
+- `StringSimilarityMetric` - Edit distance metrics (Levenshtein, Jaro, Jaro-Winkler)
 
 ## Code Style
 
@@ -226,4 +284,54 @@ Sample sample = Sample.builder()
     .reference("Ground truth answer")
     .build();
 ```
+
+## Allure Reporting Module
+
+The `spring-ai-ragas-allure` module provides rich HTML reports for metric evaluations.
+
+### Structure
+
+```
+spring-ai-ragas-allure/
+├── explanation/     # Score explanation classes per metric
+├── i18n/            # Internationalization (en/ru)
+├── listener/        # AllureMetricExecutionListener
+├── methodology/     # Markdown methodology files
+├── model/           # Report data models
+├── nlp/             # AllureNlpMetricHelper for NLP metrics
+└── template/        # Freemarker HTML templates
+```
+
+### Report Sections
+
+Each Allure attachment includes:
+1. **Summary** - Input data (response, reference, contexts)
+2. **Score Explanation** - Step-by-step calculation with formula
+3. **Scale** - Visual interpretation (Excellent/Good/Moderate/Poor)
+4. **Methodology** - Detailed metric documentation
+5. **Execution Log** - Debug information
+
+### Usage in Tests
+
+For LLM metrics, use `AllureMetricExecutionListener` (auto-registered).
+
+For NLP metrics, manually attach reports:
+
+```java
+@Test
+void testBleuScore() {
+    Double score = bleuScoreMetric.singleTurnScore(config, sample);
+
+    AllureNlpMetricHelper.attachBleuScore(
+        score, sample.getResponse(), sample.getReference(),
+        config.getMaxNgram(), config.isSmoothing(), "en");
+}
+```
+
+### Adding New Metric Reports
+
+1. Create `YourMetricExplanation` class in `explanation/`
+2. Add methodology markdown in `methodology/en/` and `methodology/ru/`
+3. Add i18n messages in `ExplanationMessages.java`
+4. Update `ScoreExplanationExtractor` to handle new metric type
 
