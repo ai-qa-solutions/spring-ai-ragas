@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import ai.qa.solutions.execution.StubMultiModelExecutor;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -419,6 +423,89 @@ class ToolCallAccuracyMetricTest {
                             .build();
 
             final Double score = metric.singleTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Typed Messages Tests")
+    class TypedMessagesTests {
+
+        @Test
+        @DisplayName("Should extract tool calls from AIMessage")
+        void shouldExtractToolCallsFromAIMessages() {
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Search for flights to NYC"),
+                            new AIMessage(
+                                    "Searching flights...",
+                                    List.of(new ToolCall("search_flights", Map.of("destination", "NYC")))),
+                            new ToolMessage("Found 5 flights"),
+                            new AIMessage("I found 5 available flights.")))
+                    .toolCalls(List.of(new Sample.ToolCall("search_flights", Map.of("destination", "NYC"))))
+                    .referenceToolCalls(List.of(new Sample.ToolCall("search_flights", Map.of("destination", "NYC"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = metric.multiTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should compare with reference tool calls")
+        void shouldCompareWithReferenceToolCalls() {
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Get weather and time"),
+                            new AIMessage(
+                                    "Let me check both for you.",
+                                    List.of(
+                                            new ToolCall("get_weather", Map.of("location", "Paris")),
+                                            new ToolCall("get_time", Map.of()))),
+                            new ToolMessage("Weather: Sunny, 22°C"),
+                            new ToolMessage("Time: 14:30"),
+                            new AIMessage("It's sunny at 22°C and the time is 14:30.")))
+                    .toolCalls(List.of(
+                            new Sample.ToolCall("get_weather", Map.of("location", "Paris")),
+                            new Sample.ToolCall("get_time", Map.of())))
+                    .referenceToolCalls(List.of(
+                            new Sample.ToolCall("get_weather", Map.of("location", "Paris")),
+                            new Sample.ToolCall("get_time", Map.of())))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = metric.multiTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("multiTurnScore should work correctly")
+        void multiTurnScoreShouldWork() {
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Search for weather"),
+                            new AIMessage("Searching...", List.of(new ToolCall("search", Map.of("query", "weather")))),
+                            new ToolMessage("Weather: Sunny"),
+                            new AIMessage("It's sunny today.")))
+                    .toolCalls(List.of(new Sample.ToolCall("search", Map.of("query", "weather"))))
+                    .referenceToolCalls(List.of(new Sample.ToolCall("search", Map.of("query", "weather"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder().build();
+
+            final Double score = metric.multiTurnScore(config, sample);
 
             assertThat(score).isEqualTo(1.0);
         }

@@ -5,8 +5,9 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
-import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.AbstractMultiTurnMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.BaseMessage;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
 import java.time.Instant;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -42,7 +42,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * </ul>
  */
 @Slf4j
-public class TopicAdherenceMetric extends AbstractMultiModelMetric<TopicAdherenceMetric.TopicAdherenceConfig> {
+public class TopicAdherenceMetric extends AbstractMultiTurnMetric<TopicAdherenceMetric.TopicAdherenceConfig> {
 
     public static final String DEFAULT_EXTRACT_TOPICS_PROMPT =
             """
@@ -97,18 +97,19 @@ public class TopicAdherenceMetric extends AbstractMultiModelMetric<TopicAdherenc
     }
 
     @Override
-    public Double singleTurnScore(final TopicAdherenceConfig config, final Sample sample) {
-        return singleTurnScoreAsync(config, sample).join();
+    public Double multiTurnScore(final TopicAdherenceConfig config, final Sample sample) {
+        return multiTurnScoreAsync(config, sample).join();
     }
 
     @Override
-    public CompletableFuture<Double> singleTurnScoreAsync(final TopicAdherenceConfig config, final Sample sample) {
+    public CompletableFuture<Double> multiTurnScoreAsync(final TopicAdherenceConfig config, final Sample sample) {
         final Instant startTime = Instant.now();
         final List<String> modelIds =
                 config.models != null && !config.models.isEmpty() ? config.models : executor.getModelIds();
 
         // Validate input
-        if (sample.getMessages() == null || sample.getMessages().isEmpty()) {
+        final List<BaseMessage> conversationMessages = sample.getUserInputMessages();
+        if (conversationMessages == null || conversationMessages.isEmpty()) {
             log.warn("No messages provided for Topic Adherence evaluation");
             return CompletableFuture.completedFuture(null);
         }
@@ -131,7 +132,7 @@ public class TopicAdherenceMetric extends AbstractMultiModelMetric<TopicAdherenc
                 .build());
 
         return executor.runAsync(() -> {
-            final String conversation = formatConversation(sample.getMessages());
+            final String conversation = formatConversation(conversationMessages);
             final List<String> referenceTopics = sample.getReferenceTopics();
             final List<String> excludedModels = new ArrayList<>();
 
@@ -268,12 +269,6 @@ public class TopicAdherenceMetric extends AbstractMultiModelMetric<TopicAdherenc
             case RECALL -> recall;
             case F1 -> (precision + recall) == 0 ? 0.0 : 2 * precision * recall / (precision + recall);
         };
-    }
-
-    private String formatConversation(final List<Sample.Message> messages) {
-        return messages.stream()
-                .map(m -> String.format("[%s]: %s", m.role().toUpperCase(), m.content()))
-                .collect(Collectors.joining("\n"));
     }
 
     private String renderExtractTopicsPrompt(final String conversation) {

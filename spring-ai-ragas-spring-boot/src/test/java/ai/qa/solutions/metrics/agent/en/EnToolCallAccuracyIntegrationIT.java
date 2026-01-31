@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import ai.qa.solutions.metrics.agent.ToolCallAccuracyMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -372,6 +376,147 @@ class EnToolCallAccuracyIntegrationIT {
             log.info("Async Score: {}", score);
 
             assertThat(score).isEqualTo(1.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Typed Messages API Tests")
+    class TypedMessagesApiTests {
+
+        @Test
+        @DisplayName("Should extract and compare tool calls from AIMessage")
+        void shouldExtractToolCallsFromAIMessage() {
+            log.info("=== Extract Tool Calls from AIMessage Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Search for flights to Paris"),
+                            new AIMessage(
+                                    "Searching...",
+                                    List.of(new ToolCall("search_flights", Map.of("destination", "Paris")))),
+                            new ToolMessage("Found 3 flights"),
+                            new AIMessage("Here are 3 flights to Paris.")))
+                    .referenceToolCalls(List.of(new Sample.ToolCall("search_flights", Map.of("destination", "Paris"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Extracted tool calls and compared");
+            log.info("Score: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isBetween(0.0, 1.0);
+        }
+
+        @Test
+        @DisplayName("Should evaluate multiple tool calls in conversation")
+        void shouldEvaluateMultipleToolCallsInConversation() {
+            log.info("=== Multiple Tool Calls in Conversation Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Book a flight to London and a hotel"),
+                            new AIMessage(
+                                    "Let me search for flights first.",
+                                    List.of(new ToolCall(
+                                            "search_flights", Map.of("destination", "London", "date", "2024-03-15")))),
+                            new ToolMessage("Found 5 flights"),
+                            new AIMessage(
+                                    "Now searching for hotels.",
+                                    List.of(new ToolCall(
+                                            "search_hotels", Map.of("city", "London", "check_in", "2024-03-15")))),
+                            new ToolMessage("Found 10 hotels"),
+                            new AIMessage(
+                                    "Booking both now.",
+                                    List.of(
+                                            new ToolCall("book_flight", Map.of("flight_id", "BA456")),
+                                            new ToolCall("book_hotel", Map.of("hotel_id", "LH123")))),
+                            new ToolMessage("Both bookings confirmed")))
+                    .referenceToolCalls(List.of(
+                            new Sample.ToolCall(
+                                    "search_flights", Map.of("destination", "London", "date", "2024-03-15")),
+                            new Sample.ToolCall("search_hotels", Map.of("city", "London", "check_in", "2024-03-15")),
+                            new Sample.ToolCall("book_flight", Map.of("flight_id", "BA456")),
+                            new Sample.ToolCall("book_hotel", Map.of("hotel_id", "LH123"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Multiple tool calls across conversation");
+            log.info("Score: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isBetween(0.0, 1.0);
+        }
+
+        @Test
+        @DisplayName("Should evaluate with FLEXIBLE mode and typed messages")
+        void shouldEvaluateFlexibleModeWithTypedMessages() {
+            log.info("=== Flexible Mode with Typed Messages Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Find restaurants in Tokyo"),
+                            new AIMessage(
+                                    "Searching for restaurants...",
+                                    List.of(new ToolCall(
+                                            "search_restaurants", Map.of("city", "Tokyo", "cuisine", "Japanese")))),
+                            new ToolMessage("Found 20 restaurants"),
+                            new AIMessage("I found 20 Japanese restaurants in Tokyo.")))
+                    .referenceToolCalls(List.of(new Sample.ToolCall(
+                            "search_restaurants",
+                            Map.of("city", "Tokyo", "cuisine", "Japanese", "rating_min", 4, "price_range", "$$"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.FLEXIBLE)
+                            .argumentMatchThreshold(0.5)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Flexible mode with partial argument match");
+            log.info("Score: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isBetween(0.0, 1.0);
+        }
+
+        @Test
+        @DisplayName("Should handle conversation with no tool calls")
+        void shouldHandleConversationWithNoToolCalls() {
+            log.info("=== No Tool Calls Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("What's the weather like?"),
+                            new AIMessage("I don't have access to current weather information.")))
+                    .referenceToolCalls(List.of(new Sample.ToolCall("get_weather", Map.of("location", "current"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("No tool calls made when they should have been");
+            log.info("Score: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isEqualTo(0.0);
         }
     }
 }

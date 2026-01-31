@@ -1,5 +1,9 @@
 package ai.qa.solutions.sample;
 
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.BaseMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -20,7 +24,7 @@ import lombok.NoArgsConstructor;
  * <p>
  * Multi-turn fields (used by agent metrics):
  * <ul>
- *   <li>{@code messages} - Conversation history for multi-turn evaluation</li>
+ *   <li>{@code userInputMessages} - Typed conversation history</li>
  *   <li>{@code toolCalls} - Actual tool calls made by the agent</li>
  *   <li>{@code referenceToolCalls} - Expected/correct tool calls</li>
  *   <li>{@code referenceTopics} - Expected topics for topic adherence evaluation</li>
@@ -54,8 +58,24 @@ public class Sample {
 
     // ==================== Multi-turn fields ====================
 
-    /** Conversation history for multi-turn evaluation. */
-    private List<Message> messages;
+    /**
+     * Typed conversation history for multi-turn evaluation.
+     * <p>
+     * Use typed message classes: {@link HumanMessage}, {@link AIMessage}, {@link ToolMessage}.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * Sample sample = Sample.builder()
+     *     .userInputMessages(List.of(
+     *         new HumanMessage("Book a flight to NYC"),
+     *         new AIMessage("Searching...", List.of(new ToolCall("search", Map.of()))),
+     *         new ToolMessage("Found 5 flights"),
+     *         new AIMessage("I found 5 options.")
+     *     ))
+     *     .build();
+     * }</pre>
+     */
+    private List<BaseMessage> userInputMessages;
 
     /** Actual tool calls made by the agent. */
     private List<ToolCall> toolCalls;
@@ -65,14 +85,6 @@ public class Sample {
 
     /** Expected topics for topic adherence evaluation. */
     private List<String> referenceTopics;
-
-    /**
-     * Represents a single message in a conversation.
-     *
-     * @param role The role of the message sender (e.g., "user", "assistant", "system")
-     * @param content The message content
-     */
-    public record Message(String role, String content) {}
 
     /**
      * Represents a tool call made by an agent.

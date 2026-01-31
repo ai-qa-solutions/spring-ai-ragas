@@ -1068,10 +1068,10 @@ Two separate pools ensure metric tasks can always wait for HTTP tasks:
 
 #### Default Pool Configuration
 
-| Pool | Core Size | Max Size | Queue Capacity | Purpose |
-|------|-----------|----------|----------------|---------|
-| `ragasMetricExecutor` | 4 | 32 | 200 | Metric-level async operations (`runAsync()`) |
-| `ragasHttpExecutor` | 8 | 64 | 500 | HTTP/LLM API calls |
+|         Pool          | Core Size | Max Size | Queue Capacity |                   Purpose                    |
+|-----------------------|-----------|----------|----------------|----------------------------------------------|
+| `ragasMetricExecutor` | 4         | 32       | 200            | Metric-level async operations (`runAsync()`) |
+| `ragasHttpExecutor`   | 8         | 64       | 500            | HTTP/LLM API calls                           |
 
 #### Using `runAsync()` for Metrics
 
@@ -1135,12 +1135,12 @@ public class CustomExecutorConfig {
 
 **Tuning guidelines:**
 
-| Scenario | Metric Pool | HTTP Pool | Notes |
-|----------|-------------|-----------|-------|
-| Development | 2-4 core | 4-8 core | Low resource usage |
-| Production (standard) | 4-8 core | 8-16 core | Default settings |
-| High throughput | 8-16 core | 16-64 core | Many concurrent evaluations |
-| Rate-limited API | 4 core | 4-8 core | Limit concurrent API calls |
+|       Scenario        | Metric Pool | HTTP Pool  |            Notes            |
+|-----------------------|-------------|------------|-----------------------------|
+| Development           | 2-4 core    | 4-8 core   | Low resource usage          |
+| Production (standard) | 4-8 core    | 8-16 core  | Default settings            |
+| High throughput       | 8-16 core   | 16-64 core | Many concurrent evaluations |
+| Rate-limited API      | 4 core      | 4-8 core   | Limit concurrent API calls  |
 
 ```java
 

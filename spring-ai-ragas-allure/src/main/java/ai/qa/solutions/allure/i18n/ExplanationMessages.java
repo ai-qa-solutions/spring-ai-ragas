@@ -422,6 +422,12 @@ public final class ExplanationMessages {
                 Map.entry("answerCorrectness.scale.moderate", "Some issues with facts or meaning"),
                 Map.entry("answerCorrectness.scale.poor", "Significant errors or mismatch"),
 
+                // Message types for multi-turn conversations
+                Map.entry("message.type.human", "User"),
+                Map.entry("message.type.ai", "Assistant"),
+                Map.entry("message.type.tool", "Tool Result"),
+                Map.entry("message.toolCalls", "Tool Calls"),
+
                 // AgentGoalAccuracy
                 Map.entry(
                         "agentGoalAccuracy.description",
@@ -1108,6 +1114,12 @@ public final class ExplanationMessages {
                 Map.entry("answerCorrectness.scale.good", "В основном корректен с хорошим сходством"),
                 Map.entry("answerCorrectness.scale.moderate", "Проблемы с фактами или смыслом"),
                 Map.entry("answerCorrectness.scale.poor", "Значительные ошибки или несоответствие"),
+
+                // Message types for multi-turn conversations
+                Map.entry("message.type.human", "Пользователь"),
+                Map.entry("message.type.ai", "Ассистент"),
+                Map.entry("message.type.tool", "Результат инструмента"),
+                Map.entry("message.toolCalls", "Вызовы инструментов"),
 
                 // AgentGoalAccuracy
                 Map.entry(

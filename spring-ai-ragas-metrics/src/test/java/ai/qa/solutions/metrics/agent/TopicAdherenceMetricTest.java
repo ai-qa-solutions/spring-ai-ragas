@@ -10,7 +10,12 @@ import ai.qa.solutions.metrics.agent.TopicAdherenceMetric.TopicAdherenceConfig;
 import ai.qa.solutions.metrics.agent.TopicAdherenceMetric.TopicClassification;
 import ai.qa.solutions.metrics.agent.TopicAdherenceMetric.TopicClassificationResponse;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -85,7 +90,7 @@ class TopicAdherenceMetricTest {
         @DisplayName("Should return null when messages are empty")
         void shouldReturnNullWhenMessagesAreEmpty() {
             final Sample sample = Sample.builder()
-                    .messages(List.of())
+                    .userInputMessages(List.of())
                     .referenceTopics(List.of("topic1"))
                     .build();
 
@@ -100,7 +105,7 @@ class TopicAdherenceMetricTest {
         @DisplayName("Should return null when reference topics are null")
         void shouldReturnNullWhenReferenceTopicsAreNull() {
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Hello")))
+                    .userInputMessages(List.of(new HumanMessage("Hello")))
                     .build();
 
             final TopicAdherenceConfig config = TopicAdherenceConfig.builder().build();
@@ -114,7 +119,7 @@ class TopicAdherenceMetricTest {
         @DisplayName("Should return null when reference topics are empty")
         void shouldReturnNullWhenReferenceTopicsAreEmpty() {
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Hello")))
+                    .userInputMessages(List.of(new HumanMessage("Hello")))
                     .referenceTopics(List.of())
                     .build();
 
@@ -146,9 +151,9 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I need to book a flight"),
-                            new Sample.Message("assistant", "I'll help you with flight booking")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to book a flight"),
+                            new AIMessage("I'll help you with flight booking")))
                     .referenceTopics(List.of("flight booking", "travel planning"))
                     .build();
 
@@ -175,7 +180,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "How's the weather?")))
+                    .userInputMessages(List.of(new HumanMessage("How's the weather?")))
                     .referenceTopics(List.of("flight booking", "travel planning"))
                     .build();
 
@@ -202,9 +207,9 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I need to book a flight"),
-                            new Sample.Message("user", "Also what's the weather like?")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to book a flight"),
+                            new HumanMessage("Also what's the weather like?")))
                     .referenceTopics(List.of("flight booking", "travel planning"))
                     .build();
 
@@ -237,7 +242,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Flight and weather talk")))
+                    .userInputMessages(List.of(new HumanMessage("Flight and weather talk")))
                     .referenceTopics(List.of("flight booking"))
                     .build();
 
@@ -272,7 +277,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "I need flights and hotels")))
+                    .userInputMessages(List.of(new HumanMessage("I need flights and hotels")))
                     .referenceTopics(List.of("flights", "hotels"))
                     .build();
 
@@ -299,7 +304,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "I need a flight")))
+                    .userInputMessages(List.of(new HumanMessage("I need a flight")))
                     .referenceTopics(List.of("flights", "hotels", "car rentals"))
                     .build();
 
@@ -331,7 +336,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "I need a flight")))
+                    .userInputMessages(List.of(new HumanMessage("I need a flight")))
                     .referenceTopics(List.of("travel"))
                     .build();
 
@@ -358,7 +363,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "...")))
+                    .userInputMessages(List.of(new HumanMessage("...")))
                     .referenceTopics(List.of("travel"))
                     .build();
 
@@ -382,7 +387,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Hello")))
+                    .userInputMessages(List.of(new HumanMessage("Hello")))
                     .referenceTopics(List.of("travel"))
                     .build();
 
@@ -406,7 +411,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Hello")))
+                    .userInputMessages(List.of(new HumanMessage("Hello")))
                     .referenceTopics(List.of("ref"))
                     .build();
 
@@ -432,9 +437,8 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I need help with my order"),
-                            new Sample.Message("assistant", "I can help with that")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need help with my order"), new AIMessage("I can help with that")))
                     .referenceTopics(List.of("customer service"))
                     .build();
 
@@ -461,7 +465,7 @@ class TopicAdherenceMetricTest {
             metric = TopicAdherenceMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "I need tickets")))
+                    .userInputMessages(List.of(new HumanMessage("I need tickets")))
                     .referenceTopics(List.of("travel", "hotels"))
                     .build();
 
@@ -496,7 +500,7 @@ class TopicAdherenceMetricTest {
                     .build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Test")))
+                    .userInputMessages(List.of(new HumanMessage("Test")))
                     .referenceTopics(List.of("ref"))
                     .build();
 
@@ -523,7 +527,7 @@ class TopicAdherenceMetricTest {
                     .build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Test")))
+                    .userInputMessages(List.of(new HumanMessage("Test")))
                     .referenceTopics(List.of("ref"))
                     .build();
 
@@ -532,6 +536,104 @@ class TopicAdherenceMetricTest {
             final Double score = metric.singleTurnScore(config, sample);
 
             assertThat(score).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Typed Messages Tests")
+    class TypedMessagesTests {
+
+        @Test
+        @DisplayName("Should extract topics from typed messages")
+        void shouldExtractTopicsFromTypedMessages() {
+            executor = executor.withResponseProvider(
+                            ExtractedTopicsResponse.class,
+                            prompt -> new ExtractedTopicsResponse(List.of("flight booking", "travel planning")))
+                    .withResponseProvider(
+                            TopicClassificationResponse.class,
+                            prompt -> new TopicClassificationResponse(List.of(
+                                    new TopicClassification("flight booking", true, "travel", "On topic"),
+                                    new TopicClassification("travel planning", true, "travel", "On topic"))));
+
+            metric = TopicAdherenceMetric.builder().executor(executor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to book a flight to Paris"),
+                            new AIMessage(
+                                    "I'll help you book a flight to Paris.",
+                                    List.of(new ToolCall("search_flights", Map.of("destination", "Paris")))),
+                            new ToolMessage("Found 10 flights"),
+                            new AIMessage("I found 10 available flights to Paris.")))
+                    .referenceTopics(List.of("travel"))
+                    .build();
+
+            final TopicAdherenceConfig config = TopicAdherenceConfig.builder().build();
+
+            final Double score = metric.multiTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should handle conversation with ToolMessage")
+        void shouldHandleConversationWithToolMessages() {
+            executor = executor.withResponseProvider(
+                            ExtractedTopicsResponse.class,
+                            prompt -> new ExtractedTopicsResponse(List.of("weather", "customer support")))
+                    .withResponseProvider(
+                            TopicClassificationResponse.class,
+                            prompt -> new TopicClassificationResponse(List.of(
+                                    new TopicClassification("weather", true, "weather info", "On topic"),
+                                    new TopicClassification("customer support", false, null, "Off topic"))));
+
+            metric = TopicAdherenceMetric.builder().executor(executor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("What's the weather?"),
+                            new AIMessage(
+                                    "Let me check.",
+                                    List.of(new ToolCall("get_weather", Map.of("location", "London")))),
+                            new ToolMessage("Weather: Rainy, 15°C"),
+                            new AIMessage("It's rainy with 15°C in London."),
+                            new HumanMessage("Thanks for the help!"),
+                            new AIMessage("You're welcome!")))
+                    .referenceTopics(List.of("weather info"))
+                    .build();
+
+            final TopicAdherenceConfig config =
+                    TopicAdherenceConfig.builder().mode(Mode.F1).build();
+
+            final Double score = metric.multiTurnScore(config, sample);
+
+            // Precision: 1/2 = 0.5, Recall: 1/1 = 1.0
+            // F1 = 2 * 0.5 * 1.0 / (0.5 + 1.0) = 0.666...
+            assertThat(score).isBetween(0.6, 0.7);
+        }
+
+        @Test
+        @DisplayName("multiTurnScore should work correctly")
+        void multiTurnScoreShouldWork() {
+            executor = executor.withResponseProvider(
+                            ExtractedTopicsResponse.class, prompt -> new ExtractedTopicsResponse(List.of("booking")))
+                    .withResponseProvider(
+                            TopicClassificationResponse.class,
+                            prompt -> new TopicClassificationResponse(
+                                    List.of(new TopicClassification("booking", true, "reservations", "On topic"))));
+
+            metric = TopicAdherenceMetric.builder().executor(executor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(new HumanMessage("Book a hotel"), new AIMessage("Hotel booked!")))
+                    .referenceTopics(List.of("reservations"))
+                    .build();
+
+            final TopicAdherenceConfig config = TopicAdherenceConfig.builder().build();
+
+            final Double score = metric.multiTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
         }
     }
 }

@@ -5,7 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.qa.solutions.metrics.agent.AgentGoalAccuracyMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,22 +56,15 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Goal Clearly Achieved Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message(
-                                    "user", "I need to book a flight from New York to Los Angeles for tomorrow."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I'll help you book that flight. Let me search for available options."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I found several flights for tomorrow. The best option is United Airlines "
-                                            + "departing at 8:00 AM for $299."),
-                            new Sample.Message("user", "That sounds good, please book it."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I've successfully booked your United Airlines flight from New York (JFK) "
-                                            + "to Los Angeles (LAX) for tomorrow at 8:00 AM. Confirmation number: UA12345. "
-                                            + "You'll receive an email confirmation shortly.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to book a flight from New York to Los Angeles for tomorrow."),
+                            new AIMessage("I'll help you book that flight. Let me search for available options."),
+                            new AIMessage("I found several flights for tomorrow. The best option is United Airlines "
+                                    + "departing at 8:00 AM for $299."),
+                            new HumanMessage("That sounds good, please book it."),
+                            new AIMessage("I've successfully booked your United Airlines flight from New York (JFK) "
+                                    + "to Los Angeles (LAX) for tomorrow at 8:00 AM. Confirmation number: UA12345. "
+                                    + "You'll receive an email confirmation shortly.")))
                     .reference("Book a flight from New York to Los Angeles")
                     .build();
 
@@ -90,19 +88,14 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Goal Not Achieved Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message(
-                                    "user", "I need to book a flight from New York to Los Angeles for tomorrow."),
-                            new Sample.Message("assistant", "I'll help you with that. Let me check available flights."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I'm sorry, but I'm currently unable to access the flight booking system. "
-                                            + "The service is temporarily unavailable."),
-                            new Sample.Message("user", "Is there anything else you can do?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Unfortunately, I cannot complete the booking at this time. "
-                                            + "Please try again later or contact the airline directly.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to book a flight from New York to Los Angeles for tomorrow."),
+                            new AIMessage("I'll help you with that. Let me check available flights."),
+                            new AIMessage("I'm sorry, but I'm currently unable to access the flight booking system. "
+                                    + "The service is temporarily unavailable."),
+                            new HumanMessage("Is there anything else you can do?"),
+                            new AIMessage("Unfortunately, I cannot complete the booking at this time. "
+                                    + "Please try again later or contact the airline directly.")))
                     .reference("Book a flight from New York to Los Angeles")
                     .build();
 
@@ -126,18 +119,14 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Customer Support Resolution Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "My order #12345 hasn't arrived yet. It's been 2 weeks."),
-                            new Sample.Message(
-                                    "assistant", "I'm sorry to hear about the delay. Let me look into your order."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I found your order. It appears there was a shipping issue. I've processed "
-                                            + "a full refund of $75.50 to your original payment method. The refund "
-                                            + "should appear within 3-5 business days."),
-                            new Sample.Message("user", "Thank you! That works for me."),
-                            new Sample.Message(
-                                    "assistant", "You're welcome! Is there anything else I can help you with today?")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("My order #12345 hasn't arrived yet. It's been 2 weeks."),
+                            new AIMessage("I'm sorry to hear about the delay. Let me look into your order."),
+                            new AIMessage("I found your order. It appears there was a shipping issue. I've processed "
+                                    + "a full refund of $75.50 to your original payment method. The refund "
+                                    + "should appear within 3-5 business days."),
+                            new HumanMessage("Thank you! That works for me."),
+                            new AIMessage("You're welcome! Is there anything else I can help you with today?")))
                     .reference(
                             "Resolve the customer's complaint about missing order by providing refund or replacement")
                     .build();
@@ -167,21 +156,19 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Infer Goal - Successful Task Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message(
-                                    "user", "Can you help me write an email to my boss requesting time off next week?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I'd be happy to help you draft that email. Here's a professional "
-                                            + "request for time off:\n\n"
-                                            + "Subject: Time Off Request - Next Week\n\n"
-                                            + "Dear [Manager's Name],\n\n"
-                                            + "I am writing to request time off from [start date] to [end date]. "
-                                            + "I have ensured that my current projects are on track and have arranged "
-                                            + "for coverage during my absence.\n\n"
-                                            + "Please let me know if you need any additional information.\n\n"
-                                            + "Best regards,\n[Your name]"),
-                            new Sample.Message("user", "That's perfect! Thank you!")))
+                    .userInputMessages(List.of(
+                            new HumanMessage(
+                                    "Can you help me write an email to my boss requesting time off next week?"),
+                            new AIMessage("I'd be happy to help you draft that email. Here's a professional "
+                                    + "request for time off:\n\n"
+                                    + "Subject: Time Off Request - Next Week\n\n"
+                                    + "Dear [Manager's Name],\n\n"
+                                    + "I am writing to request time off from [start date] to [end date]. "
+                                    + "I have ensured that my current projects are on track and have arranged "
+                                    + "for coverage during my absence.\n\n"
+                                    + "Please let me know if you need any additional information.\n\n"
+                                    + "Best regards,\n[Your name]"),
+                            new HumanMessage("That's perfect! Thank you!")))
                     .build();
 
             AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
@@ -204,18 +191,13 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Infer Goal - Failed Task Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I need you to translate this document from French to English."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I'd be happy to help with the translation. Please share the document."),
-                            new Sample.Message(
-                                    "user", "Here it is: 'Bonjour, je m'appelle Pierre...' [rest of document]"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I apologize, but I'm currently experiencing issues and cannot process "
-                                            + "the translation at this moment. Could you try again later?"),
-                            new Sample.Message("user", "That's disappointing. I really needed this done today.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need you to translate this document from French to English."),
+                            new AIMessage("I'd be happy to help with the translation. Please share the document."),
+                            new HumanMessage("Here it is: 'Bonjour, je m'appelle Pierre...' [rest of document]"),
+                            new AIMessage("I apologize, but I'm currently experiencing issues and cannot process "
+                                    + "the translation at this moment. Could you try again later?"),
+                            new HumanMessage("That's disappointing. I really needed this done today.")))
                     .build();
 
             AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
@@ -238,19 +220,16 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Multi-Step Task Completion Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I want to set up a meeting with my team for next Friday."),
-                            new Sample.Message(
-                                    "assistant", "I'll help you set up that meeting. What time works best for you?"),
-                            new Sample.Message("user", "Let's do 2 PM."),
-                            new Sample.Message("assistant", "Got it. Who should I invite to this meeting?"),
-                            new Sample.Message("user", "The entire engineering team - John, Sarah, and Mike."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Perfect. I've created a meeting for next Friday at 2 PM with John, Sarah, "
-                                            + "and Mike. I've sent calendar invitations to all participants. The meeting "
-                                            + "will be held in Conference Room A. Would you like me to add an agenda?"),
-                            new Sample.Message("user", "No, that's all I needed. Thanks!")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I want to set up a meeting with my team for next Friday."),
+                            new AIMessage("I'll help you set up that meeting. What time works best for you?"),
+                            new HumanMessage("Let's do 2 PM."),
+                            new AIMessage("Got it. Who should I invite to this meeting?"),
+                            new HumanMessage("The entire engineering team - John, Sarah, and Mike."),
+                            new AIMessage("Perfect. I've created a meeting for next Friday at 2 PM with John, Sarah, "
+                                    + "and Mike. I've sent calendar invitations to all participants. The meeting "
+                                    + "will be held in Conference Room A. Would you like me to add an agenda?"),
+                            new HumanMessage("No, that's all I needed. Thanks!")))
                     .build();
 
             AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
@@ -279,26 +258,21 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Complex Conversation with Implicit Goal Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Hey, I'm feeling overwhelmed with work lately."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I'm sorry to hear you're feeling that way. Would you like to talk about "
-                                            + "what's making you feel overwhelmed, or would you prefer some practical "
-                                            + "tips for managing workload?"),
-                            new Sample.Message("user", "Some tips would be helpful."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Here are some strategies that might help:\n\n"
-                                            + "1. Prioritize tasks using the Eisenhower Matrix - focus on urgent "
-                                            + "and important tasks first.\n"
-                                            + "2. Break large projects into smaller, manageable steps.\n"
-                                            + "3. Set boundaries - learn to say no to non-essential requests.\n"
-                                            + "4. Take regular breaks using the Pomodoro technique.\n"
-                                            + "5. Consider delegating where possible.\n\n"
-                                            + "Would you like me to elaborate on any of these?"),
-                            new Sample.Message(
-                                    "user", "These are really helpful. I'll try the Pomodoro technique first.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Hey, I'm feeling overwhelmed with work lately."),
+                            new AIMessage("I'm sorry to hear you're feeling that way. Would you like to talk about "
+                                    + "what's making you feel overwhelmed, or would you prefer some practical "
+                                    + "tips for managing workload?"),
+                            new HumanMessage("Some tips would be helpful."),
+                            new AIMessage("Here are some strategies that might help:\n\n"
+                                    + "1. Prioritize tasks using the Eisenhower Matrix - focus on urgent "
+                                    + "and important tasks first.\n"
+                                    + "2. Break large projects into smaller, manageable steps.\n"
+                                    + "3. Set boundaries - learn to say no to non-essential requests.\n"
+                                    + "4. Take regular breaks using the Pomodoro technique.\n"
+                                    + "5. Consider delegating where possible.\n\n"
+                                    + "Would you like me to elaborate on any of these?"),
+                            new HumanMessage("These are really helpful. I'll try the Pomodoro technique first.")))
                     .reference("Help the user manage their work-related stress with practical advice")
                     .build();
 
@@ -322,9 +296,7 @@ class EnAgentGoalAccuracyIntegrationIT {
             log.info("=== Async Scoring Test ===");
 
             Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "What's 2 + 2?"),
-                            new Sample.Message("assistant", "2 + 2 equals 4.")))
+                    .userInputMessages(List.of(new HumanMessage("What's 2 + 2?"), new AIMessage("2 + 2 equals 4.")))
                     .reference("Provide the correct answer to the math question")
                     .build();
 
@@ -340,6 +312,113 @@ class EnAgentGoalAccuracyIntegrationIT {
 
             assertNotNull(score);
             assertTrue(score >= 0.5, "Async scoring should work identically to sync. Received: " + score);
+        }
+    }
+
+    @Nested
+    @DisplayName("Typed Messages API Tests")
+    class TypedMessagesApiTests {
+
+        @Test
+        @DisplayName("Should evaluate with typed messages using multiTurnScore")
+        void shouldEvaluateWithTypedMessages() {
+            log.info("=== Typed Messages API Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to book a flight from New York to Los Angeles"),
+                            new AIMessage(
+                                    "I'll help you book that flight. Let me search.",
+                                    List.of(new ToolCall(
+                                            "search_flights", Map.of("origin", "JFK", "destination", "LAX")))),
+                            new ToolMessage("Found 5 flights: UA123, AA456, DL789, SW101, NK202"),
+                            new AIMessage(
+                                    "I found 5 flights. The best option is UA123 departing at 8:00 AM for $299.")))
+                    .reference("Book a flight from New York to Los Angeles")
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                            .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
+                            .build();
+
+            final Double score = agentGoalAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Typed Messages API Score: {}", score);
+            assertNotNull(score);
+            assertTrue(score >= 0.0 && score <= 1.0, "Score should be between 0 and 1");
+        }
+
+        @Test
+        @DisplayName("Should evaluate with typed messages - goal not achieved")
+        void shouldEvaluateWithTypedMessagesGoalNotAchieved() {
+            log.info("=== Typed Messages API - Goal Not Achieved Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to cancel my flight booking"),
+                            new AIMessage(
+                                    "Let me check your booking.",
+                                    List.of(new ToolCall("search_booking", Map.of("user_id", "12345")))),
+                            new ToolMessage("Error: No active bookings found"),
+                            new AIMessage("I'm sorry, but I couldn't find any active bookings to cancel. "
+                                    + "The cancellation could not be completed.")))
+                    .reference("Cancel the user's flight booking")
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                            .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
+                            .build();
+
+            final Double score = agentGoalAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Typed Messages API Score (Goal Not Achieved): {}", score);
+            assertNotNull(score);
+            assertTrue(score >= 0.0 && score <= 1.0, "Score should be between 0 and 1");
+        }
+
+        @Test
+        @DisplayName("Should evaluate with typed messages in WITHOUT_REFERENCE mode")
+        void shouldEvaluateWithTypedMessagesWithoutReference() {
+            log.info("=== Typed Messages API - Without Reference Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Find me the cheapest hotel in Paris for next weekend"),
+                            new AIMessage(
+                                    "Searching for hotels...",
+                                    List.of(new ToolCall(
+                                            "search_hotels",
+                                            Map.of(
+                                                    "city",
+                                                    "Paris",
+                                                    "check_in",
+                                                    "2024-02-10",
+                                                    "check_out",
+                                                    "2024-02-12")))),
+                            new ToolMessage("Found 15 hotels. Cheapest: Hotel Paris Budget at $89/night"),
+                            new AIMessage("I found Hotel Paris Budget at $89 per night for next weekend. "
+                                    + "Would you like me to book it?"),
+                            new HumanMessage("Yes, please book it"),
+                            new AIMessage(
+                                    "Booking confirmed!",
+                                    List.of(new ToolCall("book_hotel", Map.of("hotel_id", "HPB123", "nights", 2)))),
+                            new ToolMessage("Booking successful. Confirmation: HPB-456789"),
+                            new AIMessage("Your booking is confirmed! Confirmation number: HPB-456789. "
+                                    + "You'll receive an email shortly.")))
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                            .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE)
+                            .build();
+
+            final Double score = agentGoalAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Typed Messages API Score (Without Reference): {}", score);
+            assertNotNull(score);
+            assertTrue(score >= 0.0 && score <= 1.0, "Score should be between 0 and 1");
         }
     }
 }

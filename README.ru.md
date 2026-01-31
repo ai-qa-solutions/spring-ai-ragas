@@ -52,31 +52,54 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 ### Метрики агентов (Agent Metrics)
 
-|                                 Метрика                                  |                  Описание                   |
-|--------------------------------------------------------------------------|---------------------------------------------|
-| [AgentGoalAccuracy](docs/ru/agent_metrics_ru.md#agentgoalaccuracy)       | Достиг ли агент поставленной цели           |
-| [ToolCallAccuracy](docs/ru/agent_metrics_ru.md#toolcallaccuracy)         | Корректность вызовов инструментов/функций   |
-| [TopicAdherence](docs/ru/agent_metrics_ru.md#topicadherence)             | Следование теме в ходе разговора            |
+|                              Метрика                               |                 Описание                  |
+|--------------------------------------------------------------------|-------------------------------------------|
+| [AgentGoalAccuracy](docs/ru/agent_metrics_ru.md#agentgoalaccuracy) | Достиг ли агент поставленной цели         |
+| [ToolCallAccuracy](docs/ru/agent_metrics_ru.md#toolcallaccuracy)   | Корректность вызовов инструментов/функций |
+| [TopicAdherence](docs/ru/agent_metrics_ru.md#topicadherence)       | Следование теме в ходе разговора          |
+
+Метрики агентов поддерживают типизированные классы сообщений для многоэтапных диалогов:
+
+```java
+import ai.qa.solutions.sample.message.*;
+
+Sample sample = Sample.builder()
+        .userInputMessages(List.of(
+                new HumanMessage("Забронируй рейс в Нью-Йорк"),
+                new AIMessage("Ищу рейсы...", List.of(
+                        new ToolCall("search_flights", Map.of("destination", "NYC"))
+                )),
+                new ToolMessage("Найдено 5 рейсов"),
+                new AIMessage("Я нашёл 5 вариантов. Рейс UA123 вылетает в 9:00.")
+        ))
+        .referenceToolCalls(List.of(
+                new ToolCall("search_flights", Map.of("destination", "NYC"))
+        ))
+        .reference("Рейс в Нью-Йорк забронирован")
+        .build();
+
+Double score = agentGoalAccuracy.multiTurnScore(config, sample);
+```
 
 Полная документация: [Руководство по метрикам агентов](docs/ru/agent_metrics_ru.md)
 
 ### Метрики ответов (Response Metrics)
 
-|                                    Метрика                                    |                    Описание                     |
-|-------------------------------------------------------------------------------|-------------------------------------------------|
-| [AnswerCorrectness](docs/ru/response_metrics_ru.md#answercorrectness)         | Общая корректность ответа                       |
-| [FactualCorrectness](docs/ru/response_metrics_ru.md#factualcorrectness)       | Фактическая точность утверждений                |
-| [SemanticSimilarity](docs/ru/response_metrics_ru.md#semanticsimilarity)       | Семантическое сходство (требует EmbeddingModel) |
+|                                 Метрика                                 |                    Описание                     |
+|-------------------------------------------------------------------------|-------------------------------------------------|
+| [AnswerCorrectness](docs/ru/response_metrics_ru.md#answercorrectness)   | Общая корректность ответа                       |
+| [FactualCorrectness](docs/ru/response_metrics_ru.md#factualcorrectness) | Фактическая точность утверждений                |
+| [SemanticSimilarity](docs/ru/response_metrics_ru.md#semanticsimilarity) | Семантическое сходство (требует EmbeddingModel) |
 
 Полная документация: [Руководство по метрикам ответов](docs/ru/response_metrics_ru.md)
 
 ### Метрики NVIDIA (NVIDIA Metrics)
 
-|                                   Метрика                                    |                Описание                 |
-|------------------------------------------------------------------------------|-----------------------------------------|
-| [AnswerAccuracy](docs/ru/nvidia_metrics_ru.md#answeraccuracy)                | Точность ответа в стиле NVIDIA          |
-| [ContextRelevance](docs/ru/nvidia_metrics_ru.md#contextrelevance)            | Оценка релевантности контекста          |
-| [ResponseGroundedness](docs/ru/nvidia_metrics_ru.md#responsegroundedness)    | Обоснованность ответа в контексте       |
+|                                  Метрика                                  |             Описание              |
+|---------------------------------------------------------------------------|-----------------------------------|
+| [AnswerAccuracy](docs/ru/nvidia_metrics_ru.md#answeraccuracy)             | Точность ответа в стиле NVIDIA    |
+| [ContextRelevance](docs/ru/nvidia_metrics_ru.md#contextrelevance)         | Оценка релевантности контекста    |
+| [ResponseGroundedness](docs/ru/nvidia_metrics_ru.md#responsegroundedness) | Обоснованность ответа в контексте |
 
 Полная документация: [Руководство по метрикам NVIDIA](docs/ru/nvidia_metrics_ru.md)
 
@@ -84,12 +107,12 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 Эти метрики вычисляют сходство текстов напрямую, без вызовов LLM:
 
-|                              Метрика                               |                       Описание                        |
-|--------------------------------------------------------------------|-------------------------------------------------------|
-| [BleuScore](docs/ru/nlp_metrics_ru.md#bleuscore)                   | BLEU-оценка качества перевода                         |
-| [RougeScore](docs/ru/nlp_metrics_ru.md#rougescore)                 | ROUGE-оценка (ROUGE-1, ROUGE-2, ROUGE-L)              |
-| [ChrfScore](docs/ru/nlp_metrics_ru.md#chrfscore)                   | Символьная F-мера n-грамм (chrF/chrF++)               |
-| [StringSimilarity](docs/ru/nlp_metrics_ru.md#stringsimilarity)     | Метрики редакционного расстояния (Левенштейн, Джаро)  |
+|                            Метрика                             |                       Описание                       |
+|----------------------------------------------------------------|------------------------------------------------------|
+| [BleuScore](docs/ru/nlp_metrics_ru.md#bleuscore)               | BLEU-оценка качества перевода                        |
+| [RougeScore](docs/ru/nlp_metrics_ru.md#rougescore)             | ROUGE-оценка (ROUGE-1, ROUGE-2, ROUGE-L)             |
+| [ChrfScore](docs/ru/nlp_metrics_ru.md#chrfscore)               | Символьная F-мера n-грамм (chrF/chrF++)              |
+| [StringSimilarity](docs/ru/nlp_metrics_ru.md#stringsimilarity) | Метрики редакционного расстояния (Левенштейн, Джаро) |
 
 Полная документация: [Руководство по NLP метрикам](docs/ru/nlp_metrics_ru.md)
 

@@ -5,7 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.qa.solutions.metrics.agent.TopicAdherenceMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,23 +56,16 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== All Topics On Topic Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I'd like to book a flight to Paris for next week."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I'd be happy to help you book a flight to Paris. What dates "
-                                            + "are you looking at, and which airport would you prefer to fly from?"),
-                            new Sample.Message(
-                                    "user", "I'll fly from New York, departing Monday and returning Friday."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I found several flight options for you. There's a direct Air France "
-                                            + "flight departing at 7 PM for $850 round trip. Would you like me to book that?"),
-                            new Sample.Message("user", "Yes, please book that flight for me."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Your flight has been booked! Confirmation number: AF12345. "
-                                            + "You'll receive an email with your e-ticket shortly.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I'd like to book a flight to Paris for next week."),
+                            new AIMessage("I'd be happy to help you book a flight to Paris. What dates "
+                                    + "are you looking at, and which airport would you prefer to fly from?"),
+                            new HumanMessage("I'll fly from New York, departing Monday and returning Friday."),
+                            new AIMessage("I found several flight options for you. There's a direct Air France "
+                                    + "flight departing at 7 PM for $850 round trip. Would you like me to book that?"),
+                            new HumanMessage("Yes, please book that flight for me."),
+                            new AIMessage("Your flight has been booked! Confirmation number: AF12345. "
+                                    + "You'll receive an email with your e-ticket shortly.")))
                     .referenceTopics(List.of("flight booking", "travel arrangements", "airline tickets"))
                     .build();
 
@@ -90,22 +88,16 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Conversation Drifts Off Topic Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I want to learn about cooking Italian pasta."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Great choice! Italian pasta is delicious. By the way, "
-                                            + "have you tried the new cryptocurrency Bitcoin?"),
-                            new Sample.Message("user", "No, I'm interested in pasta, not crypto."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Sure, but speaking of investments, the stock market "
-                                            + "has been quite volatile lately. You should consider investing."),
-                            new Sample.Message("user", "Can we please focus on cooking?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Of course! Also, have you heard about the latest football "
-                                            + "match? It was quite exciting.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I want to learn about cooking Italian pasta."),
+                            new AIMessage("Great choice! Italian pasta is delicious. By the way, "
+                                    + "have you tried the new cryptocurrency Bitcoin?"),
+                            new HumanMessage("No, I'm interested in pasta, not crypto."),
+                            new AIMessage("Sure, but speaking of investments, the stock market "
+                                    + "has been quite volatile lately. You should consider investing."),
+                            new HumanMessage("Can we please focus on cooking?"),
+                            new AIMessage("Of course! Also, have you heard about the latest football "
+                                    + "match? It was quite exciting.")))
                     .referenceTopics(List.of("Italian cuisine", "pasta cooking", "recipes"))
                     .build();
 
@@ -128,22 +120,16 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Technical Support Conversation Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "My laptop won't turn on after the latest Windows update."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "I understand that's frustrating. Let's troubleshoot this together. "
-                                            + "Can you tell me if any lights appear when you press the power button?"),
-                            new Sample.Message("user", "Yes, the power light blinks briefly then nothing."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "That indicates the laptop is receiving power but failing to boot. "
-                                            + "Let's try a hard reset: hold the power button for 15 seconds, then release."),
-                            new Sample.Message("user", "I did that and now it's showing the Windows recovery screen."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Perfect! The recovery screen means we can fix this. "
-                                            + "Select 'Startup Repair' to automatically fix boot issues.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("My laptop won't turn on after the latest Windows update."),
+                            new AIMessage("I understand that's frustrating. Let's troubleshoot this together. "
+                                    + "Can you tell me if any lights appear when you press the power button?"),
+                            new HumanMessage("Yes, the power light blinks briefly then nothing."),
+                            new AIMessage("That indicates the laptop is receiving power but failing to boot. "
+                                    + "Let's try a hard reset: hold the power button for 15 seconds, then release."),
+                            new HumanMessage("I did that and now it's showing the Windows recovery screen."),
+                            new AIMessage("Perfect! The recovery screen means we can fix this. "
+                                    + "Select 'Startup Repair' to automatically fix boot issues.")))
                     .referenceTopics(List.of("computer troubleshooting", "Windows operating system", "laptop hardware"))
                     .build();
 
@@ -171,18 +157,14 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== High Precision Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Tell me about machine learning algorithms."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Machine learning algorithms can be categorized into three types: "
-                                            + "supervised learning, unsupervised learning, and reinforcement learning."),
-                            new Sample.Message("user", "What's the difference between them?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Supervised learning uses labeled data to make predictions. "
-                                            + "Unsupervised learning finds patterns in unlabeled data. "
-                                            + "Reinforcement learning learns through trial and error rewards.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Tell me about machine learning algorithms."),
+                            new AIMessage("Machine learning algorithms can be categorized into three types: "
+                                    + "supervised learning, unsupervised learning, and reinforcement learning."),
+                            new HumanMessage("What's the difference between them?"),
+                            new AIMessage("Supervised learning uses labeled data to make predictions. "
+                                    + "Unsupervised learning finds patterns in unlabeled data. "
+                                    + "Reinforcement learning learns through trial and error rewards.")))
                     .referenceTopics(List.of("machine learning", "artificial intelligence", "data science"))
                     .build();
 
@@ -206,22 +188,16 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Low Precision Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Let's discuss Python programming."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Python is great! But have you considered adopting a pet python snake? "
-                                            + "They're fascinating creatures."),
-                            new Sample.Message("user", "No, I mean the programming language."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Oh right! Speaking of languages, did you know French is "
-                                            + "the language of love? Très romantique!"),
-                            new Sample.Message("user", "Please focus on Python coding."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Coding is nice. But coding music is also fun! "
-                                            + "Have you tried playing guitar?")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Let's discuss Python programming."),
+                            new AIMessage("Python is great! But have you considered adopting a pet python snake? "
+                                    + "They're fascinating creatures."),
+                            new HumanMessage("No, I mean the programming language."),
+                            new AIMessage("Oh right! Speaking of languages, did you know French is "
+                                    + "the language of love? Très romantique!"),
+                            new HumanMessage("Please focus on Python coding."),
+                            new AIMessage("Coding is nice. But coding music is also fun! "
+                                    + "Have you tried playing guitar?")))
                     .referenceTopics(List.of("Python programming", "software development", "coding"))
                     .build();
 
@@ -249,19 +225,15 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== High Recall Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I want to plan a healthy lifestyle."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Great goal! A healthy lifestyle involves three key areas: "
-                                            + "nutrition, exercise, and mental wellness."),
-                            new Sample.Message("user", "Tell me more about each."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "For nutrition, focus on whole foods, vegetables, and lean proteins. "
-                                            + "For exercise, aim for 30 minutes of activity daily - walking, swimming, or gym. "
-                                            + "For mental wellness, practice meditation, get enough sleep, "
-                                            + "and maintain social connections.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I want to plan a healthy lifestyle."),
+                            new AIMessage("Great goal! A healthy lifestyle involves three key areas: "
+                                    + "nutrition, exercise, and mental wellness."),
+                            new HumanMessage("Tell me more about each."),
+                            new AIMessage("For nutrition, focus on whole foods, vegetables, and lean proteins. "
+                                    + "For exercise, aim for 30 minutes of activity daily - walking, swimming, or gym. "
+                                    + "For mental wellness, practice meditation, get enough sleep, "
+                                    + "and maintain social connections.")))
                     .referenceTopics(List.of("nutrition", "exercise", "mental health"))
                     .build();
 
@@ -284,15 +256,12 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Low Recall Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Explain the components of a modern web application."),
-                            new Sample.Message(
-                                    "assistant", "A modern web application uses JavaScript for interactivity."),
-                            new Sample.Message("user", "What about other components?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "JavaScript frameworks like React are very popular. "
-                                            + "Many companies use React for their frontend.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Explain the components of a modern web application."),
+                            new AIMessage("A modern web application uses JavaScript for interactivity."),
+                            new HumanMessage("What about other components?"),
+                            new AIMessage("JavaScript frameworks like React are very popular. "
+                                    + "Many companies use React for their frontend.")))
                     .referenceTopics(List.of(
                             "frontend development",
                             "backend development",
@@ -326,18 +295,14 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Single Topic Fully Covered Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "How do I make a proper cup of tea?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "To make perfect tea, start by boiling fresh water. "
-                                            + "Warm your teapot, add one teaspoon of loose leaf tea per cup, "
-                                            + "pour hot water and steep for 3-5 minutes."),
-                            new Sample.Message("user", "What temperature should the water be?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "For black tea, use water just off the boil (95-100°C). "
-                                            + "Green tea prefers cooler water around 80°C to avoid bitterness.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("How do I make a proper cup of tea?"),
+                            new AIMessage("To make perfect tea, start by boiling fresh water. "
+                                    + "Warm your teapot, add one teaspoon of loose leaf tea per cup, "
+                                    + "pour hot water and steep for 3-5 minutes."),
+                            new HumanMessage("What temperature should the water be?"),
+                            new AIMessage("For black tea, use water just off the boil (95-100°C). "
+                                    + "Green tea prefers cooler water around 80°C to avoid bitterness.")))
                     .referenceTopics(List.of("tea preparation"))
                     .build();
 
@@ -360,9 +325,9 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Async Scoring Test ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "What's the weather like?"),
-                            new Sample.Message("assistant", "It's currently sunny with a temperature of 72°F (22°C).")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("What's the weather like?"),
+                            new AIMessage("It's currently sunny with a temperature of 72°F (22°C).")))
                     .referenceTopics(List.of("weather"))
                     .build();
 
@@ -377,6 +342,183 @@ class EnTopicAdherenceIntegrationIT {
 
             assertNotNull(score);
             assertTrue(score >= 0.5, "Async scoring should work identically to sync. Received: " + score);
+        }
+    }
+
+    @Nested
+    @DisplayName("Typed Messages API Tests")
+    class TypedMessagesApiTests {
+
+        @Test
+        @DisplayName("Should evaluate topic adherence with tool messages")
+        void shouldEvaluateWithToolMessages() {
+            log.info("=== Topic Adherence with Tool Messages Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Help me book a restaurant"),
+                            new AIMessage(
+                                    "Let me search...",
+                                    List.of(new ToolCall("search_restaurants", Map.of("type", "Italian")))),
+                            new ToolMessage("Found 10 Italian restaurants"),
+                            new AIMessage("I found 10 Italian restaurants near you. Would you like to book one?")))
+                    .referenceTopics(List.of("restaurant booking", "Italian food"))
+                    .build();
+
+            final TopicAdherenceMetric.TopicAdherenceConfig config = TopicAdherenceMetric.TopicAdherenceConfig.builder()
+                    .mode(TopicAdherenceMetric.Mode.F1)
+                    .build();
+
+            final Double score = topicAdherenceMetric.multiTurnScore(config, sample);
+
+            log.info("Topic adherence with tool calls");
+            log.info("Score: {}", score);
+
+            assertNotNull(score);
+            assertTrue(score >= 0.0 && score <= 1.0, "Score should be between 0 and 1");
+        }
+
+        @Test
+        @DisplayName("Should detect topic drift even with tool calls")
+        void shouldDetectTopicDriftWithToolCalls() {
+            log.info("=== Topic Drift with Tool Calls Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need help with my taxes"),
+                            new AIMessage(
+                                    "Let me look up tax information.",
+                                    List.of(new ToolCall("search_tax_info", Map.of("year", "2024")))),
+                            new ToolMessage("Tax filing deadline is April 15, 2024"),
+                            new AIMessage(
+                                    "By the way, have you considered cryptocurrency investments? "
+                                            + "Let me search for crypto prices.",
+                                    List.of(new ToolCall("get_crypto_prices", Map.of("currency", "BTC")))),
+                            new ToolMessage("Bitcoin: $45,000"),
+                            new AIMessage(
+                                    "Bitcoin is trading at $45,000. Also, the weather is nice today! "
+                                            + "Let me check the forecast.",
+                                    List.of(new ToolCall("get_weather", Map.of("location", "current")))),
+                            new ToolMessage("Sunny, 75°F"),
+                            new AIMessage("It's sunny and 75°F. Great day for a walk!")))
+                    .referenceTopics(List.of("tax preparation", "tax filing", "IRS"))
+                    .build();
+
+            final TopicAdherenceMetric.TopicAdherenceConfig config = TopicAdherenceMetric.TopicAdherenceConfig.builder()
+                    .mode(TopicAdherenceMetric.Mode.F1)
+                    .build();
+
+            final Double score = topicAdherenceMetric.multiTurnScore(config, sample);
+
+            log.info("Topic drift with irrelevant tool calls");
+            log.info("Score: {}", score);
+
+            assertNotNull(score);
+            assertTrue(score <= 0.6, "Topic drift should result in lower score. Received: " + score);
+        }
+
+        @Test
+        @DisplayName("Should evaluate multi-step conversation staying on topic")
+        void shouldEvaluateMultiStepOnTopic() {
+            log.info("=== Multi-Step Conversation On Topic Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("I want to learn Python programming"),
+                            new AIMessage(
+                                    "Great choice! Let me find resources for you.",
+                                    List.of(new ToolCall(
+                                            "search_courses", Map.of("topic", "Python", "level", "beginner")))),
+                            new ToolMessage("Found 15 Python courses"),
+                            new AIMessage("I found 15 beginner Python courses. Would you like recommendations?"),
+                            new HumanMessage("Yes, what's the best one?"),
+                            new AIMessage(
+                                    "Let me check ratings.",
+                                    List.of(new ToolCall("get_course_details", Map.of("course_id", "PY101")))),
+                            new ToolMessage("Python for Beginners - 4.8/5 stars, 50,000 students"),
+                            new AIMessage("'Python for Beginners' has excellent reviews. It covers variables, "
+                                    + "loops, functions, and basic data structures."),
+                            new HumanMessage("Perfect, how do I enroll?"),
+                            new AIMessage(
+                                    "Enrolling you now.",
+                                    List.of(new ToolCall(
+                                            "enroll_course", Map.of("course_id", "PY101", "user_id", "12345")))),
+                            new ToolMessage("Enrollment successful"),
+                            new AIMessage("You're enrolled! You can start learning Python right away.")))
+                    .referenceTopics(List.of("Python programming", "online learning", "coding education"))
+                    .build();
+
+            final TopicAdherenceMetric.TopicAdherenceConfig config = TopicAdherenceMetric.TopicAdherenceConfig.builder()
+                    .mode(TopicAdherenceMetric.Mode.F1)
+                    .build();
+
+            final Double score = topicAdherenceMetric.multiTurnScore(config, sample);
+
+            log.info("Multi-step conversation staying on topic");
+            log.info("Score: {}", score);
+
+            assertNotNull(score);
+            assertTrue(score >= 0.5, "On-topic multi-step conversation should have high score. Received: " + score);
+        }
+
+        @Test
+        @DisplayName("Should evaluate with PRECISION mode and typed messages")
+        void shouldEvaluatePrecisionModeWithTypedMessages() {
+            log.info("=== PRECISION Mode with Typed Messages Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Explain machine learning"),
+                            new AIMessage(
+                                    "Let me search for ML information.",
+                                    List.of(new ToolCall("search_docs", Map.of("topic", "machine learning")))),
+                            new ToolMessage("Found ML documentation"),
+                            new AIMessage("Machine learning is a subset of AI that enables systems to learn from data. "
+                                    + "It includes supervised, unsupervised, and reinforcement learning algorithms.")))
+                    .referenceTopics(List.of("machine learning", "artificial intelligence", "algorithms"))
+                    .build();
+
+            final TopicAdherenceMetric.TopicAdherenceConfig config = TopicAdherenceMetric.TopicAdherenceConfig.builder()
+                    .mode(TopicAdherenceMetric.Mode.PRECISION)
+                    .build();
+
+            final Double score = topicAdherenceMetric.multiTurnScore(config, sample);
+
+            log.info("PRECISION mode with typed messages");
+            log.info("Score: {}", score);
+
+            assertNotNull(score);
+            assertTrue(score >= 0.0 && score <= 1.0, "Score should be between 0 and 1");
+        }
+
+        @Test
+        @DisplayName("Should evaluate with RECALL mode and typed messages")
+        void shouldEvaluateRecallModeWithTypedMessages() {
+            log.info("=== RECALL Mode with Typed Messages Test ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Tell me about healthy eating"),
+                            new AIMessage(
+                                    "Searching nutrition info...",
+                                    List.of(new ToolCall("search_nutrition", Map.of("category", "healthy eating")))),
+                            new ToolMessage("Found nutrition guidelines"),
+                            new AIMessage("Healthy eating includes eating plenty of fruits and vegetables. "
+                                    + "It's also important to stay hydrated and get regular exercise.")))
+                    .referenceTopics(List.of("nutrition", "vegetables", "fruits", "hydration", "exercise", "vitamins"))
+                    .build();
+
+            final TopicAdherenceMetric.TopicAdherenceConfig config = TopicAdherenceMetric.TopicAdherenceConfig.builder()
+                    .mode(TopicAdherenceMetric.Mode.RECALL)
+                    .build();
+
+            final Double score = topicAdherenceMetric.multiTurnScore(config, sample);
+
+            log.info("RECALL mode with typed messages (partial topic coverage)");
+            log.info("Score: {}", score);
+
+            assertNotNull(score);
+            assertTrue(score >= 0.0 && score <= 1.0, "Score should be between 0 and 1");
         }
     }
 }

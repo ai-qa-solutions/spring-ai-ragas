@@ -11,8 +11,13 @@ import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
 import ai.qa.solutions.execution.listener.dto.StepContext;
 import ai.qa.solutions.execution.listener.dto.StepResults;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,7 +131,7 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of())
+                    .userInputMessages(List.of())
                     .reference("Expected goal")
                     .build();
 
@@ -153,9 +158,9 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Book a flight to Paris"),
-                            new Sample.Message("assistant", "I've booked your flight to Paris for tomorrow.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Book a flight to Paris"),
+                            new AIMessage("I've booked your flight to Paris for tomorrow.")))
                     .reference("Book a flight to Paris")
                     .build();
 
@@ -179,9 +184,9 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Book a flight to Paris"),
-                            new Sample.Message("assistant", "I'm sorry, I cannot book flights.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Book a flight to Paris"),
+                            new AIMessage("I'm sorry, I cannot book flights.")))
                     .reference("Book a flight to Paris")
                     .build();
 
@@ -211,9 +216,8 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Book a flight to Paris"),
-                            new Sample.Message("assistant", "I've booked your flight.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Book a flight to Paris"), new AIMessage("I've booked your flight.")))
                     .build();
 
             final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
@@ -247,9 +251,9 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "I need to book a flight to Paris for next week"),
-                            new Sample.Message("assistant", "I've booked you a flight to Paris departing Monday.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("I need to book a flight to Paris for next week"),
+                            new AIMessage("I've booked you a flight to Paris departing Monday.")))
                     .build();
 
             final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
@@ -277,9 +281,9 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Book a flight to Paris"),
-                            new Sample.Message("assistant", "I'm unable to access the booking system right now.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Book a flight to Paris"),
+                            new AIMessage("I'm unable to access the booking system right now.")))
                     .build();
 
             final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
@@ -307,7 +311,7 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Help me"), new Sample.Message("assistant", "Done")))
+                    .userInputMessages(List.of(new HumanMessage("Help me"), new AIMessage("Done")))
                     .reference("Help the user")
                     .build();
 
@@ -340,7 +344,7 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Task"), new Sample.Message("assistant", "Done")))
+                    .userInputMessages(List.of(new HumanMessage("Task"), new AIMessage("Done")))
                     .reference("Complete task")
                     .build();
 
@@ -366,7 +370,7 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Task"), new Sample.Message("assistant", "Done")))
+                    .userInputMessages(List.of(new HumanMessage("Task"), new AIMessage("Done")))
                     .reference("Complete task")
                     .build();
 
@@ -386,7 +390,7 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Task"), new Sample.Message("assistant", "Done")))
+                    .userInputMessages(List.of(new HumanMessage("Task"), new AIMessage("Done")))
                     .build();
 
             final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
@@ -448,7 +452,7 @@ class AgentGoalAccuracyMetricTest {
                     AgentGoalAccuracyMetric.builder().executor(executor).build().withListeners(List.of(listener));
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(new Sample.Message("user", "Task"), new Sample.Message("assistant", "Done")))
+                    .userInputMessages(List.of(new HumanMessage("Task"), new AIMessage("Done")))
                     .reference("Complete task")
                     .build();
 
@@ -478,18 +482,120 @@ class AgentGoalAccuracyMetricTest {
             metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("system", "You are a helpful assistant"),
-                            new Sample.Message("user", "Hello"),
-                            new Sample.Message("assistant", "Hi, how can I help?"),
-                            new Sample.Message("user", "Book a flight"),
-                            new Sample.Message("assistant", "Flight booked!")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("You are a helpful assistant"),
+                            new HumanMessage("Hello"),
+                            new AIMessage("Hi, how can I help?"),
+                            new HumanMessage("Book a flight"),
+                            new AIMessage("Flight booked!")))
                     .reference("Book a flight")
                     .build();
 
             final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder().build();
 
+            final Double score = metric.singleTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Typed Messages Tests")
+    class TypedMessagesTests {
+
+        @Test
+        @DisplayName("Should accept HumanMessage and AIMessage")
+        void shouldAcceptHumanAndAIMessages() {
+            executor = executor.withResponseProvider(
+                    AgentGoalAccuracyMetric.GoalComparisonResponse.class,
+                    prompt -> new AgentGoalAccuracyMetric.GoalComparisonResponse(true, "Goal achieved"));
+
+            metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Book a flight to Paris"),
+                            new AIMessage("I've booked your flight to Paris.")))
+                    .reference("Book a flight to Paris")
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder().build();
+
+            final Double score = metric.multiTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("Should extract tool calls from AIMessage")
+        void shouldExtractToolCallsFromAIMessages() {
+            executor = executor.withResponseProvider(
+                    AgentGoalAccuracyMetric.GoalComparisonResponse.class,
+                    prompt -> new AgentGoalAccuracyMetric.GoalComparisonResponse(true, "Goal achieved"));
+
+            metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("What's the weather in Paris?"),
+                            new AIMessage(
+                                    "Let me check the weather for you.",
+                                    List.of(new ToolCall("get_weather", Map.of("location", "Paris")))),
+                            new ToolMessage("Weather: Sunny, 22°C"),
+                            new AIMessage("The weather in Paris is sunny with 22°C.")))
+                    .reference("Provide weather information")
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder().build();
+
+            final Double score = metric.multiTurnScore(config, sample);
+
+            assertThat(score).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("multiTurnScore should delegate correctly")
+        void multiTurnScoreShouldDelegateCorrectly() {
+            executor = executor.withResponseProvider(
+                    AgentGoalAccuracyMetric.GoalComparisonResponse.class,
+                    prompt -> new AgentGoalAccuracyMetric.GoalComparisonResponse(true, "Goal achieved"));
+
+            metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(new HumanMessage("Help me"), new AIMessage("Done")))
+                    .reference("Help the user")
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder().build();
+
+            final Double multiTurnScore = metric.multiTurnScore(config, sample);
+
+            assertThat(multiTurnScore).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("singleTurnScore should still work for backward compatibility")
+        void singleTurnScoreShouldStillWork() {
+            executor = executor.withResponseProvider(
+                    AgentGoalAccuracyMetric.GoalComparisonResponse.class,
+                    prompt -> new AgentGoalAccuracyMetric.GoalComparisonResponse(true, "Goal achieved"));
+
+            metric = AgentGoalAccuracyMetric.builder().executor(executor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(new HumanMessage("Book a flight"), new AIMessage("Flight booked!")))
+                    .reference("Book a flight")
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder().build();
+
+            // Legacy API should still work
             final Double score = metric.singleTurnScore(config, sample);
 
             assertThat(score).isEqualTo(1.0);

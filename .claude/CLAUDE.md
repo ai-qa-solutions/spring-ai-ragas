@@ -147,6 +147,47 @@ AllureNlpMetricHelper.attachBleuScore(score, response, reference, maxNgram, smoo
 - `ToolCallAccuracyMetric` - Correctness of tool/function calls
 - `TopicAdherenceMetric` - Staying on topic during conversation
 
+### Multi-turn Message Types
+
+Agent metrics use a sealed interface hierarchy for type-safe multi-turn conversations:
+
+```java
+public sealed interface BaseMessage permits HumanMessage, AIMessage, ToolMessage {
+    String content();
+}
+
+// Usage with pattern matching
+String formatted = switch (message) {
+    case HumanMessage h -> "[USER]: " + h.content();
+    case AIMessage a -> "[ASSISTANT]: " + a.content() + formatToolCalls(a.toolCalls());
+    case ToolMessage t -> "[TOOL]: " + t.content();
+};
+```
+
+**Message types:**
+- `HumanMessage(String content)` - User message
+- `AIMessage(String content, List<ToolCall> toolCalls)` - Assistant response with optional tool calls
+- `ToolMessage(String content)` - Tool execution result
+- `ToolCall(String name, Map<String, Object> arguments)` - Tool invocation
+
+**Multi-turn API:**
+
+```java
+Sample sample = Sample.builder()
+    .userInputMessages(List.of(
+        new HumanMessage("Book a flight"),
+        new AIMessage("Searching...", List.of(new ToolCall("search", Map.of()))),
+        new ToolMessage("Found 5 flights"),
+        new AIMessage("I found 5 options.")
+    ))
+    .build();
+
+// Use multiTurnScore for agent metrics
+Double score = metric.multiTurnScore(config, sample);
+```
+
+**Message types:** `HumanMessage`, `AIMessage`, `ToolMessage` from `ai.qa.solutions.sample.message` package
+
 ### Response Metrics
 
 - `AnswerCorrectnessMetric` - Overall answer correctness

@@ -52,31 +52,54 @@ Full documentation: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 
 ### Agent Metrics
 
-|                                  Metric                                  |                Description                |
-|--------------------------------------------------------------------------|-------------------------------------------|
-| [AgentGoalAccuracy](docs/en/agent_metrics_en.md#agentgoalaccuracy)       | Whether agent achieved its intended goal  |
-| [ToolCallAccuracy](docs/en/agent_metrics_en.md#toolcallaccuracy)         | Correctness of tool/function calls        |
-| [TopicAdherence](docs/en/agent_metrics_en.md#topicadherence)             | Staying on topic during conversation      |
+|                               Metric                               |               Description                |
+|--------------------------------------------------------------------|------------------------------------------|
+| [AgentGoalAccuracy](docs/en/agent_metrics_en.md#agentgoalaccuracy) | Whether agent achieved its intended goal |
+| [ToolCallAccuracy](docs/en/agent_metrics_en.md#toolcallaccuracy)   | Correctness of tool/function calls       |
+| [TopicAdherence](docs/en/agent_metrics_en.md#topicadherence)       | Staying on topic during conversation     |
+
+Agent metrics support typed message classes for multi-turn conversations:
+
+```java
+import ai.qa.solutions.sample.message.*;
+
+Sample sample = Sample.builder()
+        .userInputMessages(List.of(
+                new HumanMessage("Book a flight to NYC"),
+                new AIMessage("Searching flights...", List.of(
+                        new ToolCall("search_flights", Map.of("destination", "NYC"))
+                )),
+                new ToolMessage("Found 5 flights"),
+                new AIMessage("I found 5 options. Flight UA123 departs at 9am.")
+        ))
+        .referenceToolCalls(List.of(
+                new ToolCall("search_flights", Map.of("destination", "NYC"))
+        ))
+        .reference("Flight booked to NYC")
+        .build();
+
+Double score = agentGoalAccuracy.multiTurnScore(config, sample);
+```
 
 Full documentation: [Agent Metrics Guide](docs/en/agent_metrics_en.md)
 
 ### Response Metrics
 
-|                                    Metric                                    |                  Description                   |
-|------------------------------------------------------------------------------|------------------------------------------------|
-| [AnswerCorrectness](docs/en/response_metrics_en.md#answercorrectness)        | Overall answer correctness                     |
-| [FactualCorrectness](docs/en/response_metrics_en.md#factualcorrectness)      | Factual accuracy of statements                 |
-| [SemanticSimilarity](docs/en/response_metrics_en.md#semanticsimilarity)      | Embedding-based similarity (requires EmbeddingModel) |
+|                                 Metric                                  |                     Description                      |
+|-------------------------------------------------------------------------|------------------------------------------------------|
+| [AnswerCorrectness](docs/en/response_metrics_en.md#answercorrectness)   | Overall answer correctness                           |
+| [FactualCorrectness](docs/en/response_metrics_en.md#factualcorrectness) | Factual accuracy of statements                       |
+| [SemanticSimilarity](docs/en/response_metrics_en.md#semanticsimilarity) | Embedding-based similarity (requires EmbeddingModel) |
 
 Full documentation: [Response Metrics Guide](docs/en/response_metrics_en.md)
 
 ### NVIDIA Metrics
 
-|                                   Metric                                    |              Description               |
-|-----------------------------------------------------------------------------|----------------------------------------|
-| [AnswerAccuracy](docs/en/nvidia_metrics_en.md#answeraccuracy)               | NVIDIA-style answer accuracy           |
-| [ContextRelevance](docs/en/nvidia_metrics_en.md#contextrelevance)           | Context relevance scoring              |
-| [ResponseGroundedness](docs/en/nvidia_metrics_en.md#responsegroundedness)   | Response grounding in context          |
+|                                  Metric                                   |          Description          |
+|---------------------------------------------------------------------------|-------------------------------|
+| [AnswerAccuracy](docs/en/nvidia_metrics_en.md#answeraccuracy)             | NVIDIA-style answer accuracy  |
+| [ContextRelevance](docs/en/nvidia_metrics_en.md#contextrelevance)         | Context relevance scoring     |
+| [ResponseGroundedness](docs/en/nvidia_metrics_en.md#responsegroundedness) | Response grounding in context |
 
 Full documentation: [NVIDIA Metrics Guide](docs/en/nvidia_metrics_en.md)
 
@@ -84,12 +107,12 @@ Full documentation: [NVIDIA Metrics Guide](docs/en/nvidia_metrics_en.md)
 
 These metrics compute text similarity directly without LLM calls:
 
-|                              Metric                               |                     Description                      |
-|-------------------------------------------------------------------|------------------------------------------------------|
-| [BleuScore](docs/en/nlp_metrics_en.md#bleuscore)                  | BLEU score for translation quality                   |
-| [RougeScore](docs/en/nlp_metrics_en.md#rougescore)                | ROUGE score (ROUGE-1, ROUGE-2, ROUGE-L)              |
-| [ChrfScore](docs/en/nlp_metrics_en.md#chrfscore)                  | Character n-gram F-score (chrF/chrF++)               |
-| [StringSimilarity](docs/en/nlp_metrics_en.md#stringsimilarity)    | Edit distance metrics (Levenshtein, Jaro, Jaro-Winkler) |
+|                             Metric                             |                       Description                       |
+|----------------------------------------------------------------|---------------------------------------------------------|
+| [BleuScore](docs/en/nlp_metrics_en.md#bleuscore)               | BLEU score for translation quality                      |
+| [RougeScore](docs/en/nlp_metrics_en.md#rougescore)             | ROUGE score (ROUGE-1, ROUGE-2, ROUGE-L)                 |
+| [ChrfScore](docs/en/nlp_metrics_en.md#chrfscore)               | Character n-gram F-score (chrF/chrF++)                  |
+| [StringSimilarity](docs/en/nlp_metrics_en.md#stringsimilarity) | Edit distance metrics (Levenshtein, Jaro, Jaro-Winkler) |
 
 Full documentation: [NLP Metrics Guide](docs/en/nlp_metrics_en.md)
 

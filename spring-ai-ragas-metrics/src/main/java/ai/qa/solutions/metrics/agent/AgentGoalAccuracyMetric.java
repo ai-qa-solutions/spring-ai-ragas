@@ -5,8 +5,9 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
-import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.AbstractMultiTurnMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.BaseMessage;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
 import java.time.Instant;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -40,7 +40,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * </ul>
  */
 @Slf4j
-public class AgentGoalAccuracyMetric extends AbstractMultiModelMetric<AgentGoalAccuracyMetric.AgentGoalAccuracyConfig> {
+public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAccuracyMetric.AgentGoalAccuracyConfig> {
 
     public static final String DEFAULT_INFER_GOAL_PROMPT =
             """
@@ -116,18 +116,19 @@ public class AgentGoalAccuracyMetric extends AbstractMultiModelMetric<AgentGoalA
     }
 
     @Override
-    public Double singleTurnScore(final AgentGoalAccuracyConfig config, final Sample sample) {
-        return singleTurnScoreAsync(config, sample).join();
+    public Double multiTurnScore(final AgentGoalAccuracyConfig config, final Sample sample) {
+        return multiTurnScoreAsync(config, sample).join();
     }
 
     @Override
-    public CompletableFuture<Double> singleTurnScoreAsync(final AgentGoalAccuracyConfig config, final Sample sample) {
+    public CompletableFuture<Double> multiTurnScoreAsync(final AgentGoalAccuracyConfig config, final Sample sample) {
         final Instant startTime = Instant.now();
         final List<String> modelIds =
                 config.models != null && !config.models.isEmpty() ? config.models : executor.getModelIds();
 
         // Validate input
-        if (sample.getMessages() == null || sample.getMessages().isEmpty()) {
+        final List<BaseMessage> conversationMessages = sample.getUserInputMessages();
+        if (conversationMessages == null || conversationMessages.isEmpty()) {
             log.warn("No messages provided for Agent Goal Accuracy evaluation");
             return CompletableFuture.completedFuture(null);
         }
@@ -146,7 +147,7 @@ public class AgentGoalAccuracyMetric extends AbstractMultiModelMetric<AgentGoalA
                 .build());
 
         return executor.runAsync(() -> {
-            final String conversation = formatConversation(sample.getMessages());
+            final String conversation = formatConversation(conversationMessages);
 
             if (mode == Mode.WITH_REFERENCE) {
                 return evaluateWithReference(config, sample, conversation, modelIds, notifier, startTime);
@@ -301,12 +302,6 @@ public class AgentGoalAccuracyMetric extends AbstractMultiModelMetric<AgentGoalA
                 .build());
 
         return aggregatedScore;
-    }
-
-    private String formatConversation(final List<Sample.Message> messages) {
-        return messages.stream()
-                .map(m -> String.format("[%s]: %s", m.role().toUpperCase(), m.content()))
-                .collect(Collectors.joining("\n"));
     }
 
     private String renderInferGoalPrompt(final String conversation) {

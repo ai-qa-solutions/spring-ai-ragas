@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.qa.solutions.metrics.agent.TopicAdherenceMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -51,23 +53,16 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: все темы по теме ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message(
-                                    "user", "Хочу забронировать авиабилеты в Санкт-Петербург на следующую неделю."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "С удовольствием помогу вам забронировать билеты. "
-                                            + "Какие даты вас интересуют и из какого города вы планируете вылетать?"),
-                            new Sample.Message("user", "Вылечу из Москвы в понедельник, вернусь в пятницу."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Нашёл несколько вариантов. Есть прямой рейс Аэрофлота в 19:00 "
-                                            + "за 8500 рублей туда-обратно. Оформить бронирование?"),
-                            new Sample.Message("user", "Да, пожалуйста, забронируйте этот рейс."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Ваш рейс забронирован! Номер подтверждения: SU12345. "
-                                            + "Электронный билет придёт на вашу почту.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Хочу забронировать билет на самолёт в Париж на следующую неделю."),
+                            new AIMessage("С удовольствием помогу вам забронировать билеты. "
+                                    + "Какие даты вас интересуют и из какого города вы планируете вылетать?"),
+                            new HumanMessage("Вылечу из Москвы в понедельник, вернусь в пятницу."),
+                            new AIMessage("Нашёл несколько вариантов. Есть прямой рейс Аэрофлота в 19:00 "
+                                    + "за 8500 рублей туда-обратно. Оформить бронирование?"),
+                            new HumanMessage("Да, пожалуйста, забронируйте этот рейс."),
+                            new AIMessage("Ваш рейс забронирован! Номер подтверждения: SU12345. "
+                                    + "Электронный билет придёт на вашу почту.")))
                     .referenceTopics(List.of("бронирование авиабилетов", "путешествия", "авиаперевозки"))
                     .build();
 
@@ -90,22 +85,16 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: разговор уходит от темы ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Хочу научиться готовить борщ."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Отличный выбор! Борщ — классика русской кухни. Кстати, "
-                                            + "вы слышали о криптовалюте Bitcoin?"),
-                            new Sample.Message("user", "Нет, меня интересует только борщ."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Понятно, но если говорить об инвестициях, "
-                                            + "фондовый рынок сейчас очень волатильный."),
-                            new Sample.Message("user", "Давайте вернёмся к рецепту борща."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Конечно! А ещё смотрели вчерашний футбольный матч? "
-                                            + "Спартак играл потрясающе!")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Хочу научиться готовить борщ."),
+                            new AIMessage("Отличный выбор! Борщ — классика русской кухни. Кстати, "
+                                    + "вы слышали о криптовалюте Bitcoin?"),
+                            new HumanMessage("Нет, меня интересует только борщ."),
+                            new AIMessage("Понятно, но если говорить об инвестициях, "
+                                    + "фондовый рынок сейчас очень волатильный."),
+                            new HumanMessage("Давайте вернёмся к рецепту борща."),
+                            new AIMessage("Конечно! А ещё смотрели вчерашний футбольный матч? "
+                                    + "Спартак играл потрясающе!")))
                     .referenceTopics(List.of("русская кухня", "приготовление супов", "рецепты"))
                     .build();
 
@@ -128,22 +117,16 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: техническая поддержка ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Мой ноутбук не включается после обновления Windows."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Понимаю, это неприятно. Давайте разберёмся вместе. "
-                                            + "Горят ли какие-нибудь индикаторы при нажатии кнопки питания?"),
-                            new Sample.Message("user", "Да, индикатор питания мигает и гаснет."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Это указывает на получение питания, но сбой загрузки. "
-                                            + "Попробуйте принудительную перезагрузку: удерживайте кнопку питания 15 секунд."),
-                            new Sample.Message("user", "Сделал! Теперь вижу экран восстановления Windows."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Отлично! Экран восстановления означает, что проблему можно решить. "
-                                            + "Выберите 'Восстановление при загрузке'.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Мой ноутбук не включается после обновления Windows."),
+                            new AIMessage("Понимаю, это неприятно. Давайте разберёмся вместе. "
+                                    + "Горят ли какие-нибудь индикаторы при нажатии кнопки питания?"),
+                            new HumanMessage("Да, индикатор питания мигает и гаснет."),
+                            new AIMessage("Это указывает на получение питания, но сбой загрузки. "
+                                    + "Попробуйте принудительную перезагрузку: удерживайте кнопку питания 15 секунд."),
+                            new HumanMessage("Сделал! Теперь вижу экран восстановления Windows."),
+                            new AIMessage("Отлично! Экран восстановления означает, что проблему можно решить. "
+                                    + "Выберите 'Восстановление при загрузке'.")))
                     .referenceTopics(
                             List.of("диагностика компьютера", "операционная система Windows", "оборудование ноутбука"))
                     .build();
@@ -172,18 +155,14 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: высокая точность ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Расскажите про алгоритмы машинного обучения."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Алгоритмы машинного обучения делятся на три категории: "
-                                            + "обучение с учителем, без учителя и обучение с подкреплением."),
-                            new Sample.Message("user", "В чём разница между ними?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Обучение с учителем использует размеченные данные для предсказаний. "
-                                            + "Обучение без учителя находит закономерности в неразмеченных данных. "
-                                            + "Обучение с подкреплением учится через систему наград и штрафов.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Расскажите про алгоритмы машинного обучения."),
+                            new AIMessage("Алгоритмы машинного обучения делятся на три категории: "
+                                    + "обучение с учителем, без учителя и обучение с подкреплением."),
+                            new HumanMessage("В чём разница между ними?"),
+                            new AIMessage("Обучение с учителем использует размеченные данные для предсказаний. "
+                                    + "Обучение без учителя находит закономерности в неразмеченных данных. "
+                                    + "Обучение с подкреплением учится через систему наград и штрафов.")))
                     .referenceTopics(List.of("машинное обучение", "искусственный интеллект", "наука о данных"))
                     .build();
 
@@ -207,18 +186,15 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: низкая точность ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Давайте поговорим о программировании на Python."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Python отличный! Но вы задумывались о том, чтобы завести питона-змею? "
-                                            + "Это очень интересные животные."),
-                            new Sample.Message("user", "Нет, я имел в виду язык программирования."),
-                            new Sample.Message(
-                                    "assistant", "Ах да, языки! Кстати, французский — язык любви. Très romantique!"),
-                            new Sample.Message("user", "Пожалуйста, давайте про Python-код."),
-                            new Sample.Message(
-                                    "assistant",
+                    .userInputMessages(List.of(
+                            new HumanMessage("Давайте поговорим о программировании на Python."),
+                            new AIMessage("Python отличный! Но вы задумывались о том, чтобы завести питона-змею? "
+                                    + "Это очень интересные животные."),
+                            new HumanMessage("Нет, я имел в виду язык программирования."),
+                            new AIMessage("О, верно! Кстати о языках, знаете ли вы, что французский — язык любви? "
+                                    + "Très romantique!"),
+                            new HumanMessage("Пожалуйста, давайте про Python-код."),
+                            new AIMessage(
                                     "Код — это здорово. А музыкальный код тоже! " + "Вы пробовали играть на гитаре?")))
                     .referenceTopics(List.of("программирование на Python", "разработка ПО", "кодирование"))
                     .build();
@@ -247,15 +223,12 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: высокая полнота ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Хочу планировать здоровый образ жизни."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Отличная цель! Здоровый образ жизни включает три ключевых области: "
-                                            + "питание, физическую активность и психическое здоровье."),
-                            new Sample.Message("user", "Расскажите подробнее о каждой."),
-                            new Sample.Message(
-                                    "assistant",
+                    .userInputMessages(List.of(
+                            new HumanMessage("Хочу планировать здоровый образ жизни."),
+                            new AIMessage("Отличная цель! Здоровый образ жизни включает три ключевых области: "
+                                    + "питание, физическую активность и психическое здоровье."),
+                            new HumanMessage("Расскажите подробнее о каждой."),
+                            new AIMessage(
                                     "В питании сосредоточьтесь на натуральных продуктах, овощах и нежирном белке. "
                                             + "Для физической активности старайтесь уделять 30 минут в день — ходьба, плавание или спортзал. "
                                             + "Для психического здоровья практикуйте медитацию, высыпайтесь "
@@ -282,16 +255,12 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: низкая полнота ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Объясните компоненты современного веб-приложения."),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Современное веб-приложение использует JavaScript для интерактивности."),
-                            new Sample.Message("user", "А что насчёт других компонентов?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "JavaScript-фреймворки вроде React очень популярны. "
-                                            + "Многие компании используют React для фронтенда.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Объясните компоненты современного веб-приложения."),
+                            new AIMessage("Современное веб-приложение использует JavaScript для интерактивности."),
+                            new HumanMessage("А что насчёт других компонентов?"),
+                            new AIMessage("JavaScript-фреймворки вроде React очень популярны. "
+                                    + "Многие компании используют React для фронтенда.")))
                     .referenceTopics(List.of(
                             "фронтенд-разработка",
                             "бэкенд-разработка",
@@ -327,19 +296,15 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: единственная тема полностью покрыта ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Как правильно заваривать чай?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Для идеального чая вскипятите свежую воду. "
-                                            + "Прогрейте чайник, добавьте одну чайную ложку чая на чашку, "
-                                            + "залейте горячей водой и настаивайте 3-5 минут."),
-                            new Sample.Message("user", "Какой температуры должна быть вода?"),
-                            new Sample.Message(
-                                    "assistant",
-                                    "Для чёрного чая используйте воду около 95-100°C. "
-                                            + "Зелёный чай предпочитает более прохладную воду около 80°C, "
-                                            + "чтобы избежать горечи.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Как правильно заваривать чай?"),
+                            new AIMessage("Для идеального чая вскипятите свежую воду. "
+                                    + "Прогрейте чайник, добавьте одну чайную ложку чая на чашку, "
+                                    + "залейте горячей водой и настаивайте 3-5 минут."),
+                            new HumanMessage("Какой температуры должна быть вода?"),
+                            new AIMessage("Для чёрного чая используйте воду около 95-100°C. "
+                                    + "Зелёный чай предпочитает более прохладную воду около 80°C, "
+                                    + "чтобы избежать горечи.")))
                     .referenceTopics(List.of("приготовление чая"))
                     .build();
 
@@ -364,9 +329,9 @@ class RuTopicAdherenceIntegrationIT {
             log.info("=== Тест: асинхронная оценка ===");
 
             final Sample sample = Sample.builder()
-                    .messages(List.of(
-                            new Sample.Message("user", "Какая сегодня погода?"),
-                            new Sample.Message("assistant", "Сейчас солнечно, температура +22°C.")))
+                    .userInputMessages(List.of(
+                            new HumanMessage("Какая сегодня погода?"),
+                            new AIMessage("Сейчас солнечно, температура +22°C.")))
                     .referenceTopics(List.of("погода"))
                     .build();
 

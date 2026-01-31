@@ -3,7 +3,7 @@ package ai.qa.solutions.metrics.agent;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
-import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.AbstractMultiTurnMetric;
 import ai.qa.solutions.sample.Sample;
 import java.time.Duration;
 import java.time.Instant;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  */
 @Slf4j
-public class ToolCallAccuracyMetric extends AbstractMultiModelMetric<ToolCallAccuracyMetric.ToolCallAccuracyConfig> {
+public class ToolCallAccuracyMetric extends AbstractMultiTurnMetric<ToolCallAccuracyMetric.ToolCallAccuracyConfig> {
 
     @Builder(toBuilder = true)
     protected ToolCallAccuracyMetric(final MultiModelExecutor executor) {
@@ -48,12 +48,12 @@ public class ToolCallAccuracyMetric extends AbstractMultiModelMetric<ToolCallAcc
     }
 
     @Override
-    public Double singleTurnScore(final ToolCallAccuracyConfig config, final Sample sample) {
-        return singleTurnScoreAsync(config, sample).join();
+    public Double multiTurnScore(final ToolCallAccuracyConfig config, final Sample sample) {
+        return multiTurnScoreAsync(config, sample).join();
     }
 
     @Override
-    public CompletableFuture<Double> singleTurnScoreAsync(final ToolCallAccuracyConfig config, final Sample sample) {
+    public CompletableFuture<Double> multiTurnScoreAsync(final ToolCallAccuracyConfig config, final Sample sample) {
         final Instant startTime = Instant.now();
         final List<String> modelIds =
                 config.models != null && !config.models.isEmpty() ? config.models : executor.getModelIds();

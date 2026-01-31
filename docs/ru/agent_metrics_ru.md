@@ -88,7 +88,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.qa.solutions.metrics.agent.AgentGoalAccuracyMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.*;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -113,12 +115,15 @@ class AgentGoalAccuracyTest {
     @DisplayName("AgentGoalAccuracy: Цель достигнута с эталоном")
     void testGoalAchievedWithReference() {
         Sample sample = Sample.builder()
-                .messages(List.of(
-                        new Sample.Message("user", "Мне нужно забронировать авиабилет в Париж на понедельник"),
-                        new Sample.Message("assistant", "Помогу вам забронировать авиабилет в Париж. Ищу доступные рейсы на понедельник."),
-                        new Sample.Message("assistant", "Нашёл несколько рейсов. Лучший вариант - Air France в 10:00 за 450$. Забронировать?"),
-                        new Sample.Message("user", "Да, пожалуйста, забронируйте"),
-                        new Sample.Message("assistant", "Готово! Я забронировал ваш рейс Air France в Париж на понедельник в 10:00. Номер подтверждения: AF12345.")
+                .userInputMessages(List.of(
+                        new HumanMessage("Мне нужно забронировать авиабилет в Париж на понедельник"),
+                        new AIMessage("Помогу вам забронировать авиабилет в Париж.", List.of(
+                                new ToolCall("search_flights", Map.of("destination", "Париж", "date", "понедельник"))
+                        )),
+                        new ToolMessage("Найдено: Air France в 10:00 за 450$"),
+                        new AIMessage("Нашёл несколько рейсов. Лучший вариант - Air France в 10:00 за 450$. Забронировать?"),
+                        new HumanMessage("Да, пожалуйста, забронируйте"),
+                        new AIMessage("Готово! Я забронировал ваш рейс Air France в Париж на понедельник в 10:00. Номер подтверждения: AF12345.")
                 ))
                 .reference("Успешно забронировать авиабилет в Париж для пользователя")
                 .build();
@@ -128,7 +133,7 @@ class AgentGoalAccuracyTest {
                         .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
                         .build();
 
-        Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+        Double score = agentGoalAccuracyMetric.multiTurnScore(config, sample);
 
         log.info("Оценка достижения цели: {}", score);
         assertTrue(score >= 0.9, "Ожидается высокая оценка для достигнутой цели");
@@ -138,10 +143,13 @@ class AgentGoalAccuracyTest {
     @DisplayName("AgentGoalAccuracy: Цель выводится без эталона")
     void testGoalInferredWithoutReference() {
         Sample sample = Sample.builder()
-                .messages(List.of(
-                        new Sample.Message("user", "Какая погода в Токио?"),
-                        new Sample.Message("assistant", "Проверяю погоду в Токио для вас."),
-                        new Sample.Message("assistant", "Текущая погода в Токио: 22°C, переменная облачность. Прогноз на остаток дня - ясное небо.")
+                .userInputMessages(List.of(
+                        new HumanMessage("Какая погода в Токио?"),
+                        new AIMessage("Проверяю погоду в Токио для вас.", List.of(
+                                new ToolCall("get_weather", Map.of("city", "Токио"))
+                        )),
+                        new ToolMessage("Токио: 22°C, переменная облачность"),
+                        new AIMessage("Текущая погода в Токио: 22°C, переменная облачность. Прогноз на остаток дня - ясное небо.")
                 ))
                 .build();
 
@@ -150,7 +158,7 @@ class AgentGoalAccuracyTest {
                         .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE)
                         .build();
 
-        Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+        Double score = agentGoalAccuracyMetric.multiTurnScore(config, sample);
 
         log.info("Оценка достижения цели: {}", score);
         assertTrue(score >= 0.8, "Ожидается высокая оценка при выводе и достижении цели");
@@ -352,6 +360,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.qa.solutions.metrics.agent.TopicAdherenceMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.*;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -377,11 +386,11 @@ class TopicAdherenceTest {
     @DisplayName("TopicAdherence: Диалог остаётся в теме")
     void testOnTopicConversation() {
         Sample sample = Sample.builder()
-                .messages(List.of(
-                        new Sample.Message("user", "Хочу узнать о машинном обучении"),
-                        new Sample.Message("assistant", "Машинное обучение - это раздел ИИ, позволяющий системам учиться на данных."),
-                        new Sample.Message("user", "Какие основные типы?"),
-                        new Sample.Message("assistant", "Основные типы: обучение с учителем, без учителя и обучение с подкреплением.")
+                .userInputMessages(List.of(
+                        new HumanMessage("Хочу узнать о машинном обучении"),
+                        new AIMessage("Машинное обучение - это раздел ИИ, позволяющий системам учиться на данных."),
+                        new HumanMessage("Какие основные типы?"),
+                        new AIMessage("Основные типы: обучение с учителем, без учителя и обучение с подкреплением.")
                 ))
                 .referenceTopics(List.of(
                         "машинное обучение",
@@ -396,7 +405,7 @@ class TopicAdherenceTest {
                         .mode(TopicAdherenceMetric.Mode.F1)
                         .build();
 
-        Double score = topicAdherenceMetric.singleTurnScore(config, sample);
+        Double score = topicAdherenceMetric.multiTurnScore(config, sample);
 
         log.info("Оценка соблюдения темы: {}", score);
         assertTrue(score >= 0.7, "Ожидается высокая оценка для релевантного диалога");
@@ -406,11 +415,11 @@ class TopicAdherenceTest {
     @DisplayName("TopicAdherence: Диалог уходит от темы")
     void testOffTopicConversation() {
         Sample sample = Sample.builder()
-                .messages(List.of(
-                        new Sample.Message("user", "Расскажите о программировании на Python"),
-                        new Sample.Message("assistant", "Python - это язык программирования. Кстати, вы знаете о последнем футбольном матче?"),
-                        new Sample.Message("user", "Что там с футболом?"),
-                        new Sample.Message("assistant", "Финал Чемпионата мира был потрясающим! Счёт 3-2.")
+                .userInputMessages(List.of(
+                        new HumanMessage("Расскажите о программировании на Python"),
+                        new AIMessage("Python - это язык программирования. Кстати, вы знаете о последнем футбольном матче?"),
+                        new HumanMessage("Что там с футболом?"),
+                        new AIMessage("Финал Чемпионата мира был потрясающим! Счёт 3-2.")
                 ))
                 .referenceTopics(List.of(
                         "программирование на Python",
@@ -424,7 +433,7 @@ class TopicAdherenceTest {
                         .mode(TopicAdherenceMetric.Mode.PRECISION)
                         .build();
 
-        Double score = topicAdherenceMetric.singleTurnScore(config, sample);
+        Double score = topicAdherenceMetric.multiTurnScore(config, sample);
 
         log.info("Оценка соблюдения темы: {}", score);
         assertTrue(score <= 0.6, "Ожидается низкая оценка при уходе от темы");
@@ -467,38 +476,56 @@ class TopicAdherenceTest {
 
 ## Схема Sample
 
-Метрики агентов используют класс `Sample` с определёнными полями:
+Метрики агентов используют класс `Sample` с типизированными классами сообщений:
+
+### Типы сообщений
+
+|      Тип       |             Описание             |          Поля          |
+|----------------|----------------------------------|------------------------|
+| `HumanMessage` | Сообщение пользователя           | `content`              |
+| `AIMessage`    | Ответ ассистента                 | `content`, `toolCalls` |
+| `ToolMessage`  | Результат выполнения инструмента | `content`              |
+| `ToolCall`     | Вызов инструмента                | `name`, `arguments`    |
+
+### Пример
 
 ```java
-class Example {
-    void createSample() {
-        Sample sample = Sample.builder()
-                // Для AgentGoalAccuracy и TopicAdherence
-                .messages(List.of(
-                        new Sample.Message("user", "Сообщение пользователя"),
-                        new Sample.Message("assistant", "Ответ ассистента")
-                ))
-                // Для AgentGoalAccuracy (режим WITH_REFERENCE)
-                .reference("Ожидаемая цель или результат")
-                // Для TopicAdherence
-                .referenceTopics(List.of("тема1", "тема2"))
-                // Для ToolCallAccuracy
-                .toolCalls(List.of(
-                        new Sample.ToolCall("имя_инструмента", Map.of("аргумент", "значение"))
-                ))
-                .referenceToolCalls(List.of(
-                        new Sample.ToolCall("имя_инструмента", Map.of("аргумент", "значение"))
-                ))
-                .build();
-    }
-}
+import ai.qa.solutions.sample.message.*;
+
+Sample sample = Sample.builder()
+        // Многоэтапный диалог с типизированными сообщениями
+        .userInputMessages(List.of(
+                new HumanMessage("Забронируй рейс в Нью-Йорк"),
+                new AIMessage("Ищу рейсы...", List.of(
+                        new ToolCall("search_flights", Map.of("destination", "NYC"))
+                )),
+                new ToolMessage("Найдено 5 рейсов"),
+                new AIMessage("Я нашёл 5 вариантов. Рейс UA123 вылетает в 9:00.")
+        ))
+        // Для AgentGoalAccuracy (режим WITH_REFERENCE)
+        .reference("Рейс в Нью-Йорк забронирован")
+        // Для TopicAdherence
+        .referenceTopics(List.of("бронирование рейсов", "путешествия"))
+        // Для ToolCallAccuracy
+        .toolCalls(List.of(
+                new Sample.ToolCall("search_flights", Map.of("destination", "NYC"))
+        ))
+        .referenceToolCalls(List.of(
+                new Sample.ToolCall("search_flights", Map.of("destination", "NYC"))
+        ))
+        .build();
+
+// Использование multi-turn API
+Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 ```
 
-|         Поле         |      Тип       |           Требуется для            |
-|----------------------|----------------|------------------------------------|
-| `messages`           | List<Message>  | AgentGoalAccuracy, TopicAdherence  |
-| `reference`          | String         | AgentGoalAccuracy (WITH_REFERENCE) |
-| `referenceTopics`    | List<String>   | TopicAdherence                     |
-| `toolCalls`          | List<ToolCall> | ToolCallAccuracy                   |
-| `referenceToolCalls` | List<ToolCall> | ToolCallAccuracy                   |
+### Поля Sample
+
+|         Поле         |        Тип        |           Требуется для            |
+|----------------------|-------------------|------------------------------------|
+| `userInputMessages`  | List<BaseMessage> | AgentGoalAccuracy, TopicAdherence  |
+| `reference`          | String            | AgentGoalAccuracy (WITH_REFERENCE) |
+| `referenceTopics`    | List<String>      | TopicAdherence                     |
+| `toolCalls`          | List<ToolCall>    | ToolCallAccuracy                   |
+| `referenceToolCalls` | List<ToolCall>    | ToolCallAccuracy                   |
 
