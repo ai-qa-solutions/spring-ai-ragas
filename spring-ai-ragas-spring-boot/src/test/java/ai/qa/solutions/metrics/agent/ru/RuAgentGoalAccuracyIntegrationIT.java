@@ -20,14 +20,6 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Интеграционные тесты для метрики Agent Goal Accuracy - Русский язык.
- * <p>
- * Тестирует оценку достижения агентом поставленной цели
- * на основе анализа многоходового диалога.
- * <p>
- * Основные характеристики:
- * - Режим WITH_REFERENCE: сравнение результата с предоставленной ожидаемой целью
- * - Режим WITHOUT_REFERENCE: вывод цели из диалога и оценка её достижения
- * - Возвращает бинарный балл: 1.0 (достигнуто) или 0.0 (не достигнуто)
  */
 @Slf4j
 @EnableAutoConfiguration
@@ -52,26 +44,29 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testGoalClearlyAchieved() {
             log.info("=== Тест: Цель явно достигнута ===");
 
-            Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage(
-                                    "Мне нужно забронировать билет на поезд из Москвы в Санкт-Петербург на завтра."),
-                            new AIMessage("Помогу вам с бронированием. Сейчас поищу доступные рейсы."),
-                            new AIMessage("Нашёл несколько вариантов на завтра. Лучший вариант - Сапсан, "
-                                    + "отправление в 8:00, стоимость 4500 рублей."),
-                            new HumanMessage("Отлично, забронируйте этот рейс."),
-                            new AIMessage("Готово! Я успешно забронировал для вас билет на Сапсан из Москвы "
-                                    + "в Санкт-Петербург на завтра в 8:00. Номер бронирования: СП12345. "
-                                    + "Подтверждение отправлено на вашу электронную почту.")))
+            final Sample sample = Sample.builder()
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Нужен билет на поезд Москва-Питер на завтра"),
+                                    new AIMessage("Проверяю доступные рейсы на завтра."),
+                                    new AIMessage(
+                                            """
+                                    Нашёл два варианта: Сапсан в 8:00 за 4500 рублей \
+                                    или Ласточка в 10:30 за 2800 рублей. Какой предпочитаете?"""),
+                                    new HumanMessage("Давай Сапсан, мне пораньше надо"),
+                                    new AIMessage(
+                                            """
+                                    Билет на Сапсан забронирован. Отправление завтра в 8:00, место 5В. \
+                                    Номер брони: СП12345. Электронный билет отправлен на вашу почту.""")))
                     .reference("Забронировать билет на поезд из Москвы в Санкт-Петербург")
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
                             .build();
 
-            Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
 
             log.info("Цель: Забронировать билет на поезд из Москвы в Санкт-Петербург");
             log.info("Балл: {}", score);
@@ -85,25 +80,26 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testGoalNotAchieved() {
             log.info("=== Тест: Цель не достигнута ===");
 
-            Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage(
-                                    "Мне нужно забронировать билет на поезд из Москвы в Санкт-Петербург на завтра."),
-                            new AIMessage("Конечно, помогу вам. Сейчас проверю доступные рейсы."),
-                            new AIMessage("К сожалению, в данный момент система бронирования недоступна. "
-                                    + "Сервис временно не работает."),
-                            new HumanMessage("Можете сделать что-то ещё?"),
-                            new AIMessage("Увы, я не могу завершить бронирование сейчас. "
-                                    + "Попробуйте позже или обратитесь напрямую в кассу.")))
+            final Sample sample = Sample.builder()
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Забронируй мне поезд до Питера на завтра"),
+                                    new AIMessage("Проверяю доступность билетов."),
+                                    new AIMessage("К сожалению, система бронирования РЖД временно недоступна."),
+                                    new HumanMessage("И что делать?"),
+                                    new AIMessage(
+                                            """
+                                    Приношу извинения за неудобства. Рекомендую попробовать позже \
+                                    или обратиться в кассу на вокзале.""")))
                     .reference("Забронировать билет на поезд из Москвы в Санкт-Петербург")
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
                             .build();
 
-            Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
 
             log.info("Цель: Забронировать билет на поезд из Москвы в Санкт-Петербург");
             log.info("Балл: {}", score);
@@ -117,24 +113,26 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testCustomerSupportResolution() {
             log.info("=== Тест: Решение проблемы клиента ===");
 
-            Sample sample = Sample.builder()
+            final Sample sample = Sample.builder()
                     .userInputMessages(List.of(
-                            new HumanMessage("Мой заказ #12345 ещё не доставлен. Прошло уже 2 недели."),
-                            new AIMessage("Приношу извинения за задержку. Сейчас проверю ваш заказ."),
-                            new AIMessage("Нашёл ваш заказ. Произошла проблема с доставкой. Я оформил полный "
-                                    + "возврат суммы 5500 рублей на ваш способ оплаты. Деньги поступят "
-                                    + "в течение 3-5 рабочих дней."),
-                            new HumanMessage("Спасибо! Это меня устраивает."),
-                            new AIMessage("Рад помочь! Могу ещё чем-то быть полезен?")))
+                            new HumanMessage("Алло, заказ 12345 где? Две недели жду уже!"),
+                            new AIMessage("Приношу извинения за задержку. Сейчас проверю статус вашего заказа."),
+                            new AIMessage(
+                                    """
+                                    Заказ найден. К сожалению, посылка была утеряна при сортировке. \
+                                    Оформила полный возврат 5500 рублей — средства поступят в течение 3-5 рабочих дней."""),
+                            new HumanMessage("Ну ладно, спасибо хоть за это"),
+                            new AIMessage(
+                                    "Ещё раз приношу извинения за ситуацию. Если возникнут вопросы — обращайтесь.")))
                     .reference("Решить проблему клиента с недоставленным заказом путём возврата или замены")
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
                             .build();
 
-            Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
 
             log.info("Цель: Решить проблему клиента с недоставленным заказом");
             log.info("Балл: {}", score);
@@ -153,28 +151,31 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testInferGoalSuccessfulTask() {
             log.info("=== Тест: Вывод цели - успешная задача ===");
 
-            Sample sample = Sample.builder()
+            final Sample sample = Sample.builder()
                     .userInputMessages(List.of(
-                            new HumanMessage(
-                                    "Можете помочь написать письмо начальнику с просьбой об отпуске на следующей неделе?"),
-                            new AIMessage("Конечно, помогу составить такое письмо. Вот профессиональная "
-                                    + "просьба об отпуске:\n\n"
-                                    + "Тема: Заявление на отпуск - следующая неделя\n\n"
-                                    + "Уважаемый [Имя руководителя],\n\n"
-                                    + "Прошу предоставить мне отпуск с [дата начала] по [дата окончания]. "
-                                    + "Мои текущие проекты находятся в срок, и я договорился о подмене "
-                                    + "на время моего отсутствия.\n\n"
-                                    + "Пожалуйста, сообщите, если потребуется дополнительная информация.\n\n"
-                                    + "С уважением,\n[Ваше имя]"),
-                            new HumanMessage("Отлично! Спасибо большое!")))
+                            new HumanMessage("Помоги накатать заявление на отпуск, а то сам не умею красиво"),
+                            new AIMessage(
+                                    """
+                                    Конечно, подготовила для вас шаблон:
+
+                                    Тема: Заявление на отпуск
+
+                                    Уважаемый Иван Петрович,
+
+                                    Прошу предоставить мне ежегодный отпуск с [дата] по [дата]. \
+                                    Все текущие задачи будут завершены, на время отсутствия меня подстрахует коллега.
+
+                                    С уважением,
+                                    [Имя]"""),
+                            new HumanMessage("Супер, то что надо!")))
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE)
                             .build();
 
-            Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
 
             log.info("Диалог: Помощь в написании письма об отпуске");
             log.info("Балл: {}", score);
@@ -188,22 +189,24 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testInferGoalFailedTask() {
             log.info("=== Тест: Вывод цели - неуспешная задача ===");
 
-            Sample sample = Sample.builder()
+            final Sample sample = Sample.builder()
                     .userInputMessages(List.of(
-                            new HumanMessage("Переведите этот документ с французского на русский."),
-                            new AIMessage("Рад помочь с переводом. Пожалуйста, отправьте документ."),
-                            new HumanMessage("Вот он: 'Bonjour, je m'appelle Pierre...' [остальной документ]"),
-                            new AIMessage("Приношу извинения, но сейчас у меня возникли технические проблемы "
-                                    + "и я не могу выполнить перевод. Попробуйте позже."),
-                            new HumanMessage("Очень жаль. Мне это было нужно сегодня.")))
+                            new HumanMessage("Переведи с французского, плиз"),
+                            new AIMessage("С удовольствием помогу с переводом. Пришлите текст."),
+                            new HumanMessage("Вот: 'Bonjour, je m'appelle Pierre et je travaille...'"),
+                            new AIMessage(
+                                    """
+                                    Приношу извинения, но в данный момент возникли технические неполадки. \
+                                    Не могу выполнить перевод. Попробуйте, пожалуйста, позже."""),
+                            new HumanMessage("Блин, мне срочно было надо...")))
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE)
                             .build();
 
-            Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
 
             log.info("Диалог: Неудачный запрос на перевод");
             log.info("Балл: {}", score);
@@ -217,25 +220,27 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testMultiStepTaskCompletion() {
             log.info("=== Тест: Многоэтапное выполнение задачи ===");
 
-            Sample sample = Sample.builder()
+            final Sample sample = Sample.builder()
                     .userInputMessages(List.of(
-                            new HumanMessage("Хочу назначить встречу с командой на следующую пятницу."),
+                            new HumanMessage("Надо созвон с командой на следующую пятницу организовать"),
                             new AIMessage("Помогу организовать встречу. В какое время вам удобно?"),
-                            new HumanMessage("Давайте в 14:00."),
-                            new AIMessage("Хорошо. Кого пригласить на встречу?"),
-                            new HumanMessage("Всю команду разработки - Ивана, Анну и Михаила."),
-                            new AIMessage("Отлично. Я создал встречу на следующую пятницу в 14:00 с Иваном, Анной "
-                                    + "и Михаилом. Приглашения отправлены всем участникам. Встреча состоится "
-                                    + "в переговорной А. Хотите добавить повестку?"),
-                            new HumanMessage("Нет, это всё, что нужно. Спасибо!")))
+                            new HumanMessage("Часа в 2 дня"),
+                            new AIMessage("Принято. Кого пригласить на встречу?"),
+                            new HumanMessage("Всех наших — Ваню, Аню и Мишу"),
+                            new AIMessage(
+                                    """
+                                    Встреча создана на следующую пятницу в 14:00. \
+                                    Приглашения отправлены Ивану, Анне и Михаилу. \
+                                    Переговорная А забронирована. Добавить повестку?"""),
+                            new HumanMessage("Не, всё норм, спасибо!")))
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE)
                             .build();
 
-            Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
 
             log.info("Диалог: Многоэтапная организация встречи");
             log.info("Балл: {}", score);
@@ -256,31 +261,35 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testComplexConversationImplicitGoal() {
             log.info("=== Тест: Сложный диалог с неявной целью ===");
 
-            Sample sample = Sample.builder()
+            final Sample sample = Sample.builder()
                     .userInputMessages(List.of(
-                            new HumanMessage("Чувствую себя перегруженным на работе в последнее время."),
-                            new AIMessage("Сожалею, что вы так себя чувствуете. Хотите поговорить о том, "
-                                    + "что вызывает перегрузку, или предпочитаете практические советы "
-                                    + "по управлению нагрузкой?"),
-                            new HumanMessage("Практические советы были бы полезны."),
-                            new AIMessage("Вот несколько стратегий, которые могут помочь:\n\n"
-                                    + "1. Приоритизируйте задачи по матрице Эйзенхауэра - сначала срочные "
-                                    + "и важные задачи.\n"
-                                    + "2. Разбивайте крупные проекты на мелкие управляемые шаги.\n"
-                                    + "3. Устанавливайте границы - учитесь говорить нет несущественным запросам.\n"
-                                    + "4. Делайте регулярные перерывы по технике Помодоро.\n"
-                                    + "5. Рассмотрите возможность делегирования.\n\n"
-                                    + "Хотите, чтобы я подробнее рассказал о каком-либо пункте?"),
-                            new HumanMessage("Очень полезно. Начну с техники Помодоро.")))
+                            new HumanMessage("Что-то меня на работе накрывает последнее время, не знаю что делать"),
+                            new AIMessage(
+                                    """
+                                    Понимаю, это непросто. Хотите обсудить причины перегрузки \
+                                    или предпочитаете практические советы по управлению нагрузкой?"""),
+                            new HumanMessage("Давай советы какие-нибудь"),
+                            new AIMessage(
+                                    """
+                                    Вот несколько эффективных стратегий:
+
+                                    1. Приоритизируйте задачи по матрице Эйзенхауэра — сначала срочные и важные.
+                                    2. Разбивайте крупные проекты на небольшие шаги.
+                                    3. Учитесь говорить «нет» несущественным запросам.
+                                    4. Делайте регулярные перерывы по технике Помодоро.
+                                    5. Делегируйте где возможно.
+
+                                    Рассказать подробнее о каком-либо пункте?"""),
+                            new HumanMessage("О, клёво, попробую Помодоро")))
                     .reference("Помочь пользователю справиться со стрессом на работе практическими советами")
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
                             .build();
 
-            Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
 
             log.info("Цель: Помочь справиться со стрессом на работе");
             log.info("Балл: {}", score);
@@ -294,18 +303,18 @@ class RuAgentGoalAccuracyIntegrationIT {
         void testAsyncScoring() {
             log.info("=== Тест: Асинхронное вычисление ===");
 
-            Sample sample = Sample.builder()
+            final Sample sample = Sample.builder()
                     .userInputMessages(
                             List.of(new HumanMessage("Сколько будет 2 + 2?"), new AIMessage("2 + 2 равно 4.")))
                     .reference("Дать правильный ответ на математический вопрос")
                     .build();
 
-            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
                     AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
                             .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
                             .build();
 
-            Double score =
+            final Double score =
                     agentGoalAccuracyMetric.singleTurnScoreAsync(config, sample).join();
 
             log.info("Асинхронный балл: {}", score);
