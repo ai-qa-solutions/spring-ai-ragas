@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import ai.qa.solutions.metrics.agent.ToolCallAccuracyMetric;
 import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -390,6 +394,153 @@ class RuToolCallAccuracyIntegrationIT {
             log.info("Асинхронная оценка: {}", score);
 
             assertThat(score).isEqualTo(1.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты API типизированных сообщений")
+    class TypedMessagesApiTests {
+
+        @Test
+        @DisplayName("Извлечение и сравнение вызовов инструментов из AIMessage")
+        void shouldExtractToolCallsFromAIMessage() {
+            log.info("=== Тест извлечения вызовов инструментов из AIMessage ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Найди рейсы в Петербург"),
+                            new AIMessage(
+                                    "Ищу рейсы...", List.of(new ToolCall("поиск_рейсов", Map.of("куда", "Петербург")))),
+                            new ToolMessage("Найдено 3 рейса"),
+                            new AIMessage("Вот 3 рейса в Петербург.")))
+                    .referenceToolCalls(List.of(new Sample.ToolCall("поиск_рейсов", Map.of("куда", "Петербург"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Вызовы инструментов извлечены и сравнены");
+            log.info("Оценка: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isBetween(0.0, 1.0);
+        }
+
+        @Test
+        @DisplayName("Несколько вызовов инструментов в диалоге")
+        void shouldEvaluateMultipleToolCallsInConversation() {
+            log.info("=== Тест нескольких вызовов инструментов в диалоге ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Забронируй рейс в Москву и отель"),
+                            new AIMessage(
+                                    "Сначала найду рейсы.",
+                                    List.of(new ToolCall(
+                                            "поиск_рейсов", Map.of("куда", "Москва", "дата", "2024-03-15")))),
+                            new ToolMessage("Найдено 5 рейсов"),
+                            new AIMessage(
+                                    "Теперь ищу отели.",
+                                    List.of(new ToolCall(
+                                            "поиск_отелей", Map.of("город", "Москва", "дата_заезда", "2024-03-15")))),
+                            new ToolMessage("Найдено 10 отелей"),
+                            new AIMessage(
+                                    "Бронирую оба.",
+                                    List.of(
+                                            new ToolCall("бронирование_рейса", Map.of("номер_рейса", "СУ456")),
+                                            new ToolCall("бронирование_отеля", Map.of("номер_отеля", "МО123")))),
+                            new ToolMessage("Оба бронирования подтверждены")))
+                    .referenceToolCalls(List.of(
+                            new Sample.ToolCall("поиск_рейсов", Map.of("куда", "Москва", "дата", "2024-03-15")),
+                            new Sample.ToolCall("поиск_отелей", Map.of("город", "Москва", "дата_заезда", "2024-03-15")),
+                            new Sample.ToolCall("бронирование_рейса", Map.of("номер_рейса", "СУ456")),
+                            new Sample.ToolCall("бронирование_отеля", Map.of("номер_отеля", "МО123"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Несколько вызовов инструментов в диалоге");
+            log.info("Оценка: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isBetween(0.0, 1.0);
+        }
+
+        @Test
+        @DisplayName("Режим FLEXIBLE с типизированными сообщениями")
+        void shouldEvaluateFlexibleModeWithTypedMessages() {
+            log.info("=== Тест режима FLEXIBLE с типизированными сообщениями ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Найди рестораны в Москве"),
+                            new AIMessage(
+                                    "Ищу рестораны...",
+                                    List.of(new ToolCall(
+                                            "поиск_ресторанов", Map.of("город", "Москва", "кухня", "русская")))),
+                            new ToolMessage("Найдено 20 ресторанов"),
+                            new AIMessage("Нашёл 20 русских ресторанов в Москве.")))
+                    .referenceToolCalls(List.of(new Sample.ToolCall(
+                            "поиск_ресторанов",
+                            Map.of(
+                                    "город",
+                                    "Москва",
+                                    "кухня",
+                                    "русская",
+                                    "рейтинг_мин",
+                                    4,
+                                    "ценовая_категория",
+                                    "$$"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.FLEXIBLE)
+                            .argumentMatchThreshold(0.5)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Режим FLEXIBLE с частичным совпадением аргументов");
+            log.info("Оценка: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isBetween(0.0, 1.0);
+        }
+
+        @Test
+        @DisplayName("Диалог без вызовов инструментов")
+        void shouldHandleConversationWithNoToolCalls() {
+            log.info("=== Тест диалога без вызовов инструментов ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(List.of(
+                            new HumanMessage("Какая сегодня погода?"),
+                            new AIMessage("У меня нет доступа к информации о текущей погоде.")))
+                    .referenceToolCalls(List.of(new Sample.ToolCall("получить_погоду", Map.of("город", "текущий"))))
+                    .build();
+
+            final ToolCallAccuracyMetric.ToolCallAccuracyConfig config =
+                    ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder()
+                            .mode(ToolCallAccuracyMetric.Mode.STRICT)
+                            .build();
+
+            final Double score = toolCallAccuracyMetric.multiTurnScore(config, sample);
+
+            log.info("Вызовы инструментов не сделаны, хотя должны были");
+            log.info("Оценка: {}", score);
+
+            assertThat(score).isNotNull();
+            assertThat(score).isEqualTo(0.0);
         }
     }
 }

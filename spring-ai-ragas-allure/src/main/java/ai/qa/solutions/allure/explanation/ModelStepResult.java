@@ -56,6 +56,11 @@ public class ModelStepResult {
     String reasoning;
 
     /**
+     * Inferred goal from this model (for agent goal accuracy WITHOUT_REFERENCE mode).
+     */
+    String inferredGoal;
+
+    /**
      * Error message if the model failed.
      */
     String errorMessage;

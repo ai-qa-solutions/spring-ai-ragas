@@ -121,6 +121,33 @@
 <div class="sample-section">
     <h3>${i18n["summary.inputSample"]}</h3>
     <dl>
+        <#-- Conversation messages for agent metrics (multi-turn) -->
+        <#if conversationMessages?has_content>
+        <div class="sample-item">
+            <dt>${i18n["summary.conversation"]!("Conversation")}</dt>
+            <dd>
+                <div class="conversation-list">
+                    <#list conversationMessages as msg>
+                    <div class="conversation-message message-${msg.type}">
+                        <span class="message-role">
+                            <#if msg.type == "human">${i18n["message.type.human"]!("User")}<#elseif msg.type == "ai">${i18n["message.type.ai"]!("Assistant")}<#else>${i18n["message.type.tool"]!("Tool")}</#if>:
+                        </span>
+                        <pre class="message-content">${msg.content}</pre>
+                        <#if msg.toolCalls?has_content>
+                        <div class="tool-calls">
+                            <span class="tool-calls-label">${i18n["message.toolCalls"]!("Tool Calls")}:</span>
+                            <#list msg.toolCalls as tc>
+                            <code class="tool-call">${tc.name}(${tc.arguments})</code>
+                            </#list>
+                        </div>
+                        </#if>
+                    </div>
+                    </#list>
+                </div>
+            </dd>
+        </div>
+        <#else>
+        <#-- Single-turn metrics: userInput and response -->
         <#if userInput?has_content>
         <div class="sample-item">
             <dt>${i18n["summary.userInput"]}</dt>
@@ -133,6 +160,7 @@
             <dt>${i18n["summary.response"]}</dt>
             <dd><pre>${response}</pre></dd>
         </div>
+        </#if>
         </#if>
 
         <#if reference?has_content>

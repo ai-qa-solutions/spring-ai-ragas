@@ -1,5 +1,6 @@
 package ai.qa.solutions.allure.explanation;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,10 @@ public class AgentGoalAccuracyExplanation extends AbstractScoreExplanation {
     private final String referenceGoal;
     private final String inferredGoal;
     private final boolean goalAchieved;
-    private final String reasoning;
+    private final List<ModelStepResult> inferGoalModelResults;
+    private final List<ModelStepResult> modelResults;
+    private final boolean hasModelDisagreement;
+    private final double agreementPercent;
 
     @Builder
     public AgentGoalAccuracyExplanation(
@@ -37,14 +41,20 @@ public class AgentGoalAccuracyExplanation extends AbstractScoreExplanation {
             final String referenceGoal,
             final String inferredGoal,
             final boolean goalAchieved,
-            final String reasoning) {
+            final List<ModelStepResult> inferGoalModelResults,
+            final List<ModelStepResult> modelResults,
+            final boolean hasModelDisagreement,
+            final double agreementPercent) {
         super(score, language);
         this.mode = mode != null ? mode : "WITH_REFERENCE";
         this.conversation = conversation != null ? conversation : "";
         this.referenceGoal = referenceGoal != null ? referenceGoal : "";
         this.inferredGoal = inferredGoal;
         this.goalAchieved = goalAchieved;
-        this.reasoning = reasoning != null ? reasoning : "";
+        this.inferGoalModelResults = inferGoalModelResults != null ? inferGoalModelResults : List.of();
+        this.modelResults = modelResults != null ? modelResults : List.of();
+        this.hasModelDisagreement = hasModelDisagreement;
+        this.agreementPercent = agreementPercent;
         buildSteps();
         buildInterpretation();
     }
@@ -60,7 +70,39 @@ public class AgentGoalAccuracyExplanation extends AbstractScoreExplanation {
     }
 
     private void buildSteps() {
+        // Build items from model results for EvaluateOutcome/CompareOutcome step
+        final List<ExplanationItem> evaluateItems = new ArrayList<>();
+        for (final ModelStepResult result : modelResults) {
+            if (result.isSuccess()) {
+                evaluateItems.add(ExplanationItem.builder()
+                        .content(result.getReasoning())
+                        .passed(Boolean.TRUE.equals(result.getVerdict()))
+                        .verdict(
+                                Boolean.TRUE.equals(result.getVerdict())
+                                        ? messages.get("agentGoalAccuracy.verdict.achieved")
+                                        : messages.get("agentGoalAccuracy.verdict.notAchieved"))
+                        .source(result.getModelId())
+                        .build());
+            }
+        }
+
         if ("WITHOUT_REFERENCE".equals(mode)) {
+            // Build items from model results for InferGoal step
+            final List<ExplanationItem> inferGoalItems = new ArrayList<>();
+            for (final ModelStepResult result : inferGoalModelResults) {
+                if (result.isSuccess()) {
+                    // Show inferred goal as content, reasoning as reason
+                    final String goalText = result.getInferredGoal() != null ? result.getInferredGoal() : "";
+                    final String reasoningText = result.getReasoning() != null ? result.getReasoning() : "";
+                    inferGoalItems.add(ExplanationItem.builder()
+                            .content(goalText)
+                            .reason(reasoningText)
+                            .passed(true)
+                            .source(result.getModelId())
+                            .build());
+                }
+            }
+
             // Step 1: Infer goal from conversation
             steps.add(StepExplanation.builder()
                     .stepName("InferGoal")
@@ -69,6 +111,8 @@ public class AgentGoalAccuracyExplanation extends AbstractScoreExplanation {
                     .description(messages.get("agentGoalAccuracy.step.inferGoal.desc"))
                     .inputData(truncateConversation(conversation))
                     .outputSummary(inferredGoal != null ? inferredGoal : messages.get("common.notAvailable"))
+                    .items(inferGoalItems)
+                    .modelResults(inferGoalModelResults)
                     .hasModelDisagreement(false)
                     .agreementPercent(100.0)
                     .build());
@@ -81,16 +125,10 @@ public class AgentGoalAccuracyExplanation extends AbstractScoreExplanation {
                     .description(messages.get("agentGoalAccuracy.step.evaluateOutcome.desc"))
                     .inputData(messages.get("agentGoalAccuracy.goal") + ": " + inferredGoal)
                     .outputSummary(getVerdictText())
-                    .items(List.of(ExplanationItem.builder()
-                            .content(reasoning)
-                            .passed(goalAchieved)
-                            .verdict(
-                                    goalAchieved
-                                            ? messages.get("agentGoalAccuracy.verdict.achieved")
-                                            : messages.get("agentGoalAccuracy.verdict.notAchieved"))
-                            .build()))
-                    .hasModelDisagreement(false)
-                    .agreementPercent(100.0)
+                    .items(evaluateItems)
+                    .modelResults(modelResults)
+                    .hasModelDisagreement(hasModelDisagreement)
+                    .agreementPercent(agreementPercent)
                     .build());
         } else {
             // WITH_REFERENCE mode - single step
@@ -102,16 +140,10 @@ public class AgentGoalAccuracyExplanation extends AbstractScoreExplanation {
                     .description(messages.get("agentGoalAccuracy.step.compareOutcome.desc"))
                     .inputData(messages.get("agentGoalAccuracy.expectedOutcome") + ": " + referenceGoal)
                     .outputSummary(getVerdictText())
-                    .items(List.of(ExplanationItem.builder()
-                            .content(reasoning)
-                            .passed(goalAchieved)
-                            .verdict(
-                                    goalAchieved
-                                            ? messages.get("agentGoalAccuracy.verdict.achieved")
-                                            : messages.get("agentGoalAccuracy.verdict.notAchieved"))
-                            .build()))
-                    .hasModelDisagreement(false)
-                    .agreementPercent(100.0)
+                    .items(evaluateItems)
+                    .modelResults(modelResults)
+                    .hasModelDisagreement(hasModelDisagreement)
+                    .agreementPercent(agreementPercent)
                     .build());
         }
     }

@@ -92,6 +92,7 @@ public class FreemarkerTemplateEngine {
         model.put("response", data.getResponse());
         model.put("reference", data.getReference());
         model.put("retrievedContexts", data.getRetrievedContexts());
+        model.put("conversationMessages", data.getConversationMessages());
         model.put("modelIds", data.getModelIds());
         model.put("embeddingModelIds", data.getEmbeddingModelIds());
         model.put("excludedModels", data.getExcludedModels());

@@ -105,10 +105,10 @@ ${step.inputData}
 
 <#if step.modelResults?has_content>
 **${i18n["summary.modelScores"]}:**
-| ${i18n["table.model"]} | ${i18n["table.score"]} |
+| ${i18n["table.model"]} | ${i18n["table.result"]} |
 |-------|-------|
 <#list step.modelResults as mr>
-| ${mr.modelId} | ${mr.numericResult?string("0.00%")} |
+| ${mr.modelId} | <#if mr.numericResult??>${mr.numericResult?string("0.00%")}<#elseif mr.verdict??><#if mr.verdict>✓<#else>✗</#if><#else>-</#if> |
 </#list>
 </#if>
 

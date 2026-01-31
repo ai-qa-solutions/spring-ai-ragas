@@ -76,6 +76,7 @@ public final class ReportMessages {
                 // Table headers
                 Map.entry("table.model", "Model"),
                 Map.entry("table.score", "Score"),
+                Map.entry("table.result", "Result"),
                 Map.entry("table.level", "Level"),
                 Map.entry("table.status", "Status"),
                 // Aggregation
@@ -122,7 +123,13 @@ public final class ReportMessages {
                 Map.entry("explanation.yourResult", "YOUR RESULT"),
                 Map.entry("explanation.notAvailable", "Score explanation is not available for this metric."),
                 // Input data labels
-                Map.entry("input.questionAnswer", "Question + Reference"));
+                Map.entry("input.questionAnswer", "Question + Reference"),
+                // Conversation messages (agent metrics)
+                Map.entry("summary.conversation", "Conversation"),
+                Map.entry("message.type.human", "User"),
+                Map.entry("message.type.ai", "Assistant"),
+                Map.entry("message.type.tool", "Tool Result"),
+                Map.entry("message.toolCalls", "Tool Calls"));
     }
 
     private static Map<String, String> russianMessages() {
@@ -173,6 +180,7 @@ public final class ReportMessages {
                 // Table headers
                 Map.entry("table.model", "Модель"),
                 Map.entry("table.score", "Оценка"),
+                Map.entry("table.result", "Результат"),
                 Map.entry("table.level", "Уровень"),
                 Map.entry("table.status", "Статус"),
                 // Aggregation
@@ -219,6 +227,12 @@ public final class ReportMessages {
                 Map.entry("explanation.yourResult", "ВАШ РЕЗУЛЬТАТ"),
                 Map.entry("explanation.notAvailable", "Объяснение скора недоступно для этой метрики."),
                 // Input data labels
-                Map.entry("input.questionAnswer", "Вопрос + Эталон"));
+                Map.entry("input.questionAnswer", "Вопрос + Эталон"),
+                // Conversation messages (agent metrics)
+                Map.entry("summary.conversation", "Диалог"),
+                Map.entry("message.type.human", "Пользователь"),
+                Map.entry("message.type.ai", "Ассистент"),
+                Map.entry("message.type.tool", "Результат инструмента"),
+                Map.entry("message.toolCalls", "Вызовы инструментов"));
     }
 }

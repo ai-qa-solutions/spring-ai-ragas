@@ -73,8 +73,8 @@ class ToolCallAccuracyMetricTest {
     class InputValidationTests {
 
         @Test
-        @DisplayName("Should return null when no tool calls provided")
-        void shouldReturnNullWhenNoToolCalls() {
+        @DisplayName("Should return 0.0 when no tool calls provided but reference exists")
+        void shouldReturnZeroWhenNoToolCalls() {
             final Sample sample = Sample.builder()
                     .referenceToolCalls(List.of(new Sample.ToolCall("search", Map.of("query", "test"))))
                     .build();
@@ -84,7 +84,8 @@ class ToolCallAccuracyMetricTest {
 
             final Double score = metric.singleTurnScore(config, sample);
 
-            assertThat(score).isNull();
+            // Agent failed to make required tool calls
+            assertThat(score).isEqualTo(0.0);
         }
 
         @Test
@@ -103,8 +104,8 @@ class ToolCallAccuracyMetricTest {
         }
 
         @Test
-        @DisplayName("Should return null when tool calls list is empty")
-        void shouldReturnNullWhenToolCallsEmpty() {
+        @DisplayName("Should return 0.0 when tool calls list is empty but reference exists")
+        void shouldReturnZeroWhenToolCallsEmpty() {
             final Sample sample = Sample.builder()
                     .toolCalls(List.of())
                     .referenceToolCalls(List.of(new Sample.ToolCall("search", Map.of("query", "test"))))
@@ -115,7 +116,8 @@ class ToolCallAccuracyMetricTest {
 
             final Double score = metric.singleTurnScore(config, sample);
 
-            assertThat(score).isNull();
+            // Agent failed to make required tool calls
+            assertThat(score).isEqualTo(0.0);
         }
     }
 

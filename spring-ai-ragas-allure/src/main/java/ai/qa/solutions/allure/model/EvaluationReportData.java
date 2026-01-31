@@ -66,6 +66,15 @@ public class EvaluationReportData {
     @Builder.Default
     List<String> retrievedContexts = List.of();
 
+    /**
+     * Conversation messages for agent metrics (multi-turn).
+     * <p>
+     * Used instead of userInput/response for agent metrics that evaluate
+     * multi-turn conversations.
+     */
+    @Builder.Default
+    List<FormattedMessage> conversationMessages = List.of();
+
     // --- Configuration ---
 
     /**
@@ -215,6 +224,15 @@ public class EvaluationReportData {
      */
     public boolean hasContexts() {
         return !retrievedContexts.isEmpty();
+    }
+
+    /**
+     * Checks if conversation messages are present (agent metrics).
+     *
+     * @return true if conversationMessages list is not empty
+     */
+    public boolean hasConversation() {
+        return !conversationMessages.isEmpty();
     }
 
     /**

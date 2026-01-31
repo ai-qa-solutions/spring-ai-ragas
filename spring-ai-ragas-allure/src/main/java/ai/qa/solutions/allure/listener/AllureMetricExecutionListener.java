@@ -8,6 +8,13 @@ import ai.qa.solutions.allure.model.*;
 import ai.qa.solutions.allure.template.FreemarkerTemplateEngine;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.*;
+import ai.qa.solutions.sample.message.AIMessage;
+import ai.qa.solutions.sample.message.BaseMessage;
+import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Allure;
 import io.qameta.allure.AllureLifecycle;
 import io.qameta.allure.model.Status;
@@ -44,6 +51,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AllureMetricExecutionListener implements MetricExecutionListener {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final AllureRagasProperties properties;
     private final FreemarkerTemplateEngine templateEngine;
@@ -243,6 +252,10 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
                 properties.getLanguage(),
                 evaluationContext.getConfig());
 
+        // Format conversation messages for agent metrics
+        final List<FormattedMessage> conversationMessages =
+                formatConversationMessages(evaluationContext.getSample().getUserInputMessages());
+
         return EvaluationReportData.builder()
                 .metricName(metricName)
                 .userInput(evaluationContext.getSample().getUserInput())
@@ -252,6 +265,7 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
                         evaluationContext.getSample().getRetrievedContexts() != null
                                 ? evaluationContext.getSample().getRetrievedContexts()
                                 : List.of())
+                .conversationMessages(conversationMessages)
                 .config(evaluationContext.getConfig())
                 .configJson(EvaluationReportData.configToJson(evaluationContext.getConfig()))
                 .startTime(startTime)
@@ -273,6 +287,58 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
                 .scoreExplanation(explanationOpt.orElse(null))
                 .language(properties.getLanguage())
                 .build();
+    }
+
+    private List<FormattedMessage> formatConversationMessages(final List<BaseMessage> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return List.of();
+        }
+
+        final List<FormattedMessage> formatted = new ArrayList<>();
+        for (final BaseMessage message : messages) {
+            if (message instanceof HumanMessage h) {
+                formatted.add(FormattedMessage.builder()
+                        .type("human")
+                        .content(h.content())
+                        .build());
+            } else if (message instanceof AIMessage a) {
+                formatted.add(FormattedMessage.builder()
+                        .type("ai")
+                        .content(a.content())
+                        .toolCalls(formatToolCalls(a.toolCalls()))
+                        .build());
+            } else if (message instanceof ToolMessage t) {
+                formatted.add(FormattedMessage.builder()
+                        .type("tool")
+                        .content(t.content())
+                        .build());
+            }
+        }
+        return formatted;
+    }
+
+    private List<FormattedMessage.ToolCallData> formatToolCalls(final List<ToolCall> toolCalls) {
+        if (toolCalls == null || toolCalls.isEmpty()) {
+            return List.of();
+        }
+
+        return toolCalls.stream()
+                .map(tc -> FormattedMessage.ToolCallData.builder()
+                        .name(tc.name())
+                        .arguments(formatArguments(tc.arguments()))
+                        .build())
+                .toList();
+    }
+
+    private String formatArguments(final Map<String, Object> arguments) {
+        if (arguments == null || arguments.isEmpty()) {
+            return "{}";
+        }
+        try {
+            return OBJECT_MAPPER.writeValueAsString(arguments);
+        } catch (final JsonProcessingException e) {
+            return arguments.toString();
+        }
     }
 
     private List<ModelExclusionData> buildExclusionData() {

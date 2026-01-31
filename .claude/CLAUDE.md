@@ -376,3 +376,51 @@ void testBleuScore() {
 3. Add i18n messages in `ExplanationMessages.java`
 4. Update `ScoreExplanationExtractor` to handle new metric type
 
+## Post-Change Validation (MANDATORY)
+
+**After ANY changes to metrics or Allure reporting, you MUST validate the Allure reports.**
+
+Allure reports are what users see after running evaluations. Changes to metrics can break report generation or display incorrect data.
+
+### Required Validation Steps
+
+After modifying metric code:
+
+1. **Run unit tests** - verify metric logic works
+2. **Run integration test** - verify with real LLM
+3. **Validate Allure report** - verify user sees correct data
+
+### Using /validate-allure-report Skill
+
+```bash
+# After fixing a metric, validate its Allure report:
+/validate-allure-report EnToolCallAccuracyIntegrationIT
+/validate-allure-report RuAgentGoalAccuracyIntegrationIT
+/validate-allure-report *FaithfulnessIntegrationIT
+```
+
+The skill will:
+1. Execute the integration test
+2. Find generated Allure attachments
+3. Validate report structure (4 questions per step)
+4. Check CSS colors, conversation blocks, model results
+
+### What to Validate (4 Questions Pattern)
+
+Each step in Score Explanation must answer:
+
+| #  |        Question        |      What User Sees      |
+|----|------------------------|--------------------------|
+| Q1 | What is being checked? | Actual text/conversation |
+| Q2 | Why / what criteria?   | Step purpose             |
+| Q3 | By which models?       | List of model IDs        |
+| Q4 | What did they answer?  | Each model's response    |
+
+### When Validation is Required
+
+- After fixing metric bugs (like ToolCallAccuracy typed messages)
+- After adding new metrics
+- After modifying Allure templates
+- After changes to ScoreExplanationExtractor
+- After changes to explanation classes
+

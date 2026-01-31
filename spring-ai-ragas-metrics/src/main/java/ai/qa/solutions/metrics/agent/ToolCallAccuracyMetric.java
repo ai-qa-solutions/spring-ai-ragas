@@ -58,16 +58,28 @@ public class ToolCallAccuracyMetric extends AbstractMultiTurnMetric<ToolCallAccu
         final List<String> modelIds =
                 config.models != null && !config.models.isEmpty() ? config.models : executor.getModelIds();
 
-        // Validate input
-        if (sample.getToolCalls() == null || sample.getToolCalls().isEmpty()) {
-            log.warn("No tool calls provided for Tool Call Accuracy evaluation");
-            return CompletableFuture.completedFuture(null);
+        // Extract tool calls from typed messages if not provided directly
+        List<Sample.ToolCall> extractedToolCalls = sample.getToolCalls();
+        if ((extractedToolCalls == null || extractedToolCalls.isEmpty()) && sample.getUserInputMessages() != null) {
+            extractedToolCalls = extractToolCalls(sample.getUserInputMessages()).stream()
+                    .map(tc -> new Sample.ToolCall(tc.name(), tc.arguments()))
+                    .toList();
         }
+        final List<Sample.ToolCall> actualCalls = extractedToolCalls;
 
+        // Validate input
         if (sample.getReferenceToolCalls() == null
                 || sample.getReferenceToolCalls().isEmpty()) {
             log.warn("No reference tool calls provided for Tool Call Accuracy evaluation");
             return CompletableFuture.completedFuture(null);
+        }
+
+        // If no actual tool calls but reference calls exist, agent failed to make required calls
+        if (actualCalls == null || actualCalls.isEmpty()) {
+            log.info(
+                    "No tool calls made by agent but {} reference calls expected - returning 0.0",
+                    sample.getReferenceToolCalls().size());
+            return CompletableFuture.completedFuture(0.0);
         }
 
         final EvaluationNotifier notifier = createEvaluationNotifier();
@@ -84,7 +96,6 @@ public class ToolCallAccuracyMetric extends AbstractMultiTurnMetric<ToolCallAccu
                 .build());
 
         return executor.runAsync(() -> {
-            final List<Sample.ToolCall> actualCalls = sample.getToolCalls();
             final List<Sample.ToolCall> referenceCalls = sample.getReferenceToolCalls();
 
             // Step 1: Align tool calls

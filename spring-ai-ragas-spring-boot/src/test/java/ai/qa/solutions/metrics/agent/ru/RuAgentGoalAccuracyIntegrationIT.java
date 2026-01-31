@@ -7,7 +7,10 @@ import ai.qa.solutions.metrics.agent.AgentGoalAccuracyMetric;
 import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.AIMessage;
 import ai.qa.solutions.sample.message.HumanMessage;
+import ai.qa.solutions.sample.message.ToolCall;
+import ai.qa.solutions.sample.message.ToolMessage;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -48,12 +51,28 @@ class RuAgentGoalAccuracyIntegrationIT {
                     .userInputMessages(
                             List.of(
                                     new HumanMessage("Нужен билет на поезд Москва-Питер на завтра"),
-                                    new AIMessage("Проверяю доступные рейсы на завтра."),
+                                    new AIMessage(
+                                            "Проверяю доступные рейсы на завтра.",
+                                            List.of(new ToolCall(
+                                                    "search_trains",
+                                                    Map.of("from", "Moscow", "to", "SPB", "date", "tomorrow")))),
+                                    new ToolMessage(
+                                            """
+                                    {"trains": [
+                                        {"id": "SAPSAN-08", "time": "08:00", "price": 4500},
+                                        {"id": "LASTOCHKA-10", "time": "10:30", "price": 2800}
+                                    ]}"""),
                                     new AIMessage(
                                             """
                                     Нашёл два варианта: Сапсан в 8:00 за 4500 рублей \
                                     или Ласточка в 10:30 за 2800 рублей. Какой предпочитаете?"""),
                                     new HumanMessage("Давай Сапсан, мне пораньше надо"),
+                                    new AIMessage(
+                                            "Бронирую Сапсан...",
+                                            List.of(new ToolCall("book_train", Map.of("train_id", "SAPSAN-08")))),
+                                    new ToolMessage(
+                                            """
+                                    {"status": "confirmed", "booking_ref": "СП12345", "seat": "5В"}"""),
                                     new AIMessage(
                                             """
                                     Билет на Сапсан забронирован. Отправление завтра в 8:00, место 5В. \
@@ -84,7 +103,14 @@ class RuAgentGoalAccuracyIntegrationIT {
                     .userInputMessages(
                             List.of(
                                     new HumanMessage("Забронируй мне поезд до Питера на завтра"),
-                                    new AIMessage("Проверяю доступность билетов."),
+                                    new AIMessage(
+                                            "Проверяю доступность билетов.",
+                                            List.of(new ToolCall(
+                                                    "search_trains",
+                                                    Map.of("from", "Moscow", "to", "SPB", "date", "tomorrow")))),
+                                    new ToolMessage(
+                                            """
+                                    {"error": "SERVICE_UNAVAILABLE", "message": "РЖД API временно недоступен"}"""),
                                     new AIMessage("К сожалению, система бронирования РЖД временно недоступна."),
                                     new HumanMessage("И что делать?"),
                                     new AIMessage(
@@ -116,10 +142,22 @@ class RuAgentGoalAccuracyIntegrationIT {
             final Sample sample = Sample.builder()
                     .userInputMessages(List.of(
                             new HumanMessage("Алло, заказ 12345 где? Две недели жду уже!"),
-                            new AIMessage("Приношу извинения за задержку. Сейчас проверю статус вашего заказа."),
+                            new AIMessage(
+                                    "Приношу извинения за задержку. Сейчас проверю статус вашего заказа.",
+                                    List.of(new ToolCall("get_order_status", Map.of("order_id", "12345")))),
+                            new ToolMessage(
+                                    """
+                                    {"order_id": "12345", "status": "LOST", "amount": 5500,
+                                     "details": "Посылка утеряна при сортировке на складе"}"""),
+                            new AIMessage(
+                                    "Заказ найден. К сожалению, посылка была утеряна при сортировке. Оформляю возврат...",
+                                    List.of(new ToolCall(
+                                            "process_refund", Map.of("order_id", "12345", "amount", 5500)))),
+                            new ToolMessage(
+                                    """
+                                    {"status": "REFUND_INITIATED", "amount": 5500, "eta_days": "3-5"}"""),
                             new AIMessage(
                                     """
-                                    Заказ найден. К сожалению, посылка была утеряна при сортировке. \
                                     Оформила полный возврат 5500 рублей — средства поступят в течение 3-5 рабочих дней."""),
                             new HumanMessage("Ну ладно, спасибо хоть за это"),
                             new AIMessage(
@@ -139,6 +177,66 @@ class RuAgentGoalAccuracyIntegrationIT {
 
             assertNotNull(score);
             assertTrue(score >= 0.5, "Решённая проблема клиента должна иметь высокий балл. Получено: " + score);
+        }
+
+        @Test
+        @DisplayName("Бронирование с вызовами инструментов - ОЖИДАЕМЫЙ ВЫСОКИЙ БАЛЛ (1.0)")
+        void testBookingWithToolCalls() {
+            log.info("=== Тест: Бронирование с вызовами инструментов ===");
+
+            final Sample sample = Sample.builder()
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Забронируй мне авиабилет Москва-Сочи на 15 марта"),
+                                    new AIMessage(
+                                            "Ищу доступные рейсы...",
+                                            List.of(new ToolCall(
+                                                    "search_flights",
+                                                    Map.of("from", "MOW", "to", "AER", "date", "2024-03-15")))),
+                                    new ToolMessage(
+                                            """
+                                    {"flights": [
+                                        {"id": "SU1234", "time": "08:00", "price": 5500},
+                                        {"id": "S72456", "time": "14:30", "price": 4200}
+                                    ]}"""),
+                                    new AIMessage(
+                                            """
+                                    Нашёл два рейса на 15 марта:
+                                    1. SU1234 в 08:00 — 5500₽
+                                    2. S72456 в 14:30 — 4200₽
+                                    Какой предпочитаете?"""),
+                                    new HumanMessage("Давай второй, подешевле"),
+                                    new AIMessage(
+                                            "Бронирую рейс S72456...",
+                                            List.of(new ToolCall("book_flight", Map.of("flight_id", "S72456")))),
+                                    new ToolMessage(
+                                            """
+                                    {"status": "confirmed", "booking_ref": "ABC123", "seat": "14A"}"""),
+                                    new AIMessage(
+                                            """
+                                    Готово! Билет забронирован:
+                                    - Рейс: S72456 Москва → Сочи
+                                    - Дата: 15 марта, вылет в 14:30
+                                    - Место: 14A
+                                    - Код брони: ABC123
+                                    Электронный билет отправлен на вашу почту.""")))
+                    .reference("Забронировать авиабилет из Москвы в Сочи")
+                    .build();
+
+            final AgentGoalAccuracyMetric.AgentGoalAccuracyConfig config =
+                    AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                            .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
+                            .build();
+
+            final Double score = agentGoalAccuracyMetric.singleTurnScore(config, sample);
+
+            log.info("Цель: Забронировать авиабилет из Москвы в Сочи");
+            log.info("Балл: {}", score);
+
+            assertNotNull(score);
+            assertTrue(
+                    score >= 0.5,
+                    "Успешное бронирование с инструментами должно иметь высокий балл. Получено: " + score);
         }
     }
 
@@ -227,6 +325,28 @@ class RuAgentGoalAccuracyIntegrationIT {
                             new HumanMessage("Часа в 2 дня"),
                             new AIMessage("Принято. Кого пригласить на встречу?"),
                             new HumanMessage("Всех наших — Ваню, Аню и Мишу"),
+                            new AIMessage(
+                                    "Создаю встречу и бронирую переговорную...",
+                                    List.of(
+                                            new ToolCall(
+                                                    "create_meeting",
+                                                    Map.of(
+                                                            "date",
+                                                            "next_friday",
+                                                            "time",
+                                                            "14:00",
+                                                            "attendees",
+                                                            List.of(
+                                                                    "ivan@company.ru",
+                                                                    "anna@company.ru",
+                                                                    "mikhail@company.ru"))),
+                                            new ToolCall("book_room", Map.of("room", "A", "date", "next_friday")))),
+                            new ToolMessage(
+                                    """
+                                    {"meeting_id": "MTG-789", "status": "created", "invites_sent": 3}"""),
+                            new ToolMessage(
+                                    """
+                                    {"room": "A", "status": "booked", "date": "next_friday", "time": "14:00"}"""),
                             new AIMessage(
                                     """
                                     Встреча создана на следующую пятницу в 14:00. \

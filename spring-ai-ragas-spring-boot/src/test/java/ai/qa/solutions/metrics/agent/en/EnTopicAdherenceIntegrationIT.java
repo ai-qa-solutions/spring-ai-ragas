@@ -56,16 +56,23 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== All Topics On Topic Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("I'd like to book a flight to Paris for next week."),
-                            new AIMessage("I'd be happy to help you book a flight to Paris. What dates "
-                                    + "are you looking at, and which airport would you prefer to fly from?"),
-                            new HumanMessage("I'll fly from New York, departing Monday and returning Friday."),
-                            new AIMessage("I found several flight options for you. There's a direct Air France "
-                                    + "flight departing at 7 PM for $850 round trip. Would you like me to book that?"),
-                            new HumanMessage("Yes, please book that flight for me."),
-                            new AIMessage("Your flight has been booked! Confirmation number: AF12345. "
-                                    + "You'll receive an email with your e-ticket shortly.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("I'd like to book a flight to Paris for next week."),
+                                    new AIMessage(
+                                            """
+                                    I'd be happy to help you book a flight to Paris. What dates \
+                                    are you looking at, and which airport would you prefer to fly from?"""),
+                                    new HumanMessage("I'll fly from New York, departing Monday and returning Friday."),
+                                    new AIMessage(
+                                            """
+                                    I found several flight options for you. There's a direct Air France \
+                                    flight departing at 7 PM for $850 round trip. Would you like me to book that?"""),
+                                    new HumanMessage("Yes, please book that flight for me."),
+                                    new AIMessage(
+                                            """
+                                    Your flight has been booked! Confirmation number: AF12345. \
+                                    You'll receive an email with your e-ticket shortly.""")))
                     .referenceTopics(List.of("flight booking", "travel arrangements", "airline tickets"))
                     .build();
 
@@ -88,16 +95,23 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Conversation Drifts Off Topic Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("I want to learn about cooking Italian pasta."),
-                            new AIMessage("Great choice! Italian pasta is delicious. By the way, "
-                                    + "have you tried the new cryptocurrency Bitcoin?"),
-                            new HumanMessage("No, I'm interested in pasta, not crypto."),
-                            new AIMessage("Sure, but speaking of investments, the stock market "
-                                    + "has been quite volatile lately. You should consider investing."),
-                            new HumanMessage("Can we please focus on cooking?"),
-                            new AIMessage("Of course! Also, have you heard about the latest football "
-                                    + "match? It was quite exciting.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("I want to learn about cooking Italian pasta."),
+                                    new AIMessage(
+                                            """
+                                    Great choice! Italian pasta is delicious. By the way, \
+                                    have you tried the new cryptocurrency Bitcoin?"""),
+                                    new HumanMessage("No, I'm interested in pasta, not crypto."),
+                                    new AIMessage(
+                                            """
+                                    Sure, but speaking of investments, the stock market \
+                                    has been quite volatile lately. You should consider investing."""),
+                                    new HumanMessage("Can we please focus on cooking?"),
+                                    new AIMessage(
+                                            """
+                                    Of course! Also, have you heard about the latest football \
+                                    match? It was quite exciting.""")))
                     .referenceTopics(List.of("Italian cuisine", "pasta cooking", "recipes"))
                     .build();
 
@@ -120,16 +134,23 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Technical Support Conversation Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("My laptop won't turn on after the latest Windows update."),
-                            new AIMessage("I understand that's frustrating. Let's troubleshoot this together. "
-                                    + "Can you tell me if any lights appear when you press the power button?"),
-                            new HumanMessage("Yes, the power light blinks briefly then nothing."),
-                            new AIMessage("That indicates the laptop is receiving power but failing to boot. "
-                                    + "Let's try a hard reset: hold the power button for 15 seconds, then release."),
-                            new HumanMessage("I did that and now it's showing the Windows recovery screen."),
-                            new AIMessage("Perfect! The recovery screen means we can fix this. "
-                                    + "Select 'Startup Repair' to automatically fix boot issues.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("My laptop won't turn on after the latest Windows update."),
+                                    new AIMessage(
+                                            """
+                                    I understand that's frustrating. Let's troubleshoot this together. \
+                                    Can you tell me if any lights appear when you press the power button?"""),
+                                    new HumanMessage("Yes, the power light blinks briefly then nothing."),
+                                    new AIMessage(
+                                            """
+                                    That indicates the laptop is receiving power but failing to boot. \
+                                    Let's try a hard reset: hold the power button for 15 seconds, then release."""),
+                                    new HumanMessage("I did that and now it's showing the Windows recovery screen."),
+                                    new AIMessage(
+                                            """
+                                    Perfect! The recovery screen means we can fix this. \
+                                    Select 'Startup Repair' to automatically fix boot issues.""")))
                     .referenceTopics(List.of("computer troubleshooting", "Windows operating system", "laptop hardware"))
                     .build();
 
@@ -157,14 +178,19 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== High Precision Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("Tell me about machine learning algorithms."),
-                            new AIMessage("Machine learning algorithms can be categorized into three types: "
-                                    + "supervised learning, unsupervised learning, and reinforcement learning."),
-                            new HumanMessage("What's the difference between them?"),
-                            new AIMessage("Supervised learning uses labeled data to make predictions. "
-                                    + "Unsupervised learning finds patterns in unlabeled data. "
-                                    + "Reinforcement learning learns through trial and error rewards.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Tell me about machine learning algorithms."),
+                                    new AIMessage(
+                                            """
+                                    Machine learning algorithms can be categorized into three types: \
+                                    supervised learning, unsupervised learning, and reinforcement learning."""),
+                                    new HumanMessage("What's the difference between them?"),
+                                    new AIMessage(
+                                            """
+                                    Supervised learning uses labeled data to make predictions. \
+                                    Unsupervised learning finds patterns in unlabeled data. \
+                                    Reinforcement learning learns through trial and error rewards.""")))
                     .referenceTopics(List.of("machine learning", "artificial intelligence", "data science"))
                     .build();
 
@@ -188,16 +214,23 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Low Precision Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("Let's discuss Python programming."),
-                            new AIMessage("Python is great! But have you considered adopting a pet python snake? "
-                                    + "They're fascinating creatures."),
-                            new HumanMessage("No, I mean the programming language."),
-                            new AIMessage("Oh right! Speaking of languages, did you know French is "
-                                    + "the language of love? Très romantique!"),
-                            new HumanMessage("Please focus on Python coding."),
-                            new AIMessage("Coding is nice. But coding music is also fun! "
-                                    + "Have you tried playing guitar?")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Let's discuss Python programming."),
+                                    new AIMessage(
+                                            """
+                                    Python is great! But have you considered adopting a pet python snake? \
+                                    They're fascinating creatures."""),
+                                    new HumanMessage("No, I mean the programming language."),
+                                    new AIMessage(
+                                            """
+                                    Oh right! Speaking of languages, did you know French is \
+                                    the language of love? Très romantique!"""),
+                                    new HumanMessage("Please focus on Python coding."),
+                                    new AIMessage(
+                                            """
+                                    Coding is nice. But coding music is also fun! \
+                                    Have you tried playing guitar?""")))
                     .referenceTopics(List.of("Python programming", "software development", "coding"))
                     .build();
 
@@ -225,15 +258,20 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== High Recall Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("I want to plan a healthy lifestyle."),
-                            new AIMessage("Great goal! A healthy lifestyle involves three key areas: "
-                                    + "nutrition, exercise, and mental wellness."),
-                            new HumanMessage("Tell me more about each."),
-                            new AIMessage("For nutrition, focus on whole foods, vegetables, and lean proteins. "
-                                    + "For exercise, aim for 30 minutes of activity daily - walking, swimming, or gym. "
-                                    + "For mental wellness, practice meditation, get enough sleep, "
-                                    + "and maintain social connections.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("I want to plan a healthy lifestyle."),
+                                    new AIMessage(
+                                            """
+                                    Great goal! A healthy lifestyle involves three key areas: \
+                                    nutrition, exercise, and mental wellness."""),
+                                    new HumanMessage("Tell me more about each."),
+                                    new AIMessage(
+                                            """
+                                    For nutrition, focus on whole foods, vegetables, and lean proteins. \
+                                    For exercise, aim for 30 minutes of activity daily - walking, swimming, or gym. \
+                                    For mental wellness, practice meditation, get enough sleep, \
+                                    and maintain social connections.""")))
                     .referenceTopics(List.of("nutrition", "exercise", "mental health"))
                     .build();
 
@@ -256,12 +294,15 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Low Recall Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("Explain the components of a modern web application."),
-                            new AIMessage("A modern web application uses JavaScript for interactivity."),
-                            new HumanMessage("What about other components?"),
-                            new AIMessage("JavaScript frameworks like React are very popular. "
-                                    + "Many companies use React for their frontend.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Explain the components of a modern web application."),
+                                    new AIMessage("A modern web application uses JavaScript for interactivity."),
+                                    new HumanMessage("What about other components?"),
+                                    new AIMessage(
+                                            """
+                                    JavaScript frameworks like React are very popular. \
+                                    Many companies use React for their frontend.""")))
                     .referenceTopics(List.of(
                             "frontend development",
                             "backend development",
@@ -295,14 +336,19 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== Single Topic Fully Covered Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("How do I make a proper cup of tea?"),
-                            new AIMessage("To make perfect tea, start by boiling fresh water. "
-                                    + "Warm your teapot, add one teaspoon of loose leaf tea per cup, "
-                                    + "pour hot water and steep for 3-5 minutes."),
-                            new HumanMessage("What temperature should the water be?"),
-                            new AIMessage("For black tea, use water just off the boil (95-100°C). "
-                                    + "Green tea prefers cooler water around 80°C to avoid bitterness.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("How do I make a proper cup of tea?"),
+                                    new AIMessage(
+                                            """
+                                    To make perfect tea, start by boiling fresh water. \
+                                    Warm your teapot, add one teaspoon of loose leaf tea per cup, \
+                                    pour hot water and steep for 3-5 minutes."""),
+                                    new HumanMessage("What temperature should the water be?"),
+                                    new AIMessage(
+                                            """
+                                    For black tea, use water just off the boil (95-100°C). \
+                                    Green tea prefers cooler water around 80°C to avoid bitterness.""")))
                     .referenceTopics(List.of("tea preparation"))
                     .build();
 
@@ -391,13 +437,15 @@ class EnTopicAdherenceIntegrationIT {
                                     List.of(new ToolCall("search_tax_info", Map.of("year", "2024")))),
                             new ToolMessage("Tax filing deadline is April 15, 2024"),
                             new AIMessage(
-                                    "By the way, have you considered cryptocurrency investments? "
-                                            + "Let me search for crypto prices.",
+                                    """
+                                    By the way, have you considered cryptocurrency investments? \
+                                    Let me search for crypto prices.""",
                                     List.of(new ToolCall("get_crypto_prices", Map.of("currency", "BTC")))),
                             new ToolMessage("Bitcoin: $45,000"),
                             new AIMessage(
-                                    "Bitcoin is trading at $45,000. Also, the weather is nice today! "
-                                            + "Let me check the forecast.",
+                                    """
+                                    Bitcoin is trading at $45,000. Also, the weather is nice today! \
+                                    Let me check the forecast.""",
                                     List.of(new ToolCall("get_weather", Map.of("location", "current")))),
                             new ToolMessage("Sunny, 75°F"),
                             new AIMessage("It's sunny and 75°F. Great day for a walk!")))
@@ -436,8 +484,10 @@ class EnTopicAdherenceIntegrationIT {
                                     "Let me check ratings.",
                                     List.of(new ToolCall("get_course_details", Map.of("course_id", "PY101")))),
                             new ToolMessage("Python for Beginners - 4.8/5 stars, 50,000 students"),
-                            new AIMessage("'Python for Beginners' has excellent reviews. It covers variables, "
-                                    + "loops, functions, and basic data structures."),
+                            new AIMessage(
+                                    """
+                                    'Python for Beginners' has excellent reviews. It covers variables, \
+                                    loops, functions, and basic data structures."""),
                             new HumanMessage("Perfect, how do I enroll?"),
                             new AIMessage(
                                     "Enrolling you now.",
@@ -467,14 +517,17 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== PRECISION Mode with Typed Messages Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("Explain machine learning"),
-                            new AIMessage(
-                                    "Let me search for ML information.",
-                                    List.of(new ToolCall("search_docs", Map.of("topic", "machine learning")))),
-                            new ToolMessage("Found ML documentation"),
-                            new AIMessage("Machine learning is a subset of AI that enables systems to learn from data. "
-                                    + "It includes supervised, unsupervised, and reinforcement learning algorithms.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Explain machine learning"),
+                                    new AIMessage(
+                                            "Let me search for ML information.",
+                                            List.of(new ToolCall("search_docs", Map.of("topic", "machine learning")))),
+                                    new ToolMessage("Found ML documentation"),
+                                    new AIMessage(
+                                            """
+                                    Machine learning is a subset of AI that enables systems to learn from data. \
+                                    It includes supervised, unsupervised, and reinforcement learning algorithms.""")))
                     .referenceTopics(List.of("machine learning", "artificial intelligence", "algorithms"))
                     .build();
 
@@ -497,14 +550,18 @@ class EnTopicAdherenceIntegrationIT {
             log.info("=== RECALL Mode with Typed Messages Test ===");
 
             final Sample sample = Sample.builder()
-                    .userInputMessages(List.of(
-                            new HumanMessage("Tell me about healthy eating"),
-                            new AIMessage(
-                                    "Searching nutrition info...",
-                                    List.of(new ToolCall("search_nutrition", Map.of("category", "healthy eating")))),
-                            new ToolMessage("Found nutrition guidelines"),
-                            new AIMessage("Healthy eating includes eating plenty of fruits and vegetables. "
-                                    + "It's also important to stay hydrated and get regular exercise.")))
+                    .userInputMessages(
+                            List.of(
+                                    new HumanMessage("Tell me about healthy eating"),
+                                    new AIMessage(
+                                            "Searching nutrition info...",
+                                            List.of(new ToolCall(
+                                                    "search_nutrition", Map.of("category", "healthy eating")))),
+                                    new ToolMessage("Found nutrition guidelines"),
+                                    new AIMessage(
+                                            """
+                                    Healthy eating includes eating plenty of fruits and vegetables. \
+                                    It's also important to stay hydrated and get regular exercise.""")))
                     .referenceTopics(List.of("nutrition", "vegetables", "fruits", "hydration", "exercise", "vitamins"))
                     .build();
 

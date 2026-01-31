@@ -1221,7 +1221,8 @@ public class ScoreExplanationExtractor {
         String referenceGoal = "";
         String inferredGoal = null;
         boolean goalAchieved = score != null && score >= 0.5;
-        String reasoning = "";
+        final List<ModelStepResult> modelResults = new ArrayList<>();
+        final List<ModelStepResult> inferGoalModelResults = new ArrayList<>();
 
         // Extract mode from config
         if (config != null) {
@@ -1244,43 +1245,95 @@ public class ScoreExplanationExtractor {
                 referenceGoal = extractGoalFromRequest(step.getRequest());
             }
 
-            // Extract inferred goal from InferGoal step
+            // Extract inferred goal from InferGoal step - collect ALL models
             if ("InferGoal".equalsIgnoreCase(stepName)) {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
                             final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
-                            if (json.has("inferredGoal")) {
-                                inferredGoal = json.get("inferredGoal").asText();
-                                break;
+                            final String modelInferredGoal = json.has("inferredGoal")
+                                    ? json.get("inferredGoal").asText()
+                                    : "";
+                            final String reasoning = json.has("reasoning")
+                                    ? json.get("reasoning").asText()
+                                    : "";
+
+                            // Use first successful as the main inferred goal
+                            if (inferredGoal == null && !modelInferredGoal.isEmpty()) {
+                                inferredGoal = modelInferredGoal;
                             }
+
+                            inferGoalModelResults.add(ModelStepResult.builder()
+                                    .modelId(result.getModelId())
+                                    .success(true)
+                                    .reasoning(reasoning)
+                                    .inferredGoal(modelInferredGoal)
+                                    .build());
                         } catch (final JsonProcessingException e) {
                             log.debug("Failed to parse inferred goal JSON: {}", e.getMessage());
+                            inferGoalModelResults.add(ModelStepResult.builder()
+                                    .modelId(result.getModelId())
+                                    .success(false)
+                                    .errorMessage("Failed to parse response")
+                                    .build());
                         }
+                    } else if (!result.isSuccess()) {
+                        inferGoalModelResults.add(ModelStepResult.builder()
+                                .modelId(result.getModelId())
+                                .success(false)
+                                .errorMessage(result.getErrorMessage())
+                                .build());
                     }
                 }
             }
 
-            // Extract verdict from CompareOutcome or EvaluateOutcome step
+            // Extract verdicts from CompareOutcome or EvaluateOutcome step - collect ALL models
             if ("CompareOutcome".equalsIgnoreCase(stepName) || "EvaluateOutcome".equalsIgnoreCase(stepName)) {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
                             final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
-                            if (json.has("goalAchieved")) {
-                                goalAchieved = json.get("goalAchieved").asBoolean();
-                            }
-                            if (json.has("reasoning")) {
-                                reasoning = json.get("reasoning").asText();
-                            }
-                            break;
+                            final boolean achieved = json.has("goalAchieved")
+                                    && json.get("goalAchieved").asBoolean();
+                            final String reasoning = json.has("reasoning")
+                                    ? json.get("reasoning").asText()
+                                    : "";
+
+                            modelResults.add(ModelStepResult.builder()
+                                    .modelId(result.getModelId())
+                                    .success(true)
+                                    .verdict(achieved)
+                                    .reasoning(reasoning)
+                                    .build());
                         } catch (final JsonProcessingException e) {
                             log.debug("Failed to parse goal verdict JSON: {}", e.getMessage());
+                            modelResults.add(ModelStepResult.builder()
+                                    .modelId(result.getModelId())
+                                    .success(false)
+                                    .errorMessage("Failed to parse response")
+                                    .build());
                         }
+                    } else if (!result.isSuccess()) {
+                        modelResults.add(ModelStepResult.builder()
+                                .modelId(result.getModelId())
+                                .success(false)
+                                .errorMessage(result.getErrorMessage())
+                                .build());
                     }
                 }
             }
         }
+
+        // Calculate agreement
+        final long agreedCount = modelResults.stream()
+                .filter(r -> r.isSuccess() && Boolean.TRUE.equals(r.getVerdict()))
+                .count();
+        final long successCount =
+                modelResults.stream().filter(ModelStepResult::isSuccess).count();
+        final boolean hasDisagreement = successCount > 0 && agreedCount > 0 && agreedCount < successCount;
+        final double agreementPercent = successCount > 0
+                ? (double) Math.max(agreedCount, successCount - agreedCount) / successCount * 100
+                : 100.0;
 
         return Optional.of(AgentGoalAccuracyExplanation.builder()
                 .score(score)
@@ -1290,7 +1343,10 @@ public class ScoreExplanationExtractor {
                 .referenceGoal(referenceGoal)
                 .inferredGoal(inferredGoal)
                 .goalAchieved(goalAchieved)
-                .reasoning(reasoning)
+                .inferGoalModelResults(inferGoalModelResults)
+                .modelResults(modelResults)
+                .hasModelDisagreement(hasDisagreement)
+                .agreementPercent(agreementPercent)
                 .build());
     }
 
