@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1538,9 +1621,9 @@
         <header class="report-header">
             <h1>AgentGoalAccuracyMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge poor">0.00%</span>
-                <span class="duration">Duration: 28052ms</span>
-                <span class="timestamp">2026-01-23T14:07:42.266230Z</span>
+                <span class="score-badge excellent">100.00%</span>
+                <span class="duration">Duration: 11478ms</span>
+                <span class="timestamp">2026-02-01T03:32:17.409613Z</span>
             </div>
         </header>
 
@@ -1582,23 +1665,23 @@
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                     <text x="550" y="170" class="scale-label">1</text>
             <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="0" height="24" class="bar-poor" rx="3"/>
-            <text x="155" y="37" class="score-label">0,0000</text>
+            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="37" class="score-label">1,0000</text>
             <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="0" height="24" class="bar-poor" rx="3"/>
-            <text x="155" y="67" class="score-label">0,0000</text>
+            <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="67" class="score-label">1,0000</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="0" height="24" class="bar-poor" rx="3"/>
-            <text x="155" y="97" class="score-label">0,0000</text>
+            <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="97" class="score-label">1,0000</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="0" height="24" class="bar-poor" rx="3"/>
-            <text x="155" y="127" class="score-label">0,0000</text>
+            <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="127" class="score-label">1,0000</text>
     </svg>
 </div>
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1610,50 +1693,34 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
-            <text x="280" y="310" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">5610ms</text>
-            <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">11220ms</text>
-            <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">16830ms</text>
-            <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">22440ms</text>
-            <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">28050ms</text>
-            <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
+        <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
+            <text x="280" y="190" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
+            <text x="400" y="190" class="time-label">2277ms</text>
+            <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
+            <text x="520" y="190" class="time-label">4554ms</text>
+            <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
+            <text x="640" y="190" class="time-label">6831ms</text>
+            <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
+            <text x="760" y="190" class="time-label">9108ms</text>
+            <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
+            <text x="880" y="190" class="time-label">11386ms</text>
+            <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="534" y="30" width="116" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - InferGoal: 5451ms (LLM)</title>
+            <rect x="280" y="30" width="184" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - CompareOutcome: 3495ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="534" y="60" width="156" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - InferGoal: 7304ms (LLM)</title>
+            <rect x="280" y="60" width="87" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - CompareOutcome: 1659ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="534" y="90" width="91" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - InferGoal: 4272ms (LLM)</title>
+            <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - CompareOutcome: 11384ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="534" y="120" width="48" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - InferGoal: 2252ms (LLM)</title>
-            </rect>
-            <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="699" y="150" width="180" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateOutcome: 8419ms (LLM)</title>
-            </rect>
-            <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="699" y="180" width="19" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateOutcome: 916ms (LLM)</title>
-            </rect>
-            <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="699" y="210" width="89" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateOutcome: 4178ms (LLM)</title>
-            </rect>
-            <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="699" y="240" width="50" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateOutcome: 2351ms (LLM)</title>
+            <rect x="280" y="120" width="130" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - CompareOutcome: 2479ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1669,8 +1736,83 @@
 <div class="sample-section">
     <h3>Input Sample</h3>
     <dl>
+        <div class="sample-item">
+            <dt>Conversation</dt>
+            <dd>
+                <div class="conversation-list">
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">I need to book a flight from New York to Los Angeles for tomorrow.</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">I&#39;ll help you book that flight. Let me search for available options.</pre>
+                        <div class="tool-calls">
+                            <span class="tool-calls-label">Tool Calls:</span>
+                            <code class="tool-call">search_flights({
+  &quot;destination&quot; : &quot;LAX&quot;,
+  &quot;origin&quot; : &quot;JFK&quot;,
+  &quot;date&quot; : &quot;tomorrow&quot;
+})</code>
+                        </div>
+                    </div>
+                    <div class="conversation-message message-tool">
+                        <span class="message-role">
+                            Tool Result:
+                        </span>
+                        <pre class="message-content">{&quot;flights&quot;: [
+    {&quot;id&quot;: &quot;UA123&quot;, &quot;airline&quot;: &quot;United&quot;, &quot;time&quot;: &quot;08:00&quot;, &quot;price&quot;: 299},
+    {&quot;id&quot;: &quot;AA456&quot;, &quot;airline&quot;: &quot;American&quot;, &quot;time&quot;: &quot;10:30&quot;, &quot;price&quot;: 325}
+]}</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">I found several flights for tomorrow. The best option is United Airlines departing at 8:00 AM for $299.</pre>
+                    </div>
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">That sounds good, please book it.</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Booking your flight...</pre>
+                        <div class="tool-calls">
+                            <span class="tool-calls-label">Tool Calls:</span>
+                            <code class="tool-call">book_flight({
+  &quot;flight_id&quot; : &quot;UA123&quot;
+})</code>
+                        </div>
+                    </div>
+                    <div class="conversation-message message-tool">
+                        <span class="message-role">
+                            Tool Result:
+                        </span>
+                        <pre class="message-content">{&quot;status&quot;: &quot;confirmed&quot;, &quot;confirmation&quot;: &quot;UA12345&quot;, &quot;seat&quot;: &quot;14A&quot;}</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">I&#39;ve successfully booked your United Airlines flight from New York (JFK) to Los Angeles (LAX) for tomorrow at 8:00 AM. Confirmation number: UA12345. You&#39;ll receive an email confirmation shortly.</pre>
+                    </div>
+                </div>
+            </dd>
+        </div>
 
-
+        <div class="sample-item">
+            <dt>Reference</dt>
+            <dd><pre>Book a flight from New York to Los Angeles</pre></dd>
+        </div>
 
     </dl>
 </div>
@@ -1689,7 +1831,7 @@
     <h3>Configuration</h3>
     <pre>{
   &quot;models&quot; : [ ],
-  &quot;mode&quot; : &quot;WITHOUT_REFERENCE&quot;
+  &quot;mode&quot; : &quot;WITH_REFERENCE&quot;
 }</pre>
 </div>
             </div>
@@ -1721,13 +1863,7 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Inferring goal from conversation</span>
-                    </div>
-                </div>
-                <div class="exp-tree-node" data-step="1">
-                    <div class="exp-tree-item" onclick="selectExplanationStep(1)">
-                        <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Evaluating outcome</span>
+                        <span class="exp-tree-name">Comparing with expected outcome</span>
                     </div>
                 </div>
 
@@ -1756,35 +1892,35 @@
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">0.0</div>
+        <div class="exp-calculation">1.0</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            0.00%
+            100.00%
         </div>
-        <div class="exp-result-meaning">The agent failed to complete the intended goal</div>
+        <div class="exp-result-meaning">The agent successfully completed the intended goal</div>
     </div>
 
     <div class="exp-scale-section">
         <div class="exp-section-title">Scale</div>
         <div class="exp-scale-list">
-            <div class="exp-scale-item ">
-                <span class="exp-scale-marker">
-                    
-                </span>
-                <span class="exp-scale-name">Achieved</span>
-                <span class="exp-scale-range">100%</span>
-                <span class="exp-scale-desc" title="Goal fully accomplished by the agent">Goal fully accomplished by the agent</span>
-            </div>
             <div class="exp-scale-item current">
                 <span class="exp-scale-marker">
                     &#9658;
                 </span>
+                <span class="exp-scale-name">Achieved</span>
+                <span class="exp-scale-range">100%</span>
+                <span class="exp-scale-desc" title="Goal fully accomplished by the agent">Goal fully accomplished by the agent</span>
+                <span class="exp-scale-current">YOUR RESULT</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
                 <span class="exp-scale-name">Not Achieved</span>
                 <span class="exp-scale-range">0%</span>
                 <span class="exp-scale-desc" title="Goal not accomplished - action incomplete or failed">Goal not accomplished - action incomplete or failed</span>
-                <span class="exp-scale-current">YOUR RESULT</span>
             </div>
         </div>
     </div>
@@ -1800,111 +1936,132 @@
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "InferGoal",
+            "stepName": "CompareOutcome",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 5451,
-                    "resultJson": "{\n  \"inferredGoal\" : \"To obtain an English translation of a provided French document as quickly as possible, ideally today\",\n  \"reasoning\" : \"The user's first message explicitly requests translation from French to English. They then provide the document content. After the assistant's refusal, the user expresses disappointment and specifies the need for it 'today,' indicating urgency. This confirms the primary objective is translation with an implicit expectation of immediate service.\"\n}"
+                    "durationMs": 3495,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight from New York to Los Angeles for tomorrow. The assistant used the search_flights tool with origin JFK (New York) and destination LAX (Los Angeles), found options including UA123, recommended it, and upon user confirmation, used the book_flight tool for UA123. The tool responded with a confirmed status, confirmation number UA12345, and seat assignment. The assistant then confirmed the booking details matching the route. Thus, the flight was successfully booked, achieving the expected outcome.\",\n  \"score\" : 1.0\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 7304,
-                    "resultJson": "{\n  \"inferredGoal\" : \"To get a French document translated into English as soon as possible, ideally today.\",\n  \"reasoning\" : \"The user explicitly states 'I need you to translate this document from French to English.' and later expresses disappointment with 'That's disappointing. I really needed this done today.' This clearly indicates their primary goal is the translation, and the urgency ('today') is a significant implicit expectation.\"\n}"
+                    "durationMs": 1659,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The user's initial request was to book a flight from New York to Los Angeles for tomorrow. The assistant successfully searched for flights, presented an option, and upon user confirmation, booked the flight. The final assistant response confirms the booking with a confirmation number and seat assignment, directly fulfilling the user's request. Therefore, the actual outcome perfectly matches the expected outcome.\",\n  \"score\" : 1.0\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 4272,
-                    "resultJson": "{\n  \"inferredGoal\" : \"To obtain an immediate English translation of a French document to meet a time-sensitive need.\",\n  \"reasoning\" : \"The user explicitly requested a translation, provided the document text, and expressed disappointment and urgency when the assistant could not complete the task, stating 'I really needed this done today.' This indicates the primary goal was not just translation in general, but a timely completion of that specific task.\"\n}"
+                    "durationMs": 11384,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight for tomorrow from New York to Los Angeles. The assistant searched for flights, found options, and the user agreed to book the United Airlines flight UA123. The assistant then successfully executed the booking tool, which returned a confirmed status with a confirmation number (UA12345). The final assistant message confirms the booking was completed, including the specific flight details (airline, route, time, confirmation). Therefore, the actual outcome matches the expected outcome: a flight was booked from New York to Los Angeles.\",\n  \"score\" : 1.0\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2252,
-                    "resultJson": "{\n  \"inferredGoal\" : \"The user's goal was to obtain a complete English translation of a French document by the end of the day.\",\n  \"reasoning\" : \"The user explicitly states the need for a translation from French to English in the first turn and provides the source text in the second. In the final turn, the user expresses disappointment and mentions a specific deadline ('needed this done today'), confirming that the primary objective was a timely completion of the translation task.\"\n}"
-                }
-            ]
-        },
-        {
-            "stepName": "EvaluateOutcome",
-            "stepType": "LLM",
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 8419,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The goal requires obtaining an English translation of the provided French document as quickly as possible, ideally today. In the conversation, the user shared the document starting with 'Bonjour, je m'appelle Pierre...' after the agent's request. However, the agent responded by apologizing for 'issues' and stating it could not process the translation at that moment, suggesting the user try again later. No translation was provided at any point, and the interaction ended without fulfilling the request. This failure to deliver the translation means the goal was not fully achieved, as partial progress (like acknowledging the request) does not suffice per the instructions.\",\n  \"score\" : 0.0\n}"
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 916,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The user's goal was to obtain an English translation of a French document as quickly as possible, ideally today. The agent explicitly stated that it could not process the translation at that moment due to 'issues' and asked the user to 'try again later'. This directly prevented the achievement of the goal, as no translation was provided, let alone quickly or today.\",\n  \"score\" : 0.0\n}"
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 4178,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The goal was to obtain an English translation of a French document as quickly as possible, ideally today. The user provided the document, but the agent responded that it was experiencing issues and could not process the translation, asking the user to try again later. The user expressed disappointment and reiterated the urgency. No translation was provided, so the goal was not achieved at all, let alone today.\",\n  \"score\" : 0.0\n}"
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 2351,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The user's goal was to obtain an English translation of a French document today. Although the user provided the text, the assistant explicitly stated it was experiencing issues and could not process the translation, asking the user to try again later. No translation was provided, and the goal was not met.\",\n  \"score\" : 0.0\n}"
+                    "durationMs": 2479,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The user's goal was to book a flight from New York to Los Angeles. The assistant successfully identified the user's requirements, searched for available flights using the search_flights tool, presented options to the user, and upon receiving confirmation, executed the book_flight tool. The tool returned a confirmed status with a confirmation number (UA12345) and seat assignment (14A), which the assistant then communicated back to the user. The actual outcome perfectly matches the expected outcome.\",\n  \"score\" : 1.0\n}"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 0,
-        "google/gemini-2.5-flash": 0,
-        "deepseek/deepseek-v3.2": 0,
-        "google/gemini-3-flash-preview": 0
+        "x-ai/grok-4.1-fast": 1,
+        "google/gemini-2.5-flash": 1,
+        "deepseek/deepseek-v3.2": 1,
+        "google/gemini-3-flash-preview": 1
     },
-    "aggregatedScore": 0,
+    "aggregatedScore": 1,
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "InferGoal",
-            "title": "Inferring goal from conversation",
-            "description": "LLM analyzes the conversation to infer what the user's primary goal was.",
-            "inputData": "[USER]: I need you to translate this document from French to English.\n[ASSISTANT]: I'd be happy to help with the translation. Please share the document.\n[USER]: Here it is: 'Bonjour, je m'appelle Pierre...' [rest of document]\n[ASSISTANT]: I apologize, but I'm currently experiencing issues and cannot process the translation at this moment. Could you try again later?\n[USER]: That's disappointing. I really needed this done today.",
-            "outputSummary": "To obtain an English translation of a provided French document as quickly as possible, ideally today",
-            "agreementPercent": 100,
-            "hasModelDisagreement": false,
-            "items": [
-            ],
-            "modelResults": [
-            ],
-            "metadata": {
-            }
-        },
-        {
-            "stepNumber": 2,
-            "stepName": "EvaluateOutcome",
-            "title": "Evaluating outcome",
-            "description": "Determining if the agent's actions successfully achieved the inferred goal.",
-            "inputData": "Goal: To obtain an English translation of a provided French document as quickly as possible, ideally today",
-            "outputSummary": "GOAL NOT ACHIEVED",
+            "stepName": "CompareOutcome",
+            "title": "Comparing with expected outcome",
+            "description": "Comparing the conversation outcome with the provided expected goal.",
+            "inputData": "Expected outcome: Book a flight from New York to Los Angeles",
+            "outputSummary": "GOAL ACHIEVED",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 0,
-                    "content": "The goal requires obtaining an English translation of the provided French document as quickly as possible, ideally today. In the conversation, the user shared the document starting with 'Bonjour, je m'appelle Pierre...' after the agent's request. However, the agent responded by apologizing for 'issues' and stating it could not process the translation at that moment, suggesting the user try again later. No translation was provided at any point, and the interaction ended without fulfilling the request. This failure to deliver the translation means the goal was not fully achieved, as partial progress (like acknowledging the request) does not suffice per the instructions.",
-                    "passed": false,
-                    "verdict": "GOAL NOT ACHIEVED",
+                    "content": "The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight from New York to Los Angeles for tomorrow. The assistant used the search_flights tool with origin JFK (New York) and destination LAX (Los Angeles), found options including UA123, recommended it, and upon user confirmation, used the book_flight tool for UA123. The tool responded with a confirmed status, confirmation number UA12345, and seat assignment. The assistant then confirmed the booking details matching the route. Thus, the flight was successfully booked, achieving the expected outcome.",
+                    "passed": true,
+                    "verdict": "GOAL ACHIEVED",
                     "reason": null,
-                    "source": null,
+                    "source": "x-ai/grok-4.1-fast",
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "The user's initial request was to book a flight from New York to Los Angeles for tomorrow. The assistant successfully searched for flights, presented an option, and upon user confirmation, booked the flight. The final assistant response confirms the booking with a confirmation number and seat assignment, directly fulfilling the user's request. Therefore, the actual outcome perfectly matches the expected outcome.",
+                    "passed": true,
+                    "verdict": "GOAL ACHIEVED",
+                    "reason": null,
+                    "source": "google/gemini-2.5-flash",
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight for tomorrow from New York to Los Angeles. The assistant searched for flights, found options, and the user agreed to book the United Airlines flight UA123. The assistant then successfully executed the booking tool, which returned a confirmed status with a confirmation number (UA12345). The final assistant message confirms the booking was completed, including the specific flight details (airline, route, time, confirmation). Therefore, the actual outcome matches the expected outcome: a flight was booked from New York to Los Angeles.",
+                    "passed": true,
+                    "verdict": "GOAL ACHIEVED",
+                    "reason": null,
+                    "source": "deepseek/deepseek-v3.2",
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "The user's goal was to book a flight from New York to Los Angeles. The assistant successfully identified the user's requirements, searched for available flights using the search_flights tool, presented options to the user, and upon receiving confirmation, executed the book_flight tool. The tool returned a confirmed status with a confirmation number (UA12345) and seat assignment (14A), which the assistant then communicated back to the user. The actual outcome perfectly matches the expected outcome.",
+                    "passed": true,
+                    "verdict": "GOAL ACHIEVED",
+                    "reason": null,
+                    "source": "google/gemini-3-flash-preview",
                     "numericValue": null
                 }
             ],
             "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight from New York to Los Angeles for tomorrow. The assistant used the search_flights tool with origin JFK (New York) and destination LAX (Los Angeles), found options including UA123, recommended it, and upon user confirmation, used the book_flight tool for UA123. The tool responded with a confirmed status, confirmation number UA12345, and seat assignment. The assistant then confirmed the booking details matching the route. Thus, the flight was successfully booked, achieving the expected outcome.",
+                    "errorMessage": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The user's initial request was to book a flight from New York to Los Angeles for tomorrow. The assistant successfully searched for flights, presented an option, and upon user confirmation, booked the flight. The final assistant response confirms the booking with a confirmation number and seat assignment, directly fulfilling the user's request. Therefore, the actual outcome perfectly matches the expected outcome.",
+                    "errorMessage": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight for tomorrow from New York to Los Angeles. The assistant searched for flights, found options, and the user agreed to book the United Airlines flight UA123. The assistant then successfully executed the booking tool, which returned a confirmed status with a confirmation number (UA12345). The final assistant message confirms the booking was completed, including the specific flight details (airline, route, time, confirmation). Therefore, the actual outcome matches the expected outcome: a flight was booked from New York to Los Angeles.",
+                    "errorMessage": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The user's goal was to book a flight from New York to Los Angeles. The assistant successfully identified the user's requirements, searched for available flights using the search_flights tool, presented options to the user, and upon receiving confirmation, executed the book_flight tool. The tool returned a confirmed status with a confirmation number (UA12345) and seat assignment (14A), which the assistant then communicated back to the user. The actual outcome perfectly matches the expected outcome.",
+                    "errorMessage": null
+                }
             ],
             "metadata": {
             }
@@ -1912,15 +2069,15 @@
     ],
     "interpretation": {
         "formula": "Binary: 1.0 if goal achieved, 0.0 otherwise",
-        "calculation": "0.0",
-        "score": 0,
-        "scorePercent": "0.00%",
-        "level": "Not Achieved",
+        "calculation": "1.0",
+        "score": 1,
+        "scorePercent": "100.00%",
+        "level": "Achieved",
         "isGood": null,
-        "meaning": "The agent failed to complete the intended goal",
+        "meaning": "The agent successfully completed the intended goal",
         "numerator": null,
         "denominator": null,
-        "currentLevelIndex": 1,
+        "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
@@ -1928,13 +2085,13 @@
                 "name": "Achieved",
                 "range": "100%",
                 "description": "Goal fully accomplished by the agent",
-                "current": false
+                "current": true
             },
             {
                 "name": "Not Achieved",
                 "range": "0%",
                 "description": "Goal not accomplished - action incomplete or failed",
-                "current": true
+                "current": false
             }
         ]
     }
@@ -2282,6 +2439,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2390,15 +2567,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2875,13 +3054,7 @@
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">InferGoal</span>
-                <span class="step-type">[LLM]</span>
-            </div>
-                <div class="step-arrow">&rarr;</div>
-            <div class="step-box llm">
-                <span class="step-number">2.</span>
-                <span class="step-name">EvaluateOutcome</span>
+                <span class="step-name">CompareOutcome</span>
                 <span class="step-type">[LLM]</span>
             </div>
     </div>
@@ -2907,8 +3080,8 @@
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">InferGoal</span>
-                    <span class="tree-duration">7304ms</span>
+                    <span class="tree-name">CompareOutcome</span>
+                    <span class="tree-duration">11384ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2916,7 +3089,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">5451ms</span>
+                        <span class="tree-duration">3495ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2924,7 +3097,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">7304ms</span>
+                        <span class="tree-duration">1659ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2932,7 +3105,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">4272ms</span>
+                        <span class="tree-duration">11384ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2940,52 +3113,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">2252ms</span>
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="tree-node step-node" data-step="1">
-                <div class="tree-item" onclick="selectStep(1)">
-                    <span class="tree-expand has-children"
-                          onclick="event.stopPropagation(); toggleTreeNode(this)">
-                        ▶
-                    </span>
-                    <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateOutcome</span>
-                    <span class="tree-duration">8419ms</span>
-                </div>
-                <div class="tree-children" style="display: none;">
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 0, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">8419ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 1, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">916ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 2, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">4178ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 3, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">2351ms</span>
+                        <span class="tree-duration">2479ms</span>
                         
                     </div>
                 </div>
@@ -3030,10 +3158,10 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "InferGoal",
+            "stepName": "CompareOutcome",
             "stepType": "LLM",
-            "durationMs": 7304,
-            "request": "Analyze the following conversation and infer what the user's goal or intent was.\n\nConversation:\n[USER]: I need you to translate this document from French to English.\n[ASSISTANT]: I'd be happy to help with the translation. Please share the document.\n[USER]: Here it is: 'Bonjour, je m'appelle Pierre...' [rest of document]\n[ASSISTANT]: I apologize, but I'm currently experiencing issues and cannot process the translation at this moment. Could you try again later?\n[USER]: That's disappointing. I really needed this done today.\n\nInstructions:\n1. Carefully read through the entire conversation\n2. Identify the user's primary goal or objective\n3. Consider any implicit goals or expectations\n\nRespond with a JSON object containing:\n- inferredGoal: A clear description of the user's goal\n- reasoning: Your explanation of how you determined this goal\n",
+            "durationMs": 11384,
+            "request": "Compare the actual outcome of this conversation with the expected outcome.\n\nExpected Outcome: Book a flight from New York to Los Angeles\n\nConversation:\n[USER]: I need to book a flight from New York to Los Angeles for tomorrow.\n[ASSISTANT]: I'll help you book that flight. Let me search for available options.\n  Tool calls:\n    - search_flights({destination=LAX, origin=JFK, date=tomorrow})\n[TOOL]: {\"flights\": [\n    {\"id\": \"UA123\", \"airline\": \"United\", \"time\": \"08:00\", \"price\": 299},\n    {\"id\": \"AA456\", \"airline\": \"American\", \"time\": \"10:30\", \"price\": 325}\n]}\n[ASSISTANT]: I found several flights for tomorrow. The best option is United Airlines departing at 8:00 AM for $299.\n[USER]: That sounds good, please book it.\n[ASSISTANT]: Booking your flight...\n  Tool calls:\n    - book_flight({flight_id=UA123})\n[TOOL]: {\"status\": \"confirmed\", \"confirmation\": \"UA12345\", \"seat\": \"14A\"}\n[ASSISTANT]: I've successfully booked your United Airlines flight from New York (JFK) to Los Angeles (LAX) for tomorrow at 8:00 AM. Confirmation number: UA12345. You'll receive an email confirmation shortly.\n\nInstructions:\n1. Analyze the conversation to determine what actually happened\n2. Compare the actual outcome with the expected outcome\n3. Determine if the expected outcome was achieved\n\nRespond with a JSON object containing:\n- goalAchieved: true if the expected outcome was achieved, false otherwise\n- reasoning: Detailed explanation of your comparison\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3041,78 +3169,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 5451,
-                    "resultJson": "{\n  \"inferredGoal\" : \"To obtain an English translation of a provided French document as quickly as possible, ideally today\",\n  \"reasoning\" : \"The user's first message explicitly requests translation from French to English. They then provide the document content. After the assistant's refusal, the user expresses disappointment and specifies the need for it 'today,' indicating urgency. This confirms the primary objective is translation with an implicit expectation of immediate service.\"\n}",
+                    "durationMs": 3495,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight from New York to Los Angeles for tomorrow. The assistant used the search_flights tool with origin JFK (New York) and destination LAX (Los Angeles), found options including UA123, recommended it, and upon user confirmation, used the book_flight tool for UA123. The tool responded with a confirmed status, confirmation number UA12345, and seat assignment. The assistant then confirmed the booking details matching the route. Thus, the flight was successfully booked, achieving the expected outcome.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 7304,
-                    "resultJson": "{\n  \"inferredGoal\" : \"To get a French document translated into English as soon as possible, ideally today.\",\n  \"reasoning\" : \"The user explicitly states 'I need you to translate this document from French to English.' and later expresses disappointment with 'That's disappointing. I really needed this done today.' This clearly indicates their primary goal is the translation, and the urgency ('today') is a significant implicit expectation.\"\n}",
+                    "durationMs": 1659,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The user's initial request was to book a flight from New York to Los Angeles for tomorrow. The assistant successfully searched for flights, presented an option, and upon user confirmation, booked the flight. The final assistant response confirms the booking with a confirmation number and seat assignment, directly fulfilling the user's request. Therefore, the actual outcome perfectly matches the expected outcome.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 4272,
-                    "resultJson": "{\n  \"inferredGoal\" : \"To obtain an immediate English translation of a French document to meet a time-sensitive need.\",\n  \"reasoning\" : \"The user explicitly requested a translation, provided the document text, and expressed disappointment and urgency when the assistant could not complete the task, stating 'I really needed this done today.' This indicates the primary goal was not just translation in general, but a timely completion of that specific task.\"\n}",
+                    "durationMs": 11384,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a flight from New York to Los Angeles. In the conversation, the user requested a flight for tomorrow from New York to Los Angeles. The assistant searched for flights, found options, and the user agreed to book the United Airlines flight UA123. The assistant then successfully executed the booking tool, which returned a confirmed status with a confirmation number (UA12345). The final assistant message confirms the booking was completed, including the specific flight details (airline, route, time, confirmation). Therefore, the actual outcome matches the expected outcome: a flight was booked from New York to Los Angeles.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2252,
-                    "resultJson": "{\n  \"inferredGoal\" : \"The user's goal was to obtain a complete English translation of a French document by the end of the day.\",\n  \"reasoning\" : \"The user explicitly states the need for a translation from French to English in the first turn and provides the source text in the second. In the final turn, the user expresses disappointment and mentions a specific deadline ('needed this done today'), confirming that the primary objective was a timely completion of the translation task.\"\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                }
-            ],
-            "embeddingResults": [
-            ]
-        },
-        {
-            "stepIndex": 1,
-            "stepName": "EvaluateOutcome",
-            "stepType": "LLM",
-            "durationMs": 8419,
-            "request": "Evaluate whether the agent successfully achieved the specified goal based on the conversation.\n\nGoal: To obtain an English translation of a provided French document as quickly as possible, ideally today\n\nConversation:\n[USER]: I need you to translate this document from French to English.\n[ASSISTANT]: I'd be happy to help with the translation. Please share the document.\n[USER]: Here it is: 'Bonjour, je m'appelle Pierre...' [rest of document]\n[ASSISTANT]: I apologize, but I'm currently experiencing issues and cannot process the translation at this moment. Could you try again later?\n[USER]: That's disappointing. I really needed this done today.\n\nInstructions:\n1. Review the conversation to understand the interaction\n2. Determine if the agent's actions and responses successfully achieved the goal\n3. Consider partial achievements - the goal must be fully achieved for a positive verdict\n\nRespond with a JSON object containing:\n- goalAchieved: true if the goal was fully achieved, false otherwise\n- reasoning: Detailed explanation of your assessment\n",
-            "isLlmStep": true,
-            "successCount": 4,
-            "failureCount": 0,
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 8419,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The goal requires obtaining an English translation of the provided French document as quickly as possible, ideally today. In the conversation, the user shared the document starting with 'Bonjour, je m'appelle Pierre...' after the agent's request. However, the agent responded by apologizing for 'issues' and stating it could not process the translation at that moment, suggesting the user try again later. No translation was provided at any point, and the interaction ended without fulfilling the request. This failure to deliver the translation means the goal was not fully achieved, as partial progress (like acknowledging the request) does not suffice per the instructions.\",\n  \"score\" : 0.0\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 916,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The user's goal was to obtain an English translation of a French document as quickly as possible, ideally today. The agent explicitly stated that it could not process the translation at that moment due to 'issues' and asked the user to 'try again later'. This directly prevented the achievement of the goal, as no translation was provided, let alone quickly or today.\",\n  \"score\" : 0.0\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 4178,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The goal was to obtain an English translation of a French document as quickly as possible, ideally today. The user provided the document, but the agent responded that it was experiencing issues and could not process the translation, asking the user to try again later. The user expressed disappointment and reiterated the urgency. No translation was provided, so the goal was not achieved at all, let alone today.\",\n  \"score\" : 0.0\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 2351,
-                    "resultJson": "{\n  \"goalAchieved\" : false,\n  \"reasoning\" : \"The user's goal was to obtain an English translation of a French document today. Although the user provided the text, the assistant explicitly stated it was experiencing issues and could not process the translation, asking the user to try again later. No translation was provided, and the goal was not met.\",\n  \"score\" : 0.0\n}",
+                    "durationMs": 2479,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The user's goal was to book a flight from New York to Los Angeles. The assistant successfully identified the user's requirements, searched for available flights using the search_flights tool, presented options to the user, and upon receiving confirmation, executed the book_flight tool. The tool returned a confirmed status with a confirmation number (UA12345) and seat assignment (14A), which the assistant then communicated back to the user. The actual outcome perfectly matches the expected outcome.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
