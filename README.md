@@ -183,8 +183,11 @@ spring:
 
 ### Pipeline 1: With References (Testing/Monitoring)
 
-Comprehensive evaluation for POC, automated tests, and synthetic monitoring.
-Uses ground truth data to validate agent behavior (~8 LLM calls).
+Evaluation for scenarios where expected agent behavior is known in advance:
+- **Business regression tests**: Validate agent responses against predefined expectations
+- **Synthetic monitoring**: A watchdog service sends scheduled requests (cron) with known correct outcomes
+
+References = ground truth for expected responses and tool calls (~8 LLM calls).
 
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
