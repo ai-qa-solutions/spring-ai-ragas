@@ -566,6 +566,7 @@ public class ScoreExplanationExtractor {
                             if (questionsNode != null && questionsNode.isArray()) {
                                 for (final JsonNode q : questionsNode) {
                                     final String questionText = q.isTextual() ? q.asText() : getTextSafe(q, "question");
+                                    // Similarity will be updated later with the average score
                                     questions.add(ResponseRelevancyExplanation.GeneratedQuestion.builder()
                                             .question(questionText)
                                             .similarity(0.0)
@@ -599,12 +600,22 @@ public class ScoreExplanationExtractor {
             }
         }
 
+        // Update questions with the average similarity score (per-question scores not available)
+        // Use the final aggregated score as similarity for display purposes
+        final double avgSimilarity = score != null ? score : 0.0;
+        final List<ResponseRelevancyExplanation.GeneratedQuestion> questionsWithSimilarity = questions.stream()
+                .map(q -> ResponseRelevancyExplanation.GeneratedQuestion.builder()
+                        .question(q.getQuestion())
+                        .similarity(avgSimilarity)
+                        .build())
+                .toList();
+
         return Optional.of(ResponseRelevancyExplanation.builder()
                 .score(score)
                 .language(language)
                 .originalQuestion(originalQuestion)
                 .aiResponse(aiResponse)
-                .generatedQuestions(questions)
+                .generatedQuestions(questionsWithSimilarity)
                 .modelResults(modelResults)
                 .build());
     }
