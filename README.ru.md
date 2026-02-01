@@ -29,7 +29,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 ### General Purpose Metrics (Общие метрики)
 
-|                                     Метрика                                      |                  Описание                  |
+| Метрика                                                                          | Описание                                   |
 |----------------------------------------------------------------------------------|--------------------------------------------|
 | [AspectCritic](docs/ru/general_purpose_metrics_ru.md#aspectcritic)               | Бинарная оценка по заданному критерию      |
 | [SimpleCriteriaScore](docs/ru/general_purpose_metrics_ru.md#simplecriteriascore) | Количественная оценка на непрерывной шкале |
@@ -39,7 +39,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 ### Метрики извлечения (Retrieval Metrics)
 
-|                                  Метрика                                   |                  Описание                  |
+| Метрика                                                                    | Описание                                   |
 |----------------------------------------------------------------------------|--------------------------------------------|
 | [ContextEntityRecall](docs/ru/retrieval_metrics_ru.md#contextentityrecall) | Покрытие сущностей в найденных контекстах  |
 | [ContextPrecision](docs/ru/retrieval_metrics_ru.md#contextprecision)       | Точность ранжирования найденных контекстов |
@@ -52,7 +52,7 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 
 ### Метрики агентов (Agent Metrics)
 
-|                              Метрика                               |                 Описание                  |
+| Метрика                                                            | Описание                                  |
 |--------------------------------------------------------------------|-------------------------------------------|
 | [AgentGoalAccuracy](docs/ru/agent_metrics_ru.md#agentgoalaccuracy) | Достиг ли агент поставленной цели         |
 | [ToolCallAccuracy](docs/ru/agent_metrics_ru.md#toolcallaccuracy)   | Корректность вызовов инструментов/функций |
@@ -85,7 +85,7 @@ Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 
 ### Метрики ответов (Response Metrics)
 
-|                                 Метрика                                 |                    Описание                     |
+| Метрика                                                                 | Описание                                        |
 |-------------------------------------------------------------------------|-------------------------------------------------|
 | [AnswerCorrectness](docs/ru/response_metrics_ru.md#answercorrectness)   | Общая корректность ответа                       |
 | [FactualCorrectness](docs/ru/response_metrics_ru.md#factualcorrectness) | Фактическая точность утверждений                |
@@ -95,7 +95,7 @@ Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 
 ### Метрики NVIDIA (NVIDIA Metrics)
 
-|                                  Метрика                                  |             Описание              |
+| Метрика                                                                   | Описание                          |
 |---------------------------------------------------------------------------|-----------------------------------|
 | [AnswerAccuracy](docs/ru/nvidia_metrics_ru.md#answeraccuracy)             | Точность ответа в стиле NVIDIA    |
 | [ContextRelevance](docs/ru/nvidia_metrics_ru.md#contextrelevance)         | Оценка релевантности контекста    |
@@ -107,7 +107,7 @@ Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 
 Эти метрики вычисляют сходство текстов напрямую, без вызовов LLM:
 
-|                            Метрика                             |                       Описание                       |
+| Метрика                                                        | Описание                                             |
 |----------------------------------------------------------------|------------------------------------------------------|
 | [BleuScore](docs/ru/nlp_metrics_ru.md#bleuscore)               | BLEU-оценка качества перевода                        |
 | [RougeScore](docs/ru/nlp_metrics_ru.md#rougescore)             | ROUGE-оценка (ROUGE-1, ROUGE-2, ROUGE-L)             |
@@ -194,7 +194,8 @@ spring:
 
 ### Несколько провайдеров (OpenRouter + cloud.ru)
 
-Пример конфигурации с двумя провайдерами — OpenRouter для глобальных моделей и cloud.ru Evolution для моделей, размещённых в России:
+Пример конфигурации с двумя провайдерами — OpenRouter для глобальных моделей и cloud.ru Evolution для моделей,
+размещённых в России:
 
 ```yaml
 spring:
@@ -243,7 +244,7 @@ spring:
 
 #### Поддерживаемые OpenAI-совместимые провайдеры
 
-|     Провайдер      |                 Base URL                 |         Примечание         |
+| Провайдер          | Base URL                                 | Примечание                 |
 |--------------------|------------------------------------------|----------------------------|
 | OpenRouter         | `https://openrouter.ai/api`              | Доступ к 200+ моделям      |
 | cloud.ru Evolution | `https://foundation-models.api.cloud.ru` | Российский хостинг         |
@@ -255,13 +256,15 @@ spring:
 
 ### Внешние Spring AI стартеры (GigaChat, Anthropic и др.)
 
-Библиотека автоматически обнаруживает бины ChatModel и EmbeddingModel из внешних Spring AI стартеров. Дополнительная конфигурация не требуется — просто добавьте зависимость стартера и настройте его.
+Библиотека автоматически обнаруживает бины ChatModel и EmbeddingModel из внешних Spring AI стартеров. Дополнительная
+конфигурация не требуется — просто добавьте зависимость стартера и настройте его.
 
 #### Пример: Интеграция с GigaChat
 
 **1. Добавьте зависимость GigaChat стартера:**
 
 ```xml
+
 <dependency>
     <groupId>chat.giga</groupId>
     <artifactId>spring-ai-starter-model-gigachat</artifactId>
@@ -296,6 +299,7 @@ spring:
 **3. Используйте модели GigaChat:**
 
 ```java
+
 @Service
 public class GigaChatService {
 
@@ -311,7 +315,7 @@ public class GigaChatService {
 
 #### Поддерживаемые внешние стартеры
 
-|  Стартер  |                   Артефакт                   | ChatModel | EmbeddingModel |
+| Стартер   | Артефакт                                     | ChatModel | EmbeddingModel |
 |-----------|----------------------------------------------|-----------|----------------|
 | GigaChat  | `chat.giga:spring-ai-starter-model-gigachat` | GigaChat  | Embeddings     |
 | Anthropic | `spring-ai-starter-model-anthropic`          | Claude    | -              |
@@ -420,6 +424,7 @@ void evaluateRAG() {
 Пример полной настройки см. в [pom.xml](pom.xml).
 
 ```xml
+
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-allure</artifactId>
@@ -438,31 +443,31 @@ void evaluateRAG() {
 **Извлечение (RAG):**
 [Faithfulness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FaithfulnessMetric_ru.html) |
 [ContextPrecision](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextPrecisionMetric_ru.html) |
-[ContextRecall](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextRecallMetric_en.html) |
-[ContextEntityRecall](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextEntityRecallMetric_en.html) |
-[NoiseSensitivity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/NoiseSensitivityMetric_en.html) |
-[ResponseRelevancy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ResponseRelevancyMetric_en.html)
+[ContextRecall](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextRecallMetric_ru.html) |
+[ContextEntityRecall](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextEntityRecallMetric_ru.html) |
+[NoiseSensitivity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/NoiseSensitivityMetric_ru.html) |
+[ResponseRelevancy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ResponseRelevancyMetric_ru.html)
 
 **Агенты:**
-[AgentGoalAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AgentGoalAccuracyMetric_en.html) |
-[ToolCallAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ToolCallAccuracyMetric_en.html) |
-[TopicAdherence](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/TopicAdherenceMetric_en.html)
+[AgentGoalAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AgentGoalAccuracyMetric_ru.html) |
+[ToolCallAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ToolCallAccuracyMetric_ru.html) |
+[TopicAdherence](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/TopicAdherenceMetric_ru.html)
 
 **Ответы:**
-[AnswerCorrectness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AnswerCorrectnessMetric_en.html) |
-[FactualCorrectness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FactualCorrectnessMetric_en.html) |
-[SemanticSimilarity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SemanticSimilarityMetric_en.html)
+[AnswerCorrectness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AnswerCorrectnessMetric_ru.html) |
+[FactualCorrectness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/FactualCorrectnessMetric_ru.html) |
+[SemanticSimilarity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/SemanticSimilarityMetric_ru.html)
 
 **NVIDIA:**
-[AnswerAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AnswerAccuracyMetric_en.html) |
-[ContextRelevance](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextRelevanceMetric_en.html) |
-[ResponseGroundedness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ResponseGroundednessMetric_en.html)
+[AnswerAccuracy](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/AnswerAccuracyMetric_ru.html) |
+[ContextRelevance](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ContextRelevanceMetric_ru.html) |
+[ResponseGroundedness](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ResponseGroundednessMetric_ru.html)
 
 **NLP:**
-[BleuScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/BleuScoreMetric_en.html) |
-[RougeScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RougeScoreMetric_en.html) |
-[ChrfScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ChrfScoreMetric_en.html) |
-[StringSimilarity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/StringSimilarityMetric_en.html)
+[BleuScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/BleuScoreMetric_ru.html) |
+[RougeScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/RougeScoreMetric_ru.html) |
+[ChrfScore](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/ChrfScoreMetric_ru.html) |
+[StringSimilarity](https://htmlpreview.github.io/?https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/docs/attachments/StringSimilarityMetric_ru.html)
 
 Полная документация: [Руководство по интеграции с Allure](spring-ai-ragas-allure/README.md)
 
