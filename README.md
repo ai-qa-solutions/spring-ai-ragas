@@ -19,6 +19,13 @@ subjective. Spring AI RAGAS solves these problems:
 - **Multilingual**: Support for Russian and English languages
 - **Extensible**: Easy to create custom metrics
 
+## Use Cases
+
+Comprehensive quality analysis of agent systems in two scenarios:
+
+- **With References**: POC evaluation, automated tests, synthetic monitoring
+- **Without References**: Sampling and analysis of live production traffic
+
 ## Version Compatibility
 
 | Spring AI RAGAS | RAGAS (Python) | Spring Boot | Spring AI |
