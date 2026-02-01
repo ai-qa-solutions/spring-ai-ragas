@@ -244,13 +244,14 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
 
         final ChartData chartData = buildChartData(result);
 
-        // Extract score explanation (pass config for rubrics-based metrics)
+        // Extract score explanation (pass config and metadata for metric-specific data)
         final Optional<ScoreExplanation> explanationOpt = explanationExtractor.extract(
                 metricName,
                 new ArrayList<>(steps),
                 result.getAggregatedScore(),
                 properties.getLanguage(),
-                evaluationContext.getConfig());
+                evaluationContext.getConfig(),
+                result.getMetadata());
 
         // Format conversation messages for agent metrics
         final List<FormattedMessage> conversationMessages =

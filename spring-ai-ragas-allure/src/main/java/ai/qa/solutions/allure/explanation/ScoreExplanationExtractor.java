@@ -55,6 +55,27 @@ public class ScoreExplanationExtractor {
             final Double score,
             final String language,
             final Object config) {
+        return extract(metricName, steps, score, language, config, null);
+    }
+
+    /**
+     * Extracts a score explanation for the given metric with config and metadata.
+     *
+     * @param metricName the metric name
+     * @param steps the execution steps
+     * @param score the final score
+     * @param language the report language ("en" or "ru")
+     * @param config the metric configuration object (can be null)
+     * @param metadata the metric evaluation result metadata (can be null)
+     * @return optional explanation, empty if metric not supported
+     */
+    public Optional<ScoreExplanation> extract(
+            final String metricName,
+            final List<StepExecutionData> steps,
+            final Double score,
+            final String language,
+            final Object config,
+            final Map<String, Object> metadata) {
         if (metricName == null || steps == null || steps.isEmpty()) {
             return Optional.empty();
         }
@@ -81,7 +102,7 @@ public class ScoreExplanationExtractor {
                 case "agent-goal-accuracy", "agentgoalaccuracy" -> extractAgentGoalAccuracy(
                         steps, score, language, config);
                 case "tool-call-accuracy", "toolcallaccuracy" -> extractToolCallAccuracy(
-                        steps, score, language, config);
+                        steps, score, language, config, metadata);
                 case "topic-adherence", "topicadherence" -> extractTopicAdherence(steps, score, language, config);
                 case "context-relevance", "contextrelevance" -> extractContextRelevance(steps, score, language, config);
                 case "response-groundedness", "responsegroundedness" -> extractResponseGroundedness(
@@ -1391,7 +1412,11 @@ public class ScoreExplanationExtractor {
 
     @SuppressWarnings("unchecked")
     private Optional<ScoreExplanation> extractToolCallAccuracy(
-            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+            final List<StepExecutionData> steps,
+            final Double score,
+            final String language,
+            final Object config,
+            final Map<String, Object> metadata) {
         String mode = "STRICT";
         double precision = 0.0;
         double recall = 0.0;
@@ -1412,68 +1437,127 @@ public class ScoreExplanationExtractor {
             }
         }
 
-        for (final StepExecutionData step : steps) {
-            final String stepName = step.getStepName();
+        // Primary source: extract from metadata (passed by metric via afterMetricEvaluation)
+        if (metadata != null) {
+            if (metadata.containsKey("precision")) {
+                precision = ((Number) metadata.get("precision")).doubleValue();
+            }
+            if (metadata.containsKey("recall")) {
+                recall = ((Number) metadata.get("recall")).doubleValue();
+            }
+            if (metadata.containsKey("truePositives")) {
+                truePositives = ((Number) metadata.get("truePositives")).intValue();
+            }
+            if (metadata.containsKey("falsePositives")) {
+                falsePositives = ((Number) metadata.get("falsePositives")).intValue();
+            }
+            if (metadata.containsKey("falseNegatives")) {
+                falseNegatives = ((Number) metadata.get("falseNegatives")).intValue();
+            }
+            if (metadata.containsKey("mode")) {
+                mode = metadata.get("mode").toString();
+            }
+            // Extract matches from metadata
+            if (metadata.containsKey("matches")) {
+                final Object matchesObj = metadata.get("matches");
+                if (matchesObj instanceof List<?>) {
+                    for (final Object matchObj : (List<?>) matchesObj) {
+                        try {
+                            final JsonNode m = OBJECT_MAPPER.valueToTree(matchObj);
+                            final JsonNode actualCall = m.get("actualCall");
+                            final String toolName = actualCall != null ? getTextSafe(actualCall, "name") : "";
+                            final Map<String, Object> arguments = new HashMap<>();
+                            if (actualCall != null && actualCall.has("arguments")) {
+                                actualCall
+                                        .get("arguments")
+                                        .fields()
+                                        .forEachRemaining(entry -> arguments.put(
+                                                entry.getKey(), entry.getValue().asText()));
+                            }
 
-            // Extract metrics from metadata if available
-            for (final ModelExecutionData result : step.getModelResults()) {
-                if (result.isSuccess() && result.getResultJson() != null) {
-                    try {
-                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
-
-                        // Extract precision/recall from ComputePrecisionRecall step
-                        if ("ComputePrecisionRecall".equalsIgnoreCase(stepName)) {
-                            if (json.has("precision")) {
-                                precision = json.get("precision").asDouble();
-                            }
-                            if (json.has("recall")) {
-                                recall = json.get("recall").asDouble();
-                            }
-                            if (json.has("truePositives")) {
-                                truePositives = json.get("truePositives").asInt();
-                            }
-                            if (json.has("falsePositives")) {
-                                falsePositives = json.get("falsePositives").asInt();
-                            }
-                            if (json.has("falseNegatives")) {
-                                falseNegatives = json.get("falseNegatives").asInt();
-                            }
+                            matches.add(ToolCallAccuracyExplanation.ToolCallMatch.builder()
+                                    .toolName(toolName)
+                                    .arguments(arguments)
+                                    .matched(
+                                            m.has("matched") && m.get("matched").asBoolean())
+                                    .matchScore(
+                                            m.has("matchScore")
+                                                    ? m.get("matchScore").asDouble()
+                                                    : 0.0)
+                                    .build());
+                        } catch (final Exception e) {
+                            log.debug("Failed to parse match from metadata: {}", e.getMessage());
                         }
+                    }
+                }
+            }
+        }
 
-                        // Extract matches from AlignToolCalls step
-                        if ("AlignToolCalls".equalsIgnoreCase(stepName)) {
-                            final JsonNode matchesNode = json.get("matches");
-                            if (matchesNode != null && matchesNode.isArray()) {
-                                for (final JsonNode m : matchesNode) {
-                                    final JsonNode actualCall = m.get("actualCall");
-                                    final String toolName = actualCall != null ? getTextSafe(actualCall, "name") : "";
-                                    final Map<String, Object> arguments = new HashMap<>();
-                                    if (actualCall != null && actualCall.has("arguments")) {
-                                        actualCall
-                                                .get("arguments")
-                                                .fields()
-                                                .forEachRemaining(entry -> arguments.put(
-                                                        entry.getKey(),
-                                                        entry.getValue().asText()));
-                                    }
+        // Fallback: try to extract from step results (legacy behavior)
+        if (precision == 0.0 && recall == 0.0) {
+            for (final StepExecutionData step : steps) {
+                final String stepName = step.getStepName();
 
-                                    matches.add(ToolCallAccuracyExplanation.ToolCallMatch.builder()
-                                            .toolName(toolName)
-                                            .arguments(arguments)
-                                            .matched(m.has("matched")
-                                                    && m.get("matched").asBoolean())
-                                            .matchScore(
-                                                    m.has("matchScore")
-                                                            ? m.get("matchScore")
-                                                                    .asDouble()
-                                                            : 0.0)
-                                            .build());
+                for (final ModelExecutionData result : step.getModelResults()) {
+                    if (result.isSuccess() && result.getResultJson() != null) {
+                        try {
+                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+
+                            // Extract precision/recall from ComputePrecisionRecall step
+                            if ("ComputePrecisionRecall".equalsIgnoreCase(stepName)) {
+                                if (json.has("precision")) {
+                                    precision = json.get("precision").asDouble();
+                                }
+                                if (json.has("recall")) {
+                                    recall = json.get("recall").asDouble();
+                                }
+                                if (json.has("truePositives")) {
+                                    truePositives = json.get("truePositives").asInt();
+                                }
+                                if (json.has("falsePositives")) {
+                                    falsePositives = json.get("falsePositives").asInt();
+                                }
+                                if (json.has("falseNegatives")) {
+                                    falseNegatives = json.get("falseNegatives").asInt();
                                 }
                             }
+
+                            // Extract matches from AlignToolCalls step
+                            if ("AlignToolCalls".equalsIgnoreCase(stepName) && matches.isEmpty()) {
+                                final JsonNode matchesNode = json.get("matches");
+                                if (matchesNode != null && matchesNode.isArray()) {
+                                    for (final JsonNode m : matchesNode) {
+                                        final JsonNode actualCall = m.get("actualCall");
+                                        final String toolName =
+                                                actualCall != null ? getTextSafe(actualCall, "name") : "";
+                                        final Map<String, Object> arguments = new HashMap<>();
+                                        if (actualCall != null && actualCall.has("arguments")) {
+                                            actualCall
+                                                    .get("arguments")
+                                                    .fields()
+                                                    .forEachRemaining(entry -> arguments.put(
+                                                            entry.getKey(),
+                                                            entry.getValue().asText()));
+                                        }
+
+                                        matches.add(ToolCallAccuracyExplanation.ToolCallMatch.builder()
+                                                .toolName(toolName)
+                                                .arguments(arguments)
+                                                .matched(m.has("matched")
+                                                        && m.get("matched").asBoolean())
+                                                .matchScore(
+                                                        m.has("matchScore")
+                                                                ? m.get("matchScore")
+                                                                        .asDouble()
+                                                                : 0.0)
+                                                .build());
+                                    }
+                                }
+                            }
+                            break;
+                        } catch (final JsonProcessingException e) {
+                            log.debug("Failed to parse tool call accuracy JSON: {}", e.getMessage());
                         }
-                        break;
-                    } catch (final JsonProcessingException e) {
-                        log.debug("Failed to parse tool call accuracy JSON: {}", e.getMessage());
                     }
                 }
             }
