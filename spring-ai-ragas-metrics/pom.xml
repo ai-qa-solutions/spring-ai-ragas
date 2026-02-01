@@ -11,6 +11,10 @@
 
     <artifactId>spring-ai-ragas-metrics</artifactId>
 
+    <name>Spring AI RAGAS Metrics</name>
+    <description>Core metrics library for evaluating LLM-based AI agents</description>
+    <url>https://github.com/ai-qa-solutions/spring-ai-ragas</url>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.ai</groupId>

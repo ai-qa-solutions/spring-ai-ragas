@@ -11,6 +11,10 @@
 
     <artifactId>spring-ai-ragas-multi-model</artifactId>
 
+    <name>Spring AI RAGAS Multi-Model</name>
+    <description>Multi-model execution engine with aggregation strategies</description>
+    <url>https://github.com/ai-qa-solutions/spring-ai-ragas</url>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

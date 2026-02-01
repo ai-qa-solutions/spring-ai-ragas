@@ -11,6 +11,10 @@
 
     <artifactId>spring-ai-ragas-spring-boot</artifactId>
 
+    <name>Spring AI RAGAS Spring Boot</name>
+    <description>Spring Boot autoconfiguration for RAGAS metrics</description>
+    <url>https://github.com/ai-qa-solutions/spring-ai-ragas</url>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
