@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextPrecisionMetric - Evaluation Report</title>
+    <title>ContextRelevanceMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -1619,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ContextPrecisionMetric - Evaluation Report</h1>
+            <h1>ContextRelevanceMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 9763ms</span>
-                <span class="timestamp">2026-02-01T03:17:02.316450Z</span>
+                <span class="duration">Duration: 3992ms</span>
+                <span class="timestamp">2026-02-01T03:21:07.229718Z</span>
             </div>
         </header>
 
@@ -1635,7 +1635,7 @@
             <div class="block-content">
 <div class="chart-container">
     <h3>Model Scores</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" class="bar-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 90" class="bar-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .scale-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1647,41 +1647,32 @@
             .bar-poor { fill: #eb5146; }
             .bar-excluded { fill: #7281a1; }
         </style>
-                <line x1="150" y1="20" x2="150" y2="150" class="grid-line"/>
-                    <text x="150" y="170" class="scale-label">0</text>
-                <line x1="190" y1="20" x2="190" y2="150" class="grid-line"/>
-                <line x1="230" y1="20" x2="230" y2="150" class="grid-line"/>
-                    <text x="230" y="170" class="scale-label">0.2</text>
-                <line x1="270" y1="20" x2="270" y2="150" class="grid-line"/>
-                <line x1="310" y1="20" x2="310" y2="150" class="grid-line"/>
-                    <text x="310" y="170" class="scale-label">0.4</text>
-                <line x1="350" y1="20" x2="350" y2="150" class="grid-line"/>
-                <line x1="390" y1="20" x2="390" y2="150" class="grid-line"/>
-                    <text x="390" y="170" class="scale-label">0.6</text>
-                <line x1="430" y1="20" x2="430" y2="150" class="grid-line"/>
-                <line x1="470" y1="20" x2="470" y2="150" class="grid-line"/>
-                    <text x="470" y="170" class="scale-label">0.8</text>
-                <line x1="510" y1="20" x2="510" y2="150" class="grid-line"/>
-                <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
-                    <text x="550" y="170" class="scale-label">1</text>
-            <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
+                <line x1="150" y1="20" x2="150" y2="60" class="grid-line"/>
+                    <text x="150" y="80" class="scale-label">0</text>
+                <line x1="190" y1="20" x2="190" y2="60" class="grid-line"/>
+                <line x1="230" y1="20" x2="230" y2="60" class="grid-line"/>
+                    <text x="230" y="80" class="scale-label">0.2</text>
+                <line x1="270" y1="20" x2="270" y2="60" class="grid-line"/>
+                <line x1="310" y1="20" x2="310" y2="60" class="grid-line"/>
+                    <text x="310" y="80" class="scale-label">0.4</text>
+                <line x1="350" y1="20" x2="350" y2="60" class="grid-line"/>
+                <line x1="390" y1="20" x2="390" y2="60" class="grid-line"/>
+                    <text x="390" y="80" class="scale-label">0.6</text>
+                <line x1="430" y1="20" x2="430" y2="60" class="grid-line"/>
+                <line x1="470" y1="20" x2="470" y2="60" class="grid-line"/>
+                    <text x="470" y="80" class="scale-label">0.8</text>
+                <line x1="510" y1="20" x2="510" y2="60" class="grid-line"/>
+                <line x1="550" y1="20" x2="550" y2="60" class="grid-line"/>
+                    <text x="550" y="80" class="scale-label">1</text>
+            <text x="145" y="37" class="row-label">aggregated</text>
             <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
             <text x="555" y="37" class="score-label">1,0000</text>
-            <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="67" class="score-label">1,0000</text>
-            <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="97" class="score-label">1,0000</text>
-            <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="127" class="score-label">1,0000</text>
     </svg>
 </div>
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1693,50 +1684,34 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
-            <text x="280" y="310" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1951ms</text>
-            <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">3902ms</text>
-            <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">5853ms</text>
-            <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">7804ms</text>
-            <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">9756ms</text>
-            <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
+        <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
+            <text x="280" y="190" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
+            <text x="400" y="190" class="time-label">778ms</text>
+            <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
+            <text x="520" y="190" class="time-label">1557ms</text>
+            <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
+            <text x="640" y="190" class="time-label">2335ms</text>
+            <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
+            <text x="760" y="190" class="time-label">3114ms</text>
+            <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
+            <text x="880" y="190" class="time-label">3893ms</text>
+            <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="217" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3532ms (LLM)</title>
+            <rect x="280" y="30" width="526" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateRelevance_1: 3415ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="101" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1644ms (LLM)</title>
+            <rect x="280" y="60" width="214" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateRelevance_1: 1390ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="456" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 7427ms (LLM)</title>
+            <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateRelevance_1: 3887ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="115" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1880ms (LLM)</title>
-            </rect>
-            <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
-                <title>x-ai/grok-4.1-fast - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="180" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-2.5-flash - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="210" width="2" height="24" class="bar-compute" rx="3">
-                <title>deepseek/deepseek-v3.2 - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="240" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-3-flash-preview - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="280" y="120" width="311" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateRelevance_1: 2024ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1754,22 +1729,16 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>Где находится Красная площадь?</pre></dd>
+            <dd><pre>Что такое машинное обучение и как оно работает?</pre></dd>
         </div>
 
-        <div class="sample-item">
-            <dt>Response</dt>
-            <dd><pre>Красная площадь находится в центре Москвы, столицы России.</pre></dd>
-        </div>
 
 
         <div class="sample-item">
             <dt>Retrieved Contexts</dt>
             <dd>
                 <ol class="context-list">
-                    <li><pre>Красная площадь — главная площадь Москвы, расположенная в центре города.</pre></li>
-                    <li><pre>Москва является столицей Российской Федерации и крупнейшим городом страны.</pre></li>
-                    <li><pre>Сегодня на улице прекрасная погода для прогулки.</pre></li>
+                    <li><pre>Машинное обучение — это подраздел искусственного интеллекта, позволяющий системам автоматически обучаться и совершенствоваться на основе опыта без явного программирования. Оно работает с помощью алгоритмов, которые итеративно обучаются на данных, позволяя компьютерам находить скрытые закономерности без указания, где именно искать. Процесс обучения начинается с наблюдений или данных, таких как примеры, прямой опыт или инструкции, чтобы находить паттерны в данных и принимать лучшие решения в будущем.</pre></li>
                 </ol>
             </dd>
         </div>
@@ -1789,8 +1758,8 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : null,
-  &quot;models&quot; : [ ]
+  &quot;models&quot; : [ ],
+  &quot;temperature&quot; : 0.1
 }</pre>
 </div>
             </div>
@@ -1811,7 +1780,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric checks: are contexts ranked correctly? Relevant contexts should appear first in the list.</div>
+            <div class="explanation-simple">This metric evaluates whether the retrieved contexts are relevant to the user&#39;s question. Each context is scored on a 0-2 scale, then normalized to 0-1.</div>
         </div>
     </div>
 
@@ -1822,19 +1791,7 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Evaluating context relevance</span>
-                    </div>
-                </div>
-                <div class="exp-tree-node" data-step="1">
-                    <div class="exp-tree-item" onclick="selectExplanationStep(1)">
-                        <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Calculating Precision@K</span>
-                    </div>
-                </div>
-                <div class="exp-tree-node" data-step="2">
-                    <div class="exp-tree-item" onclick="selectExplanationStep(2)">
-                        <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Calculating Average Precision</span>
+                        <span class="exp-tree-name">Evaluating context 1</span>
                     </div>
                 </div>
 
@@ -1858,19 +1815,19 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">AP = Σ(Precision@k × relevance@k) / (relevant count)</div>
+        <div class="exp-formula">Average of normalized scores (score/2) across all contexts</div>
     </div>
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">100.00%</div>
+        <div class="exp-calculation">Average = (1,00) / 1 = 1,00</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
             100.00%
         </div>
-        <div class="exp-result-meaning">Excellent - relevant contexts appear first</div>
+        <div class="exp-result-meaning">Excellent - all retrieved contexts are highly relevant</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1882,7 +1839,7 @@
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high score">Very high score</span>
+                <span class="exp-scale-desc" title="All contexts fully relevant">All contexts fully relevant</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1890,24 +1847,24 @@
                     
                 </span>
                 <span class="exp-scale-name">Good</span>
-                <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good score">Good score</span>
+                <span class="exp-scale-range">70-89%</span>
+                <span class="exp-scale-desc" title="Most contexts relevant">Most contexts relevant</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Moderate</span>
-                <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Moderate score">Moderate score</span>
+                <span class="exp-scale-range">50-69%</span>
+                <span class="exp-scale-desc" title="Mixed relevance">Mixed relevance</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Poor</span>
-                <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low score">Low score</span>
+                <span class="exp-scale-range">0-49%</span>
+                <span class="exp-scale-desc" title="Mostly irrelevant contexts">Mostly irrelevant contexts</span>
             </div>
         </div>
     </div>
@@ -1919,94 +1876,61 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "context-precision",
+    "metricType": "context-relevance",
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "EvaluateAllContexts",
+            "stepName": "EvaluateRelevance_1",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}"
+                    "durationMs": 3415,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI that enables automatic learning from experience without explicit programming and comprehensively explains its mechanism via iterative algorithms that learn patterns from data, fully addressing both parts of the question.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}"
+                    "durationMs": 1390,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly answers both parts of the user's question: 'Что такое машинное обучение' (what is machine learning) by defining it as a subfield of AI that learns from experience without explicit programming, and 'как оно работает' (how it works) by explaining the use of algorithms to learn iteratively from data to find patterns and make better decisions.\"\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}"
+                    "durationMs": 3887,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning, identifies it as a subset of AI, explains its core principle of learning from experience without explicit programming, and describes the working process involving algorithms, data, and pattern recognition. It comprehensively addresses both parts of the question.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}"
-                }
-            ]
-        },
-        {
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "durationMs": 2024,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context provides a direct definition of machine learning as a subfield of AI and explains its operational mechanism, including the use of algorithms, iterative learning from data, and pattern recognition without explicit programming.\"\n}"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 1,
-        "google/gemini-2.5-flash": 1,
-        "deepseek/deepseek-v3.2": 1,
-        "google/gemini-3-flash-preview": 1
+        "aggregated": 1
     },
     "aggregatedScore": 1,
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "EvaluateContexts",
-            "title": "Evaluating context relevance",
-            "description": "For each context, we check: is it relevant for answering the question?",
-            "inputData": "",
-            "outputSummary": "1 of 1 are relevant",
+            "stepName": "EvaluateRelevance_1",
+            "title": "Evaluating context 1",
+            "description": "LLM evaluates context relevance for answering the question.",
+            "inputData": "Машинное обучение — это подраздел искусственного интеллекта, позволяющий системам автоматически обучаться и совершенствоваться на основе опыта без явного программирования. Оно работает с помощью алгор...",
+            "outputSummary": "Relevance: 2/2 (100,0%)",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
-                    "index": 1,
-                    "content": "Красная площадь — главная площадь Москвы, расположенная в центре города.",
+                    "index": 0,
+                    "content": "The context directly defines machine learning as a subset of AI that enables automatic learning from experience without explicit programming and comprehensively explains its mechanism via iterative algorithms that learn patterns from data, fully addressing both parts of the question.",
                     "passed": true,
-                    "verdict": "Relevant",
-                    "reason": "The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.",
+                    "verdict": "Fully relevant (2/2)",
+                    "reason": null,
                     "source": null,
                     "numericValue": null
                 }
@@ -2015,59 +1939,18 @@
             ],
             "metadata": {
             }
-        },
-        {
-            "stepNumber": 2,
-            "stepName": "CalculatePrecision",
-            "title": "Calculating Precision@K",
-            "description": "Precision@K = (relevant in top-K) / K",
-            "inputData": null,
-            "outputSummary": "Precision calculated for 1 contexts (1 relevant)",
-            "agreementPercent": 100,
-            "hasModelDisagreement": false,
-            "items": [
-                {
-                    "index": 1,
-                    "content": "K=1: 1/1 relevant → 100,0%",
-                    "passed": true,
-                    "verdict": "+",
-                    "reason": null,
-                    "source": null,
-                    "numericValue": 1
-                }
-            ],
-            "modelResults": [
-            ],
-            "metadata": {
-            }
-        },
-        {
-            "stepNumber": 3,
-            "stepName": "ComputeScore",
-            "title": "Calculating Average Precision",
-            "description": "AP = average Precision@K only at positions with relevant contexts",
-            "inputData": null,
-            "outputSummary": "100.00%",
-            "agreementPercent": 100,
-            "hasModelDisagreement": false,
-            "items": [
-            ],
-            "modelResults": [
-            ],
-            "metadata": {
-            }
         }
     ],
     "interpretation": {
-        "formula": "AP = Σ(Precision@k × relevance@k) / (relevant count)",
-        "calculation": "100.00%",
+        "formula": "Average of normalized scores (score/2) across all contexts",
+        "calculation": "Average = (1,00) / 1 = 1,00",
         "score": 1,
         "scorePercent": "100.00%",
         "level": "Excellent",
         "isGood": null,
-        "meaning": "Excellent - relevant contexts appear first",
-        "numerator": 1,
-        "denominator": 1,
+        "meaning": "Excellent - all retrieved contexts are highly relevant",
+        "numerator": null,
+        "denominator": null,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
@@ -2075,25 +1958,25 @@
             {
                 "name": "Excellent",
                 "range": "90-100%",
-                "description": "Very high score",
+                "description": "All contexts fully relevant",
                 "current": true
             },
             {
                 "name": "Good",
-                "range": "70-90%",
-                "description": "Good score",
+                "range": "70-89%",
+                "description": "Most contexts relevant",
                 "current": false
             },
             {
                 "name": "Moderate",
-                "range": "50-70%",
-                "description": "Moderate score",
+                "range": "50-69%",
+                "description": "Mixed relevance",
                 "current": false
             },
             {
                 "name": "Poor",
-                "range": "0-50%",
-                "description": "Low score",
+                "range": "0-49%",
+                "description": "Mostly irrelevant contexts",
                 "current": false
             }
         ]
@@ -2918,31 +2801,41 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Context Precision Metric</h1>
+    <h1>Context Relevance Metric (NVIDIA-style)</h1>
 <h2>Glossary</h2>
 <ul>
-<li><strong>Context</strong> — information fragments retrieved by the search system and provided to the agentic system</li>
-<li><strong>Relevance</strong> — correspondence of the context to the user's original question</li>
-<li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
-<li><strong>Average Precision</strong> — mean precision accounting for positions of relevant results</li>
+<li><strong>Context</strong> — a text chunk retrieved from a knowledge base or document store</li>
+<li><strong>User Question</strong> — the input query from the user</li>
+<li><strong>Relevance Score</strong> — evaluation of how well a context helps answer the question</li>
+<li><strong>Raw Score</strong> — score on 0-2 scale before normalization</li>
+<li><strong>Normalized Score</strong> — score on 0-1 scale after dividing raw score by 2</li>
 </ul>
 <h2>Description</h2>
-<p>The metric evaluates the quality of context ranking by the retrieval system. It checks whether the most relevant contexts appear at the top positions. Relevant contexts at the beginning of the list increase the score; at the end — decrease it.</p>
-<h2>Example</h2>
-<p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
-<p><strong>Retrieved Contexts (in order):</strong></p>
-<ol>
-<li>&quot;The Eiffel Tower was completed in 1889 for the World's Fair.&quot; — <strong>RELEVANT</strong></li>
-<li>&quot;It stands 330 meters tall.&quot; — <strong>NOT RELEVANT</strong> to the question</li>
-<li>&quot;Construction began in 1887.&quot; — <strong>RELEVANT</strong></li>
-</ol>
-<p><strong>Calculation:</strong></p>
+<p>The metric evaluates whether retrieved contexts are relevant to the user's question. It uses a 0-2 scoring scale that is then normalized to 0-1.</p>
+<p>This is an NVIDIA-style metric that provides granular relevance assessment:</p>
 <ul>
-<li>Position 1: Relevant → Precision@1 = 1/1 = 1.00</li>
-<li>Position 2: Not relevant → skip</li>
-<li>Position 3: Relevant → Precision@3 = 2/3 = 0.67</li>
+<li><strong>0</strong> — Not relevant: Context does not contain information to answer the question</li>
+<li><strong>1</strong> — Partially relevant: Context contains some relevant information but may be incomplete</li>
+<li><strong>2</strong> — Fully relevant: Context contains comprehensive information to answer the question</li>
 </ul>
-<p><strong>Score:</strong> (1.00 + 0.67) / 2 = <strong>0.83 (83%)</strong></p>
+<h2>Example</h2>
+<p><strong>User Question:</strong> &quot;What is machine learning and how does it work?&quot;</p>
+<p><strong>Retrieved Contexts:</strong></p>
+<ol>
+<li>
+<p>&quot;Machine learning is a subset of artificial intelligence that enables systems to automatically learn and improve from experience without being explicitly programmed.&quot;</p>
+</li>
+<li>
+<p>&quot;The weather forecast shows partly cloudy skies tomorrow.&quot;</p>
+</li>
+</ol>
+<p><strong>Analysis:</strong></p>
+<ul>
+<li>Context 1: Raw score = 2 (fully relevant), Normalized = 1.0</li>
+<li>Context 2: Raw score = 0 (not relevant), Normalized = 0.0</li>
+<li>Average: (1.0 + 0.0) / 2 = 0.5</li>
+</ul>
+<p><strong>Score:</strong> <strong>0.5 (50%)</strong> — Mixed Relevance</p>
 <h2>Score Interpretation</h2>
 <table>
 <thead>
@@ -2954,41 +2847,103 @@
 <tbody>
 <tr>
 <td>90-100%</td>
-<td>Relevant contexts at top positions</td>
+<td>Excellent — all contexts are highly relevant</td>
 </tr>
 <tr>
-<td>70-90%</td>
-<td>Most relevant contexts near the top of the list</td>
+<td>70-89%</td>
+<td>Good — most contexts contain relevant information</td>
 </tr>
 <tr>
-<td>50-70%</td>
-<td>Relevant contexts distributed unevenly</td>
+<td>50-69%</td>
+<td>Moderate — mixed relevance across contexts</td>
 </tr>
 <tr>
-<td>0-50%</td>
-<td>Relevant contexts at bottom positions</td>
+<td>0-49%</td>
+<td>Poor — contexts are mostly irrelevant</td>
 </tr>
 </tbody>
 </table>
 <h2>Algorithm</h2>
 <ol>
-<li><strong>Relevance Check</strong> — LLM determines relevance of each context to the question</li>
-<li><strong>Precision Calculation at Positions</strong> — precision is calculated at each relevant context position</li>
-<li><strong>Averaging</strong> — mean value of all precisions is computed</li>
+<li><strong>Evaluate Each Context</strong> — LLM scores each context on 0-2 scale</li>
+<li><strong>Normalize Scores</strong> — Divide each raw score by 2 to get 0-1 range</li>
+<li><strong>Average Scores</strong> — Compute mean across all context evaluations</li>
 </ol>
-<h2>Formula</h2>
-<pre><code>score = Average Precision (AP) = Σ(precision@k × relevance@k) / total_relevant
+<h3>Score Calculation</h3>
+<pre><code>For each context:
+  normalized_score = raw_score / 2.0
+
+Final Score = average(normalized_scores)
 </code></pre>
-<p>Where:</p>
+<h2>Formula</h2>
+<pre><code>Context Relevance = (1/N) * sum(score_i / 2)
+
+where:
+  N = number of contexts
+  score_i = raw score (0-2) for context i
+</code></pre>
+<h2>Configuration</h2>
+<pre><code class="language-java">ContextRelevanceConfig config = ContextRelevanceConfig.builder()
+    .temperature(0.1)  // Lower temperature for consistent results
+    .build();
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>temperature</code></td>
+<td><code>double</code></td>
+<td><code>0.1</code></td>
+<td>LLM temperature for evaluation</td>
+</tr>
+<tr>
+<td><code>models</code></td>
+<td><code>List</code></td>
+<td>all</td>
+<td>Model IDs to use for evaluation</td>
+</tr>
+</tbody>
+</table>
+<h2>Sample Requirements</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>userInput</code></td>
+<td>Yes</td>
+<td>The user's question</td>
+</tr>
+<tr>
+<td><code>retrievedContexts</code></td>
+<td>Yes</td>
+<td>List of retrieved context chunks</td>
+</tr>
+</tbody>
+</table>
+<h2>Use Cases</h2>
 <ul>
-<li><code>precision@k</code> — fraction of relevant contexts in top-k positions</li>
-<li><code>relevance@k</code> — 1 if context at position k is relevant, otherwise 0</li>
-<li><code>total_relevant</code> — total number of relevant contexts</li>
+<li>Evaluating RAG retrieval quality</li>
+<li>Testing document retrieval systems</li>
+<li>Assessing search result relevance</li>
+<li>Validating knowledge base retrieval</li>
 </ul>
 <h2>References</h2>
 <ul>
-<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">RAGAS Documentation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Mean_average_precision">Mean Average Precision (MAP)</a></li>
+<li><a href="https://developer.nvidia.com/blog/evaluating-retrieval-augmented-generation-pipelines/">NVIDIA RAG Evaluation</a></li>
+<li><a href="https://docs.ragas.io/">RAGAS Documentation</a></li>
 </ul>
 
 </div>
@@ -2998,14 +2953,8 @@
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">EvaluateAllContexts</span>
+                <span class="step-name">EvaluateRelevance_1</span>
                 <span class="step-type">[LLM]</span>
-            </div>
-                <div class="step-arrow">&rarr;</div>
-            <div class="step-box compute">
-                <span class="step-number">2.</span>
-                <span class="step-name">ComputePrecision</span>
-                <span class="step-type">[COMPUTE]</span>
             </div>
     </div>
 </div>
@@ -3030,8 +2979,8 @@
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">7427ms</span>
+                    <span class="tree-name">EvaluateRelevance_1</span>
+                    <span class="tree-duration">3887ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3039,7 +2988,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3532ms</span>
+                        <span class="tree-duration">3415ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3047,7 +2996,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1644ms</span>
+                        <span class="tree-duration">1390ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3055,7 +3004,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7427ms</span>
+                        <span class="tree-duration">3887ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3063,52 +3012,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1880ms</span>
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="tree-node step-node" data-step="1">
-                <div class="tree-item" onclick="selectStep(1)">
-                    <span class="tree-expand has-children"
-                          onclick="event.stopPropagation(); toggleTreeNode(this)">
-                        ▶
-                    </span>
-                    <span class="tree-type-badge compute">COMPUTE</span>
-                    <span class="tree-name">ComputePrecision</span>
-                    <span class="tree-duration">0ms</span>
-                </div>
-                <div class="tree-children" style="display: none;">
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 0, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 1, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 2, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 3, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">2024ms</span>
                         
                     </div>
                 </div>
@@ -3153,10 +3057,10 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "EvaluateAllContexts",
+            "stepName": "EvaluateRelevance_1",
             "stepType": "LLM",
-            "durationMs": 7427,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Красная площадь — главная площадь Москвы, расположенная в центре города.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Москва является столицей Российской Федерации и крупнейшим городом страны.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Сегодня на улице прекрасная погода для прогулки.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
+            "durationMs": 3887,
+            "request": "Evaluate the relevance of the provided context for answering the user's question.\n\nUser Question:\nЧто такое машинное обучение и как оно работает?\n\nRetrieved Context:\nМашинное обучение — это подраздел искусственного интеллекта, позволяющий системам автоматически обучаться и совершенствоваться на основе опыта без явного программирования. Оно работает с помощью алгоритмов, которые итеративно обучаются на данных, позволяя компьютерам находить скрытые закономерности без указания, где именно искать. Процесс обучения начинается с наблюдений или данных, таких как примеры, прямой опыт или инструкции, чтобы находить паттерны в данных и принимать лучшие решения в будущем.\n\nInstructions:\n1. Analyze whether the context contains information relevant to answering the question\n2. Consider both direct relevance and supporting information\n3. Rate using the following scale:\n   - 0: Not relevant - Context does not contain information to answer the question\n   - 1: Partially relevant - Context contains some relevant information but may be incomplete\n   - 2: Fully relevant - Context contains comprehensive information to answer the question\n\nRespond with a JSON object containing:\n- score: Integer from 0 to 2 representing the relevance level\n- reasoning: Brief explanation of the relevance assessment\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3164,78 +3068,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}",
+                    "durationMs": 3415,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI that enables automatic learning from experience without explicit programming and comprehensively explains its mechanism via iterative algorithms that learn patterns from data, fully addressing both parts of the question.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}",
+                    "durationMs": 1390,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly answers both parts of the user's question: 'Что такое машинное обучение' (what is machine learning) by defining it as a subfield of AI that learns from experience without explicit programming, and 'как оно работает' (how it works) by explaining the use of algorithms to learn iteratively from data to find patterns and make better decisions.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}",
+                    "durationMs": 3887,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning, identifies it as a subset of AI, explains its core principle of learning from experience without explicit programming, and describes the working process involving algorithms, data, and pattern recognition. It comprehensively addresses both parts of the question.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                }
-            ],
-            "embeddingResults": [
-            ]
-        },
-        {
-            "stepIndex": 1,
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
-            "durationMs": 0,
-            "request": null,
-            "isLlmStep": false,
-            "successCount": 4,
-            "failureCount": 0,
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "durationMs": 2024,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context provides a direct definition of machine learning as a subfield of AI and explains its operational mechanism, including the use of algorithms, iterative learning from data, and pattern recognition without explicit programming.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

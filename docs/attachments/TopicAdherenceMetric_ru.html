@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextPrecisionMetric - Evaluation Report</title>
+    <title>TopicAdherenceMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -1619,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ContextPrecisionMetric - Evaluation Report</h1>
+            <h1>TopicAdherenceMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 9763ms</span>
-                <span class="timestamp">2026-02-01T03:17:02.316450Z</span>
+                <span class="score-badge excellent">95.00%</span>
+                <span class="duration">Duration: 55992ms</span>
+                <span class="timestamp">2026-02-01T03:13:14.764969Z</span>
             </div>
         </header>
 
@@ -1671,8 +1671,8 @@
             <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
             <text x="555" y="67" class="score-label">1,0000</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="97" class="score-label">1,0000</text>
+            <rect x="150" y="80" width="320" height="24" class="bar-excellent" rx="3"/>
+            <text x="475" y="97" class="score-label">0,8000</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
             <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
             <text x="555" y="127" class="score-label">1,0000</text>
@@ -1696,47 +1696,47 @@
         <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
             <text x="280" y="310" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1951ms</text>
+            <text x="400" y="310" class="time-label">11197ms</text>
             <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">3902ms</text>
+            <text x="520" y="310" class="time-label">22394ms</text>
             <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">5853ms</text>
+            <text x="640" y="310" class="time-label">33591ms</text>
             <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">7804ms</text>
+            <text x="760" y="310" class="time-label">44788ms</text>
             <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">9756ms</text>
+            <text x="880" y="310" class="time-label">55986ms</text>
             <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="217" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3532ms (LLM)</title>
+            <rect x="280" y="30" width="95" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - ExtractTopics: 8875ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="101" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1644ms (LLM)</title>
+            <rect x="280" y="60" width="16" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - ExtractTopics: 1559ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="456" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 7427ms (LLM)</title>
+            <rect x="280" y="90" width="41" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - ExtractTopics: 3918ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="115" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1880ms (LLM)</title>
+            <rect x="280" y="120" width="22" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - ExtractTopics: 2095ms (LLM)</title>
             </rect>
             <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
-                <title>x-ai/grok-4.1-fast - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="375" y="150" width="70" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - ClassifyTopics: 6623ms (LLM)</title>
             </rect>
             <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="180" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-2.5-flash - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="375" y="180" width="20" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - ClassifyTopics: 1893ms (LLM)</title>
             </rect>
             <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="210" width="2" height="24" class="bar-compute" rx="3">
-                <title>deepseek/deepseek-v3.2 - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="375" y="210" width="504" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - ClassifyTopics: 47050ms (LLM)</title>
             </rect>
             <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="240" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-3-flash-preview - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="375" y="240" width="39" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - ClassifyTopics: 3654ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1753,26 +1753,50 @@
     <h3>Input Sample</h3>
     <dl>
         <div class="sample-item">
-            <dt>User Input</dt>
-            <dd><pre>Где находится Красная площадь?</pre></dd>
-        </div>
-
-        <div class="sample-item">
-            <dt>Response</dt>
-            <dd><pre>Красная площадь находится в центре Москвы, столицы России.</pre></dd>
-        </div>
-
-
-        <div class="sample-item">
-            <dt>Retrieved Contexts</dt>
+            <dt>Conversation</dt>
             <dd>
-                <ol class="context-list">
-                    <li><pre>Красная площадь — главная площадь Москвы, расположенная в центре города.</pre></li>
-                    <li><pre>Москва является столицей Российской Федерации и крупнейшим городом страны.</pre></li>
-                    <li><pre>Сегодня на улице прекрасная погода для прогулки.</pre></li>
-                </ol>
+                <div class="conversation-list">
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">Хочу билеты в Париж на следующей неделе, посмотри что есть</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">С удовольствием помогу подобрать билеты. Какие даты вас интересуют и из какого города вылетаете?</pre>
+                    </div>
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">Из Москвы, в понедельник туда, в пятницу обратно</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Нашла несколько вариантов. Есть прямой рейс Аэрофлота в 19:00 за 28500 рублей туда-обратно. Оформить бронирование?</pre>
+                    </div>
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">Да, давай этот</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Рейс забронирован. Номер подтверждения: SU12345. Электронный билет отправлен на вашу почту.</pre>
+                    </div>
+                </div>
             </dd>
         </div>
+
+
     </dl>
 </div>
 
@@ -1789,8 +1813,8 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : null,
-  &quot;models&quot; : [ ]
+  &quot;models&quot; : [ ],
+  &quot;mode&quot; : &quot;F1&quot;
 }</pre>
 </div>
             </div>
@@ -1811,7 +1835,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric checks: are contexts ranked correctly? Relevant contexts should appear first in the list.</div>
+            <div class="explanation-simple">This metric evaluates whether conversation topics adhere to expected reference topics. It extracts topics from the conversation and classifies them against reference topics.</div>
         </div>
     </div>
 
@@ -1822,19 +1846,19 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Evaluating context relevance</span>
+                        <span class="exp-tree-name">Extracting topics</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="1">
                     <div class="exp-tree-item" onclick="selectExplanationStep(1)">
                         <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Calculating Precision@K</span>
+                        <span class="exp-tree-name">Classifying topics</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="2">
                     <div class="exp-tree-item" onclick="selectExplanationStep(2)">
                         <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Calculating Average Precision</span>
+                        <span class="exp-tree-name">Computing score</span>
                     </div>
                 </div>
 
@@ -1858,19 +1882,19 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">AP = Σ(Precision@k × relevance@k) / (relevant count)</div>
+        <div class="exp-formula">F1 = 2 × (precision × recall) / (precision + recall)</div>
     </div>
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">100.00%</div>
+        <div class="exp-calculation">2 × (1,00 × 1,00) / (1,00 + 1,00) = 0,95</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            100.00%
+            95.00%
         </div>
-        <div class="exp-result-meaning">Excellent - relevant contexts appear first</div>
+        <div class="exp-result-meaning">Excellent - conversation stayed perfectly on topic with all reference topics covered</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1882,7 +1906,7 @@
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high score">Very high score</span>
+                <span class="exp-scale-desc" title="All topics aligned with reference">All topics aligned with reference</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1890,24 +1914,24 @@
                     
                 </span>
                 <span class="exp-scale-name">Good</span>
-                <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good score">Good score</span>
+                <span class="exp-scale-range">70-89%</span>
+                <span class="exp-scale-desc" title="Most topics on target">Most topics on target</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Moderate</span>
-                <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Moderate score">Moderate score</span>
+                <span class="exp-scale-range">50-69%</span>
+                <span class="exp-scale-desc" title="Some topic drift">Some topic drift</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Poor</span>
-                <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low score">Low score</span>
+                <span class="exp-scale-range">0-49%</span>
+                <span class="exp-scale-desc" title="Significant off-topic discussions">Significant off-topic discussions</span>
             </div>
         </div>
     </div>
@@ -1919,66 +1943,66 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "context-precision",
+    "metricType": "topic-adherence",
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "EvaluateAllContexts",
+            "stepName": "ExtractTopics",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}"
+                    "durationMs": 8875,
+                    "resultJson": "{\n  \"topics\" : [ \"Paris flight tickets\", \"Travel dates\", \"Moscow departure\", \"Aeroflot direct flight\", \"Round trip price\", \"Flight booking\", \"Booking confirmation\", \"Electronic ticket\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}"
+                    "durationMs": 1559,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight search\", \"Paris flights\", \"Departure city\", \"Travel dates\", \"Flight options\", \"Direct flights\", \"Aeroflot\", \"Flight cost\", \"Booking confirmation\", \"Electronic ticket\" ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}"
+                    "durationMs": 3918,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking request\", \"Destination Paris\", \"Travel dates\", \"Departure city Moscow\", \"Flight options\", \"Direct flight Aeroflot\", \"Flight price\", \"Booking confirmation\", \"Electronic ticket\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}"
+                    "durationMs": 2095,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight search to Paris\", \"Travel dates and itinerary\", \"Departure from Moscow\", \"Airline ticket pricing\", \"Flight booking and confirmation\" ]\n}"
                 }
             ]
         },
         {
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
+            "stepName": "ClassifyTopics",
+            "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "durationMs": 6623,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Directly relates to booking airplane tickets.\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"путешествия\",\n    \"reasoning\" : \"Subtopic of travel planning.\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Details flight departure in air transportation.\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Specifies airline and flight type in air transportation.\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Part of air ticket booking process including pricing.\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Direct match to airplane ticket booking.\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Essential step in ticket booking.\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Result of air ticket booking.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "durationMs": 1893,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"This is a direct subtopic of 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"путешествия\",\n    \"reasoning\" : \"Travel dates are fundamental to 'путешествия' (travel).\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"A departure city is a key detail for 'авиаперевозки' (air transportation).\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Aeroflot is an airline and 'direct flight' relates to the nature of 'авиаперевозки' (air transportation).\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"The price of a round trip is a crucial aspect of 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"This is a direct match to 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"A booking confirmation is an essential part of 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"An electronic ticket is the outcome of 'бронирование авиабилетов' (flight ticket booking).\"\n  } ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "durationMs": 47050,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Directly about booking flight tickets, which is the core of the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Travel dates are a key detail in the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Departure city is a standard element of booking a flight itinerary.\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Specifics about an airline and flight type fall under air transportation.\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Pricing is a fundamental aspect of booking and purchasing tickets.\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Direct match to the core activity of the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Confirmation is a standard final step in the booking process.\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Type of ticket issued is part of the modern booking and ticketing process.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "durationMs": 3654,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Flight tickets are a core component of air travel and transportation services.\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"путешествия\",\n    \"reasoning\" : \"Scheduling and dates are essential parameters for planning travel.\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Departure locations are specific details regarding air transportation routes.\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Specific airlines and flight types fall under the category of air transport.\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Pricing is a critical part of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Directly matches the reference topic for booking air tickets.\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Confirmation is the final step in the ticket booking process.\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"The e-ticket is the primary output of the flight booking process.\"\n  } ]\n}"
                 }
             ]
         }
@@ -1986,27 +2010,90 @@
     "modelScores": {
         "x-ai/grok-4.1-fast": 1,
         "google/gemini-2.5-flash": 1,
-        "deepseek/deepseek-v3.2": 1,
+        "deepseek/deepseek-v3.2": 0.8,
         "google/gemini-3-flash-preview": 1
     },
-    "aggregatedScore": 1,
+    "aggregatedScore": 0.95,
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "EvaluateContexts",
-            "title": "Evaluating context relevance",
-            "description": "For each context, we check: is it relevant for answering the question?",
-            "inputData": "",
-            "outputSummary": "1 of 1 are relevant",
+            "stepName": "ExtractTopics",
+            "title": "Extracting topics",
+            "description": "LLM analyzes the conversation to extract all discussed topics.",
+            "inputData": "Conversation",
+            "outputSummary": "Topics extracted: 8",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
-                    "index": 1,
-                    "content": "Красная площадь — главная площадь Москвы, расположенная в центре города.",
+                    "index": 0,
+                    "content": "Paris flight tickets",
                     "passed": true,
-                    "verdict": "Relevant",
-                    "reason": "The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.",
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Travel dates",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Moscow departure",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Aeroflot direct flight",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Round trip price",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Flight booking",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Booking confirmation",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Electronic ticket",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
                     "source": null,
                     "numericValue": null
                 }
@@ -2018,22 +2105,85 @@
         },
         {
             "stepNumber": 2,
-            "stepName": "CalculatePrecision",
-            "title": "Calculating Precision@K",
-            "description": "Precision@K = (relevant in top-K) / K",
-            "inputData": null,
-            "outputSummary": "Precision calculated for 1 contexts (1 relevant)",
+            "stepName": "ClassifyTopics",
+            "title": "Classifying topics",
+            "description": "Each extracted topic is classified as on-topic or off-topic against reference topics.",
+            "inputData": "Reference topics: бронирование авиабилетов, путешествия, авиаперевозки",
+            "outputSummary": "On topic: 8/8",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
-                    "index": 1,
-                    "content": "K=1: 1/1 relevant → 100,0%",
+                    "index": 0,
+                    "content": "Paris flight tickets → бронирование авиабилетов (Directly relates to booking airplane tickets.)",
                     "passed": true,
-                    "verdict": "+",
+                    "verdict": "On topic",
                     "reason": null,
                     "source": null,
-                    "numericValue": 1
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Travel dates → путешествия (Subtopic of travel planning.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Moscow departure → авиаперевозки (Details flight departure in air transportation.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Aeroflot direct flight → авиаперевозки (Specifies airline and flight type in air transportation.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Round trip price → бронирование авиабилетов (Part of air ticket booking process including pricing.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Flight booking → бронирование авиабилетов (Direct match to airplane ticket booking.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Booking confirmation → бронирование авиабилетов (Essential step in ticket booking.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "Electronic ticket → бронирование авиабилетов (Result of air ticket booking.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
                 }
             ],
             "modelResults": [
@@ -2044,10 +2194,10 @@
         {
             "stepNumber": 3,
             "stepName": "ComputeScore",
-            "title": "Calculating Average Precision",
-            "description": "AP = average Precision@K only at positions with relevant contexts",
-            "inputData": null,
-            "outputSummary": "100.00%",
+            "title": "Computing score",
+            "description": "Computing the final score based on the selected mode (F1, Precision, or Recall).",
+            "inputData": "Mode: F1 (balanced) | Precision=1,00, Recall=1,00",
+            "outputSummary": "F1 = 0,95",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -2059,15 +2209,15 @@
         }
     ],
     "interpretation": {
-        "formula": "AP = Σ(Precision@k × relevance@k) / (relevant count)",
-        "calculation": "100.00%",
-        "score": 1,
-        "scorePercent": "100.00%",
+        "formula": "F1 = 2 × (precision × recall) / (precision + recall)",
+        "calculation": "2 × (1,00 × 1,00) / (1,00 + 1,00) = 0,95",
+        "score": 0.95,
+        "scorePercent": "95.00%",
         "level": "Excellent",
         "isGood": null,
-        "meaning": "Excellent - relevant contexts appear first",
-        "numerator": 1,
-        "denominator": 1,
+        "meaning": "Excellent - conversation stayed perfectly on topic with all reference topics covered",
+        "numerator": null,
+        "denominator": null,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
@@ -2075,25 +2225,25 @@
             {
                 "name": "Excellent",
                 "range": "90-100%",
-                "description": "Very high score",
+                "description": "All topics aligned with reference",
                 "current": true
             },
             {
                 "name": "Good",
-                "range": "70-90%",
-                "description": "Good score",
+                "range": "70-89%",
+                "description": "Most topics on target",
                 "current": false
             },
             {
                 "name": "Moderate",
-                "range": "50-70%",
-                "description": "Moderate score",
+                "range": "50-69%",
+                "description": "Some topic drift",
                 "current": false
             },
             {
                 "name": "Poor",
-                "range": "0-50%",
-                "description": "Low score",
+                "range": "0-49%",
+                "description": "Significant off-topic discussions",
                 "current": false
             }
         ]
@@ -2918,31 +3068,50 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Context Precision Metric</h1>
+    <h1>Topic Adherence Metric</h1>
 <h2>Glossary</h2>
 <ul>
-<li><strong>Context</strong> — information fragments retrieved by the search system and provided to the agentic system</li>
-<li><strong>Relevance</strong> — correspondence of the context to the user's original question</li>
-<li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
-<li><strong>Average Precision</strong> — mean precision accounting for positions of relevant results</li>
+<li><strong>Agent</strong> — an AI-powered system capable of executing multi-turn conversations</li>
+<li><strong>Topic</strong> — a distinct subject or theme discussed in a conversation</li>
+<li><strong>Reference Topics</strong> — the expected/allowed topics that the conversation should cover</li>
+<li><strong>On Topic</strong> — a topic that matches or relates to a reference topic</li>
+<li><strong>Off Topic</strong> — a topic that does not relate to any reference topic</li>
 </ul>
 <h2>Description</h2>
-<p>The metric evaluates the quality of context ranking by the retrieval system. It checks whether the most relevant contexts appear at the top positions. Relevant contexts at the beginning of the list increase the score; at the end — decrease it.</p>
-<h2>Example</h2>
-<p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
-<p><strong>Retrieved Contexts (in order):</strong></p>
-<ol>
-<li>&quot;The Eiffel Tower was completed in 1889 for the World's Fair.&quot; — <strong>RELEVANT</strong></li>
-<li>&quot;It stands 330 meters tall.&quot; — <strong>NOT RELEVANT</strong> to the question</li>
-<li>&quot;Construction began in 1887.&quot; — <strong>RELEVANT</strong></li>
-</ol>
-<p><strong>Calculation:</strong></p>
+<p>The metric evaluates whether conversation topics adhere to expected reference topics. It extracts topics from the conversation using an LLM and classifies each topic against reference topics to determine if the discussion stayed on track.</p>
+<p>The metric supports three scoring modes:</p>
 <ul>
-<li>Position 1: Relevant → Precision@1 = 1/1 = 1.00</li>
-<li>Position 2: Not relevant → skip</li>
-<li>Position 3: Relevant → Precision@3 = 2/3 = 0.67</li>
+<li><strong>F1</strong> — Harmonic mean of precision and recall (default, balanced)</li>
+<li><strong>PRECISION</strong> — Focus on avoiding off-topic discussions</li>
+<li><strong>RECALL</strong> — Focus on covering all reference topics</li>
 </ul>
-<p><strong>Score:</strong> (1.00 + 0.67) / 2 = <strong>0.83 (83%)</strong></p>
+<h2>Example</h2>
+<p><strong>Conversation:</strong></p>
+<pre><code>User: I'd like to book a flight to Paris for next week.
+Assistant: I'd be happy to help you book a flight to Paris. What dates are you looking at?
+User: I'll fly from New York, departing Monday and returning Friday.
+Assistant: Found several options. There's a direct Air France flight at 7 PM for $850. Book it?
+</code></pre>
+<p><strong>Reference Topics:</strong></p>
+<ul>
+<li>flight booking</li>
+<li>travel arrangements</li>
+<li>airline tickets</li>
+</ul>
+<p><strong>Extracted Topics:</strong></p>
+<ul>
+<li>flight booking to Paris</li>
+<li>flight search</li>
+<li>Air France options</li>
+</ul>
+<p><strong>Analysis:</strong></p>
+<ul>
+<li>3 topics extracted from conversation</li>
+<li>3 topics are on topic (match reference topics)</li>
+<li>Precision: 3/3 = 1.0</li>
+<li>Recall: 3/3 = 1.0 (all reference topics covered)</li>
+</ul>
+<p><strong>Score:</strong> <strong>1.0 (100%)</strong> — Perfect Adherence</p>
 <h2>Score Interpretation</h2>
 <table>
 <thead>
@@ -2954,41 +3123,108 @@
 <tbody>
 <tr>
 <td>90-100%</td>
-<td>Relevant contexts at top positions</td>
+<td>Excellent — all topics aligned with reference</td>
 </tr>
 <tr>
-<td>70-90%</td>
-<td>Most relevant contexts near the top of the list</td>
+<td>70-89%</td>
+<td>Good — most topics on target</td>
 </tr>
 <tr>
-<td>50-70%</td>
-<td>Relevant contexts distributed unevenly</td>
+<td>50-69%</td>
+<td>Moderate — some topic drift</td>
 </tr>
 <tr>
-<td>0-50%</td>
-<td>Relevant contexts at bottom positions</td>
+<td>0-49%</td>
+<td>Poor — significant off-topic discussions</td>
 </tr>
 </tbody>
 </table>
 <h2>Algorithm</h2>
 <ol>
-<li><strong>Relevance Check</strong> — LLM determines relevance of each context to the question</li>
-<li><strong>Precision Calculation at Positions</strong> — precision is calculated at each relevant context position</li>
-<li><strong>Averaging</strong> — mean value of all precisions is computed</li>
+<li><strong>Extract Topics</strong> — LLM analyzes the conversation to identify all discussed topics</li>
+<li><strong>Classify Topics</strong> — Each extracted topic is classified as on-topic or off-topic against reference topics</li>
+<li><strong>Compute Score</strong> — Calculate precision, recall, and final score based on mode</li>
 </ol>
-<h2>Formula</h2>
-<pre><code>score = Average Precision (AP) = Σ(precision@k × relevance@k) / total_relevant
+<h3>Score Calculation</h3>
+<pre><code>Precision = on-topic count / total extracted topics
+Recall = covered reference topics / total reference topics
+F1 = 2 × (precision × recall) / (precision + recall)
 </code></pre>
-<p>Where:</p>
+<h2>Formula</h2>
+<p><strong>F1 Mode (default):</strong></p>
+<pre><code>Score = 2 × (Precision × Recall) / (Precision + Recall)
+</code></pre>
+<p><strong>Precision Mode:</strong></p>
+<pre><code>Score = Precision = on-topic / total extracted
+</code></pre>
+<p><strong>Recall Mode:</strong></p>
+<pre><code>Score = Recall = covered reference / total reference
+</code></pre>
+<h2>Configuration</h2>
+<pre><code class="language-java">TopicAdherenceConfig config = TopicAdherenceConfig.builder()
+    .mode(Mode.F1)  // or Mode.PRECISION, Mode.RECALL
+    .build();
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td><code>Mode</code></td>
+<td><code>F1</code></td>
+<td>Scoring mode: F1, PRECISION, or RECALL</td>
+</tr>
+<tr>
+<td><code>models</code></td>
+<td><code>List</code></td>
+<td>all</td>
+<td>Model IDs to use for evaluation</td>
+</tr>
+</tbody>
+</table>
+<h2>Sample Requirements</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>messages</code></td>
+<td>Yes</td>
+<td>List of conversation messages (role, content)</td>
+</tr>
+<tr>
+<td><code>referenceTopics</code></td>
+<td>Yes</td>
+<td>List of expected/allowed topics</td>
+</tr>
+</tbody>
+</table>
+<h3>Message Structure</h3>
+<pre><code class="language-java">public record Message(String role, String content) {}
+</code></pre>
+<h2>Use Cases</h2>
 <ul>
-<li><code>precision@k</code> — fraction of relevant contexts in top-k positions</li>
-<li><code>relevance@k</code> — 1 if context at position k is relevant, otherwise 0</li>
-<li><code>total_relevant</code> — total number of relevant contexts</li>
+<li>Evaluating chatbot focus on designated topics</li>
+<li>Testing customer support agents stay on-topic</li>
+<li>Measuring educational assistants covering required material</li>
+<li>Validating specialized domain agents (legal, medical, technical)</li>
 </ul>
 <h2>References</h2>
 <ul>
-<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">RAGAS Documentation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Mean_average_precision">Mean Average Precision (MAP)</a></li>
+<li><a href="https://docs.ragas.io/">RAGAS Documentation</a></li>
+<li><a href="https://docs.ragas.io/en/latest/concepts/metrics/topic_adherence.html">Topic Adherence in Python RAGAS</a></li>
 </ul>
 
 </div>
@@ -2998,14 +3234,14 @@
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">EvaluateAllContexts</span>
+                <span class="step-name">ExtractTopics</span>
                 <span class="step-type">[LLM]</span>
             </div>
                 <div class="step-arrow">&rarr;</div>
-            <div class="step-box compute">
+            <div class="step-box llm">
                 <span class="step-number">2.</span>
-                <span class="step-name">ComputePrecision</span>
-                <span class="step-type">[COMPUTE]</span>
+                <span class="step-name">ClassifyTopics</span>
+                <span class="step-type">[LLM]</span>
             </div>
     </div>
 </div>
@@ -3030,8 +3266,8 @@
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">7427ms</span>
+                    <span class="tree-name">ExtractTopics</span>
+                    <span class="tree-duration">8875ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3039,7 +3275,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3532ms</span>
+                        <span class="tree-duration">8875ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3047,7 +3283,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1644ms</span>
+                        <span class="tree-duration">1559ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3055,7 +3291,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7427ms</span>
+                        <span class="tree-duration">3918ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3063,7 +3299,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1880ms</span>
+                        <span class="tree-duration">2095ms</span>
                         
                     </div>
                 </div>
@@ -3074,9 +3310,9 @@
                           onclick="event.stopPropagation(); toggleTreeNode(this)">
                         ▶
                     </span>
-                    <span class="tree-type-badge compute">COMPUTE</span>
-                    <span class="tree-name">ComputePrecision</span>
-                    <span class="tree-duration">0ms</span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">ClassifyTopics</span>
+                    <span class="tree-duration">47050ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3084,7 +3320,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">6623ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3092,7 +3328,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">1893ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3100,7 +3336,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">47050ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3108,7 +3344,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">3654ms</span>
                         
                     </div>
                 </div>
@@ -3153,10 +3389,10 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "EvaluateAllContexts",
+            "stepName": "ExtractTopics",
             "stepType": "LLM",
-            "durationMs": 7427,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Красная площадь — главная площадь Москвы, расположенная в центре города.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Москва является столицей Российской Федерации и крупнейшим городом страны.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Сегодня на улице прекрасная погода для прогулки.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
+            "durationMs": 8875,
+            "request": "Analyze the following conversation and extract all distinct topics discussed.\n\nConversation:\n[USER]: Хочу билеты в Париж на следующей неделе, посмотри что есть\n[ASSISTANT]: С удовольствием помогу подобрать билеты. Какие даты вас интересуют и из какого города вылетаете?\n[USER]: Из Москвы, в понедельник туда, в пятницу обратно\n[ASSISTANT]: Нашла несколько вариантов. Есть прямой рейс Аэрофлота в 19:00 за 28500 рублей туда-обратно. Оформить бронирование?\n[USER]: Да, давай этот\n[ASSISTANT]: Рейс забронирован. Номер подтверждения: SU12345. Электронный билет отправлен на вашу почту.\n\nInstructions:\n1. Identify all topics mentioned or discussed in the conversation\n2. Each topic should be a concise phrase (2-5 words)\n3. Include both explicitly mentioned topics and implied topics\n4. Do not include topics that were only briefly mentioned without discussion\n\nRespond with a JSON object containing:\n- topics: A list of distinct topic strings\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3164,32 +3400,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}",
+                    "durationMs": 8875,
+                    "resultJson": "{\n  \"topics\" : [ \"Paris flight tickets\", \"Travel dates\", \"Moscow departure\", \"Aeroflot direct flight\", \"Round trip price\", \"Flight booking\", \"Booking confirmation\", \"Electronic ticket\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}",
+                    "durationMs": 1559,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight search\", \"Paris flights\", \"Departure city\", \"Travel dates\", \"Flight options\", \"Direct flights\", \"Aeroflot\", \"Flight cost\", \"Booking confirmation\", \"Electronic ticket\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}",
+                    "durationMs": 3918,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking request\", \"Destination Paris\", \"Travel dates\", \"Departure city Moscow\", \"Flight options\", \"Direct flight Aeroflot\", \"Flight price\", \"Booking confirmation\", \"Electronic ticket\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}",
+                    "durationMs": 2095,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight search to Paris\", \"Travel dates and itinerary\", \"Departure from Moscow\", \"Airline ticket pricing\", \"Flight booking and confirmation\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3199,43 +3435,43 @@
         },
         {
             "stepIndex": 1,
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
-            "durationMs": 0,
-            "request": null,
-            "isLlmStep": false,
+            "stepName": "ClassifyTopics",
+            "stepType": "LLM",
+            "durationMs": 47050,
+            "request": "Classify each extracted topic against the reference topics to determine if the discussion stayed on topic.\n\nExtracted Topics from Conversation:\nParis flight tickets\n- Travel dates\n- Moscow departure\n- Aeroflot direct flight\n- Round trip price\n- Flight booking\n- Booking confirmation\n- Electronic ticket\n\nReference Topics (allowed topics):\nбронирование авиабилетов\n- путешествия\n- авиаперевозки\n\nInstructions:\n1. For each extracted topic, determine if it matches or is closely related to any reference topic\n2. A topic is \"on topic\" if it directly matches or is a reasonable subtopic of a reference topic\n3. A topic is \"off topic\" if it doesn't relate to any reference topic\n\nRespond with a JSON object containing:\n- classifications: A list of objects, each with:\n  - extractedTopic: The topic being classified\n  - onTopic: true if on topic, false if off topic\n  - matchedReferenceTopic: The matching reference topic (if on topic), or null\n  - reasoning: Brief explanation of the classification\n",
+            "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "durationMs": 6623,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Directly relates to booking airplane tickets.\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"путешествия\",\n    \"reasoning\" : \"Subtopic of travel planning.\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Details flight departure in air transportation.\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Specifies airline and flight type in air transportation.\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Part of air ticket booking process including pricing.\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Direct match to airplane ticket booking.\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Essential step in ticket booking.\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Result of air ticket booking.\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "durationMs": 1893,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"This is a direct subtopic of 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"путешествия\",\n    \"reasoning\" : \"Travel dates are fundamental to 'путешествия' (travel).\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"A departure city is a key detail for 'авиаперевозки' (air transportation).\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Aeroflot is an airline and 'direct flight' relates to the nature of 'авиаперевозки' (air transportation).\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"The price of a round trip is a crucial aspect of 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"This is a direct match to 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"A booking confirmation is an essential part of 'бронирование авиабилетов' (flight ticket booking).\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"An electronic ticket is the outcome of 'бронирование авиабилетов' (flight ticket booking).\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "durationMs": 47050,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Directly about booking flight tickets, which is the core of the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Travel dates are a key detail in the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Departure city is a standard element of booking a flight itinerary.\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Specifics about an airline and flight type fall under air transportation.\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Pricing is a fundamental aspect of booking and purchasing tickets.\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Direct match to the core activity of the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Confirmation is a standard final step in the booking process.\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Type of ticket issued is part of the modern booking and ticketing process.\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "durationMs": 3654,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris flight tickets\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Flight tickets are a core component of air travel and transportation services.\"\n  }, {\n    \"extractedTopic\" : \"Travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"путешествия\",\n    \"reasoning\" : \"Scheduling and dates are essential parameters for planning travel.\"\n  }, {\n    \"extractedTopic\" : \"Moscow departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Departure locations are specific details regarding air transportation routes.\"\n  }, {\n    \"extractedTopic\" : \"Aeroflot direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"авиаперевозки\",\n    \"reasoning\" : \"Specific airlines and flight types fall under the category of air transport.\"\n  }, {\n    \"extractedTopic\" : \"Round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Pricing is a critical part of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Directly matches the reference topic for booking air tickets.\"\n  }, {\n    \"extractedTopic\" : \"Booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"Confirmation is the final step in the ticket booking process.\"\n  }, {\n    \"extractedTopic\" : \"Electronic ticket\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"бронирование авиабилетов\",\n    \"reasoning\" : \"The e-ticket is the primary output of the flight booking process.\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

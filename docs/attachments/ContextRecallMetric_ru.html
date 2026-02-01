@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextPrecisionMetric - Evaluation Report</title>
+    <title>ContextRecallMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -1619,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ContextPrecisionMetric - Evaluation Report</h1>
+            <h1>ContextRecallMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 9763ms</span>
-                <span class="timestamp">2026-02-01T03:17:02.316450Z</span>
+                <span class="duration">Duration: 8438ms</span>
+                <span class="timestamp">2026-02-01T03:15:59.169817Z</span>
             </div>
         </header>
 
@@ -1681,7 +1681,7 @@
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1693,50 +1693,34 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
-            <text x="280" y="310" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1951ms</text>
-            <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">3902ms</text>
-            <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">5853ms</text>
-            <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">7804ms</text>
-            <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">9756ms</text>
-            <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
+        <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
+            <text x="280" y="190" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
+            <text x="400" y="190" class="time-label">1676ms</text>
+            <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
+            <text x="520" y="190" class="time-label">3353ms</text>
+            <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
+            <text x="640" y="190" class="time-label">5030ms</text>
+            <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
+            <text x="760" y="190" class="time-label">6707ms</text>
+            <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
+            <text x="880" y="190" class="time-label">8384ms</text>
+            <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="217" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3532ms (LLM)</title>
+            <rect x="280" y="30" width="379" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - ClassifyStatements: 5302ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="101" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1644ms (LLM)</title>
+            <rect x="280" y="60" width="154" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - ClassifyStatements: 2161ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="456" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 7427ms (LLM)</title>
+            <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - ClassifyStatements: 8383ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="115" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1880ms (LLM)</title>
-            </rect>
-            <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
-                <title>x-ai/grok-4.1-fast - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="180" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-2.5-flash - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="210" width="2" height="24" class="bar-compute" rx="3">
-                <title>deepseek/deepseek-v3.2 - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="240" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-3-flash-preview - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="280" y="120" width="203" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - ClassifyStatements: 2842ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1754,22 +1738,22 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>Где находится Красная площадь?</pre></dd>
+            <dd><pre>Что вы можете рассказать об Альберте Эйнштейне?</pre></dd>
         </div>
+
 
         <div class="sample-item">
-            <dt>Response</dt>
-            <dd><pre>Красная площадь находится в центре Москвы, столицы России.</pre></dd>
+            <dt>Reference</dt>
+            <dd><pre>Альберт Эйнштейн родился 14 марта 1879 года. Он был немецким физиком-теоретиком. Он получил Нобелевскую премию по физике в 1921 году.</pre></dd>
         </div>
-
 
         <div class="sample-item">
             <dt>Retrieved Contexts</dt>
             <dd>
                 <ol class="context-list">
-                    <li><pre>Красная площадь — главная площадь Москвы, расположенная в центре города.</pre></li>
-                    <li><pre>Москва является столицей Российской Федерации и крупнейшим городом страны.</pre></li>
-                    <li><pre>Сегодня на улице прекрасная погода для прогулки.</pre></li>
+                    <li><pre>Альберт Эйнштейн (14 марта 1879 — 18 апреля 1955) был немецким физиком-теоретиком, который считается одним из величайших ученых всех времен.</pre></li>
+                    <li><pre>Он получил Нобелевскую премию по физике в 1921 году за свои заслуги в области теоретической физики, особенно за открытие закона фотоэлектрического эффекта.</pre></li>
+                    <li><pre>Наиболее известен разработкой теории относительности, он также внес важный вклад в квантовую механику.</pre></li>
                 </ol>
             </dd>
         </div>
@@ -1789,7 +1773,6 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : null,
   &quot;models&quot; : [ ]
 }</pre>
 </div>
@@ -1811,7 +1794,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric checks: are contexts ranked correctly? Relevant contexts should appear first in the list.</div>
+            <div class="explanation-simple">This metric checks: do contexts cover all information from the reference? Each sentence from reference should be found in contexts.</div>
         </div>
     </div>
 
@@ -1822,19 +1805,13 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Evaluating context relevance</span>
+                        <span class="exp-tree-name">Checking reference coverage by contexts</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="1">
                     <div class="exp-tree-item" onclick="selectExplanationStep(1)">
                         <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Calculating Precision@K</span>
-                    </div>
-                </div>
-                <div class="exp-tree-node" data-step="2">
-                    <div class="exp-tree-item" onclick="selectExplanationStep(2)">
-                        <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Calculating Average Precision</span>
+                        <span class="exp-tree-name">Calculating coverage</span>
                     </div>
                 </div>
 
@@ -1858,7 +1835,7 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">AP = Σ(Precision@k × relevance@k) / (relevant count)</div>
+        <div class="exp-formula">avg((found sentences) / (total sentences) per model)</div>
     </div>
 
     <div class="exp-calculation-section">
@@ -1870,7 +1847,7 @@
         <div class="exp-result-score ">
             100.00%
         </div>
-        <div class="exp-result-meaning">Excellent - relevant contexts appear first</div>
+        <div class="exp-result-meaning">Excellent - contexts fully cover the reference answer</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1882,7 +1859,7 @@
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high score">Very high score</span>
+                <span class="exp-scale-desc" title="Full reference coverage">Full reference coverage</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1891,7 +1868,7 @@
                 </span>
                 <span class="exp-scale-name">Good</span>
                 <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good score">Good score</span>
+                <span class="exp-scale-desc" title="Good coverage">Good coverage</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1899,7 +1876,7 @@
                 </span>
                 <span class="exp-scale-name">Moderate</span>
                 <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Moderate score">Moderate score</span>
+                <span class="exp-scale-desc" title="Partial coverage">Partial coverage</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1907,7 +1884,7 @@
                 </span>
                 <span class="exp-scale-name">Poor</span>
                 <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low score">Low score</span>
+                <span class="exp-scale-desc" title="Insufficient coverage">Insufficient coverage</span>
             </div>
         </div>
     </div>
@@ -1919,66 +1896,36 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "context-precision",
+    "metricType": "context-recall",
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "EvaluateAllContexts",
+            "stepName": "ClassifyStatements",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}"
+                    "durationMs": 5302,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"The context explicitly provides the birth date of Albert Einstein as '14 марта 1879' in parentheses following his name, allowing direct attribution of the birth information.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"The context directly states 'был немецким физиком-теоретиком', which is semantically identical to the statement.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"The context explicitly mentions 'Он получил Нобелевскую премию по физике в 1921 году', matching the statement exactly.\",\n    \"attributed\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}"
+                    "durationMs": 2161,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"The context states: 'Альберт Эйнштейн (14 марта 1879 — 18 апреля 1955)'. The birth date '14 марта 1879' is explicitly mentioned.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"The context states: 'Альберт Эйнштейн ... был немецким физиком-теоретиком'. This information is directly present.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"The context states: 'Он получил Нобелевскую премию по физике в 1921 году'. This information is directly present.\",\n    \"attributed\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}"
+                    "durationMs": 8383,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"The context explicitly states 'Альберт Эйнштейн (14 марта 1879 — 18 апреля 1955)', which includes the exact birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"The context explicitly states 'был немецким физиком-теоретиком'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"The context explicitly states 'Он получил Нобелевскую премию по физике в 1921 году'.\",\n    \"attributed\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}"
-                }
-            ]
-        },
-        {
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "durationMs": 2842,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"В контексте прямо указана дата рождения в скобках рядом с именем: 14 марта 1879.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"Контекст содержит прямое утверждение: 'был немецким физиком-теоретиком'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"В контексте эксплицитно указано: 'Он получил Нобелевскую премию по физике в 1921 году'.\",\n    \"attributed\" : 1\n  } ]\n}"
                 }
             ]
         }
@@ -1993,20 +1940,38 @@
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "EvaluateContexts",
-            "title": "Evaluating context relevance",
-            "description": "For each context, we check: is it relevant for answering the question?",
-            "inputData": "",
-            "outputSummary": "1 of 1 are relevant",
+            "stepName": "ClassifyStatements",
+            "title": "Checking reference coverage by contexts",
+            "description": "For each sentence from the reference answer, we check: can it be found in the provided contexts?",
+            "inputData": "Альберт Эйнштейн родился 14 марта 1879 года. Он был немецким физиком-теоретиком. Он получил Нобелевскую премию по физике в 1921 году.",
+            "outputSummary": "3 of 3 found in contexts",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "Красная площадь — главная площадь Москвы, расположенная в центре города.",
+                    "content": "Альберт Эйнштейн родился 14 марта 1879 года.",
                     "passed": true,
-                    "verdict": "Relevant",
-                    "reason": "The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.",
+                    "verdict": "Found",
+                    "reason": "The context explicitly provides the birth date of Albert Einstein as '14 марта 1879' in parentheses following his name, allowing direct attribution of the birth information.",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "Он был немецким физиком-теоретиком.",
+                    "passed": true,
+                    "verdict": "Found",
+                    "reason": "The context directly states 'был немецким физиком-теоретиком', which is semantically identical to the statement.",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "Он получил Нобелевскую премию по физике в 1921 году.",
+                    "passed": true,
+                    "verdict": "Found",
+                    "reason": "The context explicitly mentions 'Он получил Нобелевскую премию по физике в 1921 году', matching the statement exactly.",
                     "source": null,
                     "numericValue": null
                 }
@@ -2014,38 +1979,14 @@
             "modelResults": [
             ],
             "metadata": {
+                "contexts": "Альберт Эйнштейн (14 марта 1879 — 18 апреля 1955) был немецким физиком-теоретиком, который считается одним из величайших ученых всех времен.\n\nОн получил Нобелевскую премию по физике в 1921 году за свои заслуги в области теоретической физики, особенно за открытие закона фотоэлектрического эффекта.\n\nНаиболее известен разработкой теории относительности, он также внес важный вклад в квантовую механику."
             }
         },
         {
             "stepNumber": 2,
-            "stepName": "CalculatePrecision",
-            "title": "Calculating Precision@K",
-            "description": "Precision@K = (relevant in top-K) / K",
-            "inputData": null,
-            "outputSummary": "Precision calculated for 1 contexts (1 relevant)",
-            "agreementPercent": 100,
-            "hasModelDisagreement": false,
-            "items": [
-                {
-                    "index": 1,
-                    "content": "K=1: 1/1 relevant → 100,0%",
-                    "passed": true,
-                    "verdict": "+",
-                    "reason": null,
-                    "source": null,
-                    "numericValue": 1
-                }
-            ],
-            "modelResults": [
-            ],
-            "metadata": {
-            }
-        },
-        {
-            "stepNumber": 3,
             "stepName": "ComputeScore",
-            "title": "Calculating Average Precision",
-            "description": "AP = average Precision@K only at positions with relevant contexts",
+            "title": "Calculating coverage",
+            "description": "Proportion of reference sentences found in contexts.",
             "inputData": null,
             "outputSummary": "100.00%",
             "agreementPercent": 100,
@@ -2059,15 +2000,15 @@
         }
     ],
     "interpretation": {
-        "formula": "AP = Σ(Precision@k × relevance@k) / (relevant count)",
+        "formula": "avg((found sentences) / (total sentences) per model)",
         "calculation": "100.00%",
         "score": 1,
         "scorePercent": "100.00%",
         "level": "Excellent",
         "isGood": null,
-        "meaning": "Excellent - relevant contexts appear first",
-        "numerator": 1,
-        "denominator": 1,
+        "meaning": "Excellent - contexts fully cover the reference answer",
+        "numerator": 3,
+        "denominator": 3,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
@@ -2075,25 +2016,25 @@
             {
                 "name": "Excellent",
                 "range": "90-100%",
-                "description": "Very high score",
+                "description": "Full reference coverage",
                 "current": true
             },
             {
                 "name": "Good",
                 "range": "70-90%",
-                "description": "Good score",
+                "description": "Good coverage",
                 "current": false
             },
             {
                 "name": "Moderate",
                 "range": "50-70%",
-                "description": "Moderate score",
+                "description": "Partial coverage",
                 "current": false
             },
             {
                 "name": "Poor",
                 "range": "0-50%",
-                "description": "Low score",
+                "description": "Insufficient coverage",
                 "current": false
             }
         ]
@@ -2918,31 +2859,26 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Context Precision Metric</h1>
+    <h1>Context Recall Metric</h1>
 <h2>Glossary</h2>
 <ul>
-<li><strong>Context</strong> — information fragments retrieved by the search system and provided to the agentic system</li>
-<li><strong>Relevance</strong> — correspondence of the context to the user's original question</li>
+<li><strong>Context</strong> — information fragments retrieved by the search system</li>
+<li><strong>Reference (Ground Truth)</strong> — the expected correct answer to the user's question</li>
+<li><strong>Attribution</strong> — presence of reference information in the context</li>
 <li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
-<li><strong>Average Precision</strong> — mean precision accounting for positions of relevant results</li>
 </ul>
 <h2>Description</h2>
-<p>The metric evaluates the quality of context ranking by the retrieval system. It checks whether the most relevant contexts appear at the top positions. Relevant contexts at the beginning of the list increase the score; at the end — decrease it.</p>
+<p>The metric evaluates the completeness of retrieved context relative to the reference answer. The reference is broken into individual sentences, each of which is checked for presence in the context. If information from the reference is missing from the context, the agentic system cannot use it in the response.</p>
 <h2>Example</h2>
-<p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
-<p><strong>Retrieved Contexts (in order):</strong></p>
+<p><strong>Reference (Ground Truth):</strong> &quot;The Eiffel Tower was built in 1889. It is located in Paris, France. Gustave Eiffel designed it.&quot;</p>
+<p><strong>Context:</strong> &quot;The Eiffel Tower was completed in 1889 for the World's Fair in Paris.&quot;</p>
+<p><strong>Checking reference sentences:</strong></p>
 <ol>
-<li>&quot;The Eiffel Tower was completed in 1889 for the World's Fair.&quot; — <strong>RELEVANT</strong></li>
-<li>&quot;It stands 330 meters tall.&quot; — <strong>NOT RELEVANT</strong> to the question</li>
-<li>&quot;Construction began in 1887.&quot; — <strong>RELEVANT</strong></li>
+<li>&quot;Built in 1889&quot; → found in context ✓</li>
+<li>&quot;Located in Paris, France&quot; → found in context ✓</li>
+<li>&quot;Gustave Eiffel designed it&quot; → not found in context ✗</li>
 </ol>
-<p><strong>Calculation:</strong></p>
-<ul>
-<li>Position 1: Relevant → Precision@1 = 1/1 = 1.00</li>
-<li>Position 2: Not relevant → skip</li>
-<li>Position 3: Relevant → Precision@3 = 2/3 = 0.67</li>
-</ul>
-<p><strong>Score:</strong> (1.00 + 0.67) / 2 = <strong>0.83 (83%)</strong></p>
+<p><strong>Score:</strong> 2/3 = <strong>0.67 (67%)</strong></p>
 <h2>Score Interpretation</h2>
 <table>
 <thead>
@@ -2954,41 +2890,39 @@
 <tbody>
 <tr>
 <td>90-100%</td>
-<td>Relevant contexts at top positions</td>
+<td>Context contains all required information from the reference</td>
 </tr>
 <tr>
 <td>70-90%</td>
-<td>Most relevant contexts near the top of the list</td>
+<td>Most information from the reference is present in context</td>
 </tr>
 <tr>
 <td>50-70%</td>
-<td>Relevant contexts distributed unevenly</td>
+<td>Some key information is missing from context</td>
 </tr>
 <tr>
 <td>0-50%</td>
-<td>Relevant contexts at bottom positions</td>
+<td>Context lacks significant portion of information from the reference</td>
 </tr>
 </tbody>
 </table>
 <h2>Algorithm</h2>
 <ol>
-<li><strong>Relevance Check</strong> — LLM determines relevance of each context to the question</li>
-<li><strong>Precision Calculation at Positions</strong> — precision is calculated at each relevant context position</li>
-<li><strong>Averaging</strong> — mean value of all precisions is computed</li>
+<li><strong>Reference Splitting</strong> — reference answer is broken into individual sentences</li>
+<li><strong>Attribution Check</strong> — LLM verifies presence of each sentence in context</li>
+<li><strong>Score Calculation</strong> — ratio of found sentences to total count</li>
 </ol>
 <h2>Formula</h2>
-<pre><code>score = Average Precision (AP) = Σ(precision@k × relevance@k) / total_relevant
+<pre><code>score = attributed_sentences / total_sentences
 </code></pre>
 <p>Where:</p>
 <ul>
-<li><code>precision@k</code> — fraction of relevant contexts in top-k positions</li>
-<li><code>relevance@k</code> — 1 if context at position k is relevant, otherwise 0</li>
-<li><code>total_relevant</code> — total number of relevant contexts</li>
+<li><code>attributed_sentences</code> — number of reference sentences found in context</li>
+<li><code>total_sentences</code> — total number of sentences in the reference</li>
 </ul>
 <h2>References</h2>
 <ul>
-<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">RAGAS Documentation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Mean_average_precision">Mean Average Precision (MAP)</a></li>
+<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_recall.md">RAGAS Documentation</a></li>
 </ul>
 
 </div>
@@ -2998,14 +2932,8 @@
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">EvaluateAllContexts</span>
+                <span class="step-name">ClassifyStatements</span>
                 <span class="step-type">[LLM]</span>
-            </div>
-                <div class="step-arrow">&rarr;</div>
-            <div class="step-box compute">
-                <span class="step-number">2.</span>
-                <span class="step-name">ComputePrecision</span>
-                <span class="step-type">[COMPUTE]</span>
             </div>
     </div>
 </div>
@@ -3030,8 +2958,8 @@
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">7427ms</span>
+                    <span class="tree-name">ClassifyStatements</span>
+                    <span class="tree-duration">8383ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3039,7 +2967,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3532ms</span>
+                        <span class="tree-duration">5302ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3047,7 +2975,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1644ms</span>
+                        <span class="tree-duration">2161ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3055,7 +2983,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7427ms</span>
+                        <span class="tree-duration">8383ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3063,52 +2991,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1880ms</span>
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="tree-node step-node" data-step="1">
-                <div class="tree-item" onclick="selectStep(1)">
-                    <span class="tree-expand has-children"
-                          onclick="event.stopPropagation(); toggleTreeNode(this)">
-                        ▶
-                    </span>
-                    <span class="tree-type-badge compute">COMPUTE</span>
-                    <span class="tree-name">ComputePrecision</span>
-                    <span class="tree-duration">0ms</span>
-                </div>
-                <div class="tree-children" style="display: none;">
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 0, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 1, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 2, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 3, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">2842ms</span>
                         
                     </div>
                 </div>
@@ -3153,10 +3036,10 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "EvaluateAllContexts",
+            "stepName": "ClassifyStatements",
             "stepType": "LLM",
-            "durationMs": 7427,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Красная площадь — главная площадь Москвы, расположенная в центре города.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Москва является столицей Российской Федерации и крупнейшим городом страны.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Сегодня на улице прекрасная погода для прогулки.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
+            "durationMs": 8383,
+            "request": "Given a question, context, and a reference answer, analyze each sentence in the reference answer and classify if the sentence can be attributed to the given context or not. Use only 'Yes' (1) or 'No' (0) as a binary classification.\n\nQuestion: Что вы можете рассказать об Альберте Эйнштейне?\nContext: Альберт Эйнштейн (14 марта 1879 — 18 апреля 1955) был немецким физиком-теоретиком, который считается одним из величайших ученых всех времен.\n\nОн получил Нобелевскую премию по физике в 1921 году за свои заслуги в области теоретической физики, особенно за открытие закона фотоэлектрического эффекта.\n\nНаиболее известен разработкой теории относительности, он также внес важный вклад в квантовую механику.\nReference Answer: Альберт Эйнштейн родился 14 марта 1879 года. Он был немецким физиком-теоретиком. Он получил Нобелевскую премию по физике в 1921 году.\n\nInstructions:\n1. Break down the reference answer into individual sentences\n2. For each sentence, determine if it can be attributed to the provided context\n3. A sentence is attributable (1) if the information can be found or inferred from the context\n4. A sentence is not attributable (0) if the information is not present in the context\n5. Be strict in your evaluation - only mark as attributable if there is clear supporting evidence\n6. Consider paraphrases and semantically equivalent information as supporting evidence\n\nRespond with a JSON object containing:\n- classifications: A list of classification objects, each containing:\n  - statement: The individual sentence from the reference answer\n  - reason: Detailed explanation for the classification\n  - attributed: 1 if the statement can be attributed to the context, 0 otherwise\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3164,78 +3047,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}",
+                    "durationMs": 5302,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"The context explicitly provides the birth date of Albert Einstein as '14 марта 1879' in parentheses following his name, allowing direct attribution of the birth information.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"The context directly states 'был немецким физиком-теоретиком', which is semantically identical to the statement.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"The context explicitly mentions 'Он получил Нобелевскую премию по физике в 1921 году', matching the statement exactly.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}",
+                    "durationMs": 2161,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"The context states: 'Альберт Эйнштейн (14 марта 1879 — 18 апреля 1955)'. The birth date '14 марта 1879' is explicitly mentioned.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"The context states: 'Альберт Эйнштейн ... был немецким физиком-теоретиком'. This information is directly present.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"The context states: 'Он получил Нобелевскую премию по физике в 1921 году'. This information is directly present.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}",
+                    "durationMs": 8383,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"The context explicitly states 'Альберт Эйнштейн (14 марта 1879 — 18 апреля 1955)', which includes the exact birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"The context explicitly states 'был немецким физиком-теоретиком'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"The context explicitly states 'Он получил Нобелевскую премию по физике в 1921 году'.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                }
-            ],
-            "embeddingResults": [
-            ]
-        },
-        {
-            "stepIndex": 1,
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
-            "durationMs": 0,
-            "request": null,
-            "isLlmStep": false,
-            "successCount": 4,
-            "failureCount": 0,
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "durationMs": 2842,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Альберт Эйнштейн родился 14 марта 1879 года.\",\n    \"reason\" : \"В контексте прямо указана дата рождения в скобках рядом с именем: 14 марта 1879.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он был немецким физиком-теоретиком.\",\n    \"reason\" : \"Контекст содержит прямое утверждение: 'был немецким физиком-теоретиком'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"Он получил Нобелевскую премию по физике в 1921 году.\",\n    \"reason\" : \"В контексте эксплицитно указано: 'Он получил Нобелевскую премию по физике в 1921 году'.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

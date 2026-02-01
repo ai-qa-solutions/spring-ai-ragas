@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextPrecisionMetric - Evaluation Report</title>
+    <title>NoiseSensitivityMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -1619,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ContextPrecisionMetric - Evaluation Report</h1>
+            <h1>NoiseSensitivityMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 9763ms</span>
-                <span class="timestamp">2026-02-01T03:17:02.316450Z</span>
+                <span class="score-badge excellent">0.00%</span>
+                <span class="duration">Duration: 56916ms</span>
+                <span class="timestamp">2026-02-01T03:17:02.973275Z</span>
             </div>
         </header>
 
@@ -1665,23 +1665,23 @@
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                     <text x="550" y="170" class="scale-label">1</text>
             <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="37" class="score-label">1,0000</text>
+            <rect x="150" y="20" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="37" class="score-label">0,0000</text>
             <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="67" class="score-label">1,0000</text>
+            <rect x="150" y="50" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="67" class="score-label">0,0000</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="97" class="score-label">1,0000</text>
+            <rect x="150" y="80" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="97" class="score-label">0,0000</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="127" class="score-label">1,0000</text>
+            <rect x="150" y="110" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="127" class="score-label">0,0000</text>
     </svg>
 </div>
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1693,50 +1693,98 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
-            <text x="280" y="310" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1951ms</text>
-            <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">3902ms</text>
-            <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">5853ms</text>
-            <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">7804ms</text>
-            <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">9756ms</text>
-            <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
+        <line x1="280" y1="650" x2="880" y2="650" class="axis"/>
+            <text x="280" y="670" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="645" class="grid-line"/>
+            <text x="400" y="670" class="time-label">11383ms</text>
+            <line x1="400" y1="30" x2="400" y2="645" class="grid-line"/>
+            <text x="520" y="670" class="time-label">22766ms</text>
+            <line x1="520" y1="30" x2="520" y2="645" class="grid-line"/>
+            <text x="640" y="670" class="time-label">34149ms</text>
+            <line x1="640" y1="30" x2="640" y2="645" class="grid-line"/>
+            <text x="760" y="670" class="time-label">45532ms</text>
+            <line x1="760" y1="30" x2="760" y2="645" class="grid-line"/>
+            <text x="880" y="670" class="time-label">56915ms</text>
+            <line x1="880" y1="30" x2="880" y2="645" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="217" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3532ms (LLM)</title>
+            <rect x="280" y="30" width="71" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeReference: 6756ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="101" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1644ms (LLM)</title>
+            <rect x="280" y="60" width="8" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeReference: 761ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="456" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 7427ms (LLM)</title>
+            <rect x="280" y="90" width="151" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeReference: 14401ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="115" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1880ms (LLM)</title>
+            <rect x="280" y="120" width="16" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeReference: 1610ms (LLM)</title>
             </rect>
             <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
-                <title>x-ai/grok-4.1-fast - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="431" y="150" width="132" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeResponse: 12603ms (LLM)</title>
             </rect>
             <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="180" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-2.5-flash - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="431" y="180" width="7" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeResponse: 670ms (LLM)</title>
             </rect>
             <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="210" width="2" height="24" class="bar-compute" rx="3">
-                <title>deepseek/deepseek-v3.2 - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="431" y="210" width="36" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeResponse: 3434ms (LLM)</title>
             </rect>
             <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="240" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-3-flash-preview - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="431" y="240" width="18" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeResponse: 1729ms (LLM)</title>
+            </rect>
+            <text x="275" y="287" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="564" y="270" width="33" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateGroundTruthToAnswer: 3223ms (LLM)</title>
+            </rect>
+            <text x="275" y="317" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="564" y="300" width="15" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateGroundTruthToAnswer: 1463ms (LLM)</title>
+            </rect>
+            <text x="275" y="347" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="564" y="330" width="102" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateGroundTruthToAnswer: 9752ms (LLM)</title>
+            </rect>
+            <text x="275" y="377" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="564" y="360" width="25" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateGroundTruthToAnswer: 2446ms (LLM)</title>
+            </rect>
+            <text x="275" y="407" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="667" y="390" width="46" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 4419ms (LLM)</title>
+            </rect>
+            <text x="275" y="437" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="667" y="420" width="15" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1513ms (LLM)</title>
+            </rect>
+            <text x="275" y="467" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="667" y="450" width="115" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 10971ms (LLM)</title>
+            </rect>
+            <text x="275" y="497" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="667" y="480" width="26" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 2523ms (LLM)</title>
+            </rect>
+            <text x="275" y="527" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="879" y="510" width="2" height="24" class="bar-compute" rx="3">
+                <title>x-ai/grok-4.1-fast - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="557" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="879" y="540" width="2" height="24" class="bar-compute" rx="3">
+                <title>google/gemini-2.5-flash - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="587" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="879" y="570" width="2" height="24" class="bar-compute" rx="3">
+                <title>deepseek/deepseek-v3.2 - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="617" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="879" y="600" width="2" height="24" class="bar-compute" rx="3">
+                <title>google/gemini-3-flash-preview - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1754,22 +1802,26 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>Где находится Красная площадь?</pre></dd>
+            <dd><pre>Расскажите о башне Зенит.</pre></dd>
         </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>Красная площадь находится в центре Москвы, столицы России.</pre></dd>
+            <dd><pre>Башня Зенит была построена в 1889 году. Она расположена в городе Новара, Гельвеция. Она была спроектирована Маркусом Ченом.</pre></dd>
         </div>
 
+        <div class="sample-item">
+            <dt>Reference</dt>
+            <dd><pre>Башня Зенит была построена в 1889 году. Она расположена в городе Новара, Гельвеция. Она была спроектирована Маркусом Ченом.</pre></dd>
+        </div>
 
         <div class="sample-item">
             <dt>Retrieved Contexts</dt>
             <dd>
                 <ol class="context-list">
-                    <li><pre>Красная площадь — главная площадь Москвы, расположенная в центре города.</pre></li>
-                    <li><pre>Москва является столицей Российской Федерации и крупнейшим городом страны.</pre></li>
-                    <li><pre>Сегодня на улице прекрасная погода для прогулки.</pre></li>
+                    <li><pre>Башня Зенит была возведена в 1889 году для Всемирной выставки.</pre></li>
+                    <li><pre>Башня расположена в городе Новара, Гельвеция.</pre></li>
+                    <li><pre>Маркус Чен был архитектором, который спроектировал башню.</pre></li>
                 </ol>
             </dd>
         </div>
@@ -1789,7 +1841,7 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : null,
+  &quot;mode&quot; : &quot;RELEVANT&quot;,
   &quot;models&quot; : [ ]
 }</pre>
 </div>
@@ -1807,11 +1859,11 @@
 <div class="explanation-viewer">
     <div class="explanation-intro">
         <div class="explanation-icon">
-                <span class="icon-info">i</span>
+                    <span class="icon-good">&#10003;</span>
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric checks: are contexts ranked correctly? Relevant contexts should appear first in the list.</div>
+            <div class="explanation-simple">This metric checks: does irrelevant context influence the AI response? Lower values are better - the system ignores noisy context.</div>
         </div>
     </div>
 
@@ -1822,19 +1874,25 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Evaluating context relevance</span>
+                        <span class="exp-tree-name">Breaking down reference into statements</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="1">
                     <div class="exp-tree-item" onclick="selectExplanationStep(1)">
                         <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Calculating Precision@K</span>
+                        <span class="exp-tree-name">Breaking down AI response into statements</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="2">
                     <div class="exp-tree-item" onclick="selectExplanationStep(2)">
                         <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Calculating Average Precision</span>
+                        <span class="exp-tree-name">Analyzing matches and sources</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="3">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(3)">
+                        <span class="exp-tree-number">4</span>
+                        <span class="exp-tree-name">Calculating noise sensitivity</span>
                     </div>
                 </div>
 
@@ -1858,19 +1916,21 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">AP = Σ(Precision@k × relevance@k) / (relevant count)</div>
+        <div class="exp-formula">avg((noise errors / total checks) per model)</div>
     </div>
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">100.00%</div>
+        <div class="exp-calculation">0.00%</div>
     </div>
 
     <div class="exp-result-section">
-        <div class="exp-result-score ">
-            100.00%
+        <div class="exp-result-score 
+            good
+        ">
+            0.00%
         </div>
-        <div class="exp-result-meaning">Excellent - relevant contexts appear first</div>
+        <div class="exp-result-meaning">EXCELLENT - System completely ignores irrelevant context</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1881,8 +1941,8 @@
                     &#9658;
                 </span>
                 <span class="exp-scale-name">Excellent</span>
-                <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high score">Very high score</span>
+                <span class="exp-scale-range">0-10%</span>
+                <span class="exp-scale-desc" title="No noise influence (EXCELLENT)">No noise influence (EXCELLENT)</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1890,24 +1950,24 @@
                     
                 </span>
                 <span class="exp-scale-name">Good</span>
-                <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good score">Good score</span>
+                <span class="exp-scale-range">10-30%</span>
+                <span class="exp-scale-desc" title="Minimal influence">Minimal influence</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Moderate</span>
-                <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Moderate score">Moderate score</span>
+                <span class="exp-scale-range">30-50%</span>
+                <span class="exp-scale-desc" title="Noticeable influence">Noticeable influence</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Poor</span>
-                <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low score">Low score</span>
+                <span class="exp-scale-range">50-100%</span>
+                <span class="exp-scale-desc" title="Heavy response distortion">Heavy response distortion</span>
             </div>
         </div>
     </div>
@@ -1919,9 +1979,99 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "context-precision",
-    "hasFixedInterpretation": false,
+    "metricType": "noise-sensitivity",
+    "hasFixedInterpretation": true,
     "executionSteps": [
+        {
+            "stepName": "DecomposeReference",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 6756,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара, Гельвеция.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 761,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 14401,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Башня Зенит расположена в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 1610,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "DecomposeResponse",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 12603,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара, Гельвеция.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 670,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 3434,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Башня Зенит расположена в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 1729,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "EvaluateGroundTruthToAnswer",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3223,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement exactly matches the first sentence of the context.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара, Гельвеция.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement exactly matches the second sentence of the context, where 'Она' refers to Башня Зенит.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement exactly matches the third sentence of the context, where 'Она' refers to Башня Зенит.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 1463,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Башня Зенит была построена в 1889 году.' The statement matches this exactly.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Она расположена в городе Новара'. The statement matches this exactly.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Она расположена в городе Новара, Гельвеция.' This implies that Новара is in Гельвеция. The statement matches this implication.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Она была спроектирована Маркусом Ченом.' The statement matches this exactly.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 9752,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст прямо утверждает: 'Башня Зенит была построена в 1889 году.' Утверждение полностью совпадает с контекстом.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст утверждает: 'Она расположена в городе Новара...'. Утверждение полностью совпадает с этой частью контекста.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в Гельвеции.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст утверждает: '...в городе Новара, Гельвеция.' Утверждение о том, что башня расположена в Гельвеции, совпадает с контекстом.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст прямо утверждает: 'Она была спроектирована Маркусом Ченом.' Утверждение полностью совпадает с контекстом.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 2446,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was built in 1889.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the tower is located in the city of Novara.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that Novara is in Helvetia.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the tower was designed by Marcus Chen.\"\n  } ]\n}"
+                }
+            ]
+        },
         {
             "stepName": "EvaluateAllContexts",
             "stepType": "LLM",
@@ -1929,84 +2079,102 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}"
+                    "durationMs": 4419,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'Башня Зенит была возведена в 1889 году', which matches the statement that it was построена (synonymous with возведена/built) in 1889 exactly.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара, Гельвеция.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention any location for Башня Зенит, such as Новара or Гельвеция, so this cannot be verified from the context.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the designer or architect of Башня Зенит, nor Маркус Чен, so this cannot be verified from the context.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}"
+                    "durationMs": 1513,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'Башня Зенит была возведена в 1889 году', and the statement says 'Башня Зенит была построена в 1889 году'. 'Возведена' and 'построена' are synonymous in this context, and the year matches exactly.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context mentions 'Башня Зенит была возведена в 1889 году для Всемирной выставки.' It does not mention anything about the city of Новара or its location.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the city of Новара or Гельвеция at all.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context states 'Башня Зенит была возведена в 1889 году для Всемирной выставки.' It does not mention who designed the tower or the name Маркус Чен.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}"
+                    "durationMs": 10971,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст утверждает: 'Башня Зенит была возведена в 1889 году'. Утверждение 'Башня Зенит была построена в 1889 году' соответствует контексту по сути (возведена/построена) и по году.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : false,\n    \"reason\" : \"Контекст не содержит никакой информации о местоположении Башни Зенит. Утверждение о городе Новара не может быть проверено на основе данного контекста.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в Гельвеции.\",\n    \"verdict\" : false,\n    \"reason\" : \"Контекст не содержит никакой информации о местоположении Башни Зенит. Утверждение о Гельвеции не может быть проверено на основе данного контекста.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"Контекст не содержит никакой информации об архитекторе или проектировщике Башни Зенит. Утверждение о Маркусе Чене не может быть проверено на основе данного контекста.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}"
+                    "durationMs": 2523,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was erected (возведена) in 1889.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context mentions the year and the event (World Exhibition) but does not mention the city of Novara or any specific location.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not contain any information about the city of Novara or the country of Helvetia.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the designer or architect of the tower.\"\n  } ]\n}"
                 }
             ]
         },
         {
-            "stepName": "ComputePrecision",
+            "stepName": "ComputeNoiseSensitivity",
             "stepType": "COMPUTE",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0"
+                    "resultJson": "0.0"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0"
+                    "resultJson": "0.0"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0"
+                    "resultJson": "0.0"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0"
+                    "resultJson": "0.0"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 1,
-        "google/gemini-2.5-flash": 1,
-        "deepseek/deepseek-v3.2": 1,
-        "google/gemini-3-flash-preview": 1
+        "x-ai/grok-4.1-fast": 0,
+        "google/gemini-2.5-flash": 0,
+        "deepseek/deepseek-v3.2": 0,
+        "google/gemini-3-flash-preview": 0
     },
-    "aggregatedScore": 1,
+    "aggregatedScore": 0,
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "EvaluateContexts",
-            "title": "Evaluating context relevance",
-            "description": "For each context, we check: is it relevant for answering the question?",
-            "inputData": "",
-            "outputSummary": "1 of 1 are relevant",
+            "stepName": "ExtractReferenceStatements",
+            "title": "Breaking down reference into statements",
+            "description": "The reference answer is broken down into individual facts.",
+            "inputData": "Башня Зенит была построена в 1889 году. Она расположена в городе Новара, Гельвеция. Она была спроектирована Маркусом Ченом.",
+            "outputSummary": "Reference statements",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "Красная площадь — главная площадь Москвы, расположенная в центре города.",
-                    "passed": true,
-                    "verdict": "Relevant",
-                    "reason": "The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.",
+                    "content": "Башня Зенит была построена в 1889 году.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "Башня Зенит расположена в городе Новара, Гельвеция.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "Башня Зенит была спроектирована Маркусом Ченом.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
                     "source": null,
                     "numericValue": null
                 }
@@ -2018,22 +2186,40 @@
         },
         {
             "stepNumber": 2,
-            "stepName": "CalculatePrecision",
-            "title": "Calculating Precision@K",
-            "description": "Precision@K = (relevant in top-K) / K",
-            "inputData": null,
-            "outputSummary": "Precision calculated for 1 contexts (1 relevant)",
+            "stepName": "ExtractResponseStatements",
+            "title": "Breaking down AI response into statements",
+            "description": "The AI response is broken down into individual facts.",
+            "inputData": "Башня Зенит была построена в 1889 году. Она расположена в городе Новара, Гельвеция. Она была спроектирована Маркусом Ченом.",
+            "outputSummary": "Response statements",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "K=1: 1/1 relevant → 100,0%",
-                    "passed": true,
-                    "verdict": "+",
+                    "content": "Башня Зенит была построена в 1889 году.",
+                    "passed": null,
+                    "verdict": null,
                     "reason": null,
                     "source": null,
-                    "numericValue": 1
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "Башня Зенит расположена в городе Новара, Гельвеция.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "Башня Зенит была спроектирована Маркусом Ченом.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
                 }
             ],
             "modelResults": [
@@ -2043,11 +2229,54 @@
         },
         {
             "stepNumber": 3,
-            "stepName": "ComputeScore",
-            "title": "Calculating Average Precision",
-            "description": "AP = average Precision@K only at positions with relevant contexts",
+            "stepName": "AnalyzeMatches",
+            "title": "Analyzing matches and sources",
+            "description": "Checking if response statements match reference and where information came from.",
             "inputData": null,
-            "outputSummary": "100.00%",
+            "outputSummary": "0 errors out of 3 checks",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+                {
+                    "index": 1,
+                    "content": "Башня Зенит была построена в 1889 году.",
+                    "passed": true,
+                    "verdict": "OK",
+                    "reason": "Statement matches reference",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "Башня Зенит расположена в городе Новара, Гельвеция.",
+                    "passed": true,
+                    "verdict": "OK",
+                    "reason": "Statement matches reference",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "Башня Зенит была спроектирована Маркусом Ченом.",
+                    "passed": true,
+                    "verdict": "OK",
+                    "reason": "Statement matches reference",
+                    "source": null,
+                    "numericValue": null
+                }
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 4,
+            "stepName": "ComputeScore",
+            "title": "Calculating noise sensitivity",
+            "description": "Proportion of errors caused by irrelevant context. Lower = better.",
+            "inputData": null,
+            "outputSummary": "0.00%",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -2059,41 +2288,41 @@
         }
     ],
     "interpretation": {
-        "formula": "AP = Σ(Precision@k × relevance@k) / (relevant count)",
-        "calculation": "100.00%",
-        "score": 1,
-        "scorePercent": "100.00%",
+        "formula": "avg((noise errors / total checks) per model)",
+        "calculation": "0.00%",
+        "score": 0,
+        "scorePercent": "0.00%",
         "level": "Excellent",
-        "isGood": null,
-        "meaning": "Excellent - relevant contexts appear first",
-        "numerator": 1,
-        "denominator": 1,
+        "isGood": true,
+        "meaning": "EXCELLENT - System completely ignores irrelevant context",
+        "numerator": 0,
+        "denominator": 3,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
             {
                 "name": "Excellent",
-                "range": "90-100%",
-                "description": "Very high score",
+                "range": "0-10%",
+                "description": "No noise influence (EXCELLENT)",
                 "current": true
             },
             {
                 "name": "Good",
-                "range": "70-90%",
-                "description": "Good score",
+                "range": "10-30%",
+                "description": "Minimal influence",
                 "current": false
             },
             {
                 "name": "Moderate",
-                "range": "50-70%",
-                "description": "Moderate score",
+                "range": "30-50%",
+                "description": "Noticeable influence",
                 "current": false
             },
             {
                 "name": "Poor",
-                "range": "0-50%",
-                "description": "Low score",
+                "range": "50-100%",
+                "description": "Heavy response distortion",
                 "current": false
             }
         ]
@@ -2918,31 +3147,34 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Context Precision Metric</h1>
+    <h1>Noise Sensitivity Metric</h1>
 <h2>Glossary</h2>
 <ul>
-<li><strong>Context</strong> — information fragments retrieved by the search system and provided to the agentic system</li>
-<li><strong>Relevance</strong> — correspondence of the context to the user's original question</li>
+<li><strong>Noise</strong> — irrelevant contexts not related to the user's question</li>
+<li><strong>Reference (Ground Truth)</strong> — the expected correct answer to the user's question</li>
+<li><strong>Context</strong> — information fragments provided to the agentic system</li>
 <li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
-<li><strong>Average Precision</strong> — mean precision accounting for positions of relevant results</li>
 </ul>
 <h2>Description</h2>
-<p>The metric evaluates the quality of context ranking by the retrieval system. It checks whether the most relevant contexts appear at the top positions. Relevant contexts at the beginning of the list increase the score; at the end — decrease it.</p>
+<p>The metric evaluates the agentic system's resistance to irrelevant information (noise) in the context. It checks whether the system used noisy contexts when forming the response. A low score indicates high resistance — the agentic system successfully ignores irrelevant information.</p>
+<p><strong>Note:</strong> This is an inverse metric — the lower the score, the better.</p>
 <h2>Example</h2>
 <p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
-<p><strong>Retrieved Contexts (in order):</strong></p>
+<p><strong>Reference (Ground Truth):</strong> &quot;The Eiffel Tower was built in 1889.&quot;</p>
+<p><strong>Contexts:</strong></p>
 <ol>
-<li>&quot;The Eiffel Tower was completed in 1889 for the World's Fair.&quot; — <strong>RELEVANT</strong></li>
-<li>&quot;It stands 330 meters tall.&quot; — <strong>NOT RELEVANT</strong> to the question</li>
-<li>&quot;Construction began in 1887.&quot; — <strong>RELEVANT</strong></li>
+<li>&quot;The Eiffel Tower was completed in 1889.&quot; (relevant)</li>
+<li>&quot;The weather in Paris is mild in spring.&quot; (noise)</li>
+<li>&quot;The tower has 1,665 steps.&quot; (noise)</li>
 </ol>
-<p><strong>Calculation:</strong></p>
+<p><strong>Agentic System Response:</strong> &quot;The Eiffel Tower was built in 1889. Paris has mild weather in spring.&quot;</p>
+<p><strong>Analysis:</strong></p>
 <ul>
-<li>Position 1: Relevant → Precision@1 = 1/1 = 1.00</li>
-<li>Position 2: Not relevant → skip</li>
-<li>Position 3: Relevant → Precision@3 = 2/3 = 0.67</li>
+<li>Fact about 1889 — from relevant context ✓</li>
+<li>Fact about weather — from noise context ✗</li>
 </ul>
-<p><strong>Score:</strong> (1.00 + 0.67) / 2 = <strong>0.83 (83%)</strong></p>
+<p><strong>Score:</strong> &gt; 0% (noise used — bad)</p>
+<p>If the response contained only the fact about 1889, the score would be <strong>0% (good)</strong>.</p>
 <h2>Score Interpretation</h2>
 <table>
 <thead>
@@ -2953,42 +3185,46 @@
 </thead>
 <tbody>
 <tr>
-<td>90-100%</td>
-<td>Relevant contexts at top positions</td>
+<td>0-10%</td>
+<td>Agentic system successfully ignores noise</td>
 </tr>
 <tr>
-<td>70-90%</td>
-<td>Most relevant contexts near the top of the list</td>
+<td>10-30%</td>
+<td>Agentic system is mostly resistant to noise</td>
 </tr>
 <tr>
-<td>50-70%</td>
-<td>Relevant contexts distributed unevenly</td>
+<td>30-50%</td>
+<td>Agentic system sometimes uses noisy information</td>
 </tr>
 <tr>
-<td>0-50%</td>
-<td>Relevant contexts at bottom positions</td>
+<td>50-100%</td>
+<td>Agentic system is susceptible to irrelevant contexts</td>
 </tr>
 </tbody>
 </table>
 <h2>Algorithm</h2>
 <ol>
-<li><strong>Relevance Check</strong> — LLM determines relevance of each context to the question</li>
-<li><strong>Precision Calculation at Positions</strong> — precision is calculated at each relevant context position</li>
-<li><strong>Averaging</strong> — mean value of all precisions is computed</li>
+<li><strong>Statement Extraction</strong> — reference and response are broken into atomic statements</li>
+<li><strong>Reference Comparison</strong> — response statements are checked against the reference</li>
+<li><strong>Source Analysis</strong> — determination of which contexts statements came from</li>
+<li><strong>Score Calculation</strong> — proportion of noisy information in the response is evaluated</li>
 </ol>
+<h2>Modes</h2>
+<ul>
+<li><strong>RELEVANT</strong> — measures errors from relevant contexts</li>
+<li><strong>IRRELEVANT</strong> — measures errors from irrelevant (noise) contexts</li>
+</ul>
 <h2>Formula</h2>
-<pre><code>score = Average Precision (AP) = Σ(precision@k × relevance@k) / total_relevant
+<pre><code>score = noise_statements / total_statements
 </code></pre>
 <p>Where:</p>
 <ul>
-<li><code>precision@k</code> — fraction of relevant contexts in top-k positions</li>
-<li><code>relevance@k</code> — 1 if context at position k is relevant, otherwise 0</li>
-<li><code>total_relevant</code> — total number of relevant contexts</li>
+<li><code>noise_statements</code> — number of statements in response taken from noise contexts</li>
+<li><code>total_statements</code> — total number of statements in the response</li>
 </ul>
 <h2>References</h2>
 <ul>
-<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">RAGAS Documentation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Mean_average_precision">Mean Average Precision (MAP)</a></li>
+<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/noise_sensitivity.md">RAGAS Documentation</a></li>
 </ul>
 
 </div>
@@ -2998,13 +3234,31 @@
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
+                <span class="step-name">DecomposeReference</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">2.</span>
+                <span class="step-name">DecomposeResponse</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">3.</span>
+                <span class="step-name">EvaluateGroundTruthToAnswer</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">4.</span>
                 <span class="step-name">EvaluateAllContexts</span>
                 <span class="step-type">[LLM]</span>
             </div>
                 <div class="step-arrow">&rarr;</div>
             <div class="step-box compute">
-                <span class="step-number">2.</span>
-                <span class="step-name">ComputePrecision</span>
+                <span class="step-number">5.</span>
+                <span class="step-name">ComputeNoiseSensitivity</span>
                 <span class="step-type">[COMPUTE]</span>
             </div>
     </div>
@@ -3030,8 +3284,8 @@
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">7427ms</span>
+                    <span class="tree-name">DecomposeReference</span>
+                    <span class="tree-duration">14401ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3039,7 +3293,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3532ms</span>
+                        <span class="tree-duration">6756ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3047,7 +3301,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1644ms</span>
+                        <span class="tree-duration">761ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3055,7 +3309,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7427ms</span>
+                        <span class="tree-duration">14401ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3063,7 +3317,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1880ms</span>
+                        <span class="tree-duration">1610ms</span>
                         
                     </div>
                 </div>
@@ -3074,9 +3328,9 @@
                           onclick="event.stopPropagation(); toggleTreeNode(this)">
                         ▶
                     </span>
-                    <span class="tree-type-badge compute">COMPUTE</span>
-                    <span class="tree-name">ComputePrecision</span>
-                    <span class="tree-duration">0ms</span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">DecomposeResponse</span>
+                    <span class="tree-duration">12603ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3084,7 +3338,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">12603ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3092,7 +3346,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">670ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3100,11 +3354,146 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">3434ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
                          onclick="selectModel(1, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">1729ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="2">
+                <div class="tree-item" onclick="selectStep(2)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">EvaluateGroundTruthToAnswer</span>
+                    <span class="tree-duration">9752ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">3223ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">1463ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">9752ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">2446ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="3">
+                <div class="tree-item" onclick="selectStep(3)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">EvaluateAllContexts</span>
+                    <span class="tree-duration">10971ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">4419ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">1513ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">10971ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">2523ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="4">
+                <div class="tree-item" onclick="selectStep(4)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">ComputeNoiseSensitivity</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 3, 'llm')">
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
@@ -3153,10 +3542,10 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "EvaluateAllContexts",
+            "stepName": "DecomposeReference",
             "stepType": "LLM",
-            "durationMs": 7427,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Красная площадь — главная площадь Москвы, расположенная в центре города.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Москва является столицей Российской Федерации и крупнейшим городом страны.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Сегодня на улице прекрасная погода для прогулки.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
+            "durationMs": 14401,
+            "request": "Given a question and an answer, create a list of statements that are present in the answer.\nEach statement should be atomic, meaning it contains only one piece of information.\n\nQuestion: Расскажите о башне Зенит.\nAnswer: Башня Зенит была построена в 1889 году. Она расположена в городе Новара, Гельвеция. Она была спроектирована Маркусом Ченом.\n\nInstructions:\n1. Break down the answer into individual, atomic statements\n2. Each statement should be a complete, standalone assertion\n3. Avoid compound statements - split them into separate statements\n4. Focus on factual claims that can be verified\n5. Maintain the original meaning from the answer\n6. Do not add information not present in the answer\n\nRespond with a JSON object containing:\n- statements: A list of atomic statements extracted from the answer\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3164,32 +3553,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}",
+                    "durationMs": 6756,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара, Гельвеция.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}",
+                    "durationMs": 761,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}",
+                    "durationMs": 14401,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Башня Зенит расположена в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}",
+                    "durationMs": 1610,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3199,7 +3588,145 @@
         },
         {
             "stepIndex": 1,
-            "stepName": "ComputePrecision",
+            "stepName": "DecomposeResponse",
+            "stepType": "LLM",
+            "durationMs": 12603,
+            "request": "Given a question and an answer, create a list of statements that are present in the answer.\nEach statement should be atomic, meaning it contains only one piece of information.\n\nQuestion: Расскажите о башне Зенит.\nAnswer: Башня Зенит была построена в 1889 году. Она расположена в городе Новара, Гельвеция. Она была спроектирована Маркусом Ченом.\n\nInstructions:\n1. Break down the answer into individual, atomic statements\n2. Each statement should be a complete, standalone assertion\n3. Avoid compound statements - split them into separate statements\n4. Focus on factual claims that can be verified\n5. Maintain the original meaning from the answer\n6. Do not add information not present in the answer\n\nRespond with a JSON object containing:\n- statements: A list of atomic statements extracted from the answer\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 12603,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара, Гельвеция.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 670,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 3434,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Башня Зенит расположена в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 1729,
+                    "resultJson": "{\n  \"statements\" : [ \"Башня Зенит была построена в 1889 году.\", \"Башня Зенит расположена в городе Новара.\", \"Город Новара находится в Гельвеции.\", \"Башня Зенит была спроектирована Маркусом Ченом.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 2,
+            "stepName": "EvaluateGroundTruthToAnswer",
+            "stepType": "LLM",
+            "durationMs": 9752,
+            "request": "IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.\n\n    Context: Башня Зенит была построена в 1889 году. Она расположена в городе Новара, Гельвеция. Она была спроектирована Маркусом Ченом.\n    Statements: Башня Зенит была построена в 1889 году.\nБашня Зенит расположена в городе Новара, Гельвеция.\nБашня Зенит была спроектирована Маркусом Ченом.\n\n    CRITICAL INSTRUCTIONS - READ CAREFULLY:\n\n    YOU MUST COMPLETELY IGNORE ALL REAL-WORLD KNOWLEDGE FOR THIS EVALUATION.\n\n    CRITICAL: Evaluate ONLY using the context provided above. DO NOT use information from any previous contexts you may have seen.\n    Each evaluation is independent. Forget all previous contexts.\n\n    This is a test environment. The context contains deliberately wrong information to test system behavior.\n    Your job is NOT to correct facts, but to check if statements match the context.\n\n    EVALUATION RULES (MANDATORY):\n    1. Pretend you have complete amnesia about real-world facts AND previous contexts\n    2. The ONLY truth for this evaluation is what THIS SPECIFIC context states\n    3. If context says \"Paris is in Germany\" and statement says \"Paris, Germany\" → verdict: TRUE (they match the context)\n    4. If context says \"built in 1899\" and statement says \"built in 1889\" → verdict: FALSE (numbers don't match)\n    5. If context doesn't mention something (e.g., location), statement can't be verified → verdict: FALSE\n    6. Compare word-by-word and fact-by-fact against THIS context ONLY\n    7. Even if reality contradicts the context, use ONLY this context as your source of truth\n    8. If the context is about a different topic than the statement, verdict: FALSE\n\n    EXAMPLES OF CORRECT EVALUATION:\n    - Context: \"The tower is in Paris, capital of Germany\"\n      Statement: \"It is located in Paris, Germany\"\n      Verdict: TRUE (both say Paris + Germany, they match)\n\n    - Context: \"Built in 1899\"\n      Statement: \"Built in 1889\"\n      Verdict: FALSE (1899 ≠ 1889, they don't match)\n\n    - Context: \"The tower was designed by Gustav\"\n      Statement: \"It is located in Paris, France\"\n      Verdict: FALSE (location not mentioned in this context)\n\n    For EACH statement:\n    Step 1: What EXACTLY does THIS context say? (not what you remember from before)\n    Step 2: Does the statement match what THIS context says (word-for-word, fact-for-fact)?\n    Step 3: Is there ANY detail that contradicts or isn't mentioned in THIS context?\n    Step 4: Verdict: TRUE only if EVERYTHING in the statement matches THIS context. FALSE if ANY part differs or is missing.\n\n    DO NOT let your knowledge of real-world facts OR previous contexts influence your verdict. Each evaluation is completely independent.\n\n    Respond with a JSON object containing:\n       - verdicts: A list of verdicts for each statement, where each verdict contains:\n       - statement: The original statement\n       - verdict: true if the ENTIRE statement matches THIS context exactly, false otherwise\n       - reason: Explanation comparing statement to THIS context (not to real-world facts or previous contexts)\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3223,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement exactly matches the first sentence of the context.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара, Гельвеция.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement exactly matches the second sentence of the context, where 'Она' refers to Башня Зенит.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement exactly matches the third sentence of the context, where 'Она' refers to Башня Зенит.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 1463,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Башня Зенит была построена в 1889 году.' The statement matches this exactly.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Она расположена в городе Новара'. The statement matches this exactly.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Она расположена в городе Новара, Гельвеция.' This implies that Новара is in Гельвеция. The statement matches this implication.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states: 'Она была спроектирована Маркусом Ченом.' The statement matches this exactly.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 9752,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст прямо утверждает: 'Башня Зенит была построена в 1889 году.' Утверждение полностью совпадает с контекстом.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст утверждает: 'Она расположена в городе Новара...'. Утверждение полностью совпадает с этой частью контекста.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в Гельвеции.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст утверждает: '...в городе Новара, Гельвеция.' Утверждение о том, что башня расположена в Гельвеции, совпадает с контекстом.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст прямо утверждает: 'Она была спроектирована Маркусом Ченом.' Утверждение полностью совпадает с контекстом.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 2446,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was built in 1889.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the tower is located in the city of Novara.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that Novara is in Helvetia.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the tower was designed by Marcus Chen.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 3,
+            "stepName": "EvaluateAllContexts",
+            "stepType": "LLM",
+            "durationMs": 10971,
+            "request": "IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.\n\n    Context: Башня Зенит была возведена в 1889 году для Всемирной выставки.\n    Statements: Башня Зенит была построена в 1889 году.\nБашня Зенит расположена в городе Новара, Гельвеция.\nБашня Зенит была спроектирована Маркусом Ченом.\n\n    CRITICAL INSTRUCTIONS - READ CAREFULLY:\n\n    YOU MUST COMPLETELY IGNORE ALL REAL-WORLD KNOWLEDGE FOR THIS EVALUATION.\n\n    CRITICAL: Evaluate ONLY using the context provided above. DO NOT use information from any previous contexts you may have seen.\n    Each evaluation is independent. Forget all previous contexts.\n\n    This is a test environment. The context contains deliberately wrong information to test system behavior.\n    Your job is NOT to correct facts, but to check if statements match the context.\n\n    EVALUATION RULES (MANDATORY):\n    1. Pretend you have complete amnesia about real-world facts AND previous contexts\n    2. The ONLY truth for this evaluation is what THIS SPECIFIC context states\n    3. If context says \"Paris is in Germany\" and statement says \"Paris, Germany\" → verdict: TRUE (they match the context)\n    4. If context says \"built in 1899\" and statement says \"built in 1889\" → verdict: FALSE (numbers don't match)\n    5. If context doesn't mention something (e.g., location), statement can't be verified → verdict: FALSE\n    6. Compare word-by-word and fact-by-fact against THIS context ONLY\n    7. Even if reality contradicts the context, use ONLY this context as your source of truth\n    8. If the context is about a different topic than the statement, verdict: FALSE\n\n    EXAMPLES OF CORRECT EVALUATION:\n    - Context: \"The tower is in Paris, capital of Germany\"\n      Statement: \"It is located in Paris, Germany\"\n      Verdict: TRUE (both say Paris + Germany, they match)\n\n    - Context: \"Built in 1899\"\n      Statement: \"Built in 1889\"\n      Verdict: FALSE (1899 ≠ 1889, they don't match)\n\n    - Context: \"The tower was designed by Gustav\"\n      Statement: \"It is located in Paris, France\"\n      Verdict: FALSE (location not mentioned in this context)\n\n    For EACH statement:\n    Step 1: What EXACTLY does THIS context say? (not what you remember from before)\n    Step 2: Does the statement match what THIS context says (word-for-word, fact-for-fact)?\n    Step 3: Is there ANY detail that contradicts or isn't mentioned in THIS context?\n    Step 4: Verdict: TRUE only if EVERYTHING in the statement matches THIS context. FALSE if ANY part differs or is missing.\n\n    DO NOT let your knowledge of real-world facts OR previous contexts influence your verdict. Each evaluation is completely independent.\n\n    Respond with a JSON object containing:\n       - verdicts: A list of verdicts for each statement, where each verdict contains:\n       - statement: The original statement\n       - verdict: true if the ENTIRE statement matches THIS context exactly, false otherwise\n       - reason: Explanation comparing statement to THIS context (not to real-world facts or previous contexts)\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 4419,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'Башня Зенит была возведена в 1889 году', which matches the statement that it was построена (synonymous with возведена/built) in 1889 exactly.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара, Гельвеция.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention any location for Башня Зенит, such as Новара or Гельвеция, so this cannot be verified from the context.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the designer or architect of Башня Зенит, nor Маркус Чен, so this cannot be verified from the context.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 1513,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'Башня Зенит была возведена в 1889 году', and the statement says 'Башня Зенит была построена в 1889 году'. 'Возведена' and 'построена' are synonymous in this context, and the year matches exactly.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context mentions 'Башня Зенит была возведена в 1889 году для Всемирной выставки.' It does not mention anything about the city of Новара or its location.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the city of Новара or Гельвеция at all.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context states 'Башня Зенит была возведена в 1889 году для Всемирной выставки.' It does not mention who designed the tower or the name Маркус Чен.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 10971,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"Контекст утверждает: 'Башня Зенит была возведена в 1889 году'. Утверждение 'Башня Зенит была построена в 1889 году' соответствует контексту по сути (возведена/построена) и по году.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : false,\n    \"reason\" : \"Контекст не содержит никакой информации о местоположении Башни Зенит. Утверждение о городе Новара не может быть проверено на основе данного контекста.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в Гельвеции.\",\n    \"verdict\" : false,\n    \"reason\" : \"Контекст не содержит никакой информации о местоположении Башни Зенит. Утверждение о Гельвеции не может быть проверено на основе данного контекста.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"Контекст не содержит никакой информации об архитекторе или проектировщике Башни Зенит. Утверждение о Маркусе Чене не может быть проверено на основе данного контекста.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 2523,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"Башня Зенит была построена в 1889 году.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was erected (возведена) in 1889.\"\n  }, {\n    \"statement\" : \"Башня Зенит расположена в городе Новара.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context mentions the year and the event (World Exhibition) but does not mention the city of Novara or any specific location.\"\n  }, {\n    \"statement\" : \"Город Новара находится в Гельвеции.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not contain any information about the city of Novara or the country of Helvetia.\"\n  }, {\n    \"statement\" : \"Башня Зенит была спроектирована Маркусом Ченом.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the designer or architect of the tower.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 4,
+            "stepName": "ComputeNoiseSensitivity",
             "stepType": "COMPUTE",
             "durationMs": 0,
             "request": null,
@@ -3211,7 +3738,7 @@
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0",
+                    "resultJson": "0.0",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3219,7 +3746,7 @@
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0",
+                    "resultJson": "0.0",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3227,7 +3754,7 @@
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0",
+                    "resultJson": "0.0",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3235,7 +3762,7 @@
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0",
+                    "resultJson": "0.0",
                     "errorMessage": null,
                     "stackTrace": null
                 }

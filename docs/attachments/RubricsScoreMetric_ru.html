@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1538,9 +1621,9 @@
         <header class="report-header">
             <h1>RubricsScoreMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge moderate">3.0 / 5 → 50.00%</span>
-                <span class="duration">Duration: 10450ms</span>
-                <span class="timestamp">2026-01-12T13:33:58.652913Z</span>
+                <span class="score-badge good">4.8 / 5 → 93.75%</span>
+                <span class="duration">Duration: 15245ms</span>
+                <span class="timestamp">2026-02-01T03:17:02.315648Z</span>
             </div>
         </header>
 
@@ -1575,17 +1658,17 @@
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                 <text x="550" y="170" class="scale-label">5</text>
             <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="37" class="score-label">3,0 / 5</text>
+            <rect x="150" y="20" width="300" height="24" class="bar-good" rx="3"/>
+            <text x="455" y="37" class="score-label">4,0 / 5</text>
             <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="67" class="score-label">3,0 / 5</text>
+            <rect x="150" y="50" width="400" height="24" class="bar-good" rx="3"/>
+            <text x="555" y="67" class="score-label">5,0 / 5</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="97" class="score-label">3,0 / 5</text>
+            <rect x="150" y="80" width="400" height="24" class="bar-good" rx="3"/>
+            <text x="555" y="97" class="score-label">5,0 / 5</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="127" class="score-label">3,0 / 5</text>
+            <rect x="150" y="110" width="400" height="24" class="bar-good" rx="3"/>
+            <text x="555" y="127" class="score-label">5,0 / 5</text>
     </svg>
 </div>
 
@@ -1606,31 +1689,31 @@
         <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
             <text x="280" y="190" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
-            <text x="400" y="190" class="time-label">2089ms</text>
+            <text x="400" y="190" class="time-label">3021ms</text>
             <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
-            <text x="520" y="190" class="time-label">4178ms</text>
+            <text x="520" y="190" class="time-label">6043ms</text>
             <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
-            <text x="640" y="190" class="time-label">6267ms</text>
+            <text x="640" y="190" class="time-label">9065ms</text>
             <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
-            <text x="760" y="190" class="time-label">8356ms</text>
+            <text x="760" y="190" class="time-label">12087ms</text>
             <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
-            <text x="880" y="190" class="time-label">10446ms</text>
+            <text x="880" y="190" class="time-label">15109ms</text>
             <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
             <rect x="280" y="30" width="599" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - Evaluate: 10446ms (LLM)</title>
+                <title>x-ai/grok-4.1-fast - Evaluate: 15106ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
             <rect x="280" y="60" width="64" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - Evaluate: 1123ms (LLM)</title>
+                <title>google/gemini-2.5-flash - Evaluate: 1630ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="464" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - Evaluate: 8086ms (LLM)</title>
+            <rect x="280" y="90" width="414" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - Evaluate: 10447ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="133" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - Evaluate: 2325ms (LLM)</title>
+            <rect x="280" y="120" width="98" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - Evaluate: 2483ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1648,14 +1731,18 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>Что такое искусственный интеллект?</pre></dd>
+            <dd><pre>Объясните процесс фотосинтеза</pre></dd>
         </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>ИИ — это область информатики, которая создаёт системы, способные выполнять задачи, требующие человеческого интеллекта.</pre></dd>
+            <dd><pre>Фотосинтез — это сложный биохимический процесс, в ходе которого растения преобразуют световую энергию в химическую. Процесс происходит в хлоропластах и включает две основные стадии: световую и темновую фазы. В световой фазе хлорофилл поглощает солнечный свет, расщепляя молекулы воды и выделяя кислород. В темновой фазе (цикл Кальвина) углекислый газ из атмосферы превращается в глюкозу. Общее уравнение: 6CO₂ + 6H₂O + световая энергия → C₆H₁₂O₆ + 6O₂.</pre></dd>
         </div>
 
+        <div class="sample-item">
+            <dt>Reference</dt>
+            <dd><pre>Фотосинтез - процесс образования органических веществ из CO₂ и воды с использованием световой энергии.</pre></dd>
+        </div>
 
     </dl>
 </div>
@@ -1675,9 +1762,11 @@
     <pre>{
   &quot;models&quot; : [ ],
   &quot;rubrics&quot; : {
-    &quot;score1_description&quot; : &quot;Нет релевантной информации&quot;,
-    &quot;score3_description&quot; : &quot;Базовое определение предоставлено&quot;,
-    &quot;score5_description&quot; : &quot;Полное объяснение с примерами&quot;
+    &quot;score1_description&quot; : &quot;Полностью неверная или нерелевантная информация о фотосинтезе&quot;,
+    &quot;score3_description&quot; : &quot;Общее понимание процесса, но отсутствуют важные детали&quot;,
+    &quot;score4_description&quot; : &quot;Хорошее понимание с упоминанием основных этапов и компонентов&quot;,
+    &quot;score5_description&quot; : &quot;Отличное объяснение с научными деталями, уравнением и примерами&quot;,
+    &quot;score2_description&quot; : &quot;Базовое понимание с существенными пробелами или ошибками&quot;
   }
 }</pre>
 </div>
@@ -1751,35 +1840,51 @@
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">(3.0 - 1) / (5 - 1) = 50.00%</div>
+        <div class="exp-calculation">(4.8 - 1) / (5 - 1) = 93.75%</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            50.00%
+            93.75%
         </div>
-        <div class="exp-result-meaning">Selected level 3: Базовое определение предоставлено</div>
+        <div class="exp-result-meaning">Selected level 5: Отличное объяснение с научными деталями, уравнением и примерами</div>
     </div>
 
     <div class="exp-scale-section">
         <div class="exp-section-title">Scale</div>
         <div class="exp-scale-list">
-            <div class="exp-scale-item ">
-                <span class="exp-scale-marker">
-                    
-                </span>
-                <span class="exp-scale-name">Level 5</span>
-                <span class="exp-scale-range">5</span>
-                <span class="exp-scale-desc" title="Полное объяснение с примерами">Полное объяснение с примерами</span>
-            </div>
             <div class="exp-scale-item current">
                 <span class="exp-scale-marker">
                     &#9658;
                 </span>
+                <span class="exp-scale-name">Level 5</span>
+                <span class="exp-scale-range">5</span>
+                <span class="exp-scale-desc" title="Отличное объяснение с научными деталями, уравнением и примерами">Отличное объяснение с научными деталями, уравнением и примерами</span>
+                <span class="exp-scale-current">YOUR RESULT</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
+                <span class="exp-scale-name">Level 4</span>
+                <span class="exp-scale-range">4</span>
+                <span class="exp-scale-desc" title="Хорошее понимание с упоминанием основных этапов и компонентов">Хорошее понимание с упоминанием основных этапов и компонентов</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
                 <span class="exp-scale-name">Level 3</span>
                 <span class="exp-scale-range">3</span>
-                <span class="exp-scale-desc" title="Базовое определение предоставлено">Базовое определение предоставлено</span>
-                <span class="exp-scale-current">YOUR RESULT</span>
+                <span class="exp-scale-desc" title="Общее понимание процесса, но отсутствуют важные детали">Общее понимание процесса, но отсутствуют важные детали</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
+                <span class="exp-scale-name">Level 2</span>
+                <span class="exp-scale-range">2</span>
+                <span class="exp-scale-desc" title="Базовое понимание с существенными пробелами или ошибками">Базовое понимание с существенными пробелами или ошибками</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1787,7 +1892,7 @@
                 </span>
                 <span class="exp-scale-name">Level 1</span>
                 <span class="exp-scale-range">1</span>
-                <span class="exp-scale-desc" title="Нет релевантной информации">Нет релевантной информации</span>
+                <span class="exp-scale-desc" title="Полностью неверная или нерелевантная информация о фотосинтезе">Полностью неверная или нерелевантная информация о фотосинтезе</span>
             </div>
         </div>
     </div>
@@ -1809,37 +1914,37 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 10446,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Базовое определение предоставлено\",\n  \"reasoning\" : \"The AI response directly answers the query by providing a clear and concise definition of artificial intelligence (ИИ) as a field of computer science that creates systems capable of performing tasks requiring human intelligence. This aligns precisely with the 'Score 3: Базовое определение предоставлено' rubric, as it offers a basic definition without additional depth. It lacks examples or a more comprehensive explanation (e.g., history, types of AI, or applications), which would be necessary for Score 5. The content is fully relevant to the question, eliminating Score 1.\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 15106,
+                    "resultJson": "{\n  \"score\" : 4,\n  \"rubric_level\" : \"Score 4\",\n  \"reasoning\" : \"The AI response provides a good understanding of photosynthesis, accurately describing it as a biochemical process in chloroplasts where light energy is converted to chemical energy. It mentions the two main stages (light phase and dark phase/Cycle of Calvin), key components (chlorophyll, water, CO2, glucose, oxygen), and specific processes (light absorption, water splitting, oxygen release, CO2 conversion to glucose). It also includes the correct overall chemical equation. This aligns perfectly with Score 4: 'Good understanding with mention of main stages and components.' It surpasses Score 3 by including important details like the location, specific phase activities, and the Calvin cycle name. However, it lacks deeper scientific details (e.g., role of ATP/NADPH, photosystems), examples (e.g., specific plants like algae or trees, or ecological significance), or more comprehensive mechanisms, preventing it from reaching Score 5. No errors or irrelevance, eliminating lower scores.\",\n  \"normalizedScore\" : 4.0\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1123,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"The AI response provides a basic and accurate definition of Artificial Intelligence, stating that it is a field of computer science that creates systems capable of performing tasks requiring human intelligence. This directly aligns with the 'Базовое определение предоставлено' rubric level. It does not offer examples or further elaboration, which would be required for a higher score.\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 1630,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"score5_description\",\n  \"reasoning\" : \"The AI response provides an excellent explanation of photosynthesis. It correctly defines the process, identifies the location (chloroplasts), outlines the two main stages (light-dependent and light-independent/Calvin cycle), describes the key events in each stage (chlorophyll absorbing light, water splitting, oxygen release, CO2 conversion to glucose), and includes the overall chemical equation. This level of detail, accuracy, and completeness, including scientific terms and the equation, aligns perfectly with the 'Отличное объяснение с научными деталями, уравнением и примерами' rubric.\",\n  \"normalizedScore\" : 5.0\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 8086,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"Ответ ИИ предоставляет базовое определение искусственного интеллекта, точно описывая его как область информатики, занимающуюся созданием систем для выполнения задач, требующих человеческого интеллекта. Это определение является корректным и релевантным, но оно остаётся общим и кратким. В нём отсутствуют какие-либо примеры таких задач (например, распознавание речи, компьютерное зрение, принятие решений) или более полное объяснение ключевых концепций ИИ, таких как машинное обучение или нейронные сети. Следовательно, ответ соответствует уровню 'Базовое определение предоставлено' (Score 3), но не достигает уровня 'Полное объяснение с примерами' (Score 5).\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 10447,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"score5_description\",\n  \"reasoning\" : \"Ответ ИИ представляет собой отличное объяснение процесса фотосинтеза, полностью соответствующее критериям высшего балла. В ответе дано четкое научное определение процесса, указано его местоположение (хлоропласты), подробно описаны две основные стадии (световая и темновая фазы, включая упоминание цикла Кальвина). Приведены ключевые компоненты: хлорофилл, вода, углекислый газ, солнечный свет, кислород, глюкоза. Ответ включает общее химическое уравнение фотосинтеза, что является важной научной деталью. Вся информация точна, хорошо структурирована и полностью соответствует предоставленному референс-контексту, расширяя его необходимыми деталями. Ошибок или пробелов нет.\",\n  \"normalizedScore\" : 5.0\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2325,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Базовое определение предоставлено\",\n  \"reasoning\" : \"Ответ содержит точное, но краткое определение искусственного интеллекта как области информатики и описывает его основную цель. Однако он не соответствует критериям оценки 5, так как в нем полностью отсутствуют примеры технологий (таких как машинное обучение или нейросети) или практических областей применения, что требуется для 'полного объяснения'.\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 2483,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"Score 5: Отличное объяснение с научными деталями, уравнением и примерами\",\n  \"reasoning\" : \"Ответ ИИ является исчерпывающим и точным. В нем дано четкое определение процесса, указано место протекания (хлоропласты), подробно описаны обе фазы (световая и темновая/цикл Кальвина) с указанием ключевых реагентов и продуктов (вода, кислород, углекислый газ, глюкоза). Также приведено корректное сбалансированное химическое уравнение фотосинтеза, что полностью соответствует критериям высшего балла.\",\n  \"normalizedScore\" : 5.0\n}"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 3,
-        "google/gemini-2.5-flash": 3,
-        "deepseek/deepseek-v3.2": 3,
-        "google/gemini-3-flash-preview": 3
+        "x-ai/grok-4.1-fast": 4,
+        "google/gemini-2.5-flash": 5,
+        "deepseek/deepseek-v3.2": 5,
+        "google/gemini-3-flash-preview": 5
     },
-    "aggregatedScore": 3,
+    "aggregatedScore": 4.75,
     "steps": [
         {
             "stepNumber": 1,
@@ -1853,25 +1958,43 @@
             "items": [
                 {
                     "index": 5,
-                    "content": "Полное объяснение с примерами",
-                    "passed": null,
+                    "content": "Отличное объяснение с научными деталями, уравнением и примерами",
+                    "passed": true,
                     "verdict": "Level 5",
                     "reason": null,
                     "source": null,
                     "numericValue": null
                 },
                 {
+                    "index": 4,
+                    "content": "Хорошее понимание с упоминанием основных этапов и компонентов",
+                    "passed": null,
+                    "verdict": "Level 4",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
                     "index": 3,
-                    "content": "Базовое определение предоставлено",
-                    "passed": true,
+                    "content": "Общее понимание процесса, но отсутствуют важные детали",
+                    "passed": null,
                     "verdict": "Level 3",
                     "reason": null,
                     "source": null,
                     "numericValue": null
                 },
                 {
+                    "index": 2,
+                    "content": "Базовое понимание с существенными пробелами или ошибками",
+                    "passed": null,
+                    "verdict": "Level 2",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
                     "index": 1,
-                    "content": "Нет релевантной информации",
+                    "content": "Полностью неверная или нерелевантная информация о фотосинтезе",
                     "passed": null,
                     "verdict": "Level 1",
                     "reason": null,
@@ -1889,14 +2012,14 @@
             "stepName": "SelectLevel",
             "title": "LLM as a Judge",
             "description": "LLM analyzed the response and selected the appropriate level.",
-            "inputData": "ИИ — это область информатики, которая создаёт системы, способные выполнять задачи, требующие человеческого интеллекта.",
-            "outputSummary": "Level 3: Базовое определение предоставлено",
+            "inputData": "Фотосинтез — это сложный биохимический процесс, в ходе которого растения преобразуют световую энергию в химическую. Процесс происходит в хлоропластах и включает две основные стадии: световую и темновую фазы. В световой фазе хлорофилл поглощает солнечный свет, расщепляя молекулы воды и выделяя кислород. В темновой фазе (цикл Кальвина) углекислый газ из атмосферы превращается в глюкозу. Общее уравнение: 6CO₂ + 6H₂O + световая энергия → C₆H₁₂O₆ + 6O₂.\nReference",
+            "outputSummary": "Level 5: Отличное объяснение с научными деталями, уравнением и примерами",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "The AI response directly answers the query by providing a clear and concise definition of artificial intelligence (ИИ) as a field of computer science that creates systems capable of performing tasks requiring human intelligence. This aligns precisely with the 'Score 3: Базовое определение предоставлено' rubric, as it offers a basic definition without additional depth. It lacks examples or a more comprehensive explanation (e.g., history, types of AI, or applications), which would be necessary for Score 5. The content is fully relevant to the question, eliminating Score 1.",
+                    "content": "The AI response provides a good understanding of photosynthesis, accurately describing it as a biochemical process in chloroplasts where light energy is converted to chemical energy. It mentions the two main stages (light phase and dark phase/Cycle of Calvin), key components (chlorophyll, water, CO2, glucose, oxygen), and specific processes (light absorption, water splitting, oxygen release, CO2 conversion to glucose). It also includes the correct overall chemical equation. This aligns perfectly with Score 4: 'Good understanding with mention of main stages and components.' It surpasses Score 3 by including important details like the location, specific phase activities, and the Calvin cycle name. However, it lacks deeper scientific details (e.g., role of ATP/NADPH, photosystems), examples (e.g., specific plants like algae or trees, or ecological significance), or more comprehensive mechanisms, preventing it from reaching Score 5. No errors or irrelevance, eliminating lower scores.",
                     "passed": true,
                     "verdict": null,
                     "reason": null,
@@ -1915,7 +2038,7 @@
             "title": "Score calculation",
             "description": "Normalizing selected level to 0-1 scale.",
             "inputData": null,
-            "outputSummary": "300.00%",
+            "outputSummary": "475.00%",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -1928,34 +2051,46 @@
     ],
     "interpretation": {
         "formula": "(level - 1) / (5 - 1)",
-        "calculation": "(3.0 - 1) / (5 - 1) = 50.00%",
-        "score": 0.5,
-        "scorePercent": "50.00%",
-        "level": "Level 3",
+        "calculation": "(4.8 - 1) / (5 - 1) = 93.75%",
+        "score": 0.9375,
+        "scorePercent": "93.75%",
+        "level": "Level 5",
         "isGood": null,
-        "meaning": "Selected level 3: Базовое определение предоставлено",
-        "numerator": 2,
+        "meaning": "Selected level 5: Отличное объяснение с научными деталями, уравнением и примерами",
+        "numerator": 4,
         "denominator": 4,
-        "currentLevelIndex": 1,
+        "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
             {
                 "name": "Level 5",
                 "range": "5",
-                "description": "Полное объяснение с примерами",
+                "description": "Отличное объяснение с научными деталями, уравнением и примерами",
+                "current": true
+            },
+            {
+                "name": "Level 4",
+                "range": "4",
+                "description": "Хорошее понимание с упоминанием основных этапов и компонентов",
                 "current": false
             },
             {
                 "name": "Level 3",
                 "range": "3",
-                "description": "Базовое определение предоставлено",
-                "current": true
+                "description": "Общее понимание процесса, но отсутствуют важные детали",
+                "current": false
+            },
+            {
+                "name": "Level 2",
+                "range": "2",
+                "description": "Базовое понимание с существенными пробелами или ошибками",
+                "current": false
             },
             {
                 "name": "Level 1",
                 "range": "1",
-                "description": "Нет релевантной информации",
+                "description": "Полностью неверная или нерелевантная информация о фотосинтезе",
                 "current": false
             }
         ]
@@ -2304,6 +2439,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2412,15 +2567,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2909,7 +3066,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">Evaluate</span>
-                    <span class="tree-duration">10446ms</span>
+                    <span class="tree-duration">15106ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2917,7 +3074,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">10446ms</span>
+                        <span class="tree-duration">15106ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2925,7 +3082,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1123ms</span>
+                        <span class="tree-duration">1630ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2933,7 +3090,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">8086ms</span>
+                        <span class="tree-duration">10447ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2941,7 +3098,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">2325ms</span>
+                        <span class="tree-duration">2483ms</span>
                         
                     </div>
                 </div>
@@ -2988,8 +3145,8 @@
             "stepIndex": 0,
             "stepName": "Evaluate",
             "stepType": "LLM",
-            "durationMs": 10446,
-            "request": "Evaluate the AI response using the provided detailed rubrics.\n\nUser Input: Что такое искусственный интеллект?\nAI Response: ИИ — это область информатики, которая создаёт системы, способные выполнять задачи, требующие человеческого интеллекта.\n\nEvaluation Rubrics:\nScore 1: Нет релевантной информации\nScore 3: Базовое определение предоставлено\nScore 5: Полное объяснение с примерами\n\n\nInstructions:\n1. Evaluate the AI response against each rubric level based on its quality\n2. Select the rubric level that best describes the response quality\n3. Provide the corresponding score and detailed reasoning\n\nRespond with a JSON object containing:\n- score: The numerical score (integer) corresponding to the selected rubric level\n- rubric_level: The key of the selected rubric (e.g., \"score3_description\")\n- reasoning: Your detailed explanation for the score selection\n",
+            "durationMs": 15106,
+            "request": "Evaluate the AI response using the provided detailed rubrics.\n\nUser Input: Объясните процесс фотосинтеза\nAI Response: Фотосинтез — это сложный биохимический процесс, в ходе которого растения преобразуют световую энергию в химическую. Процесс происходит в хлоропластах и включает две основные стадии: световую и темновую фазы. В световой фазе хлорофилл поглощает солнечный свет, расщепляя молекулы воды и выделяя кислород. В темновой фазе (цикл Кальвина) углекислый газ из атмосферы превращается в глюкозу. Общее уравнение: 6CO₂ + 6H₂O + световая энергия → C₆H₁₂O₆ + 6O₂.\nReference Context: Фотосинтез - процесс образования органических веществ из CO₂ и воды с использованием световой энергии.\n\nEvaluation Rubrics:\nScore 1: Полностью неверная или нерелевантная информация о фотосинтезе\nScore 2: Базовое понимание с существенными пробелами или ошибками\nScore 3: Общее понимание процесса, но отсутствуют важные детали\nScore 4: Хорошее понимание с упоминанием основных этапов и компонентов\nScore 5: Отличное объяснение с научными деталями, уравнением и примерами\n\n\nInstructions:\n1. Evaluate the AI response against each rubric level based on its quality\n2. Select the rubric level that best describes the response quality\n3. Provide the corresponding score and detailed reasoning\n\nRespond with a JSON object containing:\n- score: The numerical score (integer) corresponding to the selected rubric level\n- rubric_level: The key of the selected rubric (e.g., \"score3_description\")\n- reasoning: Your detailed explanation for the score selection\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -2997,32 +3154,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 10446,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Базовое определение предоставлено\",\n  \"reasoning\" : \"The AI response directly answers the query by providing a clear and concise definition of artificial intelligence (ИИ) as a field of computer science that creates systems capable of performing tasks requiring human intelligence. This aligns precisely with the 'Score 3: Базовое определение предоставлено' rubric, as it offers a basic definition without additional depth. It lacks examples or a more comprehensive explanation (e.g., history, types of AI, or applications), which would be necessary for Score 5. The content is fully relevant to the question, eliminating Score 1.\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 15106,
+                    "resultJson": "{\n  \"score\" : 4,\n  \"rubric_level\" : \"Score 4\",\n  \"reasoning\" : \"The AI response provides a good understanding of photosynthesis, accurately describing it as a biochemical process in chloroplasts where light energy is converted to chemical energy. It mentions the two main stages (light phase and dark phase/Cycle of Calvin), key components (chlorophyll, water, CO2, glucose, oxygen), and specific processes (light absorption, water splitting, oxygen release, CO2 conversion to glucose). It also includes the correct overall chemical equation. This aligns perfectly with Score 4: 'Good understanding with mention of main stages and components.' It surpasses Score 3 by including important details like the location, specific phase activities, and the Calvin cycle name. However, it lacks deeper scientific details (e.g., role of ATP/NADPH, photosystems), examples (e.g., specific plants like algae or trees, or ecological significance), or more comprehensive mechanisms, preventing it from reaching Score 5. No errors or irrelevance, eliminating lower scores.\",\n  \"normalizedScore\" : 4.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1123,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"The AI response provides a basic and accurate definition of Artificial Intelligence, stating that it is a field of computer science that creates systems capable of performing tasks requiring human intelligence. This directly aligns with the 'Базовое определение предоставлено' rubric level. It does not offer examples or further elaboration, which would be required for a higher score.\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 1630,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"score5_description\",\n  \"reasoning\" : \"The AI response provides an excellent explanation of photosynthesis. It correctly defines the process, identifies the location (chloroplasts), outlines the two main stages (light-dependent and light-independent/Calvin cycle), describes the key events in each stage (chlorophyll absorbing light, water splitting, oxygen release, CO2 conversion to glucose), and includes the overall chemical equation. This level of detail, accuracy, and completeness, including scientific terms and the equation, aligns perfectly with the 'Отличное объяснение с научными деталями, уравнением и примерами' rubric.\",\n  \"normalizedScore\" : 5.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 8086,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"Ответ ИИ предоставляет базовое определение искусственного интеллекта, точно описывая его как область информатики, занимающуюся созданием систем для выполнения задач, требующих человеческого интеллекта. Это определение является корректным и релевантным, но оно остаётся общим и кратким. В нём отсутствуют какие-либо примеры таких задач (например, распознавание речи, компьютерное зрение, принятие решений) или более полное объяснение ключевых концепций ИИ, таких как машинное обучение или нейронные сети. Следовательно, ответ соответствует уровню 'Базовое определение предоставлено' (Score 3), но не достигает уровня 'Полное объяснение с примерами' (Score 5).\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 10447,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"score5_description\",\n  \"reasoning\" : \"Ответ ИИ представляет собой отличное объяснение процесса фотосинтеза, полностью соответствующее критериям высшего балла. В ответе дано четкое научное определение процесса, указано его местоположение (хлоропласты), подробно описаны две основные стадии (световая и темновая фазы, включая упоминание цикла Кальвина). Приведены ключевые компоненты: хлорофилл, вода, углекислый газ, солнечный свет, кислород, глюкоза. Ответ включает общее химическое уравнение фотосинтеза, что является важной научной деталью. Вся информация точна, хорошо структурирована и полностью соответствует предоставленному референс-контексту, расширяя его необходимыми деталями. Ошибок или пробелов нет.\",\n  \"normalizedScore\" : 5.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2325,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Базовое определение предоставлено\",\n  \"reasoning\" : \"Ответ содержит точное, но краткое определение искусственного интеллекта как области информатики и описывает его основную цель. Однако он не соответствует критериям оценки 5, так как в нем полностью отсутствуют примеры технологий (таких как машинное обучение или нейросети) или практических областей применения, что требуется для 'полного объяснения'.\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 2483,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"Score 5: Отличное объяснение с научными деталями, уравнением и примерами\",\n  \"reasoning\" : \"Ответ ИИ является исчерпывающим и точным. В нем дано четкое определение процесса, указано место протекания (хлоропласты), подробно описаны обе фазы (световая и темновая/цикл Кальвина) с указанием ключевых реагентов и продуктов (вода, кислород, углекислый газ, глюкоза). Также приведено корректное сбалансированное химическое уравнение фотосинтеза, что полностью соответствует критериям высшего балла.\",\n  \"normalizedScore\" : 5.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

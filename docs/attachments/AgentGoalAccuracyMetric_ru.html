@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextPrecisionMetric - Evaluation Report</title>
+    <title>AgentGoalAccuracyMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -1619,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ContextPrecisionMetric - Evaluation Report</h1>
+            <h1>AgentGoalAccuracyMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 9763ms</span>
-                <span class="timestamp">2026-02-01T03:17:02.316450Z</span>
+                <span class="duration">Duration: 13296ms</span>
+                <span class="timestamp">2026-02-01T03:11:44.584542Z</span>
             </div>
         </header>
 
@@ -1681,7 +1681,7 @@
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1693,50 +1693,34 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
-            <text x="280" y="310" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1951ms</text>
-            <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">3902ms</text>
-            <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">5853ms</text>
-            <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">7804ms</text>
-            <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">9756ms</text>
-            <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
+        <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
+            <text x="280" y="190" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
+            <text x="400" y="190" class="time-label">2644ms</text>
+            <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
+            <text x="520" y="190" class="time-label">5288ms</text>
+            <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
+            <text x="640" y="190" class="time-label">7932ms</text>
+            <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
+            <text x="760" y="190" class="time-label">10576ms</text>
+            <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
+            <text x="880" y="190" class="time-label">13221ms</text>
+            <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="217" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3532ms (LLM)</title>
+            <rect x="280" y="30" width="228" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - CompareOutcome: 5034ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="101" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1644ms (LLM)</title>
+            <rect x="280" y="60" width="79" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - CompareOutcome: 1756ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="456" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 7427ms (LLM)</title>
+            <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - CompareOutcome: 13219ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="115" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1880ms (LLM)</title>
-            </rect>
-            <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
-                <title>x-ai/grok-4.1-fast - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="180" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-2.5-flash - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="210" width="2" height="24" class="bar-compute" rx="3">
-                <title>deepseek/deepseek-v3.2 - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="240" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-3-flash-preview - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="280" y="120" width="114" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - CompareOutcome: 2512ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1753,26 +1737,83 @@
     <h3>Input Sample</h3>
     <dl>
         <div class="sample-item">
-            <dt>User Input</dt>
-            <dd><pre>Где находится Красная площадь?</pre></dd>
-        </div>
-
-        <div class="sample-item">
-            <dt>Response</dt>
-            <dd><pre>Красная площадь находится в центре Москвы, столицы России.</pre></dd>
-        </div>
-
-
-        <div class="sample-item">
-            <dt>Retrieved Contexts</dt>
+            <dt>Conversation</dt>
             <dd>
-                <ol class="context-list">
-                    <li><pre>Красная площадь — главная площадь Москвы, расположенная в центре города.</pre></li>
-                    <li><pre>Москва является столицей Российской Федерации и крупнейшим городом страны.</pre></li>
-                    <li><pre>Сегодня на улице прекрасная погода для прогулки.</pre></li>
-                </ol>
+                <div class="conversation-list">
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">Нужен билет на поезд Москва-Питер на завтра</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Проверяю доступные рейсы на завтра.</pre>
+                        <div class="tool-calls">
+                            <span class="tool-calls-label">Tool Calls:</span>
+                            <code class="tool-call">search_trains({
+  &quot;date&quot; : &quot;tomorrow&quot;,
+  &quot;to&quot; : &quot;SPB&quot;,
+  &quot;from&quot; : &quot;Moscow&quot;
+})</code>
+                        </div>
+                    </div>
+                    <div class="conversation-message message-tool">
+                        <span class="message-role">
+                            Tool Result:
+                        </span>
+                        <pre class="message-content">{&quot;trains&quot;: [
+    {&quot;id&quot;: &quot;SAPSAN-08&quot;, &quot;time&quot;: &quot;08:00&quot;, &quot;price&quot;: 4500},
+    {&quot;id&quot;: &quot;LASTOCHKA-10&quot;, &quot;time&quot;: &quot;10:30&quot;, &quot;price&quot;: 2800}
+]}</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Нашёл два варианта: Сапсан в 8:00 за 4500 рублей или Ласточка в 10:30 за 2800 рублей. Какой предпочитаете?</pre>
+                    </div>
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">Давай Сапсан, мне пораньше надо</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Бронирую Сапсан...</pre>
+                        <div class="tool-calls">
+                            <span class="tool-calls-label">Tool Calls:</span>
+                            <code class="tool-call">book_train({
+  &quot;train_id&quot; : &quot;SAPSAN-08&quot;
+})</code>
+                        </div>
+                    </div>
+                    <div class="conversation-message message-tool">
+                        <span class="message-role">
+                            Tool Result:
+                        </span>
+                        <pre class="message-content">{&quot;status&quot;: &quot;confirmed&quot;, &quot;booking_ref&quot;: &quot;СП12345&quot;, &quot;seat&quot;: &quot;5В&quot;}</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Билет на Сапсан забронирован. Отправление завтра в 8:00, место 5В. Номер брони: СП12345. Электронный билет отправлен на вашу почту.</pre>
+                    </div>
+                </div>
             </dd>
         </div>
+
+        <div class="sample-item">
+            <dt>Reference</dt>
+            <dd><pre>Забронировать билет на поезд из Москвы в Санкт-Петербург</pre></dd>
+        </div>
+
     </dl>
 </div>
 
@@ -1789,8 +1830,8 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : null,
-  &quot;models&quot; : [ ]
+  &quot;models&quot; : [ ],
+  &quot;mode&quot; : &quot;WITH_REFERENCE&quot;
 }</pre>
 </div>
             </div>
@@ -1811,7 +1852,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric checks: are contexts ranked correctly? Relevant contexts should appear first in the list.</div>
+            <div class="explanation-simple">This metric evaluates whether an AI agent achieved its intended goal. It analyzes multi-turn conversations to determine goal completion.</div>
         </div>
     </div>
 
@@ -1822,19 +1863,7 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Evaluating context relevance</span>
-                    </div>
-                </div>
-                <div class="exp-tree-node" data-step="1">
-                    <div class="exp-tree-item" onclick="selectExplanationStep(1)">
-                        <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Calculating Precision@K</span>
-                    </div>
-                </div>
-                <div class="exp-tree-node" data-step="2">
-                    <div class="exp-tree-item" onclick="selectExplanationStep(2)">
-                        <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Calculating Average Precision</span>
+                        <span class="exp-tree-name">Comparing with expected outcome</span>
                     </div>
                 </div>
 
@@ -1858,19 +1887,19 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">AP = Σ(Precision@k × relevance@k) / (relevant count)</div>
+        <div class="exp-formula">Binary: 1.0 if goal achieved, 0.0 otherwise</div>
     </div>
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">100.00%</div>
+        <div class="exp-calculation">1.0</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
             100.00%
         </div>
-        <div class="exp-result-meaning">Excellent - relevant contexts appear first</div>
+        <div class="exp-result-meaning">The agent successfully completed the intended goal</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1880,34 +1909,18 @@
                 <span class="exp-scale-marker">
                     &#9658;
                 </span>
-                <span class="exp-scale-name">Excellent</span>
-                <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high score">Very high score</span>
+                <span class="exp-scale-name">Achieved</span>
+                <span class="exp-scale-range">100%</span>
+                <span class="exp-scale-desc" title="Goal fully accomplished by the agent">Goal fully accomplished by the agent</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
-                <span class="exp-scale-name">Good</span>
-                <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good score">Good score</span>
-            </div>
-            <div class="exp-scale-item ">
-                <span class="exp-scale-marker">
-                    
-                </span>
-                <span class="exp-scale-name">Moderate</span>
-                <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Moderate score">Moderate score</span>
-            </div>
-            <div class="exp-scale-item ">
-                <span class="exp-scale-marker">
-                    
-                </span>
-                <span class="exp-scale-name">Poor</span>
-                <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low score">Low score</span>
+                <span class="exp-scale-name">Not Achieved</span>
+                <span class="exp-scale-range">0%</span>
+                <span class="exp-scale-desc" title="Goal not accomplished - action incomplete or failed">Goal not accomplished - action incomplete or failed</span>
             </div>
         </div>
     </div>
@@ -1919,66 +1932,36 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "context-precision",
+    "metricType": "agent-goal-accuracy",
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "EvaluateAllContexts",
+            "stepName": "CompareOutcome",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}"
+                    "durationMs": 5034,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a train ticket from Moscow to St. Petersburg. In the conversation, the assistant searched for available trains from Moscow to SPB (St. Petersburg) for tomorrow, found relevant options including SAPSAN-08, presented them to the user, received the user's selection of SAPSAN, successfully booked it using the book_train tool, and provided confirmation details including booking reference СП12345 and seat 5В. This directly matches and achieves the expected outcome of booking the ticket.\",\n  \"score\" : 1.0\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}"
+                    "durationMs": 1756,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a train ticket from Moscow to St. Petersburg. The conversation successfully led to the booking of a 'Сапсан' train ticket from Moscow to St. Petersburg, as confirmed by the assistant's final response which includes booking details like confirmation number, seat, and departure time. Therefore, the goal was achieved.\",\n  \"score\" : 1.0\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}"
+                    "durationMs": 13219,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a train ticket from Moscow to Saint Petersburg. In the conversation, the user requested a ticket for tomorrow. The assistant searched for trains, presented options, and upon the user's selection of the 'Sapsan' train, successfully executed a booking tool call. The tool returned a confirmed booking with a reference number and seat details, and the assistant communicated this confirmation to the user. Therefore, the core action of booking a ticket for the specified route was completed, achieving the expected outcome.\",\n  \"score\" : 1.0\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}"
-                }
-            ]
-        },
-        {
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "durationMs": 2512,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The user's goal was to book a train ticket from Moscow to Saint Petersburg. The assistant successfully identified available trains for the requested date, presented options to the user, and upon receiving the user's preference for the 'Sapsan' train, executed the booking tool. The tool returned a confirmed status with a booking reference (СП12345) and seat number (5В), which the assistant then communicated to the user. The actual outcome perfectly matches the expected outcome.\",\n  \"score\" : 1.0\n}"
                 }
             ]
         }
@@ -1993,107 +1976,121 @@
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "EvaluateContexts",
-            "title": "Evaluating context relevance",
-            "description": "For each context, we check: is it relevant for answering the question?",
-            "inputData": "",
-            "outputSummary": "1 of 1 are relevant",
+            "stepName": "CompareOutcome",
+            "title": "Comparing with expected outcome",
+            "description": "Comparing the conversation outcome with the provided expected goal.",
+            "inputData": "Expected outcome: Забронировать билет на поезд из Москвы в Санкт-Петербург",
+            "outputSummary": "GOAL ACHIEVED",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
-                    "index": 1,
-                    "content": "Красная площадь — главная площадь Москвы, расположенная в центре города.",
+                    "index": 0,
+                    "content": "The expected outcome was to book a train ticket from Moscow to St. Petersburg. In the conversation, the assistant searched for available trains from Moscow to SPB (St. Petersburg) for tomorrow, found relevant options including SAPSAN-08, presented them to the user, received the user's selection of SAPSAN, successfully booked it using the book_train tool, and provided confirmation details including booking reference СП12345 and seat 5В. This directly matches and achieves the expected outcome of booking the ticket.",
                     "passed": true,
-                    "verdict": "Relevant",
-                    "reason": "The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.",
-                    "source": null,
+                    "verdict": "GOAL ACHIEVED",
+                    "reason": null,
+                    "source": "x-ai/grok-4.1-fast",
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "The expected outcome was to book a train ticket from Moscow to St. Petersburg. The conversation successfully led to the booking of a 'Сапсан' train ticket from Moscow to St. Petersburg, as confirmed by the assistant's final response which includes booking details like confirmation number, seat, and departure time. Therefore, the goal was achieved.",
+                    "passed": true,
+                    "verdict": "GOAL ACHIEVED",
+                    "reason": null,
+                    "source": "google/gemini-2.5-flash",
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "The expected outcome was to book a train ticket from Moscow to Saint Petersburg. In the conversation, the user requested a ticket for tomorrow. The assistant searched for trains, presented options, and upon the user's selection of the 'Sapsan' train, successfully executed a booking tool call. The tool returned a confirmed booking with a reference number and seat details, and the assistant communicated this confirmation to the user. Therefore, the core action of booking a ticket for the specified route was completed, achieving the expected outcome.",
+                    "passed": true,
+                    "verdict": "GOAL ACHIEVED",
+                    "reason": null,
+                    "source": "deepseek/deepseek-v3.2",
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "The user's goal was to book a train ticket from Moscow to Saint Petersburg. The assistant successfully identified available trains for the requested date, presented options to the user, and upon receiving the user's preference for the 'Sapsan' train, executed the booking tool. The tool returned a confirmed status with a booking reference (СП12345) and seat number (5В), which the assistant then communicated to the user. The actual outcome perfectly matches the expected outcome.",
+                    "passed": true,
+                    "verdict": "GOAL ACHIEVED",
+                    "reason": null,
+                    "source": "google/gemini-3-flash-preview",
                     "numericValue": null
                 }
             ],
             "modelResults": [
-            ],
-            "metadata": {
-            }
-        },
-        {
-            "stepNumber": 2,
-            "stepName": "CalculatePrecision",
-            "title": "Calculating Precision@K",
-            "description": "Precision@K = (relevant in top-K) / K",
-            "inputData": null,
-            "outputSummary": "Precision calculated for 1 contexts (1 relevant)",
-            "agreementPercent": 100,
-            "hasModelDisagreement": false,
-            "items": [
                 {
-                    "index": 1,
-                    "content": "K=1: 1/1 relevant → 100,0%",
-                    "passed": true,
-                    "verdict": "+",
-                    "reason": null,
-                    "source": null,
-                    "numericValue": 1
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The expected outcome was to book a train ticket from Moscow to St. Petersburg. In the conversation, the assistant searched for available trains from Moscow to SPB (St. Petersburg) for tomorrow, found relevant options including SAPSAN-08, presented them to the user, received the user's selection of SAPSAN, successfully booked it using the book_train tool, and provided confirmation details including booking reference СП12345 and seat 5В. This directly matches and achieves the expected outcome of booking the ticket.",
+                    "errorMessage": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The expected outcome was to book a train ticket from Moscow to St. Petersburg. The conversation successfully led to the booking of a 'Сапсан' train ticket from Moscow to St. Petersburg, as confirmed by the assistant's final response which includes booking details like confirmation number, seat, and departure time. Therefore, the goal was achieved.",
+                    "errorMessage": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The expected outcome was to book a train ticket from Moscow to Saint Petersburg. In the conversation, the user requested a ticket for tomorrow. The assistant searched for trains, presented options, and upon the user's selection of the 'Sapsan' train, successfully executed a booking tool call. The tool returned a confirmed booking with a reference number and seat details, and the assistant communicated this confirmation to the user. Therefore, the core action of booking a ticket for the specified route was completed, achieving the expected outcome.",
+                    "errorMessage": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "verdict": true,
+                    "numericResult": null,
+                    "numerator": null,
+                    "denominator": null,
+                    "reasoning": "The user's goal was to book a train ticket from Moscow to Saint Petersburg. The assistant successfully identified available trains for the requested date, presented options to the user, and upon receiving the user's preference for the 'Sapsan' train, executed the booking tool. The tool returned a confirmed status with a booking reference (СП12345) and seat number (5В), which the assistant then communicated to the user. The actual outcome perfectly matches the expected outcome.",
+                    "errorMessage": null
                 }
-            ],
-            "modelResults": [
-            ],
-            "metadata": {
-            }
-        },
-        {
-            "stepNumber": 3,
-            "stepName": "ComputeScore",
-            "title": "Calculating Average Precision",
-            "description": "AP = average Precision@K only at positions with relevant contexts",
-            "inputData": null,
-            "outputSummary": "100.00%",
-            "agreementPercent": 100,
-            "hasModelDisagreement": false,
-            "items": [
-            ],
-            "modelResults": [
             ],
             "metadata": {
             }
         }
     ],
     "interpretation": {
-        "formula": "AP = Σ(Precision@k × relevance@k) / (relevant count)",
-        "calculation": "100.00%",
+        "formula": "Binary: 1.0 if goal achieved, 0.0 otherwise",
+        "calculation": "1.0",
         "score": 1,
         "scorePercent": "100.00%",
-        "level": "Excellent",
+        "level": "Achieved",
         "isGood": null,
-        "meaning": "Excellent - relevant contexts appear first",
-        "numerator": 1,
-        "denominator": 1,
+        "meaning": "The agent successfully completed the intended goal",
+        "numerator": null,
+        "denominator": null,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
             {
-                "name": "Excellent",
-                "range": "90-100%",
-                "description": "Very high score",
+                "name": "Achieved",
+                "range": "100%",
+                "description": "Goal fully accomplished by the agent",
                 "current": true
             },
             {
-                "name": "Good",
-                "range": "70-90%",
-                "description": "Good score",
-                "current": false
-            },
-            {
-                "name": "Moderate",
-                "range": "50-70%",
-                "description": "Moderate score",
-                "current": false
-            },
-            {
-                "name": "Poor",
-                "range": "0-50%",
-                "description": "Low score",
+                "name": "Not Achieved",
+                "range": "0%",
+                "description": "Goal not accomplished - action incomplete or failed",
                 "current": false
             }
         ]
@@ -2918,31 +2915,35 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Context Precision Metric</h1>
+    <h1>Agent Goal Accuracy Metric</h1>
 <h2>Glossary</h2>
 <ul>
-<li><strong>Context</strong> — information fragments retrieved by the search system and provided to the agentic system</li>
-<li><strong>Relevance</strong> — correspondence of the context to the user's original question</li>
-<li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
-<li><strong>Average Precision</strong> — mean precision accounting for positions of relevant results</li>
+<li><strong>Agent</strong> — an AI-powered system capable of executing multi-turn conversations and taking actions</li>
+<li><strong>Goal</strong> — the intended outcome or objective the user wants to achieve through interaction with the agent</li>
+<li><strong>Multi-turn Conversation</strong> — a dialogue consisting of multiple exchanges between user and agent</li>
 </ul>
 <h2>Description</h2>
-<p>The metric evaluates the quality of context ranking by the retrieval system. It checks whether the most relevant contexts appear at the top positions. Relevant contexts at the beginning of the list increase the score; at the end — decrease it.</p>
-<h2>Example</h2>
-<p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
-<p><strong>Retrieved Contexts (in order):</strong></p>
-<ol>
-<li>&quot;The Eiffel Tower was completed in 1889 for the World's Fair.&quot; — <strong>RELEVANT</strong></li>
-<li>&quot;It stands 330 meters tall.&quot; — <strong>NOT RELEVANT</strong> to the question</li>
-<li>&quot;Construction began in 1887.&quot; — <strong>RELEVANT</strong></li>
-</ol>
-<p><strong>Calculation:</strong></p>
+<p>The metric evaluates whether an AI agent successfully achieved its intended goal based on multi-turn conversation analysis. It supports two evaluation modes:</p>
 <ul>
-<li>Position 1: Relevant → Precision@1 = 1/1 = 1.00</li>
-<li>Position 2: Not relevant → skip</li>
-<li>Position 3: Relevant → Precision@3 = 2/3 = 0.67</li>
+<li><strong>WITH_REFERENCE</strong> — compares the conversation outcome with a provided expected goal</li>
+<li><strong>WITHOUT_REFERENCE</strong> — infers the goal from the conversation and evaluates if it was achieved</li>
 </ul>
-<p><strong>Score:</strong> (1.00 + 0.67) / 2 = <strong>0.83 (83%)</strong></p>
+<h2>Example</h2>
+<p><strong>Conversation:</strong></p>
+<pre><code>[USER]: I need to book a flight from New York to Los Angeles for tomorrow.
+[ASSISTANT]: I'll help you book that flight. Let me search for available options.
+[ASSISTANT]: I found several flights. The best option is United Airlines at 8:00 AM for $299.
+[USER]: That sounds good, please book it.
+[ASSISTANT]: Done! Confirmation number: UA12345. You'll receive an email shortly.
+</code></pre>
+<p><strong>Expected Outcome (Reference):</strong> &quot;Book a flight from New York to Los Angeles&quot;</p>
+<p><strong>Analysis:</strong></p>
+<ul>
+<li>The user requested a flight booking</li>
+<li>The agent found available flights</li>
+<li>The agent successfully completed the booking with a confirmation number</li>
+</ul>
+<p><strong>Score:</strong> <strong>1.0 (100%)</strong> — Goal Achieved</p>
 <h2>Score Interpretation</h2>
 <table>
 <thead>
@@ -2953,42 +2954,97 @@
 </thead>
 <tbody>
 <tr>
-<td>90-100%</td>
-<td>Relevant contexts at top positions</td>
+<td>1.0 (100%)</td>
+<td>Goal fully achieved — the agent successfully completed the intended task</td>
 </tr>
 <tr>
-<td>70-90%</td>
-<td>Most relevant contexts near the top of the list</td>
-</tr>
-<tr>
-<td>50-70%</td>
-<td>Relevant contexts distributed unevenly</td>
-</tr>
-<tr>
-<td>0-50%</td>
-<td>Relevant contexts at bottom positions</td>
+<td>0.0 (0%)</td>
+<td>Goal not achieved — the agent failed to complete the task or only partially completed it</td>
 </tr>
 </tbody>
 </table>
 <h2>Algorithm</h2>
+<h3>WITH_REFERENCE Mode</h3>
 <ol>
-<li><strong>Relevance Check</strong> — LLM determines relevance of each context to the question</li>
-<li><strong>Precision Calculation at Positions</strong> — precision is calculated at each relevant context position</li>
-<li><strong>Averaging</strong> — mean value of all precisions is computed</li>
+<li><strong>Compare Outcome</strong> — LLM compares the conversation outcome with the provided expected goal</li>
+<li><strong>Binary Verdict</strong> — determines if the goal was achieved (1.0) or not (0.0)</li>
+</ol>
+<h3>WITHOUT_REFERENCE Mode</h3>
+<ol>
+<li><strong>Infer Goal</strong> — LLM analyzes the conversation to determine the user's primary objective</li>
+<li><strong>Evaluate Outcome</strong> — LLM evaluates if the agent's actions achieved the inferred goal</li>
+<li><strong>Binary Verdict</strong> — determines if the goal was achieved (1.0) or not (0.0)</li>
 </ol>
 <h2>Formula</h2>
-<pre><code>score = Average Precision (AP) = Σ(precision@k × relevance@k) / total_relevant
+<pre><code>score = goalAchieved ? 1.0 : 0.0
 </code></pre>
 <p>Where:</p>
 <ul>
-<li><code>precision@k</code> — fraction of relevant contexts in top-k positions</li>
-<li><code>relevance@k</code> — 1 if context at position k is relevant, otherwise 0</li>
-<li><code>total_relevant</code> — total number of relevant contexts</li>
+<li><code>goalAchieved</code> — boolean indicating whether the intended goal was fully accomplished</li>
+</ul>
+<h2>Configuration</h2>
+<pre><code class="language-java">AgentGoalAccuracyConfig config = AgentGoalAccuracyConfig.builder()
+    .mode(Mode.WITH_REFERENCE)  // or Mode.WITHOUT_REFERENCE
+    .build();
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td><code>Mode</code></td>
+<td><code>WITH_REFERENCE</code></td>
+<td>Evaluation mode: WITH_REFERENCE or WITHOUT_REFERENCE</td>
+</tr>
+<tr>
+<td><code>models</code></td>
+<td><code>List&lt;String&gt;</code></td>
+<td>executor defaults</td>
+<td>LLM models to use for evaluation</td>
+</tr>
+</tbody>
+</table>
+<h2>Sample Requirements</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>messages</code></td>
+<td>Yes</td>
+<td>List of conversation messages with role and content</td>
+</tr>
+<tr>
+<td><code>reference</code></td>
+<td>No*</td>
+<td>Expected goal/outcome (required for WITH_REFERENCE mode)</td>
+</tr>
+</tbody>
+</table>
+<p>*If <code>reference</code> is not provided in WITH_REFERENCE mode, the metric falls back to WITHOUT_REFERENCE mode.</p>
+<h2>Use Cases</h2>
+<ul>
+<li>Evaluating task-oriented dialogue systems</li>
+<li>Measuring success rate of customer support agents</li>
+<li>Assessing multi-step workflow completion</li>
+<li>Testing conversational AI assistants</li>
 </ul>
 <h2>References</h2>
 <ul>
-<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">RAGAS Documentation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Mean_average_precision">Mean Average Precision (MAP)</a></li>
+<li><a href="https://docs.ragas.io/">RAGAS Documentation</a></li>
+<li><a href="https://docs.ragas.io/en/latest/concepts/metrics/agent_goal_accuracy.html">Agent Goal Accuracy in Python RAGAS</a></li>
 </ul>
 
 </div>
@@ -2998,14 +3054,8 @@
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">EvaluateAllContexts</span>
+                <span class="step-name">CompareOutcome</span>
                 <span class="step-type">[LLM]</span>
-            </div>
-                <div class="step-arrow">&rarr;</div>
-            <div class="step-box compute">
-                <span class="step-number">2.</span>
-                <span class="step-name">ComputePrecision</span>
-                <span class="step-type">[COMPUTE]</span>
             </div>
     </div>
 </div>
@@ -3030,8 +3080,8 @@
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">7427ms</span>
+                    <span class="tree-name">CompareOutcome</span>
+                    <span class="tree-duration">13219ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3039,7 +3089,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3532ms</span>
+                        <span class="tree-duration">5034ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3047,7 +3097,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1644ms</span>
+                        <span class="tree-duration">1756ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3055,7 +3105,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7427ms</span>
+                        <span class="tree-duration">13219ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3063,52 +3113,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1880ms</span>
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="tree-node step-node" data-step="1">
-                <div class="tree-item" onclick="selectStep(1)">
-                    <span class="tree-expand has-children"
-                          onclick="event.stopPropagation(); toggleTreeNode(this)">
-                        ▶
-                    </span>
-                    <span class="tree-type-badge compute">COMPUTE</span>
-                    <span class="tree-name">ComputePrecision</span>
-                    <span class="tree-duration">0ms</span>
-                </div>
-                <div class="tree-children" style="display: none;">
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 0, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 1, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 2, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 3, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">2512ms</span>
                         
                     </div>
                 </div>
@@ -3153,10 +3158,10 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "EvaluateAllContexts",
+            "stepName": "CompareOutcome",
             "stepType": "LLM",
-            "durationMs": 7427,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Красная площадь — главная площадь Москвы, расположенная в центре города.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Москва является столицей Российской Федерации и крупнейшим городом страны.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Сегодня на улице прекрасная погода для прогулки.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
+            "durationMs": 13219,
+            "request": "Compare the actual outcome of this conversation with the expected outcome.\n\nExpected Outcome: Забронировать билет на поезд из Москвы в Санкт-Петербург\n\nConversation:\n[USER]: Нужен билет на поезд Москва-Питер на завтра\n[ASSISTANT]: Проверяю доступные рейсы на завтра.\n  Tool calls:\n    - search_trains({date=tomorrow, to=SPB, from=Moscow})\n[TOOL]: {\"trains\": [\n    {\"id\": \"SAPSAN-08\", \"time\": \"08:00\", \"price\": 4500},\n    {\"id\": \"LASTOCHKA-10\", \"time\": \"10:30\", \"price\": 2800}\n]}\n[ASSISTANT]: Нашёл два варианта: Сапсан в 8:00 за 4500 рублей или Ласточка в 10:30 за 2800 рублей. Какой предпочитаете?\n[USER]: Давай Сапсан, мне пораньше надо\n[ASSISTANT]: Бронирую Сапсан...\n  Tool calls:\n    - book_train({train_id=SAPSAN-08})\n[TOOL]: {\"status\": \"confirmed\", \"booking_ref\": \"СП12345\", \"seat\": \"5В\"}\n[ASSISTANT]: Билет на Сапсан забронирован. Отправление завтра в 8:00, место 5В. Номер брони: СП12345. Электронный билет отправлен на вашу почту.\n\nInstructions:\n1. Analyze the conversation to determine what actually happened\n2. Compare the actual outcome with the expected outcome\n3. Determine if the expected outcome was achieved\n\nRespond with a JSON object containing:\n- goalAchieved: true if the expected outcome was achieved, false otherwise\n- reasoning: Detailed explanation of your comparison\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3164,78 +3169,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}",
+                    "durationMs": 5034,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a train ticket from Moscow to St. Petersburg. In the conversation, the assistant searched for available trains from Moscow to SPB (St. Petersburg) for tomorrow, found relevant options including SAPSAN-08, presented them to the user, received the user's selection of SAPSAN, successfully booked it using the book_train tool, and provided confirmation details including booking reference СП12345 and seat 5В. This directly matches and achieves the expected outcome of booking the ticket.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}",
+                    "durationMs": 1756,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a train ticket from Moscow to St. Petersburg. The conversation successfully led to the booking of a 'Сапсан' train ticket from Moscow to St. Petersburg, as confirmed by the assistant's final response which includes booking details like confirmation number, seat, and departure time. Therefore, the goal was achieved.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}",
+                    "durationMs": 13219,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The expected outcome was to book a train ticket from Moscow to Saint Petersburg. In the conversation, the user requested a ticket for tomorrow. The assistant searched for trains, presented options, and upon the user's selection of the 'Sapsan' train, successfully executed a booking tool call. The tool returned a confirmed booking with a reference number and seat details, and the assistant communicated this confirmation to the user. Therefore, the core action of booking a ticket for the specified route was completed, achieving the expected outcome.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                }
-            ],
-            "embeddingResults": [
-            ]
-        },
-        {
-            "stepIndex": 1,
-            "stepName": "ComputePrecision",
-            "stepType": "COMPUTE",
-            "durationMs": 0,
-            "request": null,
-            "isLlmStep": false,
-            "successCount": 4,
-            "failureCount": 0,
-            "modelResults": [
-                {
-                    "modelId": "x-ai/grok-4.1-fast",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "durationMs": 2512,
+                    "resultJson": "{\n  \"goalAchieved\" : true,\n  \"reasoning\" : \"The user's goal was to book a train ticket from Moscow to Saint Petersburg. The assistant successfully identified available trains for the requested date, presented options to the user, and upon receiving the user's preference for the 'Sapsan' train, executed the booking tool. The tool returned a confirmed status with a booking reference (СП12345) and seat number (5В), which the assistant then communicated to the user. The actual outcome perfectly matches the expected outcome.\",\n  \"score\" : 1.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

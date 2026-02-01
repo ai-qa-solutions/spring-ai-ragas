@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextPrecisionMetric - Evaluation Report</title>
+    <title>AnswerCorrectnessMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -1619,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ContextPrecisionMetric - Evaluation Report</h1>
+            <h1>AnswerCorrectnessMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 9763ms</span>
-                <span class="timestamp">2026-02-01T03:17:02.316450Z</span>
+                <span class="duration">Duration: 21004ms</span>
+                <span class="timestamp">2026-02-01T03:17:02.316944Z</span>
             </div>
         </header>
 
@@ -1635,7 +1635,7 @@
             <div class="block-content">
 <div class="chart-container">
     <h3>Model Scores</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" class="bar-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 150" class="bar-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .scale-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1647,41 +1647,38 @@
             .bar-poor { fill: #eb5146; }
             .bar-excluded { fill: #7281a1; }
         </style>
-                <line x1="150" y1="20" x2="150" y2="150" class="grid-line"/>
-                    <text x="150" y="170" class="scale-label">0</text>
-                <line x1="190" y1="20" x2="190" y2="150" class="grid-line"/>
-                <line x1="230" y1="20" x2="230" y2="150" class="grid-line"/>
-                    <text x="230" y="170" class="scale-label">0.2</text>
-                <line x1="270" y1="20" x2="270" y2="150" class="grid-line"/>
-                <line x1="310" y1="20" x2="310" y2="150" class="grid-line"/>
-                    <text x="310" y="170" class="scale-label">0.4</text>
-                <line x1="350" y1="20" x2="350" y2="150" class="grid-line"/>
-                <line x1="390" y1="20" x2="390" y2="150" class="grid-line"/>
-                    <text x="390" y="170" class="scale-label">0.6</text>
-                <line x1="430" y1="20" x2="430" y2="150" class="grid-line"/>
-                <line x1="470" y1="20" x2="470" y2="150" class="grid-line"/>
-                    <text x="470" y="170" class="scale-label">0.8</text>
-                <line x1="510" y1="20" x2="510" y2="150" class="grid-line"/>
-                <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
-                    <text x="550" y="170" class="scale-label">1</text>
-            <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="37" class="score-label">1,0000</text>
-            <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="67" class="score-label">1,0000</text>
-            <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
+                <line x1="150" y1="20" x2="150" y2="120" class="grid-line"/>
+                    <text x="150" y="140" class="scale-label">0</text>
+                <line x1="190" y1="20" x2="190" y2="120" class="grid-line"/>
+                <line x1="230" y1="20" x2="230" y2="120" class="grid-line"/>
+                    <text x="230" y="140" class="scale-label">0.2</text>
+                <line x1="270" y1="20" x2="270" y2="120" class="grid-line"/>
+                <line x1="310" y1="20" x2="310" y2="120" class="grid-line"/>
+                    <text x="310" y="140" class="scale-label">0.4</text>
+                <line x1="350" y1="20" x2="350" y2="120" class="grid-line"/>
+                <line x1="390" y1="20" x2="390" y2="120" class="grid-line"/>
+                    <text x="390" y="140" class="scale-label">0.6</text>
+                <line x1="430" y1="20" x2="430" y2="120" class="grid-line"/>
+                <line x1="470" y1="20" x2="470" y2="120" class="grid-line"/>
+                    <text x="470" y="140" class="scale-label">0.8</text>
+                <line x1="510" y1="20" x2="510" y2="120" class="grid-line"/>
+                <line x1="550" y1="20" x2="550" y2="120" class="grid-line"/>
+                    <text x="550" y="140" class="scale-label">1</text>
+            <text x="145" y="37" class="row-label">semantic</text>
+            <rect x="150" y="20" width="399" height="24" class="bar-excellent" rx="3"/>
+            <text x="554" y="37" class="score-label">1,0000</text>
+            <text x="145" y="67" class="row-label">combined</text>
+            <rect x="150" y="50" width="399" height="24" class="bar-excellent" rx="3"/>
+            <text x="554" y="67" class="score-label">1,0000</text>
+            <text x="145" y="97" class="row-label">factual</text>
             <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
             <text x="555" y="97" class="score-label">1,0000</text>
-            <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="127" class="score-label">1,0000</text>
     </svg>
 </div>
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 170" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1693,50 +1690,30 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
-            <text x="280" y="310" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1951ms</text>
-            <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">3902ms</text>
-            <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">5853ms</text>
-            <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">7804ms</text>
-            <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">9756ms</text>
-            <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
-            <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="217" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3532ms (LLM)</title>
+        <line x1="280" y1="140" x2="880" y2="140" class="axis"/>
+            <text x="280" y="160" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="135" class="grid-line"/>
+            <text x="400" y="160" class="time-label">4200ms</text>
+            <line x1="400" y1="30" x2="400" y2="135" class="grid-line"/>
+            <text x="520" y="160" class="time-label">8400ms</text>
+            <line x1="520" y1="30" x2="520" y2="135" class="grid-line"/>
+            <text x="640" y="160" class="time-label">12601ms</text>
+            <line x1="640" y1="30" x2="640" y2="135" class="grid-line"/>
+            <text x="760" y="160" class="time-label">16801ms</text>
+            <line x1="760" y1="30" x2="760" y2="135" class="grid-line"/>
+            <text x="880" y="160" class="time-label">21002ms</text>
+            <line x1="880" y1="30" x2="880" y2="135" class="grid-line"/>
+            <text x="275" y="47" class="row-label">factual</text>
+            <rect x="280" y="30" width="2" height="24" class="bar-compute" rx="3">
+                <title>factual - ComputeFactualCorrectness: 0ms (COMPUTE)</title>
             </rect>
-            <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="101" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1644ms (LLM)</title>
+            <text x="275" y="77" class="row-label">semantic</text>
+            <rect x="807" y="60" width="2" height="24" class="bar-compute" rx="3">
+                <title>semantic - ComputeSemanticSimilarity: 0ms (COMPUTE)</title>
             </rect>
-            <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="456" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 7427ms (LLM)</title>
-            </rect>
-            <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="115" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1880ms (LLM)</title>
-            </rect>
-            <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
-                <title>x-ai/grok-4.1-fast - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="180" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-2.5-flash - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="210" width="2" height="24" class="bar-compute" rx="3">
-                <title>deepseek/deepseek-v3.2 - ComputePrecision: 0ms (COMPUTE)</title>
-            </rect>
-            <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="240" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-3-flash-preview - ComputePrecision: 0ms (COMPUTE)</title>
+            <text x="275" y="107" class="row-label">combined</text>
+            <rect x="879" y="90" width="2" height="24" class="bar-compute" rx="3">
+                <title>combined - CombineScores: 0ms (COMPUTE)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1752,27 +1729,17 @@
 <div class="sample-section">
     <h3>Input Sample</h3>
     <dl>
-        <div class="sample-item">
-            <dt>User Input</dt>
-            <dd><pre>Где находится Красная площадь?</pre></dd>
-        </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>Красная площадь находится в центре Москвы, столицы России.</pre></dd>
+            <dd><pre>Москва является столицей России. Кремль расположен в Москве.</pre></dd>
         </div>
-
 
         <div class="sample-item">
-            <dt>Retrieved Contexts</dt>
-            <dd>
-                <ol class="context-list">
-                    <li><pre>Красная площадь — главная площадь Москвы, расположенная в центре города.</pre></li>
-                    <li><pre>Москва является столицей Российской Федерации и крупнейшим городом страны.</pre></li>
-                    <li><pre>Сегодня на улице прекрасная погода для прогулки.</pre></li>
-                </ol>
-            </dd>
+            <dt>Reference</dt>
+            <dd><pre>Москва является столицей России. Кремль расположен в Москве.</pre></dd>
         </div>
+
     </dl>
 </div>
 
@@ -1783,13 +1750,18 @@
             <dt>LLM Models</dt>
             <dd><code>x-ai/grok-4.1-fast, google/gemini-2.5-flash, deepseek/deepseek-v3.2, google/gemini-3-flash-preview</code></dd>
         </div>
+        <div class="sample-item">
+            <dt>Embedding Models</dt>
+            <dd><code>openai/text-embedding-3-large, baai/bge-m3, qwen/qwen3-embedding-8b, baai/bge-base-en-v1.5, qwen/qwen3-embedding-4b, google/gemini-embedding-001</code></dd>
+        </div>
     </dl>
 </div>
 
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : null,
+  &quot;factualWeight&quot; : 0.75,
+  &quot;semanticWeight&quot; : 0.25,
   &quot;models&quot; : [ ]
 }</pre>
 </div>
@@ -1811,7 +1783,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric checks: are contexts ranked correctly? Relevant contexts should appear first in the list.</div>
+            <div class="explanation-simple">This metric combines factual correctness and semantic similarity to evaluate answer quality. It weighs both whether facts are correct and whether the meaning is preserved.</div>
         </div>
     </div>
 
@@ -1822,19 +1794,25 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Evaluating context relevance</span>
+                        <span class="exp-tree-name">Input texts</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="1">
                     <div class="exp-tree-item" onclick="selectExplanationStep(1)">
                         <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Calculating Precision@K</span>
+                        <span class="exp-tree-name">Computing factual correctness</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="2">
                     <div class="exp-tree-item" onclick="selectExplanationStep(2)">
                         <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Calculating Average Precision</span>
+                        <span class="exp-tree-name">Computing semantic similarity</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="3">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(3)">
+                        <span class="exp-tree-number">4</span>
+                        <span class="exp-tree-name">Combining scores</span>
                     </div>
                 </div>
 
@@ -1858,19 +1836,19 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">AP = Σ(Precision@k × relevance@k) / (relevant count)</div>
+        <div class="exp-formula">score = 0,75 × factual + 0,25 × semantic</div>
     </div>
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">100.00%</div>
+        <div class="exp-calculation">0,75 × 1,0000 + 0,25 × 1,0000 = 100.00%</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
             100.00%
         </div>
-        <div class="exp-result-meaning">Excellent - relevant contexts appear first</div>
+        <div class="exp-result-meaning">Excellent - response is both factually correct and semantically aligned</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1882,7 +1860,7 @@
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high score">Very high score</span>
+                <span class="exp-scale-desc" title="Both factually correct and semantically aligned">Both factually correct and semantically aligned</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1891,7 +1869,7 @@
                 </span>
                 <span class="exp-scale-name">Good</span>
                 <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good score">Good score</span>
+                <span class="exp-scale-desc" title="Mostly correct with good similarity">Mostly correct with good similarity</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1899,7 +1877,7 @@
                 </span>
                 <span class="exp-scale-name">Moderate</span>
                 <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Moderate score">Moderate score</span>
+                <span class="exp-scale-desc" title="Some issues with facts or meaning">Some issues with facts or meaning</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1907,7 +1885,7 @@
                 </span>
                 <span class="exp-scale-name">Poor</span>
                 <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low score">Low score</span>
+                <span class="exp-scale-desc" title="Significant errors or mismatch">Significant errors or mismatch</span>
             </div>
         </div>
     </div>
@@ -1919,97 +1897,63 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "context-precision",
+    "metricType": "answer-correctness",
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "EvaluateAllContexts",
-            "stepType": "LLM",
+            "stepName": "ComputeFactualCorrectness",
+            "stepType": "COMPUTE",
             "modelResults": [
                 {
-                    "modelId": "x-ai/grok-4.1-fast",
+                    "modelId": "factual",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}"
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}"
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}"
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}"
+                    "durationMs": 0,
+                    "resultJson": "1.0"
                 }
             ]
         },
         {
-            "stepName": "ComputePrecision",
+            "stepName": "ComputeSemanticSimilarity",
             "stepType": "COMPUTE",
             "modelResults": [
                 {
-                    "modelId": "x-ai/grok-4.1-fast",
+                    "modelId": "semantic",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0"
-                },
+                    "resultJson": "0.9999965167393933"
+                }
+            ]
+        },
+        {
+            "stepName": "CombineScores",
+            "stepType": "COMPUTE",
+            "modelResults": [
                 {
-                    "modelId": "google/gemini-2.5-flash",
+                    "modelId": "combined",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0"
+                    "resultJson": "0.9999991291848483"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 1,
-        "google/gemini-2.5-flash": 1,
-        "deepseek/deepseek-v3.2": 1,
-        "google/gemini-3-flash-preview": 1
+        "semantic": 0.9999965167393933,
+        "combined": 0.9999991291848483,
+        "factual": 1
     },
-    "aggregatedScore": 1,
+    "aggregatedScore": 0.9999991291848483,
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "EvaluateContexts",
-            "title": "Evaluating context relevance",
-            "description": "For each context, we check: is it relevant for answering the question?",
-            "inputData": "",
-            "outputSummary": "1 of 1 are relevant",
+            "stepName": "InputTexts",
+            "title": "Input texts",
+            "description": "The response and reference texts to compare.",
+            "inputData": "Response: Москва является столицей России. Кремль расположен в Москве.\nReference: Москва является столицей России. Кремль расположен в Москве.",
+            "outputSummary": null,
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
-                {
-                    "index": 1,
-                    "content": "Красная площадь — главная площадь Москвы, расположенная в центре города.",
-                    "passed": true,
-                    "verdict": "Relevant",
-                    "reason": "The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.",
-                    "source": null,
-                    "numericValue": null
-                }
             ],
             "modelResults": [
             ],
@@ -2018,23 +1962,14 @@
         },
         {
             "stepNumber": 2,
-            "stepName": "CalculatePrecision",
-            "title": "Calculating Precision@K",
-            "description": "Precision@K = (relevant in top-K) / K",
+            "stepName": "ComputeFactualCorrectness",
+            "title": "Computing factual correctness",
+            "description": "Evaluating factual correctness using claims decomposition and NLI verification.",
             "inputData": null,
-            "outputSummary": "Precision calculated for 1 contexts (1 relevant)",
+            "outputSummary": "Factual correctness: 100.00% (weight: 75%)",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
-                {
-                    "index": 1,
-                    "content": "K=1: 1/1 relevant → 100,0%",
-                    "passed": true,
-                    "verdict": "+",
-                    "reason": null,
-                    "source": null,
-                    "numericValue": 1
-                }
             ],
             "modelResults": [
             ],
@@ -2043,9 +1978,25 @@
         },
         {
             "stepNumber": 3,
-            "stepName": "ComputeScore",
-            "title": "Calculating Average Precision",
-            "description": "AP = average Precision@K only at positions with relevant contexts",
+            "stepName": "ComputeSemanticSimilarity",
+            "title": "Computing semantic similarity",
+            "description": "Calculating semantic similarity using embeddings and cosine similarity.",
+            "inputData": null,
+            "outputSummary": "Semantic similarity: 100.00% (weight: 25%)",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 4,
+            "stepName": "CombineScores",
+            "title": "Combining scores",
+            "description": "Computing weighted average of factual and semantic scores.",
             "inputData": null,
             "outputSummary": "100.00%",
             "agreementPercent": 100,
@@ -2059,15 +2010,15 @@
         }
     ],
     "interpretation": {
-        "formula": "AP = Σ(Precision@k × relevance@k) / (relevant count)",
-        "calculation": "100.00%",
-        "score": 1,
+        "formula": "score = 0,75 × factual + 0,25 × semantic",
+        "calculation": "0,75 × 1,0000 + 0,25 × 1,0000 = 100.00%",
+        "score": 0.9999991291848483,
         "scorePercent": "100.00%",
         "level": "Excellent",
         "isGood": null,
-        "meaning": "Excellent - relevant contexts appear first",
-        "numerator": 1,
-        "denominator": 1,
+        "meaning": "Excellent - response is both factually correct and semantically aligned",
+        "numerator": null,
+        "denominator": null,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
@@ -2075,25 +2026,25 @@
             {
                 "name": "Excellent",
                 "range": "90-100%",
-                "description": "Very high score",
+                "description": "Both factually correct and semantically aligned",
                 "current": true
             },
             {
                 "name": "Good",
                 "range": "70-90%",
-                "description": "Good score",
+                "description": "Mostly correct with good similarity",
                 "current": false
             },
             {
                 "name": "Moderate",
                 "range": "50-70%",
-                "description": "Moderate score",
+                "description": "Some issues with facts or meaning",
                 "current": false
             },
             {
                 "name": "Poor",
                 "range": "0-50%",
-                "description": "Low score",
+                "description": "Significant errors or mismatch",
                 "current": false
             }
         ]
@@ -2918,93 +2869,201 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Context Precision Metric</h1>
-<h2>Glossary</h2>
-<ul>
-<li><strong>Context</strong> — information fragments retrieved by the search system and provided to the agentic system</li>
-<li><strong>Relevance</strong> — correspondence of the context to the user's original question</li>
-<li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
-<li><strong>Average Precision</strong> — mean precision accounting for positions of relevant results</li>
-</ul>
-<h2>Description</h2>
-<p>The metric evaluates the quality of context ranking by the retrieval system. It checks whether the most relevant contexts appear at the top positions. Relevant contexts at the beginning of the list increase the score; at the end — decrease it.</p>
-<h2>Example</h2>
-<p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
-<p><strong>Retrieved Contexts (in order):</strong></p>
+    <h1>Answer Correctness Metric</h1>
+<h2>Overview</h2>
+<p>Answer Correctness is a composite metric that evaluates how well an AI response matches a reference answer by combining two complementary approaches:</p>
 <ol>
-<li>&quot;The Eiffel Tower was completed in 1889 for the World's Fair.&quot; — <strong>RELEVANT</strong></li>
-<li>&quot;It stands 330 meters tall.&quot; — <strong>NOT RELEVANT</strong> to the question</li>
-<li>&quot;Construction began in 1887.&quot; — <strong>RELEVANT</strong></li>
+<li><strong>Factual Correctness (75% default weight)</strong> - Verifies that specific facts are correct using claims decomposition and NLI</li>
+<li><strong>Semantic Similarity (25% default weight)</strong> - Ensures the overall meaning is preserved using embedding similarity</li>
 </ol>
-<p><strong>Calculation:</strong></p>
-<ul>
-<li>Position 1: Relevant → Precision@1 = 1/1 = 1.00</li>
-<li>Position 2: Not relevant → skip</li>
-<li>Position 3: Relevant → Precision@3 = 2/3 = 0.67</li>
-</ul>
-<p><strong>Score:</strong> (1.00 + 0.67) / 2 = <strong>0.83 (83%)</strong></p>
-<h2>Score Interpretation</h2>
+<p>This dual approach provides a comprehensive assessment that catches both specific factual errors and overall meaning drift.</p>
+<h2>Glossary</h2>
 <table>
 <thead>
 <tr>
-<th>Score</th>
-<th>Meaning</th>
+<th>Term</th>
+<th>Definition</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>90-100%</td>
-<td>Relevant contexts at top positions</td>
+<td>Response</td>
+<td>The AI-generated answer to evaluate</td>
 </tr>
 <tr>
-<td>70-90%</td>
-<td>Most relevant contexts near the top of the list</td>
+<td>Reference</td>
+<td>The ground truth or expected answer</td>
 </tr>
 <tr>
-<td>50-70%</td>
-<td>Relevant contexts distributed unevenly</td>
+<td>Factual Correctness</td>
+<td>Score measuring accuracy of individual facts via NLI</td>
 </tr>
 <tr>
-<td>0-50%</td>
-<td>Relevant contexts at bottom positions</td>
+<td>Semantic Similarity</td>
+<td>Score measuring meaning preservation via embeddings</td>
+</tr>
+<tr>
+<td>Weighted Average</td>
+<td>Combination of both scores using configurable weights</td>
 </tr>
 </tbody>
 </table>
 <h2>Algorithm</h2>
+<h3>Step 1: Compute Factual Correctness</h3>
+<p>The FactualCorrectnessMetric is invoked to:</p>
 <ol>
-<li><strong>Relevance Check</strong> — LLM determines relevance of each context to the question</li>
-<li><strong>Precision Calculation at Positions</strong> — precision is calculated at each relevant context position</li>
-<li><strong>Averaging</strong> — mean value of all precisions is computed</li>
+<li>Decompose response into atomic claims</li>
+<li>Decompose reference into atomic claims</li>
+<li>Verify claims using Natural Language Inference</li>
+<li>Calculate F1/Precision/Recall score</li>
 </ol>
+<h3>Step 2: Compute Semantic Similarity</h3>
+<p>The SemanticSimilarityMetric is invoked to:</p>
+<ol>
+<li>Generate embeddings for response and reference</li>
+<li>Calculate cosine similarity between vectors</li>
+</ol>
+<h3>Step 3: Combine Scores</h3>
+<p>Compute weighted average:</p>
+<pre><code>score = factualWeight × factualScore + semanticWeight × semanticScore
+</code></pre>
 <h2>Formula</h2>
-<pre><code>score = Average Precision (AP) = Σ(precision@k × relevance@k) / total_relevant
+<p><strong>Combined Score:</strong></p>
+<pre><code>AnswerCorrectness = w_f × FactualCorrectness + w_s × SemanticSimilarity
 </code></pre>
 <p>Where:</p>
 <ul>
-<li><code>precision@k</code> — fraction of relevant contexts in top-k positions</li>
-<li><code>relevance@k</code> — 1 if context at position k is relevant, otherwise 0</li>
-<li><code>total_relevant</code> — total number of relevant contexts</li>
+<li><code>w_f</code> = factual weight (default 0.75)</li>
+<li><code>w_s</code> = semantic weight (default 0.25)</li>
+<li><code>w_f + w_s = 1.0</code></li>
 </ul>
-<h2>References</h2>
+<h2>Configuration</h2>
+<pre><code class="language-java">AnswerCorrectnessMetric.AnswerCorrectnessConfig config =
+    AnswerCorrectnessMetric.AnswerCorrectnessConfig.builder()
+        .factualWeight(0.75)  // Weight for factual correctness
+        .semanticWeight(0.25) // Weight for semantic similarity
+        .models(List.of(&quot;model-1&quot;, &quot;model-2&quot;))
+        .build();
+</code></pre>
+<h3>Preset Configurations</h3>
+<table>
+<thead>
+<tr>
+<th>Preset</th>
+<th>Factual Weight</th>
+<th>Semantic Weight</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>defaultConfig()</code></td>
+<td>75%</td>
+<td>25%</td>
+<td>General purpose</td>
+</tr>
+<tr>
+<td><code>equalWeights()</code></td>
+<td>50%</td>
+<td>50%</td>
+<td>Balanced evaluation</td>
+</tr>
+<tr>
+<td><code>factualFocused()</code></td>
+<td>90%</td>
+<td>10%</td>
+<td>Fact-critical applications</td>
+</tr>
+<tr>
+<td><code>semanticFocused()</code></td>
+<td>10%</td>
+<td>90%</td>
+<td>Meaning-critical applications</td>
+</tr>
+</tbody>
+</table>
+<h2>Score Interpretation</h2>
+<table>
+<thead>
+<tr>
+<th>Score Range</th>
+<th>Level</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.9 - 1.0</td>
+<td>Excellent</td>
+<td>Both factually correct and semantically aligned</td>
+</tr>
+<tr>
+<td>0.7 - 0.9</td>
+<td>Good</td>
+<td>Mostly correct with good similarity</td>
+</tr>
+<tr>
+<td>0.5 - 0.7</td>
+<td>Moderate</td>
+<td>Some issues with facts or meaning</td>
+</tr>
+<tr>
+<td>0.0 - 0.5</td>
+<td>Poor</td>
+<td>Significant factual errors or semantic mismatch</td>
+</tr>
+</tbody>
+</table>
+<h2>Usage Example</h2>
+<pre><code class="language-java">Sample sample = Sample.builder()
+    .response(&quot;Paris is the capital of France. The Eiffel Tower is in Paris.&quot;)
+    .reference(&quot;Paris is the capital of France. The Eiffel Tower is located in Paris.&quot;)
+    .build();
+
+Double score = answerCorrectnessMetric.singleTurnScore(sample);
+// Returns: ~0.95 (high factual match + high semantic similarity)
+</code></pre>
+<h2>When to Use</h2>
+<p><strong>Good for:</strong></p>
 <ul>
-<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">RAGAS Documentation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Mean_average_precision">Mean Average Precision (MAP)</a></li>
+<li>Comprehensive answer quality evaluation</li>
+<li>Detecting both factual errors and meaning drift</li>
+<li>Applications requiring both precision and semantic understanding</li>
 </ul>
+<p><strong>Consider alternatives when:</strong></p>
+<ul>
+<li>Only factual accuracy matters → Use FactualCorrectnessMetric</li>
+<li>Only meaning preservation matters → Use SemanticSimilarityMetric</li>
+<li>Detailed claim-level analysis needed → Use FactualCorrectnessMetric directly</li>
+</ul>
+<h2>Dependencies</h2>
+<p>This metric internally uses:</p>
+<ul>
+<li><code>FactualCorrectnessMetric</code> for factual verification</li>
+<li><code>SemanticSimilarityMetric</code> for embedding similarity</li>
+</ul>
+<p>Both must be available in the Spring context.</p>
 
 </div>
 
 <div class="steps-schema">
     <h3>Execution Flow</h3>
     <div class="steps-diagram">
-            <div class="step-box llm">
+            <div class="step-box compute">
                 <span class="step-number">1.</span>
-                <span class="step-name">EvaluateAllContexts</span>
-                <span class="step-type">[LLM]</span>
+                <span class="step-name">ComputeFactualCorrectness</span>
+                <span class="step-type">[COMPUTE]</span>
             </div>
                 <div class="step-arrow">&rarr;</div>
             <div class="step-box compute">
                 <span class="step-number">2.</span>
-                <span class="step-name">ComputePrecision</span>
+                <span class="step-name">ComputeSemanticSimilarity</span>
+                <span class="step-type">[COMPUTE]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box compute">
+                <span class="step-number">3.</span>
+                <span class="step-name">CombineScores</span>
                 <span class="step-type">[COMPUTE]</span>
             </div>
     </div>
@@ -3029,41 +3088,17 @@
                           onclick="event.stopPropagation(); toggleTreeNode(this)">
                         ▶
                     </span>
-                    <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">7427ms</span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">ComputeFactualCorrectness</span>
+                    <span class="tree-duration">0ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
                          onclick="selectModel(0, 0, 'llm')">
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3532ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(0, 1, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1644ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(0, 2, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7427ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(0, 3, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1880ms</span>
+                        <span class="tree-name" title="factual">factual</span>
+                        <span class="tree-duration">0ms</span>
                         
                     </div>
                 </div>
@@ -3075,7 +3110,7 @@
                         ▶
                     </span>
                     <span class="tree-type-badge compute">COMPUTE</span>
-                    <span class="tree-name">ComputePrecision</span>
+                    <span class="tree-name">ComputeSemanticSimilarity</span>
                     <span class="tree-duration">0ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
@@ -3083,31 +3118,28 @@
                          onclick="selectModel(1, 0, 'llm')">
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-name" title="semantic">semantic</span>
                         <span class="tree-duration">0ms</span>
                         
                     </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="2">
+                <div class="tree-item" onclick="selectStep(2)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">CombineScores</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
-                         onclick="selectModel(1, 1, 'llm')">
+                         onclick="selectModel(2, 0, 'llm')">
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 2, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">0ms</span>
-                        
-                    </div>
-                    <div class="tree-item model-item "
-                         onclick="selectModel(1, 3, 'llm')">
-                        <span class="tree-expand">•</span>
-                        <span class="tree-type-badge model">LLM</span>
-                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-name" title="combined">combined</span>
                         <span class="tree-duration">0ms</span>
                         
                     </div>
@@ -3153,43 +3185,19 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "EvaluateAllContexts",
-            "stepType": "LLM",
-            "durationMs": 7427,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Красная площадь — главная площадь Москвы, расположенная в центре города.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Москва является столицей Российской Федерации и крупнейшим городом страны.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Сегодня на улице прекрасная погода для прогулки.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
-            "isLlmStep": true,
-            "successCount": 4,
+            "stepName": "ComputeFactualCorrectness",
+            "stepType": "COMPUTE",
+            "durationMs": 0,
+            "request": null,
+            "isLlmStep": false,
+            "successCount": 1,
             "failureCount": 0,
             "modelResults": [
                 {
-                    "modelId": "x-ai/grok-4.1-fast",
+                    "modelId": "factual",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-2.5-flash",
-                    "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}",
+                    "durationMs": 0,
+                    "resultJson": "1.0",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3199,43 +3207,41 @@
         },
         {
             "stepIndex": 1,
-            "stepName": "ComputePrecision",
+            "stepName": "ComputeSemanticSimilarity",
             "stepType": "COMPUTE",
             "durationMs": 0,
             "request": null,
             "isLlmStep": false,
-            "successCount": 4,
+            "successCount": 1,
             "failureCount": 0,
             "modelResults": [
                 {
-                    "modelId": "x-ai/grok-4.1-fast",
+                    "modelId": "semantic",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0",
+                    "resultJson": "0.9999965167393933",
                     "errorMessage": null,
                     "stackTrace": null
-                },
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 2,
+            "stepName": "CombineScores",
+            "stepType": "COMPUTE",
+            "durationMs": 0,
+            "request": null,
+            "isLlmStep": false,
+            "successCount": 1,
+            "failureCount": 0,
+            "modelResults": [
                 {
-                    "modelId": "google/gemini-2.5-flash",
+                    "modelId": "combined",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "deepseek/deepseek-v3.2",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
-                    "errorMessage": null,
-                    "stackTrace": null
-                },
-                {
-                    "modelId": "google/gemini-3-flash-preview",
-                    "success": true,
-                    "durationMs": 0,
-                    "resultJson": "1.0",
+                    "resultJson": "0.9999991291848483",
                     "errorMessage": null,
                     "stackTrace": null
                 }

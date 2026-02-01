@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContextPrecisionMetric - Evaluation Report</title>
+    <title>FactualCorrectnessMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -1619,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ContextPrecisionMetric - Evaluation Report</h1>
+            <h1>FactualCorrectnessMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 9763ms</span>
-                <span class="timestamp">2026-02-01T03:17:02.316450Z</span>
+                <span class="duration">Duration: 18414ms</span>
+                <span class="timestamp">2026-02-01T03:17:02.325565Z</span>
             </div>
         </header>
 
@@ -1681,7 +1681,7 @@
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1693,50 +1693,82 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
-            <text x="280" y="310" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1951ms</text>
-            <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">3902ms</text>
-            <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">5853ms</text>
-            <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">7804ms</text>
-            <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">9756ms</text>
-            <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
+        <line x1="280" y1="530" x2="880" y2="530" class="axis"/>
+            <text x="280" y="550" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="525" class="grid-line"/>
+            <text x="400" y="550" class="time-label">3682ms</text>
+            <line x1="400" y1="30" x2="400" y2="525" class="grid-line"/>
+            <text x="520" y="550" class="time-label">7365ms</text>
+            <line x1="520" y1="30" x2="520" y2="525" class="grid-line"/>
+            <text x="640" y="550" class="time-label">11047ms</text>
+            <line x1="640" y1="30" x2="640" y2="525" class="grid-line"/>
+            <text x="760" y="550" class="time-label">14730ms</text>
+            <line x1="760" y1="30" x2="760" y2="525" class="grid-line"/>
+            <text x="880" y="550" class="time-label">18413ms</text>
+            <line x1="880" y1="30" x2="880" y2="525" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="217" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3532ms (LLM)</title>
+            <rect x="280" y="30" width="137" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeResponseClaims: 4216ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="101" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1644ms (LLM)</title>
+            <rect x="280" y="60" width="37" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeResponseClaims: 1144ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="456" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 7427ms (LLM)</title>
+            <rect x="280" y="90" width="235" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeResponseClaims: 7236ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="115" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1880ms (LLM)</title>
+            <rect x="280" y="120" width="53" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeResponseClaims: 1635ms (LLM)</title>
             </rect>
             <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
-                <title>x-ai/grok-4.1-fast - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="520" y="150" width="126" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeReferenceClaims: 3889ms (LLM)</title>
             </rect>
             <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="180" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-2.5-flash - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="520" y="180" width="12" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeReferenceClaims: 384ms (LLM)</title>
             </rect>
             <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="210" width="2" height="24" class="bar-compute" rx="3">
-                <title>deepseek/deepseek-v3.2 - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="520" y="210" width="68" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeReferenceClaims: 2095ms (LLM)</title>
             </rect>
             <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="240" width="2" height="24" class="bar-compute" rx="3">
-                <title>google/gemini-3-flash-preview - ComputePrecision: 0ms (COMPUTE)</title>
+            <rect x="520" y="240" width="35" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeReferenceClaims: 1100ms (LLM)</title>
+            </rect>
+            <text x="275" y="287" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="646" y="270" width="2" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - VerifyClaimsNLI: 0ms (LLM)</title>
+            </rect>
+            <text x="275" y="317" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="646" y="300" width="2" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - VerifyClaimsNLI: 0ms (LLM)</title>
+            </rect>
+            <text x="275" y="347" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="646" y="330" width="2" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - VerifyClaimsNLI: 0ms (LLM)</title>
+            </rect>
+            <text x="275" y="377" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="646" y="360" width="2" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - VerifyClaimsNLI: 0ms (LLM)</title>
+            </rect>
+            <text x="275" y="407" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="880" y="390" width="2" height="24" class="bar-compute" rx="3">
+                <title>x-ai/grok-4.1-fast - ComputeScore: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="437" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="880" y="420" width="2" height="24" class="bar-compute" rx="3">
+                <title>google/gemini-2.5-flash - ComputeScore: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="467" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="880" y="450" width="2" height="24" class="bar-compute" rx="3">
+                <title>deepseek/deepseek-v3.2 - ComputeScore: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="497" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="880" y="480" width="2" height="24" class="bar-compute" rx="3">
+                <title>google/gemini-3-flash-preview - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1752,27 +1784,17 @@
 <div class="sample-section">
     <h3>Input Sample</h3>
     <dl>
-        <div class="sample-item">
-            <dt>User Input</dt>
-            <dd><pre>Где находится Красная площадь?</pre></dd>
-        </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>Красная площадь находится в центре Москвы, столицы России.</pre></dd>
+            <dd><pre>Москва является столицей России. Кремль расположен в Москве.</pre></dd>
         </div>
-
 
         <div class="sample-item">
-            <dt>Retrieved Contexts</dt>
-            <dd>
-                <ol class="context-list">
-                    <li><pre>Красная площадь — главная площадь Москвы, расположенная в центре города.</pre></li>
-                    <li><pre>Москва является столицей Российской Федерации и крупнейшим городом страны.</pre></li>
-                    <li><pre>Сегодня на улице прекрасная погода для прогулки.</pre></li>
-                </ol>
-            </dd>
+            <dt>Reference</dt>
+            <dd><pre>Москва является столицей России. Кремль расположен в Москве.</pre></dd>
         </div>
+
     </dl>
 </div>
 
@@ -1789,7 +1811,7 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : null,
+  &quot;mode&quot; : &quot;F1&quot;,
   &quot;models&quot; : [ ]
 }</pre>
 </div>
@@ -1811,7 +1833,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric checks: are contexts ranked correctly? Relevant contexts should appear first in the list.</div>
+            <div class="explanation-simple">This metric checks: are the facts in the AI response correct? We decompose response and reference into atomic claims and verify each using NLI.</div>
         </div>
     </div>
 
@@ -1822,19 +1844,25 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Evaluating context relevance</span>
+                        <span class="exp-tree-name">Decomposing response into claims</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="1">
                     <div class="exp-tree-item" onclick="selectExplanationStep(1)">
                         <span class="exp-tree-number">2</span>
-                        <span class="exp-tree-name">Calculating Precision@K</span>
+                        <span class="exp-tree-name">Decomposing reference into claims</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="2">
                     <div class="exp-tree-item" onclick="selectExplanationStep(2)">
                         <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Calculating Average Precision</span>
+                        <span class="exp-tree-name">Verifying claims with NLI</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="3">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(3)">
+                        <span class="exp-tree-number">4</span>
+                        <span class="exp-tree-name">Computing final score</span>
                     </div>
                 </div>
 
@@ -1858,7 +1886,7 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">AP = Σ(Precision@k × relevance@k) / (relevant count)</div>
+        <div class="exp-formula">F1 = 2 × (precision × recall) / (precision + recall)</div>
     </div>
 
     <div class="exp-calculation-section">
@@ -1870,7 +1898,7 @@
         <div class="exp-result-score ">
             100.00%
         </div>
-        <div class="exp-result-meaning">Excellent - relevant contexts appear first</div>
+        <div class="exp-result-meaning">Excellent - all claims are factually correct and complete</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1882,7 +1910,7 @@
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high score">Very high score</span>
+                <span class="exp-scale-desc" title="All claims verified as correct">All claims verified as correct</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1891,7 +1919,7 @@
                 </span>
                 <span class="exp-scale-name">Good</span>
                 <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good score">Good score</span>
+                <span class="exp-scale-desc" title="Most claims are correct">Most claims are correct</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1899,7 +1927,7 @@
                 </span>
                 <span class="exp-scale-name">Moderate</span>
                 <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Moderate score">Moderate score</span>
+                <span class="exp-scale-desc" title="Some claims incorrect or missing">Some claims incorrect or missing</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1907,7 +1935,7 @@
                 </span>
                 <span class="exp-scale-name">Poor</span>
                 <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low score">Low score</span>
+                <span class="exp-scale-desc" title="Many factual errors">Many factual errors</span>
             </div>
         </div>
     </div>
@@ -1919,41 +1947,101 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "context-precision",
+    "metricType": "factual-correctness",
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "EvaluateAllContexts",
+            "stepName": "DecomposeResponseClaims",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}"
+                    "durationMs": 4216,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}"
+                    "durationMs": 1144,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}"
+                    "durationMs": 7236,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}"
+                    "durationMs": 1635,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
                 }
             ]
         },
         {
-            "stepName": "ComputePrecision",
+            "stepName": "DecomposeReferenceClaims",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3889,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 384,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 2095,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 1100,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "VerifyClaimsNLI",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"1. Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"2. Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Москва является столицей России.'\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Кремль расположен в Москве.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Москва является столицей России.'\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Кремль расположен в Москве.'\"\n    } ]\n  }\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    } ]\n  }\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "ComputeScore",
             "stepType": "COMPUTE",
             "modelResults": [
                 {
@@ -1993,20 +2081,29 @@
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "EvaluateContexts",
-            "title": "Evaluating context relevance",
-            "description": "For each context, we check: is it relevant for answering the question?",
+            "stepName": "DecomposeResponseClaims",
+            "title": "Decomposing response into claims",
+            "description": "The AI response is broken down into individual atomic claims that can be verified.",
             "inputData": "",
-            "outputSummary": "1 of 1 are relevant",
+            "outputSummary": "Extracted 2 claims from response",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "Красная площадь — главная площадь Москвы, расположенная в центре города.",
-                    "passed": true,
-                    "verdict": "Relevant",
-                    "reason": "The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.",
+                    "content": "Москва является столицей России.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "Кремль расположен в Москве.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
                     "source": null,
                     "numericValue": null
                 }
@@ -2018,22 +2115,31 @@
         },
         {
             "stepNumber": 2,
-            "stepName": "CalculatePrecision",
-            "title": "Calculating Precision@K",
-            "description": "Precision@K = (relevant in top-K) / K",
-            "inputData": null,
-            "outputSummary": "Precision calculated for 1 contexts (1 relevant)",
+            "stepName": "DecomposeReferenceClaims",
+            "title": "Decomposing reference into claims",
+            "description": "The reference answer is broken down into individual atomic claims.",
+            "inputData": "",
+            "outputSummary": "Extracted 2 claims from reference",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "K=1: 1/1 relevant → 100,0%",
-                    "passed": true,
-                    "verdict": "+",
+                    "content": "Москва является столицей России.",
+                    "passed": null,
+                    "verdict": null,
                     "reason": null,
                     "source": null,
-                    "numericValue": 1
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "Кремль расположен в Москве.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
                 }
             ],
             "modelResults": [
@@ -2043,11 +2149,45 @@
         },
         {
             "stepNumber": 3,
-            "stepName": "ComputeScore",
-            "title": "Calculating Average Precision",
-            "description": "AP = average Precision@K only at positions with relevant contexts",
+            "stepName": "VerifyClaimsNLI",
+            "title": "Verifying claims with NLI",
+            "description": "Each claim is verified using Natural Language Inference: SUPPORTED, CONTRADICTED, or NEUTRAL.",
             "inputData": null,
-            "outputSummary": "100.00%",
+            "outputSummary": "Precision: 2/2 supported, Recall: 0/0 supported",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+                {
+                    "index": 1,
+                    "content": "Москва является столицей России.",
+                    "passed": true,
+                    "verdict": "SUPPORTED",
+                    "reason": "Directly stated in context",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "Кремль расположен в Москве.",
+                    "passed": true,
+                    "verdict": "SUPPORTED",
+                    "reason": "Directly stated in context",
+                    "source": null,
+                    "numericValue": null
+                }
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 4,
+            "stepName": "ComputeScore",
+            "title": "Computing final score",
+            "description": "Calculating F1 score from precision and recall.",
+            "inputData": null,
+            "outputSummary": "100.00% (P=1,00, R=0,00, mode=F1)",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -2059,15 +2199,15 @@
         }
     ],
     "interpretation": {
-        "formula": "AP = Σ(Precision@k × relevance@k) / (relevant count)",
+        "formula": "F1 = 2 × (precision × recall) / (precision + recall)",
         "calculation": "100.00%",
         "score": 1,
         "scorePercent": "100.00%",
         "level": "Excellent",
         "isGood": null,
-        "meaning": "Excellent - relevant contexts appear first",
-        "numerator": 1,
-        "denominator": 1,
+        "meaning": "Excellent - all claims are factually correct and complete",
+        "numerator": null,
+        "denominator": null,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
@@ -2075,25 +2215,25 @@
             {
                 "name": "Excellent",
                 "range": "90-100%",
-                "description": "Very high score",
+                "description": "All claims verified as correct",
                 "current": true
             },
             {
                 "name": "Good",
                 "range": "70-90%",
-                "description": "Good score",
+                "description": "Most claims are correct",
                 "current": false
             },
             {
                 "name": "Moderate",
                 "range": "50-70%",
-                "description": "Moderate score",
+                "description": "Some claims incorrect or missing",
                 "current": false
             },
             {
                 "name": "Poor",
                 "range": "0-50%",
-                "description": "Low score",
+                "description": "Many factual errors",
                 "current": false
             }
         ]
@@ -2918,31 +3058,37 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Context Precision Metric</h1>
+    <h1>Factual Correctness Metric</h1>
 <h2>Glossary</h2>
 <ul>
-<li><strong>Context</strong> — information fragments retrieved by the search system and provided to the agentic system</li>
-<li><strong>Relevance</strong> — correspondence of the context to the user's original question</li>
-<li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
-<li><strong>Average Precision</strong> — mean precision accounting for positions of relevant results</li>
+<li><strong>Claim</strong> — an atomic, independently verifiable factual statement</li>
+<li><strong>NLI (Natural Language Inference)</strong> — determining if a hypothesis is supported by, contradicted by, or neutral to a premise</li>
+<li><strong>Precision</strong> — ratio of response claims supported by reference</li>
+<li><strong>Recall</strong> — ratio of reference claims covered by response</li>
+<li><strong>F1 Score</strong> — harmonic mean of precision and recall</li>
+<li><strong>Reference</strong> — the ground truth or expected answer</li>
 </ul>
 <h2>Description</h2>
-<p>The metric evaluates the quality of context ranking by the retrieval system. It checks whether the most relevant contexts appear at the top positions. Relevant contexts at the beginning of the list increase the score; at the end — decrease it.</p>
+<p>The metric evaluates factual correctness of the AI response compared to a reference answer. It decomposes both texts into atomic claims and uses Natural Language Inference (NLI) to verify which claims are supported, contradicted, or neutral.</p>
+<p>Unlike Faithfulness (which compares response to context), Factual Correctness compares response directly to reference answer.</p>
 <h2>Example</h2>
-<p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
-<p><strong>Retrieved Contexts (in order):</strong></p>
+<p><strong>Reference:</strong> &quot;Paris is the capital of France. The Eiffel Tower was completed in 1889.&quot;</p>
+<p><strong>AI Response:</strong> &quot;Paris is the capital of France. The Eiffel Tower was built in 1500.&quot;</p>
+<p><strong>Claim Analysis (Precision):</strong></p>
 <ol>
-<li>&quot;The Eiffel Tower was completed in 1889 for the World's Fair.&quot; — <strong>RELEVANT</strong></li>
-<li>&quot;It stands 330 meters tall.&quot; — <strong>NOT RELEVANT</strong> to the question</li>
-<li>&quot;Construction began in 1887.&quot; — <strong>RELEVANT</strong></li>
+<li>&quot;Paris is the capital of France&quot; → SUPPORTED ✓</li>
+<li>&quot;The Eiffel Tower was built in 1500&quot; → CONTRADICTED ✗</li>
 </ol>
-<p><strong>Calculation:</strong></p>
+<p><strong>Score (F1 mode):</strong></p>
 <ul>
-<li>Position 1: Relevant → Precision@1 = 1/1 = 1.00</li>
-<li>Position 2: Not relevant → skip</li>
-<li>Position 3: Relevant → Precision@3 = 2/3 = 0.67</li>
+<li>Precision = 1/2 = 0.50</li>
+<li>Recall = 1/2 = 0.50 (assumes similar claims in reference)</li>
+<li>F1 = 2 × (0.50 × 0.50) / (0.50 + 0.50) = <strong>0.50 (50%)</strong></li>
 </ul>
-<p><strong>Score:</strong> (1.00 + 0.67) / 2 = <strong>0.83 (83%)</strong></p>
+<hr />
+<p><strong>Good Response Example:</strong></p>
+<p><strong>AI Response:</strong> &quot;The capital of France is Paris. The Eiffel Tower was completed in 1889.&quot;</p>
+<p><strong>Score:</strong> F1 = <strong>1.00 (100%)</strong> — all claims match reference</p>
 <h2>Score Interpretation</h2>
 <table>
 <thead>
@@ -2954,41 +3100,114 @@
 <tbody>
 <tr>
 <td>90-100%</td>
-<td>Relevant contexts at top positions</td>
+<td>Excellent — all claims factually correct and complete</td>
 </tr>
 <tr>
 <td>70-90%</td>
-<td>Most relevant contexts near the top of the list</td>
+<td>Good — most claims correct with minor omissions</td>
 </tr>
 <tr>
 <td>50-70%</td>
-<td>Relevant contexts distributed unevenly</td>
+<td>Moderate — some facts incorrect or missing</td>
 </tr>
 <tr>
 <td>0-50%</td>
-<td>Relevant contexts at bottom positions</td>
+<td>Poor — many factual errors or significant omissions</td>
 </tr>
 </tbody>
 </table>
 <h2>Algorithm</h2>
 <ol>
-<li><strong>Relevance Check</strong> — LLM determines relevance of each context to the question</li>
-<li><strong>Precision Calculation at Positions</strong> — precision is calculated at each relevant context position</li>
-<li><strong>Averaging</strong> — mean value of all precisions is computed</li>
+<li><strong>Decompose Response Claims</strong> — LLM extracts atomic claims from AI response</li>
+<li><strong>Decompose Reference Claims</strong> — LLM extracts atomic claims from reference</li>
+<li><strong>Verify Claims with NLI</strong> — Each claim is verified using NLI:
+<ul>
+<li>Response claims against reference (for precision)</li>
+<li>Reference claims against response (for recall)</li>
+</ul>
+</li>
+<li><strong>Compute Score</strong> — Calculate precision, recall, and F1 score</li>
 </ol>
 <h2>Formula</h2>
-<pre><code>score = Average Precision (AP) = Σ(precision@k × relevance@k) / total_relevant
+<p><strong>F1 Mode (default):</strong></p>
+<pre><code>F1 = 2 × (precision × recall) / (precision + recall)
+</code></pre>
+<p><strong>Precision Mode:</strong></p>
+<pre><code>precision = supported_response_claims / total_response_claims
+</code></pre>
+<p><strong>Recall Mode:</strong></p>
+<pre><code>recall = supported_reference_claims / total_reference_claims
 </code></pre>
 <p>Where:</p>
 <ul>
-<li><code>precision@k</code> — fraction of relevant contexts in top-k positions</li>
-<li><code>relevance@k</code> — 1 if context at position k is relevant, otherwise 0</li>
-<li><code>total_relevant</code> — total number of relevant contexts</li>
+<li><code>supported_claims</code> — claims with NLI verdict = SUPPORTED</li>
+<li>Claims with CONTRADICTED or NEUTRAL verdicts are not counted as supported</li>
+</ul>
+<h2>NLI Verdicts</h2>
+<table>
+<thead>
+<tr>
+<th>Verdict</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SUPPORTED</td>
+<td>Claim can be directly inferred from the source</td>
+</tr>
+<tr>
+<td>CONTRADICTED</td>
+<td>Claim is directly contradicted by the source</td>
+</tr>
+<tr>
+<td>NEUTRAL</td>
+<td>Claim cannot be verified (insufficient evidence)</td>
+</tr>
+</tbody>
+</table>
+<h2>Configuration</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mode</td>
+<td>Mode</td>
+<td>F1</td>
+<td>Scoring mode: F1, PRECISION, or RECALL</td>
+</tr>
+<tr>
+<td>models</td>
+<td>List</td>
+<td>all</td>
+<td>LLM models to use for multi-model evaluation</td>
+</tr>
+</tbody>
+</table>
+<h2>When to Use Each Mode</h2>
+<ul>
+<li><strong>F1 (default)</strong> — balanced evaluation of both accuracy and completeness</li>
+<li><strong>PRECISION</strong> — focus on correctness (penalizes wrong claims, not missing info)</li>
+<li><strong>RECALL</strong> — focus on completeness (penalizes missing info, not extra claims)</li>
+</ul>
+<h2>Important Notes</h2>
+<ul>
+<li><strong>NEUTRAL claims</strong> are counted as NOT supported, which reduces the score</li>
+<li><strong>Extra correct information</strong> in response doesn't hurt precision (if not contradicted)</li>
+<li><strong>Incomplete response</strong> hurts recall but not precision</li>
+<li><strong>This metric requires LLM calls</strong> for both claim decomposition and NLI verification</li>
 </ul>
 <h2>References</h2>
 <ul>
-<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">RAGAS Documentation</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Mean_average_precision">Mean Average Precision (MAP)</a></li>
+<li><a href="https://github.com/explodinggradients/ragas">RAGAS FactualCorrectness</a></li>
+<li><a href="https://arxiv.org/abs/1508.05326">Natural Language Inference</a></li>
 </ul>
 
 </div>
@@ -2998,13 +3217,25 @@
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">EvaluateAllContexts</span>
+                <span class="step-name">DecomposeResponseClaims</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">2.</span>
+                <span class="step-name">DecomposeReferenceClaims</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">3.</span>
+                <span class="step-name">VerifyClaimsNLI</span>
                 <span class="step-type">[LLM]</span>
             </div>
                 <div class="step-arrow">&rarr;</div>
             <div class="step-box compute">
-                <span class="step-number">2.</span>
-                <span class="step-name">ComputePrecision</span>
+                <span class="step-number">4.</span>
+                <span class="step-name">ComputeScore</span>
                 <span class="step-type">[COMPUTE]</span>
             </div>
     </div>
@@ -3030,8 +3261,8 @@
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">7427ms</span>
+                    <span class="tree-name">DecomposeResponseClaims</span>
+                    <span class="tree-duration">7236ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3039,7 +3270,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3532ms</span>
+                        <span class="tree-duration">4216ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3047,7 +3278,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1644ms</span>
+                        <span class="tree-duration">1144ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3055,7 +3286,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7427ms</span>
+                        <span class="tree-duration">7236ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3063,7 +3294,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1880ms</span>
+                        <span class="tree-duration">1635ms</span>
                         
                     </div>
                 </div>
@@ -3074,9 +3305,9 @@
                           onclick="event.stopPropagation(); toggleTreeNode(this)">
                         ▶
                     </span>
-                    <span class="tree-type-badge compute">COMPUTE</span>
-                    <span class="tree-name">ComputePrecision</span>
-                    <span class="tree-duration">0ms</span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">DecomposeReferenceClaims</span>
+                    <span class="tree-duration">3889ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3084,7 +3315,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">3889ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3092,7 +3323,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">384ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3100,11 +3331,101 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">0ms</span>
+                        <span class="tree-duration">2095ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
                          onclick="selectModel(1, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">1100ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="2">
+                <div class="tree-item" onclick="selectStep(2)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">VerifyClaimsNLI</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="3">
+                <div class="tree-item" onclick="selectStep(3)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">ComputeScore</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 3, 'llm')">
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
@@ -3153,10 +3474,10 @@
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "EvaluateAllContexts",
+            "stepName": "DecomposeResponseClaims",
             "stepType": "LLM",
-            "durationMs": 7427,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Красная площадь — главная площадь Москвы, расположенная в центре города.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Москва является столицей Российской Федерации и крупнейшим городом страны.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Где находится Красная площадь?\nAI Response: Красная площадь находится в центре Москвы, столицы России.\nRetrieved Context Chunk: Сегодня на улице прекрасная погода для прогулки.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
+            "durationMs": 7236,
+            "request": "Given a text, decompose it into atomic, independent claims.\nEach claim should be a single factual statement that can be verified independently.\nEnsure claims are self-contained (no pronouns without clear referents).\n\nText:\nМосква является столицей России. Кремль расположен в Москве.\n\nInstructions:\n1. Break down the text into individual factual claims\n2. Each claim should be atomic (cannot be split further)\n3. Replace pronouns with explicit entities\n4. Keep claims factual (not opinions or subjective statements)\n\nExample:\nText: \"Albert Einstein was a German-born physicist. He developed the theory of relativity and won the Nobel Prize in 1921.\"\n\nClaims:\n- Albert Einstein was a German-born physicist.\n- Albert Einstein developed the theory of relativity.\n- Albert Einstein won the Nobel Prize in 1921.\n\nNow decompose the given text into claims.\nRespond with a JSON object containing a 'claims' array with the list of extracted claims.\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3164,32 +3485,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3532,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'Красная площадь' (Red Square) is the main square of Moscow, located in the center of the city. This precisely answers the user query 'Где находится Красная площадь?' (Where is Red Square located?) by providing its exact location in central Moscow. The information aligns perfectly with the AI response, which uses the same key facts (center of Moscow), making the chunk genuinely contributory to answering the query.\"\n}",
+                    "durationMs": 4216,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1644,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks 'Where is Red Square?' The AI response states 'Red Square is located in the center of Moscow, the capital of Russia.' The retrieved context chunk states 'Red Square is the main square of Moscow, located in the city center.' This chunk directly provides the location of Red Square ('in the center of Moscow'), which is the core information needed to answer the query and is present in the AI's response. Therefore, the chunk is highly relevant.\"\n}",
+                    "durationMs": 1144,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7427,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that Red Square is the main square of Moscow located in the city center, which directly addresses the user's query about its location. The AI response similarly states it is in the center of Moscow. The chunk provides essential information that helps answer the query, confirming the location details.\"\n}",
+                    "durationMs": 7236,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1880,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user's query by stating that Red Square is located in the center of Moscow. This information aligns perfectly with the AI response and provides the necessary geographical facts to satisfy the user's request.\"\n}",
+                    "durationMs": 1635,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3199,7 +3520,99 @@
         },
         {
             "stepIndex": 1,
-            "stepName": "ComputePrecision",
+            "stepName": "DecomposeReferenceClaims",
+            "stepType": "LLM",
+            "durationMs": 3889,
+            "request": "Given a text, decompose it into atomic, independent claims.\nEach claim should be a single factual statement that can be verified independently.\nEnsure claims are self-contained (no pronouns without clear referents).\n\nText:\nМосква является столицей России. Кремль расположен в Москве.\n\nInstructions:\n1. Break down the text into individual factual claims\n2. Each claim should be atomic (cannot be split further)\n3. Replace pronouns with explicit entities\n4. Keep claims factual (not opinions or subjective statements)\n\nExample:\nText: \"Albert Einstein was a German-born physicist. He developed the theory of relativity and won the Nobel Prize in 1921.\"\n\nClaims:\n- Albert Einstein was a German-born physicist.\n- Albert Einstein developed the theory of relativity.\n- Albert Einstein won the Nobel Prize in 1921.\n\nNow decompose the given text into claims.\nRespond with a JSON object containing a 'claims' array with the list of extracted claims.\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3889,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 384,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 2095,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 1100,
+                    "resultJson": "{\n  \"claims\" : [ \"Москва является столицей России.\", \"Кремль расположен в Москве.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 2,
+            "stepName": "VerifyClaimsNLI",
+            "stepType": "LLM",
+            "durationMs": 0,
+            "request": "Your task is to verify claims using Natural Language Inference (NLI).\nFor each claim, determine if it is SUPPORTED, CONTRADICTED, or NEUTRAL based on the given context.\n\nContext (source of truth):\nМосква является столицей России. Кремль расположен в Москве.\n\nClaims to verify:\n1. Москва является столицей России.\n2. Кремль расположен в Москве.\n\n\nInstructions:\nFor each claim, determine:\n- SUPPORTED: The claim can be directly inferred from the context\n- CONTRADICTED: The claim is directly contradicted by the context\n- NEUTRAL: The claim cannot be verified from the context (not enough information)\n\nExample:\nContext: \"Paris is the capital of France. The Eiffel Tower is located in Paris.\"\n\nClaims:\n1. Paris is the capital of France.\n2. Paris is the largest city in Europe.\n3. The Eiffel Tower is not in Paris.\n\nVerdicts:\n1. claim: \"Paris is the capital of France.\" verdict: SUPPORTED reason: \"Directly stated in context\"\n2. claim: \"Paris is the largest city in Europe.\" verdict: NEUTRAL reason: \"Context doesn't mention city size\"\n3. claim: \"The Eiffel Tower is not in Paris.\" verdict: CONTRADICTED reason: \"Context states Eiffel Tower IS in Paris\"\n\nNow verify the given claims against the context.\nRespond with a JSON object containing a 'verdicts' array where each item has 'claim', 'verdict' (SUPPORTED/CONTRADICTED/NEUTRAL), and 'reason' fields.\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"1. Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"2. Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Москва является столицей России.'\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Кремль расположен в Москве.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Москва является столицей России.'\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Кремль расположен в Москве.'\"\n    } ]\n  }\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Москва является столицей России.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    }, {\n      \"claim\" : \"Кремль расположен в Москве.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    } ]\n  }\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 3,
+            "stepName": "ComputeScore",
             "stepType": "COMPUTE",
             "durationMs": 0,
             "request": null,
