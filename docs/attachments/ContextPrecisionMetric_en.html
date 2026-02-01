@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1539,8 +1622,8 @@
             <h1>ContextPrecisionMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 5076ms</span>
-                <span class="timestamp">2026-01-12T13:33:27.292891Z</span>
+                <span class="duration">Duration: 6839ms</span>
+                <span class="timestamp">2026-02-01T03:25:22.951749Z</span>
             </div>
         </header>
 
@@ -1613,31 +1696,31 @@
         <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
             <text x="280" y="310" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">1015ms</text>
+            <text x="400" y="310" class="time-label">1366ms</text>
             <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">2030ms</text>
+            <text x="520" y="310" class="time-label">2732ms</text>
             <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">3045ms</text>
+            <text x="640" y="310" class="time-label">4098ms</text>
             <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">4060ms</text>
+            <text x="760" y="310" class="time-label">5464ms</text>
             <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">5075ms</text>
+            <text x="880" y="310" class="time-label">6830ms</text>
             <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="542" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 4592ms (LLM)</title>
+            <rect x="284" y="30" width="375" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 4270ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="111" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateAllContexts: 942ms (LLM)</title>
+            <rect x="284" y="60" width="158" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1799ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="462" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 3910ms (LLM)</title>
+            <rect x="284" y="90" width="455" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 5189ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="133" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 1129ms (LLM)</title>
+            <rect x="284" y="120" width="220" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 2512ms (LLM)</title>
             </rect>
             <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
             <rect x="879" y="150" width="2" height="24" class="bar-compute" rx="3">
@@ -1671,12 +1754,12 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>When was the first Super Bowl?</pre></dd>
+            <dd><pre>Where is the Eiffel Tower located?</pre></dd>
         </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>The first Super Bowl was held on January 15, 1967.</pre></dd>
+            <dd><pre>The Eiffel Tower is located in Paris, France.</pre></dd>
         </div>
 
 
@@ -1684,8 +1767,9 @@
             <dt>Retrieved Contexts</dt>
             <dd>
                 <ol class="context-list">
-                    <li><pre>The first Super Bowl was held on January 15, 1967.</pre></li>
-                    <li><pre>The game was played at the Los Angeles Memorial Coliseum.</pre></li>
+                    <li><pre>The Eiffel Tower is located in Paris, the capital city of France.</pre></li>
+                    <li><pre>Paris is known for its iconic landmarks including the Eiffel Tower.</pre></li>
+                    <li><pre>The weather today is sunny and warm.</pre></li>
                 </ol>
             </dd>
         </div>
@@ -1705,7 +1789,7 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;evaluationStrategy&quot; : &quot;RESPONSE_BASED&quot;,
+  &quot;evaluationStrategy&quot; : null,
   &quot;models&quot; : [ ]
 }</pre>
 </div>
@@ -1845,26 +1929,26 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 4592,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The retrieved context chunk exactly matches the AI response and directly provides the date of the first Super Bowl (January 15, 1967), which is the precise information needed to answer the user query 'When was the first Super Bowl?'. It genuinely contributes by supplying the factual answer used in the response.\"\n}"
+                    "durationMs": 4270,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'The Eiffel Tower is located in Paris, the capital city of France,' which provides the precise location information needed to answer the user query 'Where is the Eiffel Tower located?'. This matches the AI response's key fact ('Paris, France') and genuinely contributes to answering the query, even with the minor additional detail about Paris being the capital.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 942,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks for the date of the first Super Bowl. The AI response provides this exact date. The retrieved context chunk contains the identical information, stating 'The first Super Bowl was held on January 15, 1967.' This directly answers the user's question and supports the AI's response.\"\n}"
+                    "durationMs": 1799,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks for the location of the Eiffel Tower. The AI response states it is in Paris, France. The retrieved context chunk explicitly states, 'The Eiffel Tower is located in Paris, the capital city of France.' This directly provides the information needed to answer the query and matches the AI's response, making it highly relevant.\"\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3910,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states the exact date of the first Super Bowl, which is the specific information requested in the user query. The AI response confirms this date, showing the chunk contains the precise answer needed. The chunk is therefore highly relevant as it provides the factual answer to the query.\"\n}"
+                    "durationMs": 5189,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks for the location of the Eiffel Tower. The AI response states it is in Paris, France. The retrieved context chunk explicitly states that the Eiffel Tower is located in Paris, the capital city of France. This information directly answers the user query by providing the specific city and country, which matches the information in the AI response. The chunk contains the core factual information needed to answer the query, making it genuinely contributory.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1129,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk contains the exact date (January 15, 1967) that directly answers the user's query about when the first Super Bowl took place. This information matches the AI response perfectly and provides the necessary factual basis to address the user's request.\"\n}"
+                    "durationMs": 2512,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user query by stating the specific city (Paris) and country (France) where the Eiffel Tower is located. This information aligns perfectly with the AI response and provides the necessary factual basis to address the user's question.\"\n}"
                 }
             ]
         },
@@ -1919,10 +2003,10 @@
             "items": [
                 {
                     "index": 1,
-                    "content": "The first Super Bowl was held on January 15, 1967.",
+                    "content": "The Eiffel Tower is located in Paris, the capital city of France.",
                     "passed": true,
                     "verdict": "Relevant",
-                    "reason": "The retrieved context chunk exactly matches the AI response and directly provides the date of the first Super Bowl (January 15, 1967), which is the precise information needed to answer the user query 'When was the first Super Bowl?'. It genuinely contributes by supplying the factual answer used in the response.",
+                    "reason": "The context chunk directly states that 'The Eiffel Tower is located in Paris, the capital city of France,' which provides the precise location information needed to answer the user query 'Where is the Eiffel Tower located?'. This matches the AI response's key fact ('Paris, France') and genuinely contributes to answering the query, even with the minor additional detail about Paris being the capital.",
                     "source": null,
                     "numericValue": null
                 }
@@ -2358,6 +2442,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2466,15 +2570,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2925,7 +3031,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">EvaluateAllContexts</span>
-                    <span class="tree-duration">4592ms</span>
+                    <span class="tree-duration">5189ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2933,7 +3039,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">4592ms</span>
+                        <span class="tree-duration">4270ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2941,7 +3047,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">942ms</span>
+                        <span class="tree-duration">1799ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2949,7 +3055,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">3910ms</span>
+                        <span class="tree-duration">5189ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2957,7 +3063,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1129ms</span>
+                        <span class="tree-duration">2512ms</span>
                         
                     </div>
                 </div>
@@ -3049,8 +3155,8 @@
             "stepIndex": 0,
             "stepName": "EvaluateAllContexts",
             "stepType": "LLM",
-            "durationMs": 4592,
-            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: When was the first Super Bowl?\nAI Response: The first Super Bowl was held on January 15, 1967.\nRetrieved Context Chunk: The first Super Bowl was held on January 15, 1967.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: When was the first Super Bowl?\nAI Response: The first Super Bowl was held on January 15, 1967.\nRetrieved Context Chunk: The game was played at the Los Angeles Memorial Coliseum.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
+            "durationMs": 5189,
+            "request": "Given a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Where is the Eiffel Tower located?\nAI Response: The Eiffel Tower is located in Paris, France.\nRetrieved Context Chunk: The Eiffel Tower is located in Paris, the capital city of France.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Where is the Eiffel Tower located?\nAI Response: The Eiffel Tower is located in Paris, France.\nRetrieved Context Chunk: Paris is known for its iconic landmarks including the Eiffel Tower.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n\n---\nGiven a user query, AI response, and a retrieved context chunk, determine if the context chunk is relevant to answering the user query based on the AI response.\n\nUser Query: Where is the Eiffel Tower located?\nAI Response: The Eiffel Tower is located in Paris, France.\nRetrieved Context Chunk: The weather today is sunny and warm.\n\nInstructions:\n1. Analyze if the context chunk contains information that is relevant to answering the user query\n2. Consider the AI response as guidance for what constitutes a relevant answer\n3. A chunk is relevant if it contains information that helps answer the query, even if not directly used in the response\n4. Be strict in your evaluation - only mark as relevant if the chunk genuinely contributes to answering the query\n\nRespond with a JSON object containing:\n- relevant: true if the context chunk is relevant to answering the user query, false otherwise\n- reasoning: Your detailed explanation for why the chunk is or isn't relevant\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3058,32 +3164,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 4592,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The retrieved context chunk exactly matches the AI response and directly provides the date of the first Super Bowl (January 15, 1967), which is the precise information needed to answer the user query 'When was the first Super Bowl?'. It genuinely contributes by supplying the factual answer used in the response.\"\n}",
+                    "durationMs": 4270,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states that 'The Eiffel Tower is located in Paris, the capital city of France,' which provides the precise location information needed to answer the user query 'Where is the Eiffel Tower located?'. This matches the AI response's key fact ('Paris, France') and genuinely contributes to answering the query, even with the minor additional detail about Paris being the capital.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 942,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks for the date of the first Super Bowl. The AI response provides this exact date. The retrieved context chunk contains the identical information, stating 'The first Super Bowl was held on January 15, 1967.' This directly answers the user's question and supports the AI's response.\"\n}",
+                    "durationMs": 1799,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks for the location of the Eiffel Tower. The AI response states it is in Paris, France. The retrieved context chunk explicitly states, 'The Eiffel Tower is located in Paris, the capital city of France.' This directly provides the information needed to answer the query and matches the AI's response, making it highly relevant.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3910,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly states the exact date of the first Super Bowl, which is the specific information requested in the user query. The AI response confirms this date, showing the chunk contains the precise answer needed. The chunk is therefore highly relevant as it provides the factual answer to the query.\"\n}",
+                    "durationMs": 5189,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The user query asks for the location of the Eiffel Tower. The AI response states it is in Paris, France. The retrieved context chunk explicitly states that the Eiffel Tower is located in Paris, the capital city of France. This information directly answers the user query by providing the specific city and country, which matches the information in the AI response. The chunk contains the core factual information needed to answer the query, making it genuinely contributory.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1129,
-                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk contains the exact date (January 15, 1967) that directly answers the user's query about when the first Super Bowl took place. This information matches the AI response perfectly and provides the necessary factual basis to address the user's request.\"\n}",
+                    "durationMs": 2512,
+                    "resultJson": "{\n  \"relevant\" : true,\n  \"reasoning\" : \"The context chunk directly answers the user query by stating the specific city (Paris) and country (France) where the Eiffel Tower is located. This information aligns perfectly with the AI response and provides the necessary factual basis to address the user's question.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

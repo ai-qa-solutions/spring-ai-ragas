@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1538,9 +1621,9 @@
         <header class="report-header">
             <h1>RubricsScoreMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge moderate">3.0 / 5 → 50.00%</span>
-                <span class="duration">Duration: 9609ms</span>
-                <span class="timestamp">2026-01-12T13:34:22.290202Z</span>
+                <span class="score-badge good">4.8 / 5 → 93.75%</span>
+                <span class="duration">Duration: 15015ms</span>
+                <span class="timestamp">2026-02-01T03:24:24.101114Z</span>
             </div>
         </header>
 
@@ -1575,17 +1658,17 @@
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                 <text x="550" y="170" class="scale-label">5</text>
             <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="37" class="score-label">3,0 / 5</text>
+            <rect x="150" y="20" width="400" height="24" class="bar-good" rx="3"/>
+            <text x="555" y="37" class="score-label">5,0 / 5</text>
             <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="67" class="score-label">3,0 / 5</text>
+            <rect x="150" y="50" width="300" height="24" class="bar-good" rx="3"/>
+            <text x="455" y="67" class="score-label">4,0 / 5</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="97" class="score-label">3,0 / 5</text>
+            <rect x="150" y="80" width="400" height="24" class="bar-good" rx="3"/>
+            <text x="555" y="97" class="score-label">5,0 / 5</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="127" class="score-label">3,0 / 5</text>
+            <rect x="150" y="110" width="400" height="24" class="bar-good" rx="3"/>
+            <text x="555" y="127" class="score-label">5,0 / 5</text>
     </svg>
 </div>
 
@@ -1606,31 +1689,31 @@
         <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
             <text x="280" y="190" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
-            <text x="400" y="190" class="time-label">1921ms</text>
+            <text x="400" y="190" class="time-label">2989ms</text>
             <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
-            <text x="520" y="190" class="time-label">3842ms</text>
+            <text x="520" y="190" class="time-label">5978ms</text>
             <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
-            <text x="640" y="190" class="time-label">5764ms</text>
+            <text x="640" y="190" class="time-label">8967ms</text>
             <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
-            <text x="760" y="190" class="time-label">7685ms</text>
+            <text x="760" y="190" class="time-label">11956ms</text>
             <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
-            <text x="880" y="190" class="time-label">9607ms</text>
+            <text x="880" y="190" class="time-label">14946ms</text>
             <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
             <rect x="280" y="30" width="599" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - Evaluate: 9607ms (LLM)</title>
+                <title>x-ai/grok-4.1-fast - Evaluate: 14944ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="67" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - Evaluate: 1073ms (LLM)</title>
+            <rect x="280" y="60" width="76" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - Evaluate: 1918ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="381" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - Evaluate: 6104ms (LLM)</title>
+            <rect x="280" y="90" width="284" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - Evaluate: 7083ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="98" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - Evaluate: 1579ms (LLM)</title>
+            <rect x="280" y="120" width="102" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - Evaluate: 2542ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1648,14 +1731,18 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>What is artificial intelligence?</pre></dd>
+            <dd><pre>Explain the process of photosynthesis</pre></dd>
         </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>AI is a field of computer science that creates systems capable of performing tasks requiring human intelligence.</pre></dd>
+            <dd><pre>Photosynthesis is a complex biochemical process by which plants convert light energy into chemical energy. The process occurs in chloroplasts and includes two main stages:light-dependent and light-independent reactions. In the light-dependent phase, chlorophyll absorbs sunlight, splitting water molecules and releasing oxygen. In the light-independent phase (Calvin cycle), carbon dioxide from the atmosphere is converted into glucose. The overall equation: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆+6 O₂.</pre></dd>
         </div>
 
+        <div class="sample-item">
+            <dt>Reference</dt>
+            <dd><pre>Photosynthesis is the process of forming organic substances from CO₂ and water using light energy.</pre></dd>
+        </div>
 
     </dl>
 </div>
@@ -1675,9 +1762,11 @@
     <pre>{
   &quot;models&quot; : [ ],
   &quot;rubrics&quot; : {
-    &quot;score1_description&quot; : &quot;No relevant information&quot;,
-    &quot;score3_description&quot; : &quot;Basic definition provided&quot;,
-    &quot;score5_description&quot; : &quot;Comprehensive explanation with examples&quot;
+    &quot;score3_description&quot; : &quot;General understanding of the process, but missing important details&quot;,
+    &quot;score1_description&quot; : &quot;Completely incorrect or irrelevant information about photosynthesis&quot;,
+    &quot;score2_description&quot; : &quot;Basic understanding with significant gaps or errors&quot;,
+    &quot;score5_description&quot; : &quot;Excellent explanation with scientific details, equation, and examples&quot;,
+    &quot;score4_description&quot; : &quot;Good understanding mentioning main stages and components&quot;
   }
 }</pre>
 </div>
@@ -1751,35 +1840,51 @@
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">(3.0 - 1) / (5 - 1) = 50.00%</div>
+        <div class="exp-calculation">(4.8 - 1) / (5 - 1) = 93.75%</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            50.00%
+            93.75%
         </div>
-        <div class="exp-result-meaning">Selected level 3: Basic definition provided</div>
+        <div class="exp-result-meaning">Selected level 5: Excellent explanation with scientific details, equation, and examples</div>
     </div>
 
     <div class="exp-scale-section">
         <div class="exp-section-title">Scale</div>
         <div class="exp-scale-list">
-            <div class="exp-scale-item ">
-                <span class="exp-scale-marker">
-                    
-                </span>
-                <span class="exp-scale-name">Level 5</span>
-                <span class="exp-scale-range">5</span>
-                <span class="exp-scale-desc" title="Comprehensive explanation with examples">Comprehensive explanation with examples</span>
-            </div>
             <div class="exp-scale-item current">
                 <span class="exp-scale-marker">
                     &#9658;
                 </span>
+                <span class="exp-scale-name">Level 5</span>
+                <span class="exp-scale-range">5</span>
+                <span class="exp-scale-desc" title="Excellent explanation with scientific details, equation, and examples">Excellent explanation with scientific details, equation, and examples</span>
+                <span class="exp-scale-current">YOUR RESULT</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
+                <span class="exp-scale-name">Level 4</span>
+                <span class="exp-scale-range">4</span>
+                <span class="exp-scale-desc" title="Good understanding mentioning main stages and components">Good understanding mentioning main stages and components</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
                 <span class="exp-scale-name">Level 3</span>
                 <span class="exp-scale-range">3</span>
-                <span class="exp-scale-desc" title="Basic definition provided">Basic definition provided</span>
-                <span class="exp-scale-current">YOUR RESULT</span>
+                <span class="exp-scale-desc" title="General understanding of the process, but missing important details">General understanding of the process, but missing important details</span>
+            </div>
+            <div class="exp-scale-item ">
+                <span class="exp-scale-marker">
+                    
+                </span>
+                <span class="exp-scale-name">Level 2</span>
+                <span class="exp-scale-range">2</span>
+                <span class="exp-scale-desc" title="Basic understanding with significant gaps or errors">Basic understanding with significant gaps or errors</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1787,7 +1892,7 @@
                 </span>
                 <span class="exp-scale-name">Level 1</span>
                 <span class="exp-scale-range">1</span>
-                <span class="exp-scale-desc" title="No relevant information">No relevant information</span>
+                <span class="exp-scale-desc" title="Completely incorrect or irrelevant information about photosynthesis">Completely incorrect or irrelevant information about photosynthesis</span>
             </div>
         </div>
     </div>
@@ -1809,37 +1914,37 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 9607,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Basic definition provided\",\n  \"reasoning\" : \"The AI response provides a clear, concise definition of artificial intelligence as 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly matches the 'Basic definition provided' rubric level (Score 3), as it delivers fundamental, relevant information without elaboration, examples, or comprehensive details that would qualify for Score 5. It is not irrelevant, ruling out Score 1.\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 14944,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"Score 5: Excellent explanation with scientific details, equation, and examples\",\n  \"reasoning\" : \"The AI response delivers an excellent explanation of photosynthesis, accurately defining the process, specifying its location in chloroplasts, detailing the two main stages (light-dependent reactions involving chlorophyll absorbing sunlight, water splitting, and oxygen release; light-independent Calvin cycle converting CO2 to glucose), and providing the precise overall chemical equation (6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂). These elements include scientific details (e.g., chlorophyll, water splitting, Calvin cycle), the required equation, and implicit examples through the breakdown of reaction phases, aligning perfectly with the highest rubric level without errors or significant omissions.\",\n  \"normalizedScore\" : 5.0\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1073,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"The AI response provides a clear and concise definition of artificial intelligence, stating that it is 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly aligns with the 'Basic definition provided' rubric. It does not offer examples or further elaboration, which would be required for a 'Comprehensive explanation'.\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 1918,
+                    "resultJson": "{\n  \"score\" : 4,\n  \"rubric_level\" : \"score4_description\",\n  \"reasoning\" : \"The AI response provides a good understanding of photosynthesis. It correctly identifies it as a process converting light energy to chemical energy, mentions the location (chloroplasts), and clearly outlines the two main stages: light-dependent and light-independent reactions. It also correctly describes the key events in each stage (chlorophyll absorbing sunlight, splitting water, releasing oxygen; CO2 conversion to glucose) and includes the overall chemical equation. While it doesn't provide 'examples' as mentioned in score 5, it covers the main stages and components effectively, aligning well with 'Good understanding mentioning main stages and components'.\",\n  \"normalizedScore\" : 4.0\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 6104,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"The AI response provides a correct and basic definition of artificial intelligence, stating it is a field of computer science that creates systems capable of tasks requiring human intelligence. This aligns with the 'Score 3: Basic definition provided' rubric. However, the response lacks the comprehensive explanation and examples required for a higher score (Score 5), such as detailing subfields (e.g., machine learning, NLP), discussing applications, or providing specific examples like image recognition or chatbots. It is not irrelevant, so it does not meet Score 1.\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 7083,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"score5_description\",\n  \"reasoning\" : \"The AI response provides an excellent explanation of photosynthesis. It correctly defines it as a complex biochemical process, identifies the location (chloroplasts), and clearly distinguishes the two main stages (light-dependent and light-independent/Calvin cycle). It provides specific scientific details: the role of chlorophyll in absorbing sunlight and splitting water to release oxygen in the light-dependent reactions, and the fixation of carbon dioxide into glucose in the Calvin cycle. It accurately presents the overall balanced chemical equation (6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂). The response aligns perfectly with the reference context and exceeds it by adding significant scientific depth, meeting all criteria for the highest score.\",\n  \"normalizedScore\" : 5.0\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1579,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Basic definition provided\",\n  \"reasoning\" : \"The AI response provides a concise and accurate basic definition of artificial intelligence by identifying it as a field of computer science and describing its primary goal. However, it fails to reach the Score 5 level because it does not offer a comprehensive explanation, nor does it provide any specific examples of AI applications (such as machine learning, natural language processing, or computer vision) as required by the highest rubric tier.\",\n  \"normalizedScore\" : 3.0\n}"
+                    "durationMs": 2542,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"Score 5: Excellent explanation with scientific details, equation, and examples\",\n  \"reasoning\" : \"The AI response provides a comprehensive and scientifically accurate explanation of photosynthesis. It correctly identifies the site of the process (chloroplasts), distinguishes between the two main stages (light-dependent and light-independent/Calvin cycle), and explains the specific inputs and outputs of each stage (sunlight, water, oxygen, carbon dioxide, and glucose). Furthermore, it includes the balanced chemical equation, which is a specific requirement for the highest score level. The response is concise yet covers all critical scientific components.\",\n  \"normalizedScore\" : 5.0\n}"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 3,
-        "google/gemini-2.5-flash": 3,
-        "deepseek/deepseek-v3.2": 3,
-        "google/gemini-3-flash-preview": 3
+        "x-ai/grok-4.1-fast": 5,
+        "google/gemini-2.5-flash": 4,
+        "deepseek/deepseek-v3.2": 5,
+        "google/gemini-3-flash-preview": 5
     },
-    "aggregatedScore": 3,
+    "aggregatedScore": 4.75,
     "steps": [
         {
             "stepNumber": 1,
@@ -1853,25 +1958,43 @@
             "items": [
                 {
                     "index": 5,
-                    "content": "Comprehensive explanation with examples",
-                    "passed": null,
+                    "content": "Excellent explanation with scientific details, equation, and examples",
+                    "passed": true,
                     "verdict": "Level 5",
                     "reason": null,
                     "source": null,
                     "numericValue": null
                 },
                 {
+                    "index": 4,
+                    "content": "Good understanding mentioning main stages and components",
+                    "passed": null,
+                    "verdict": "Level 4",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
                     "index": 3,
-                    "content": "Basic definition provided",
-                    "passed": true,
+                    "content": "General understanding of the process, but missing important details",
+                    "passed": null,
                     "verdict": "Level 3",
                     "reason": null,
                     "source": null,
                     "numericValue": null
                 },
                 {
+                    "index": 2,
+                    "content": "Basic understanding with significant gaps or errors",
+                    "passed": null,
+                    "verdict": "Level 2",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
                     "index": 1,
-                    "content": "No relevant information",
+                    "content": "Completely incorrect or irrelevant information about photosynthesis",
                     "passed": null,
                     "verdict": "Level 1",
                     "reason": null,
@@ -1889,14 +2012,14 @@
             "stepName": "SelectLevel",
             "title": "LLM as a Judge",
             "description": "LLM analyzed the response and selected the appropriate level.",
-            "inputData": "AI is a field of computer science that creates systems capable of performing tasks requiring human intelligence.",
-            "outputSummary": "Level 3: Basic definition provided",
+            "inputData": "Photosynthesis is a complex biochemical process by which plants convert light energy into chemical energy. The process occurs in chloroplasts and includes two main stages:light-dependent and light-independent reactions. In the light-dependent phase, chlorophyll absorbs sunlight, splitting water molecules and releasing oxygen. In the light-independent phase (Calvin cycle), carbon dioxide from the atmosphere is converted into glucose. The overall equation: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆+6 O₂.\nReference",
+            "outputSummary": "Level 5: Excellent explanation with scientific details, equation, and examples",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "The AI response provides a clear, concise definition of artificial intelligence as 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly matches the 'Basic definition provided' rubric level (Score 3), as it delivers fundamental, relevant information without elaboration, examples, or comprehensive details that would qualify for Score 5. It is not irrelevant, ruling out Score 1.",
+                    "content": "The AI response delivers an excellent explanation of photosynthesis, accurately defining the process, specifying its location in chloroplasts, detailing the two main stages (light-dependent reactions involving chlorophyll absorbing sunlight, water splitting, and oxygen release; light-independent Calvin cycle converting CO2 to glucose), and providing the precise overall chemical equation (6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂). These elements include scientific details (e.g., chlorophyll, water splitting, Calvin cycle), the required equation, and implicit examples through the breakdown of reaction phases, aligning perfectly with the highest rubric level without errors or significant omissions.",
                     "passed": true,
                     "verdict": null,
                     "reason": null,
@@ -1915,7 +2038,7 @@
             "title": "Score calculation",
             "description": "Normalizing selected level to 0-1 scale.",
             "inputData": null,
-            "outputSummary": "300.00%",
+            "outputSummary": "475.00%",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -1928,34 +2051,46 @@
     ],
     "interpretation": {
         "formula": "(level - 1) / (5 - 1)",
-        "calculation": "(3.0 - 1) / (5 - 1) = 50.00%",
-        "score": 0.5,
-        "scorePercent": "50.00%",
-        "level": "Level 3",
+        "calculation": "(4.8 - 1) / (5 - 1) = 93.75%",
+        "score": 0.9375,
+        "scorePercent": "93.75%",
+        "level": "Level 5",
         "isGood": null,
-        "meaning": "Selected level 3: Basic definition provided",
-        "numerator": 2,
+        "meaning": "Selected level 5: Excellent explanation with scientific details, equation, and examples",
+        "numerator": 4,
         "denominator": 4,
-        "currentLevelIndex": 1,
+        "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
             {
                 "name": "Level 5",
                 "range": "5",
-                "description": "Comprehensive explanation with examples",
+                "description": "Excellent explanation with scientific details, equation, and examples",
+                "current": true
+            },
+            {
+                "name": "Level 4",
+                "range": "4",
+                "description": "Good understanding mentioning main stages and components",
                 "current": false
             },
             {
                 "name": "Level 3",
                 "range": "3",
-                "description": "Basic definition provided",
-                "current": true
+                "description": "General understanding of the process, but missing important details",
+                "current": false
+            },
+            {
+                "name": "Level 2",
+                "range": "2",
+                "description": "Basic understanding with significant gaps or errors",
+                "current": false
             },
             {
                 "name": "Level 1",
                 "range": "1",
-                "description": "No relevant information",
+                "description": "Completely incorrect or irrelevant information about photosynthesis",
                 "current": false
             }
         ]
@@ -2304,6 +2439,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2412,15 +2567,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2909,7 +3066,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">Evaluate</span>
-                    <span class="tree-duration">9607ms</span>
+                    <span class="tree-duration">14944ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2917,7 +3074,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">9607ms</span>
+                        <span class="tree-duration">14944ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2925,7 +3082,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1073ms</span>
+                        <span class="tree-duration">1918ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2933,7 +3090,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">6104ms</span>
+                        <span class="tree-duration">7083ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2941,7 +3098,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1579ms</span>
+                        <span class="tree-duration">2542ms</span>
                         
                     </div>
                 </div>
@@ -2988,8 +3145,8 @@
             "stepIndex": 0,
             "stepName": "Evaluate",
             "stepType": "LLM",
-            "durationMs": 9607,
-            "request": "Evaluate the AI response using the provided detailed rubrics.\n\nUser Input: What is artificial intelligence?\nAI Response: AI is a field of computer science that creates systems capable of performing tasks requiring human intelligence.\n\nEvaluation Rubrics:\nScore 1: No relevant information\nScore 3: Basic definition provided\nScore 5: Comprehensive explanation with examples\n\n\nInstructions:\n1. Evaluate the AI response against each rubric level based on its quality\n2. Select the rubric level that best describes the response quality\n3. Provide the corresponding score and detailed reasoning\n\nRespond with a JSON object containing:\n- score: The numerical score (integer) corresponding to the selected rubric level\n- rubric_level: The key of the selected rubric (e.g., \"score3_description\")\n- reasoning: Your detailed explanation for the score selection\n",
+            "durationMs": 14944,
+            "request": "Evaluate the AI response using the provided detailed rubrics.\n\nUser Input: Explain the process of photosynthesis\nAI Response: Photosynthesis is a complex biochemical process by which plants convert light energy into chemical energy. The process occurs in chloroplasts and includes two main stages:light-dependent and light-independent reactions. In the light-dependent phase, chlorophyll absorbs sunlight, splitting water molecules and releasing oxygen. In the light-independent phase (Calvin cycle), carbon dioxide from the atmosphere is converted into glucose. The overall equation: 6CO₂ + 6H₂O + light energy → C₆H₁₂O₆+6 O₂.\nReference Context: Photosynthesis is the process of forming organic substances from CO₂ and water using light energy.\n\nEvaluation Rubrics:\nScore 1: Completely incorrect or irrelevant information about photosynthesis\nScore 2: Basic understanding with significant gaps or errors\nScore 3: General understanding of the process, but missing important details\nScore 4: Good understanding mentioning main stages and components\nScore 5: Excellent explanation with scientific details, equation, and examples\n\n\nInstructions:\n1. Evaluate the AI response against each rubric level based on its quality\n2. Select the rubric level that best describes the response quality\n3. Provide the corresponding score and detailed reasoning\n\nRespond with a JSON object containing:\n- score: The numerical score (integer) corresponding to the selected rubric level\n- rubric_level: The key of the selected rubric (e.g., \"score3_description\")\n- reasoning: Your detailed explanation for the score selection\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -2997,32 +3154,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 9607,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Basic definition provided\",\n  \"reasoning\" : \"The AI response provides a clear, concise definition of artificial intelligence as 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly matches the 'Basic definition provided' rubric level (Score 3), as it delivers fundamental, relevant information without elaboration, examples, or comprehensive details that would qualify for Score 5. It is not irrelevant, ruling out Score 1.\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 14944,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"Score 5: Excellent explanation with scientific details, equation, and examples\",\n  \"reasoning\" : \"The AI response delivers an excellent explanation of photosynthesis, accurately defining the process, specifying its location in chloroplasts, detailing the two main stages (light-dependent reactions involving chlorophyll absorbing sunlight, water splitting, and oxygen release; light-independent Calvin cycle converting CO2 to glucose), and providing the precise overall chemical equation (6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂). These elements include scientific details (e.g., chlorophyll, water splitting, Calvin cycle), the required equation, and implicit examples through the breakdown of reaction phases, aligning perfectly with the highest rubric level without errors or significant omissions.\",\n  \"normalizedScore\" : 5.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1073,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"The AI response provides a clear and concise definition of artificial intelligence, stating that it is 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly aligns with the 'Basic definition provided' rubric. It does not offer examples or further elaboration, which would be required for a 'Comprehensive explanation'.\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 1918,
+                    "resultJson": "{\n  \"score\" : 4,\n  \"rubric_level\" : \"score4_description\",\n  \"reasoning\" : \"The AI response provides a good understanding of photosynthesis. It correctly identifies it as a process converting light energy to chemical energy, mentions the location (chloroplasts), and clearly outlines the two main stages: light-dependent and light-independent reactions. It also correctly describes the key events in each stage (chlorophyll absorbing sunlight, splitting water, releasing oxygen; CO2 conversion to glucose) and includes the overall chemical equation. While it doesn't provide 'examples' as mentioned in score 5, it covers the main stages and components effectively, aligning well with 'Good understanding mentioning main stages and components'.\",\n  \"normalizedScore\" : 4.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 6104,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"score3_description\",\n  \"reasoning\" : \"The AI response provides a correct and basic definition of artificial intelligence, stating it is a field of computer science that creates systems capable of tasks requiring human intelligence. This aligns with the 'Score 3: Basic definition provided' rubric. However, the response lacks the comprehensive explanation and examples required for a higher score (Score 5), such as detailing subfields (e.g., machine learning, NLP), discussing applications, or providing specific examples like image recognition or chatbots. It is not irrelevant, so it does not meet Score 1.\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 7083,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"score5_description\",\n  \"reasoning\" : \"The AI response provides an excellent explanation of photosynthesis. It correctly defines it as a complex biochemical process, identifies the location (chloroplasts), and clearly distinguishes the two main stages (light-dependent and light-independent/Calvin cycle). It provides specific scientific details: the role of chlorophyll in absorbing sunlight and splitting water to release oxygen in the light-dependent reactions, and the fixation of carbon dioxide into glucose in the Calvin cycle. It accurately presents the overall balanced chemical equation (6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂). The response aligns perfectly with the reference context and exceeds it by adding significant scientific depth, meeting all criteria for the highest score.\",\n  \"normalizedScore\" : 5.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1579,
-                    "resultJson": "{\n  \"score\" : 3,\n  \"rubric_level\" : \"Score 3: Basic definition provided\",\n  \"reasoning\" : \"The AI response provides a concise and accurate basic definition of artificial intelligence by identifying it as a field of computer science and describing its primary goal. However, it fails to reach the Score 5 level because it does not offer a comprehensive explanation, nor does it provide any specific examples of AI applications (such as machine learning, natural language processing, or computer vision) as required by the highest rubric tier.\",\n  \"normalizedScore\" : 3.0\n}",
+                    "durationMs": 2542,
+                    "resultJson": "{\n  \"score\" : 5,\n  \"rubric_level\" : \"Score 5: Excellent explanation with scientific details, equation, and examples\",\n  \"reasoning\" : \"The AI response provides a comprehensive and scientifically accurate explanation of photosynthesis. It correctly identifies the site of the process (chloroplasts), distinguishes between the two main stages (light-dependent and light-independent/Calvin cycle), and explains the specific inputs and outputs of each stage (sunlight, water, oxygen, carbon dioxide, and glucose). Furthermore, it includes the balanced chemical equation, which is a specific requirement for the highest score level. The response is concise yet covers all critical scientific components.\",\n  \"normalizedScore\" : 5.0\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

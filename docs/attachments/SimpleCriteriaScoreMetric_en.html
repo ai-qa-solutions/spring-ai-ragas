@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1538,9 +1621,9 @@
         <header class="report-header">
             <h1>SimpleCriteriaScoreMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge excellent">82.50%</span>
-                <span class="duration">Duration: 8674ms</span>
-                <span class="timestamp">2026-01-12T13:34:13.602079Z</span>
+                <span class="score-badge excellent">93.75%</span>
+                <span class="duration">Duration: 7241ms</span>
+                <span class="timestamp">2026-02-01T03:24:57.274960Z</span>
             </div>
         </header>
 
@@ -1582,17 +1665,17 @@
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                     <text x="550" y="170" class="scale-label">1</text>
             <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="360" height="24" class="bar-excellent" rx="3"/>
-            <text x="515" y="37" class="score-label">0,9000</text>
+            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="37" class="score-label">1,0000</text>
             <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="320" height="24" class="bar-excellent" rx="3"/>
-            <text x="475" y="67" class="score-label">0,8000</text>
+            <rect x="150" y="50" width="350" height="24" class="bar-excellent" rx="3"/>
+            <text x="505" y="67" class="score-label">0,8750</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="320" height="24" class="bar-excellent" rx="3"/>
-            <text x="475" y="97" class="score-label">0,8000</text>
+            <rect x="150" y="80" width="350" height="24" class="bar-excellent" rx="3"/>
+            <text x="505" y="97" class="score-label">0,8750</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="320" height="24" class="bar-excellent" rx="3"/>
-            <text x="475" y="127" class="score-label">0,8000</text>
+            <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="127" class="score-label">1,0000</text>
     </svg>
 </div>
 
@@ -1613,31 +1696,31 @@
         <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
             <text x="280" y="190" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
-            <text x="400" y="190" class="time-label">1734ms</text>
+            <text x="400" y="190" class="time-label">1430ms</text>
             <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
-            <text x="520" y="190" class="time-label">3468ms</text>
+            <text x="520" y="190" class="time-label">2861ms</text>
             <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
-            <text x="640" y="190" class="time-label">5202ms</text>
+            <text x="640" y="190" class="time-label">4292ms</text>
             <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
-            <text x="760" y="190" class="time-label">6936ms</text>
+            <text x="760" y="190" class="time-label">5723ms</text>
             <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
-            <text x="880" y="190" class="time-label">8671ms</text>
+            <text x="880" y="190" class="time-label">7154ms</text>
             <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="599" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - Evaluate: 8671ms (LLM)</title>
+            <rect x="280" y="30" width="516" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - Evaluate: 6164ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="71" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - Evaluate: 1030ms (LLM)</title>
+            <rect x="280" y="60" width="182" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - Evaluate: 2173ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="522" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - Evaluate: 7544ms (LLM)</title>
+            <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - Evaluate: 7145ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="161" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - Evaluate: 2341ms (LLM)</title>
+            <rect x="280" y="120" width="191" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - Evaluate: 2278ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1655,14 +1738,18 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>What is artificial intelligence?</pre></dd>
+            <dd><pre>Explain what artificial intelligence is</pre></dd>
         </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>AI is a field of computer science that creates systems capable of performing tasks requiring human intelligence.</pre></dd>
+            <dd><pre>Artificial Intelligence (AI) is a branch of computer science focused on creating systems capable of performing tasks that typically require human intelligence. This includes learning, reasoning, perception, and decision-making. AI is used across various fields, from medicine to autonomous vehicles.</pre></dd>
         </div>
 
+        <div class="sample-item">
+            <dt>Reference</dt>
+            <dd><pre>Artificial intelligence is technology that simulates human thinking to solve complex problems.</pre></dd>
+        </div>
 
     </dl>
 </div>
@@ -1681,8 +1768,8 @@
     <h3>Configuration</h3>
     <pre>{
   &quot;models&quot; : [ ],
-  &quot;definition&quot; : &quot;Rate explanation quality from 1 to 5&quot;,
-  &quot;minScore&quot; : 0.0,
+  &quot;definition&quot; : &quot;Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy&quot;,
+  &quot;minScore&quot; : 1.0,
   &quot;maxScore&quot; : 5.0,
   &quot;strictness&quot; : 1
 }</pre>
@@ -1757,14 +1844,14 @@
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">4, 4, 4, 4 (4 models) → 82.50%</div>
+        <div class="exp-calculation">5, 4, 4, 5 (4 models) → 93.75%</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            82.50%
+            93.75%
         </div>
-        <div class="exp-result-meaning">Score: 4 out of 5 for criteria &quot;Rate explanation quality from 1 to 5&quot;. Interpretation depends on your requirements.</div>
+        <div class="exp-result-meaning">Score: 5 out of 5 for criteria &quot;Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy&quot;. Interpretation depends on your requirements.</div>
     </div>
 
 </div>
@@ -1785,45 +1872,45 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 8671,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.5,\n  \"reasoning\" : \"The AI response offers a clear, accurate, and concise definition of artificial intelligence as 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly and effectively answers the user's query. Strengths include precision, relevance, and alignment with standard academic definitions (e.g., similar to those from sources like Britannica or Russell & Norvig's textbooks). No reference answer is provided, so evaluation relies on inherent quality: it excels in brevity and clarity without errors or fluff. Weaknesses are minor—lacks depth such as examples (e.g., machine learning, NLP), history, or types of AI, which could elevate it to a fuller explanation. Overall, it demonstrates high explanation quality for a basic query, warranting 4.5 out of 5.\"\n}"
+                    "durationMs": 6164,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 5.0,\n  \"reasoning\" : \"The AI response provides a highly complete, clear, and accurate explanation of artificial intelligence. It defines AI as a branch of computer science, specifies key capabilities (learning, reasoning, perception, decision-making), and includes practical applications (medicine, autonomous vehicles), surpassing the brevity of the reference answer while remaining fully aligned with its core idea of simulating human intelligence. Completeness is excellent due to added depth without unnecessary details; clarity is achieved through structured, concise language; accuracy is precise and matches established definitions. No weaknesses noted; it exceeds the reference in educational value.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1030,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.0,\n  \"reasoning\" : \"The AI response provides a concise and accurate definition of artificial intelligence. It correctly identifies AI as a field of computer science and highlights its core objective: creating systems that can perform tasks typically requiring human intelligence. While it's a good starting point, it could be slightly more elaborate by mentioning examples of such tasks (e.g., learning, problem-solving, decision-making) or the different subfields of AI to achieve a perfect score. However, for a brief definition, it's very good.\"\n}"
+                    "durationMs": 2173,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 4.5,\n  \"reasoning\" : \"The AI response provides a good, comprehensive explanation of AI. It defines AI as a branch of computer science, lists key human intelligence tasks it aims to replicate (learning, reasoning, perception, decision-making), and gives examples of its application. This is more complete than the reference answer, which is very concise. The clarity is excellent, using straightforward language. The accuracy is also high. While the reference answer is accurate, the AI response offers a richer and more informative definition, making it more useful for someone asking 'what is AI'.\"\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7544,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.0,\n  \"reasoning\" : \"The AI response provides a correct, concise, and clear definition of artificial intelligence, accurately identifying it as a field of computer science focused on creating systems that perform tasks requiring human intelligence. This is a high-quality explanation for a general audience. However, it lacks some depth and nuance that could enhance the explanation, such as mentioning examples of tasks (like learning, reasoning, perception) or briefly touching on subfields (like machine learning). The absence of a reference answer for direct comparison means the evaluation is based on the inherent quality of the response alone. It is accurate and well-structured but not comprehensive, warranting a score of 4.0 instead of a perfect 5.0.\"\n}"
+                    "durationMs": 7145,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 4.5,\n  \"reasoning\" : \"The AI response is highly accurate and clear. It provides a more complete explanation than the reference answer by specifying that AI is a branch of computer science and by listing key capabilities (learning, reasoning, perception, decision-making) and example applications (medicine, autonomous vehicles). This adds valuable context and depth. The response is well-structured and easy to understand. It loses a small amount of points because, while excellent, it could be slightly more comprehensive by briefly mentioning common techniques (like machine learning) or the concept of simulating human intelligence, which is the core of the reference definition. However, it substantially exceeds the reference in detail and utility.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2341,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.0,\n  \"reasoning\" : \"The AI response provides a concise and accurate definition of artificial intelligence, correctly identifying it as a field of computer science and highlighting its core purpose: mimicking human intelligence to perform tasks. While the explanation is technically sound and easy to understand, it is very brief. A higher score (5.0) would require a bit more depth, such as mentioning specific examples (like machine learning or problem-solving) or the distinction between narrow and general AI. However, as a foundational summary, it is high quality.\"\n}"
+                    "durationMs": 2278,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 5.0,\n  \"reasoning\" : \"The AI response is excellent and actually superior to the reference answer in terms of completeness and clarity. While the reference answer is very brief, the AI response provides a formal definition (branch of computer science), lists specific cognitive functions (learning, reasoning, perception), and gives real-world examples of its application. It is accurate, easy to understand, and covers all the essential components of what AI is.\"\n}"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 0.9,
-        "google/gemini-2.5-flash": 0.8,
-        "deepseek/deepseek-v3.2": 0.8,
-        "google/gemini-3-flash-preview": 0.8
+        "x-ai/grok-4.1-fast": 1,
+        "google/gemini-2.5-flash": 0.875,
+        "deepseek/deepseek-v3.2": 0.875,
+        "google/gemini-3-flash-preview": 1
     },
-    "aggregatedScore": 0.8250000000000001,
+    "aggregatedScore": 0.9375,
     "steps": [
         {
             "stepNumber": 1,
             "stepName": "DefineCriteria",
             "title": "User-defined criteria",
             "description": "The criteria defined by the user for evaluation.",
-            "inputData": "AI is a field of computer science that creates systems capable of performing tasks requiring human intelligence.\nReference Answer:",
-            "outputSummary": "Rate explanation quality from 1 to 5",
+            "inputData": "Artificial Intelligence (AI) is a branch of computer science focused on creating systems capable of performing tasks that typically require human intelligence. This includes learning, reasoning, perception, and decision-making. AI is used across various fields, from medicine to autonomous vehicles.\nReference Answer: Artificial intelligence is technology that simulates human thinking to solve complex problems.",
+            "outputSummary": "Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -1839,18 +1926,18 @@
             "title": "LLM evaluation",
             "description": "LLM evaluates the response on a scale from 1 to 5.",
             "inputData": null,
-            "outputSummary": "4 / 5",
+            "outputSummary": "5 / 5",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
-                    "content": "The AI response offers a clear, accurate, and concise definition of artificial intelligence as 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly and effectively answers the user's query. Strengths include precision, relevance, and alignment with standard academic definitions (e.g., similar to those from sources like Britannica or Russell & Norvig's textbooks). No reference answer is provided, so evaluation relies on inherent quality: it excels in brevity and clarity without errors or fluff. Weaknesses are minor—lacks depth such as examples (e.g., machine learning, NLP), history, or types of AI, which could elevate it to a fuller explanation. Overall, it demonstrates high explanation quality for a basic query, warranting 4.5 out of 5.",
+                    "content": "The AI response provides a highly complete, clear, and accurate explanation of artificial intelligence. It defines AI as a branch of computer science, specifies key capabilities (learning, reasoning, perception, decision-making), and includes practical applications (medicine, autonomous vehicles), surpassing the brevity of the reference answer while remaining fully aligned with its core idea of simulating human intelligence. Completeness is excellent due to added depth without unnecessary details; clarity is achieved through structured, concise language; accuracy is precise and matches established definitions. No weaknesses noted; it exceeds the reference in educational value.",
                     "passed": null,
                     "verdict": null,
                     "reason": null,
                     "source": null,
-                    "numericValue": 4
+                    "numericValue": 5
                 }
             ],
             "modelResults": [
@@ -1864,7 +1951,7 @@
             "title": "Score normalization",
             "description": "Normalizing to 0-1 scale.",
             "inputData": null,
-            "outputSummary": "(4 - 1) / (5 - 1) = 0,8250 = 82.50%",
+            "outputSummary": "(5 - 1) / (5 - 1) = 0,9375 = 93.75%",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -1877,13 +1964,13 @@
     ],
     "interpretation": {
         "formula": "(score - 1) / (5 - 1)",
-        "calculation": "4, 4, 4, 4 (4 models) → 82.50%",
-        "score": 0.8250000000000001,
-        "scorePercent": "82.50%",
-        "level": "4/5",
+        "calculation": "5, 4, 4, 5 (4 models) → 93.75%",
+        "score": 0.9375,
+        "scorePercent": "93.75%",
+        "level": "5/5",
         "isGood": null,
-        "meaning": "Score: 4 out of 5 for criteria \"Rate explanation quality from 1 to 5\". Interpretation depends on your requirements.",
-        "numerator": 3,
+        "meaning": "Score: 5 out of 5 for criteria \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\". Interpretation depends on your requirements.",
+        "numerator": 4,
         "denominator": 4,
         "currentLevelIndex": 0,
         "minLevel": 1,
@@ -2235,6 +2322,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2343,15 +2450,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2798,7 +2907,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">Evaluate</span>
-                    <span class="tree-duration">8671ms</span>
+                    <span class="tree-duration">7145ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2806,7 +2915,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">8671ms</span>
+                        <span class="tree-duration">6164ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2814,7 +2923,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1030ms</span>
+                        <span class="tree-duration">2173ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2822,7 +2931,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">7544ms</span>
+                        <span class="tree-duration">7145ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2830,7 +2939,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">2341ms</span>
+                        <span class="tree-duration">2278ms</span>
                         
                     </div>
                 </div>
@@ -2877,8 +2986,8 @@
             "stepIndex": 0,
             "stepName": "Evaluate",
             "stepType": "LLM",
-            "durationMs": 8671,
-            "request": "Evaluate the AI response based on the given criteria and score it accordingly.\n\nEvaluation Criteria: Rate explanation quality from 1 to 5\n\nUser Input: What is artificial intelligence?\nAI Response: AI is a field of computer science that creates systems capable of performing tasks requiring human intelligence.\nReference Answer: \n\nInstructions:\n1. Compare the AI response with the reference answer\n2. Evaluate based on the specified criteria: Rate explanation quality from 1 to 5\n3. Provide a score between 0.0 and 5.0\n4. Higher scores indicate better alignment with the criteria\n5. Provide detailed reasoning for your score\n\nRespond with a JSON object containing:\n- criteria: The evaluation criteria being applied\n- score: A numerical score between 0.0 and 5.0\n- reasoning: Your detailed explanation for the score\n",
+            "durationMs": 7145,
+            "request": "Evaluate the AI response based on the given criteria and score it accordingly.\n\nEvaluation Criteria: Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\n\nUser Input: Explain what artificial intelligence is\nAI Response: Artificial Intelligence (AI) is a branch of computer science focused on creating systems capable of performing tasks that typically require human intelligence. This includes learning, reasoning, perception, and decision-making. AI is used across various fields, from medicine to autonomous vehicles.\nReference Answer: Artificial intelligence is technology that simulates human thinking to solve complex problems.\n\nInstructions:\n1. Compare the AI response with the reference answer\n2. Evaluate based on the specified criteria: Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\n3. Provide a score between 1.0 and 5.0\n4. Higher scores indicate better alignment with the criteria\n5. Provide detailed reasoning for your score\n\nRespond with a JSON object containing:\n- criteria: The evaluation criteria being applied\n- score: A numerical score between 1.0 and 5.0\n- reasoning: Your detailed explanation for the score\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -2886,32 +2995,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 8671,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.5,\n  \"reasoning\" : \"The AI response offers a clear, accurate, and concise definition of artificial intelligence as 'a field of computer science that creates systems capable of performing tasks requiring human intelligence.' This directly and effectively answers the user's query. Strengths include precision, relevance, and alignment with standard academic definitions (e.g., similar to those from sources like Britannica or Russell & Norvig's textbooks). No reference answer is provided, so evaluation relies on inherent quality: it excels in brevity and clarity without errors or fluff. Weaknesses are minor—lacks depth such as examples (e.g., machine learning, NLP), history, or types of AI, which could elevate it to a fuller explanation. Overall, it demonstrates high explanation quality for a basic query, warranting 4.5 out of 5.\"\n}",
+                    "durationMs": 6164,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 5.0,\n  \"reasoning\" : \"The AI response provides a highly complete, clear, and accurate explanation of artificial intelligence. It defines AI as a branch of computer science, specifies key capabilities (learning, reasoning, perception, decision-making), and includes practical applications (medicine, autonomous vehicles), surpassing the brevity of the reference answer while remaining fully aligned with its core idea of simulating human intelligence. Completeness is excellent due to added depth without unnecessary details; clarity is achieved through structured, concise language; accuracy is precise and matches established definitions. No weaknesses noted; it exceeds the reference in educational value.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1030,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.0,\n  \"reasoning\" : \"The AI response provides a concise and accurate definition of artificial intelligence. It correctly identifies AI as a field of computer science and highlights its core objective: creating systems that can perform tasks typically requiring human intelligence. While it's a good starting point, it could be slightly more elaborate by mentioning examples of such tasks (e.g., learning, problem-solving, decision-making) or the different subfields of AI to achieve a perfect score. However, for a brief definition, it's very good.\"\n}",
+                    "durationMs": 2173,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 4.5,\n  \"reasoning\" : \"The AI response provides a good, comprehensive explanation of AI. It defines AI as a branch of computer science, lists key human intelligence tasks it aims to replicate (learning, reasoning, perception, decision-making), and gives examples of its application. This is more complete than the reference answer, which is very concise. The clarity is excellent, using straightforward language. The accuracy is also high. While the reference answer is accurate, the AI response offers a richer and more informative definition, making it more useful for someone asking 'what is AI'.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 7544,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.0,\n  \"reasoning\" : \"The AI response provides a correct, concise, and clear definition of artificial intelligence, accurately identifying it as a field of computer science focused on creating systems that perform tasks requiring human intelligence. This is a high-quality explanation for a general audience. However, it lacks some depth and nuance that could enhance the explanation, such as mentioning examples of tasks (like learning, reasoning, perception) or briefly touching on subfields (like machine learning). The absence of a reference answer for direct comparison means the evaluation is based on the inherent quality of the response alone. It is accurate and well-structured but not comprehensive, warranting a score of 4.0 instead of a perfect 5.0.\"\n}",
+                    "durationMs": 7145,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 4.5,\n  \"reasoning\" : \"The AI response is highly accurate and clear. It provides a more complete explanation than the reference answer by specifying that AI is a branch of computer science and by listing key capabilities (learning, reasoning, perception, decision-making) and example applications (medicine, autonomous vehicles). This adds valuable context and depth. The response is well-structured and easy to understand. It loses a small amount of points because, while excellent, it could be slightly more comprehensive by briefly mentioning common techniques (like machine learning) or the concept of simulating human intelligence, which is the core of the reference definition. However, it substantially exceeds the reference in detail and utility.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2341,
-                    "resultJson": "{\n  \"criteria\" : \"Rate explanation quality from 1 to 5\",\n  \"score\" : 4.0,\n  \"reasoning\" : \"The AI response provides a concise and accurate definition of artificial intelligence, correctly identifying it as a field of computer science and highlighting its core purpose: mimicking human intelligence to perform tasks. While the explanation is technically sound and easy to understand, it is very brief. A higher score (5.0) would require a bit more depth, such as mentioning specific examples (like machine learning or problem-solving) or the distinction between narrow and general AI. However, as a foundational summary, it is high quality.\"\n}",
+                    "durationMs": 2278,
+                    "resultJson": "{\n  \"criteria\" : \"Rate the quality of explanation from 1 to 5, considering completeness, clarity, and accuracy\",\n  \"score\" : 5.0,\n  \"reasoning\" : \"The AI response is excellent and actually superior to the reference answer in terms of completeness and clarity. While the reference answer is very brief, the AI response provides a formal definition (branch of computer science), lists specific cognitive functions (learning, reasoning, perception), and gives real-world examples of its application. It is accurate, easy to understand, and covers all the essential components of what AI is.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

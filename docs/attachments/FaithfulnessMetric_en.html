@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1539,8 +1622,8 @@
             <h1>FaithfulnessMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 7977ms</span>
-                <span class="timestamp">2026-01-12T13:33:19.301019Z</span>
+                <span class="duration">Duration: 8026ms</span>
+                <span class="timestamp">2026-02-01T03:25:48.216330Z</span>
             </div>
         </header>
 
@@ -1613,62 +1696,62 @@
         <line x1="280" y1="410" x2="880" y2="410" class="axis"/>
             <text x="280" y="430" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="405" class="grid-line"/>
-            <text x="400" y="430" class="time-label">1595ms</text>
+            <text x="400" y="430" class="time-label">1604ms</text>
             <line x1="400" y1="30" x2="400" y2="405" class="grid-line"/>
-            <text x="520" y="430" class="time-label">3190ms</text>
+            <text x="520" y="430" class="time-label">3208ms</text>
             <line x1="520" y1="30" x2="520" y2="405" class="grid-line"/>
-            <text x="640" y="430" class="time-label">4785ms</text>
+            <text x="640" y="430" class="time-label">4812ms</text>
             <line x1="640" y1="30" x2="640" y2="405" class="grid-line"/>
-            <text x="760" y="430" class="time-label">6380ms</text>
+            <text x="760" y="430" class="time-label">6416ms</text>
             <line x1="760" y1="30" x2="760" y2="405" class="grid-line"/>
-            <text x="880" y="430" class="time-label">7976ms</text>
+            <text x="880" y="430" class="time-label">8021ms</text>
             <line x1="880" y1="30" x2="880" y2="405" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="237" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - GenerateStatements: 3157ms (LLM)</title>
+            <rect x="280" y="30" width="344" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - GenerateStatements: 4605ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="48" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - GenerateStatements: 644ms (LLM)</title>
+            <rect x="280" y="60" width="196" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - GenerateStatements: 2626ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="140" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - GenerateStatements: 1871ms (LLM)</title>
+            <rect x="280" y="90" width="281" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - GenerateStatements: 3757ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="258" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - GenerateStatements: 3430ms (LLM)</title>
+            <rect x="280" y="120" width="171" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - GenerateStatements: 2297ms (LLM)</title>
             </rect>
             <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="538" y="150" width="341" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateFaithfulness: 4537ms (LLM)</title>
+            <rect x="631" y="150" width="200" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateFaithfulness: 2685ms (LLM)</title>
             </rect>
             <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="538" y="180" width="71" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateFaithfulness: 951ms (LLM)</title>
+            <rect x="631" y="180" width="69" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateFaithfulness: 930ms (LLM)</title>
             </rect>
             <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="538" y="210" width="267" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateFaithfulness: 3553ms (LLM)</title>
+            <rect x="631" y="210" width="246" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateFaithfulness: 3300ms (LLM)</title>
             </rect>
             <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="538" y="240" width="167" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateFaithfulness: 2220ms (LLM)</title>
+            <rect x="631" y="240" width="105" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateFaithfulness: 1408ms (LLM)</title>
             </rect>
             <text x="275" y="287" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="879" y="270" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="880" y="270" width="2" height="24" class="bar-compute" rx="3">
                 <title>x-ai/grok-4.1-fast - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="317" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="879" y="300" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="880" y="300" width="2" height="24" class="bar-compute" rx="3">
                 <title>google/gemini-2.5-flash - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="347" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="879" y="330" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="880" y="330" width="2" height="24" class="bar-compute" rx="3">
                 <title>deepseek/deepseek-v3.2 - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="377" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="879" y="360" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="880" y="360" width="2" height="24" class="bar-compute" rx="3">
                 <title>google/gemini-3-flash-preview - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
         <g transform="translate(660, 5)">
@@ -1700,8 +1783,7 @@
             <dt>Retrieved Contexts</dt>
             <dd>
                 <ol class="context-list">
-                    <li><pre>The first Super Bowl was held on January 15, 1967.</pre></li>
-                    <li><pre>The game was played at the Los Angeles Memorial Coliseum.</pre></li>
+                    <li><pre>The first Super Bowl was held on January 15, 1967, at the Los Angeles Memorial Coliseum in Los Angeles.</pre></li>
                 </ol>
             </dd>
         </div>
@@ -1860,25 +1942,25 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3157,
+                    "durationMs": 4605,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 644,
+                    "durationMs": 2626,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 1871,
+                    "durationMs": 3757,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 3430,
+                    "durationMs": 2297,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}"
                 }
             ]
@@ -1890,25 +1972,25 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 4537,
-                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states 'The first Super Bowl was held on January 15, 1967.' which matches the statement word-for-word, allowing direct inference.\",\n    \"verdict\" : 1\n  } ]\n}"
+                    "durationMs": 2685,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states that the first Super Bowl was held on January 15, 1967, making this statement directly inferable.\",\n    \"verdict\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 951,
-                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states, 'The first Super Bowl was held on January 15, 1967.' This directly matches the statement.\",\n    \"verdict\" : 1\n  } ]\n}"
+                    "durationMs": 930,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states, \\\"The first Super Bowl was held on January 15, 1967.\\\"\",\n    \"verdict\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3553,
+                    "durationMs": 3300,
                     "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states that the first Super Bowl was held on January 15, 1967.\",\n    \"verdict\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2220,
+                    "durationMs": 1408,
                     "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states that the first Super Bowl was held on January 15, 1967.\",\n    \"verdict\" : 1\n  } ]\n}"
                 }
             ]
@@ -1992,7 +2074,7 @@
                     "content": "The first Super Bowl was held on January 15, 1967.",
                     "passed": true,
                     "verdict": "FAITHFUL",
-                    "reason": "The context explicitly states 'The first Super Bowl was held on January 15, 1967.' which matches the statement word-for-word, allowing direct inference.",
+                    "reason": "The context explicitly states that the first Super Bowl was held on January 15, 1967, making this statement directly inferable.",
                     "source": null,
                     "numericValue": null
                 }
@@ -2403,6 +2485,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2511,15 +2613,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2968,7 +3072,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">GenerateStatements</span>
-                    <span class="tree-duration">3430ms</span>
+                    <span class="tree-duration">4605ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2976,7 +3080,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3157ms</span>
+                        <span class="tree-duration">4605ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2984,7 +3088,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">644ms</span>
+                        <span class="tree-duration">2626ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2992,7 +3096,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">1871ms</span>
+                        <span class="tree-duration">3757ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3000,7 +3104,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">3430ms</span>
+                        <span class="tree-duration">2297ms</span>
                         
                     </div>
                 </div>
@@ -3013,7 +3117,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">EvaluateFaithfulness</span>
-                    <span class="tree-duration">4537ms</span>
+                    <span class="tree-duration">3300ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3021,7 +3125,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">4537ms</span>
+                        <span class="tree-duration">2685ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3029,7 +3133,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">951ms</span>
+                        <span class="tree-duration">930ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3037,7 +3141,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">3553ms</span>
+                        <span class="tree-duration">3300ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3045,7 +3149,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">2220ms</span>
+                        <span class="tree-duration">1408ms</span>
                         
                     </div>
                 </div>
@@ -3137,7 +3241,7 @@
             "stepIndex": 0,
             "stepName": "GenerateStatements",
             "stepType": "LLM",
-            "durationMs": 3430,
+            "durationMs": 4605,
             "request": "Given a question and an answer, analyze the complexity of each sentence in the answer.\nBreak down each sentence into one or more fully understandable statements.\nEnsure that no pronouns are used in any statement.\n\nQuestion: When was the first Super Bowl?\nAnswer: The first Super Bowl was held on January 15, 1967.\n\nExample:\nQuestion: Who was Albert Einstein and what is he best known for?\nAnswer: He was a German-born theoretical physicist, widely acknowledged to be one of the greatest and most influential physicists of all time. He was best known for developing the theory of relativity, he also made important contributions to the development of the theory of quantum mechanics.\n\nOutput:\n- Albert Einstein was a German-born theoretical physicist.\n- Albert Einstein is recognized as one of the greatest and most influential physicists of all time.\n- Albert Einstein was best known for developing the theory of relativity.\n- Albert Einstein also made important contributions to the development of the theory of quantum mechanics.\n\nNow generate statements for the given question and answer.\nRespond with a JSON object containing a 'statements' array with the list of extracted statements.\n",
             "isLlmStep": true,
             "successCount": 4,
@@ -3146,7 +3250,7 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3157,
+                    "durationMs": 4605,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
@@ -3154,7 +3258,7 @@
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 644,
+                    "durationMs": 2626,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
@@ -3162,7 +3266,7 @@
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 1871,
+                    "durationMs": 3757,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
@@ -3170,7 +3274,7 @@
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 3430,
+                    "durationMs": 2297,
                     "resultJson": "{\n  \"statements\" : [ \"The first Super Bowl was held on January 15, 1967.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
@@ -3183,8 +3287,8 @@
             "stepIndex": 1,
             "stepName": "EvaluateFaithfulness",
             "stepType": "LLM",
-            "durationMs": 4537,
-            "request": "Your task is to judge the faithfulness of a series of statements based on a given context.\nFor each statement you must return verdict as 1 if the statement can be directly inferred based on the context\nor 0 if the statement cannot be directly inferred based on the context.\n\nContext:\nThe first Super Bowl was held on January 15, 1967.\nThe game was played at the Los Angeles Memorial Coliseum.\n\nStatements to evaluate:\n1. The first Super Bowl was held on January 15, 1967.\n\n\nExample:\nContext: John is a student at XYZ University. He is pursuing a degree in Computer Science. He is enrolled in several courses this semester, including Data Structures, Algorithms, and Database Management. John is a diligent student and spends a significant amount of time studying and completing assignments. He often stays late in the library to work on his projects.\n\nStatements:\n1. John is majoring in Biology.\n2. John is taking a course on Artificial Intelligence.\n3. John is a dedicated student.\n4. John has a part-time job.\n\nExpected Output:\nFor \"John is majoring in Biology.\":\n- statement: the original text\n- reason: John's major is explicitly mentioned as Computer Science. There is no information suggesting he is majoring in Biology.\n- verdict: 0\n\nFor \"John is taking a course on Artificial Intelligence.\":\n- statement: the original text\n- reason: The context mentions the courses John is currently enrolled in, and Artificial Intelligence is not mentioned. Therefore, it cannot be deduced that John is taking a course on AI.\n- verdict: 0\n\nFor \"John is a dedicated student.\":\n- statement: the original text\n- reason: The context states that he spends a significant amount of time studying and completing assignments. Additionally, it mentions that he often stays late in the library to work on his projects, which implies dedication.\n- verdict: 1\n\nFor \"John has a part-time job.\":\n- statement: the original text\n- reason: There is no information given in the context about John having a part-time job.\n- verdict: 0\n\nNow evaluate the given statements based on the provided context.\nRespond with a JSON object containing a 'verdicts' array where each item has 'statement', 'reason', and 'verdict' fields.\n",
+            "durationMs": 3300,
+            "request": "Your task is to judge the faithfulness of a series of statements based on a given context.\nFor each statement you must return verdict as 1 if the statement can be directly inferred based on the context\nor 0 if the statement cannot be directly inferred based on the context.\n\nContext:\nThe first Super Bowl was held on January 15, 1967, at the Los Angeles Memorial Coliseum in Los Angeles.\n\nStatements to evaluate:\n1. The first Super Bowl was held on January 15, 1967.\n\n\nExample:\nContext: John is a student at XYZ University. He is pursuing a degree in Computer Science. He is enrolled in several courses this semester, including Data Structures, Algorithms, and Database Management. John is a diligent student and spends a significant amount of time studying and completing assignments. He often stays late in the library to work on his projects.\n\nStatements:\n1. John is majoring in Biology.\n2. John is taking a course on Artificial Intelligence.\n3. John is a dedicated student.\n4. John has a part-time job.\n\nExpected Output:\nFor \"John is majoring in Biology.\":\n- statement: the original text\n- reason: John's major is explicitly mentioned as Computer Science. There is no information suggesting he is majoring in Biology.\n- verdict: 0\n\nFor \"John is taking a course on Artificial Intelligence.\":\n- statement: the original text\n- reason: The context mentions the courses John is currently enrolled in, and Artificial Intelligence is not mentioned. Therefore, it cannot be deduced that John is taking a course on AI.\n- verdict: 0\n\nFor \"John is a dedicated student.\":\n- statement: the original text\n- reason: The context states that he spends a significant amount of time studying and completing assignments. Additionally, it mentions that he often stays late in the library to work on his projects, which implies dedication.\n- verdict: 1\n\nFor \"John has a part-time job.\":\n- statement: the original text\n- reason: There is no information given in the context about John having a part-time job.\n- verdict: 0\n\nNow evaluate the given statements based on the provided context.\nRespond with a JSON object containing a 'verdicts' array where each item has 'statement', 'reason', and 'verdict' fields.\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3192,23 +3296,23 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 4537,
-                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states 'The first Super Bowl was held on January 15, 1967.' which matches the statement word-for-word, allowing direct inference.\",\n    \"verdict\" : 1\n  } ]\n}",
+                    "durationMs": 2685,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states that the first Super Bowl was held on January 15, 1967, making this statement directly inferable.\",\n    \"verdict\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 951,
-                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states, 'The first Super Bowl was held on January 15, 1967.' This directly matches the statement.\",\n    \"verdict\" : 1\n  } ]\n}",
+                    "durationMs": 930,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states, \\\"The first Super Bowl was held on January 15, 1967.\\\"\",\n    \"verdict\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3553,
+                    "durationMs": 3300,
                     "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states that the first Super Bowl was held on January 15, 1967.\",\n    \"verdict\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
@@ -3216,7 +3320,7 @@
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 2220,
+                    "durationMs": 1408,
                     "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The first Super Bowl was held on January 15, 1967.\",\n    \"reason\" : \"The context explicitly states that the first Super Bowl was held on January 15, 1967.\",\n    \"verdict\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
