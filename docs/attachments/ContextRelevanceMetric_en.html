@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1538,9 +1621,9 @@
         <header class="report-header">
             <h1>ContextRelevanceMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge poor">0.00%</span>
-                <span class="duration">Duration: 8260ms</span>
-                <span class="timestamp">2026-01-23T14:15:55.009542Z</span>
+                <span class="score-badge excellent">100.00%</span>
+                <span class="duration">Duration: 3492ms</span>
+                <span class="timestamp">2026-02-01T03:40:27.779446Z</span>
             </div>
         </header>
 
@@ -1582,8 +1665,8 @@
                 <line x1="550" y1="20" x2="550" y2="60" class="grid-line"/>
                     <text x="550" y="80" class="scale-label">1</text>
             <text x="145" y="37" class="row-label">aggregated</text>
-            <rect x="150" y="20" width="0" height="24" class="bar-poor" rx="3"/>
-            <text x="155" y="37" class="score-label">0,0000</text>
+            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="37" class="score-label">1,0000</text>
     </svg>
 </div>
 
@@ -1604,31 +1687,31 @@
         <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
             <text x="280" y="190" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
-            <text x="400" y="190" class="time-label">1006ms</text>
+            <text x="400" y="190" class="time-label">688ms</text>
             <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
-            <text x="520" y="190" class="time-label">2012ms</text>
+            <text x="520" y="190" class="time-label">1376ms</text>
             <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
-            <text x="640" y="190" class="time-label">3018ms</text>
+            <text x="640" y="190" class="time-label">2065ms</text>
             <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
-            <text x="760" y="190" class="time-label">4024ms</text>
+            <text x="760" y="190" class="time-label">2753ms</text>
             <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
-            <text x="880" y="190" class="time-label">5030ms</text>
+            <text x="880" y="190" class="time-label">3442ms</text>
             <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="599" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - EvaluateRelevance_1: 5023ms (LLM)</title>
+            <rect x="280" y="30" width="505" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateRelevance_1: 2898ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="169" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - EvaluateRelevance_1: 1418ms (LLM)</title>
+            <rect x="280" y="60" width="198" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateRelevance_1: 1136ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="382" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - EvaluateRelevance_1: 3210ms (LLM)</title>
+            <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateRelevance_1: 3439ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="143" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - EvaluateRelevance_1: 1204ms (LLM)</title>
+            <rect x="280" y="120" width="350" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateRelevance_1: 2012ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1646,7 +1729,7 @@
     <dl>
         <div class="sample-item">
             <dt>User Input</dt>
-            <dd><pre>How do I bake chocolate chip cookies?</pre></dd>
+            <dd><pre>What is machine learning and how does it work?</pre></dd>
         </div>
 
 
@@ -1655,7 +1738,7 @@
             <dt>Retrieved Contexts</dt>
             <dd>
                 <ol class="context-list">
-                    <li><pre>The stock market experienced significant volatility today as investors reacted to new economic data. Major indices fluctuated throughout the trading session, with technology stocks leading the gains while energy sector faced pressure. Analysts are closely watching for the Federal Reserve&#39;s upcoming policy decision.</pre></li>
+                    <li><pre>Machine learning is a subset of artificial intelligence that enables systems to automatically learn and improve from experience without being explicitly programmed. It works by using algorithms that iteratively learn from data, allowing computers to find hidden insights without being explicitly programmed where to look. The learning process begins with observations or data, such as examples, direct experience, or instruction, in order to look for patterns in data and make better decisions in the future.</pre></li>
                 </ol>
             </dd>
         </div>
@@ -1737,26 +1820,27 @@
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">Average = (0,00) / 1 = 0,00</div>
+        <div class="exp-calculation">Average = (1,00) / 1 = 1,00</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            0.00%
+            100.00%
         </div>
-        <div class="exp-result-meaning">Poor - contexts are mostly irrelevant to the question</div>
+        <div class="exp-result-meaning">Excellent - all retrieved contexts are highly relevant</div>
     </div>
 
     <div class="exp-scale-section">
         <div class="exp-section-title">Scale</div>
         <div class="exp-scale-list">
-            <div class="exp-scale-item ">
+            <div class="exp-scale-item current">
                 <span class="exp-scale-marker">
-                    
+                    &#9658;
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
                 <span class="exp-scale-desc" title="All contexts fully relevant">All contexts fully relevant</span>
+                <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1774,14 +1858,13 @@
                 <span class="exp-scale-range">50-69%</span>
                 <span class="exp-scale-desc" title="Mixed relevance">Mixed relevance</span>
             </div>
-            <div class="exp-scale-item current">
+            <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
-                    &#9658;
+                    
                 </span>
                 <span class="exp-scale-name">Poor</span>
                 <span class="exp-scale-range">0-49%</span>
                 <span class="exp-scale-desc" title="Mostly irrelevant contexts">Mostly irrelevant contexts</span>
-                <span class="exp-scale-current">YOUR RESULT</span>
             </div>
         </div>
     </div>
@@ -1803,50 +1886,50 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 5023,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The context is about stock market volatility and economic data, which has no relation to baking chocolate chip cookies or any recipe instructions.\"\n}"
+                    "durationMs": 2898,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI and comprehensively explains how it works through algorithms that learn iteratively from data, identify patterns, and improve decision-making, fully answering the question.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1418,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The user's question is about baking chocolate chip cookies, which is a culinary topic. The provided context is entirely about the stock market, economic data, and the Federal Reserve. There is no information in the context that is relevant to baking or cooking of any kind.\"\n}"
+                    "durationMs": 1136,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning and explains its working mechanism, covering both parts of the user's question comprehensively.\"\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3210,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The context discusses stock market volatility and economic data, which has no connection to baking chocolate chip cookies. It contains no information about ingredients, steps, techniques, or any other aspect of cookie baking.\"\n}"
+                    "durationMs": 3439,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI and explains how it works by learning from data and patterns without explicit programming, comprehensively addressing both parts of the user's question.\"\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1204,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The retrieved context discusses stock market volatility and economic data, which has no relation to the user's request for a chocolate chip cookie recipe or baking instructions.\"\n}"
+                    "durationMs": 2012,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI and explains its mechanics, including the use of algorithms, iterative learning from data, and the identification of patterns to make decisions. It covers both parts of the user's question comprehensively.\"\n}"
                 }
             ]
         }
     ],
     "modelScores": {
-        "aggregated": 0
+        "aggregated": 1
     },
-    "aggregatedScore": 0,
+    "aggregatedScore": 1,
     "steps": [
         {
             "stepNumber": 1,
             "stepName": "EvaluateRelevance_1",
             "title": "Evaluating context 1",
             "description": "LLM evaluates context relevance for answering the question.",
-            "inputData": "The stock market experienced significant volatility today as investors reacted to new economic data. Major indices fluctuated throughout the trading session, with technology stocks leading the gains w...",
-            "outputSummary": "Relevance: 0/2 (0,0%)",
+            "inputData": "Machine learning is a subset of artificial intelligence that enables systems to automatically learn and improve from experience without being explicitly programmed. It works by using algorithms that i...",
+            "outputSummary": "Relevance: 2/2 (100,0%)",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 0,
-                    "content": "The context is about stock market volatility and economic data, which has no relation to baking chocolate chip cookies or any recipe instructions.",
-                    "passed": false,
-                    "verdict": "Not relevant (0/2)",
+                    "content": "The context directly defines machine learning as a subset of AI and comprehensively explains how it works through algorithms that learn iteratively from data, identify patterns, and improve decision-making, fully answering the question.",
+                    "passed": true,
+                    "verdict": "Fully relevant (2/2)",
                     "reason": null,
                     "source": null,
                     "numericValue": null
@@ -1860,15 +1943,15 @@
     ],
     "interpretation": {
         "formula": "Average of normalized scores (score/2) across all contexts",
-        "calculation": "Average = (0,00) / 1 = 0,00",
-        "score": 0,
-        "scorePercent": "0.00%",
-        "level": "Poor",
+        "calculation": "Average = (1,00) / 1 = 1,00",
+        "score": 1,
+        "scorePercent": "100.00%",
+        "level": "Excellent",
         "isGood": null,
-        "meaning": "Poor - contexts are mostly irrelevant to the question",
+        "meaning": "Excellent - all retrieved contexts are highly relevant",
         "numerator": null,
         "denominator": null,
-        "currentLevelIndex": 3,
+        "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
@@ -1876,7 +1959,7 @@
                 "name": "Excellent",
                 "range": "90-100%",
                 "description": "All contexts fully relevant",
-                "current": false
+                "current": true
             },
             {
                 "name": "Good",
@@ -1894,7 +1977,7 @@
                 "name": "Poor",
                 "range": "0-49%",
                 "description": "Mostly irrelevant contexts",
-                "current": true
+                "current": false
             }
         ]
     }
@@ -2242,6 +2325,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2350,15 +2453,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2875,7 +2980,7 @@ where:
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">EvaluateRelevance_1</span>
-                    <span class="tree-duration">5023ms</span>
+                    <span class="tree-duration">3439ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2883,7 +2988,7 @@ where:
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">5023ms</span>
+                        <span class="tree-duration">2898ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2891,7 +2996,7 @@ where:
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1418ms</span>
+                        <span class="tree-duration">1136ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2899,7 +3004,7 @@ where:
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">3210ms</span>
+                        <span class="tree-duration">3439ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2907,7 +3012,7 @@ where:
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1204ms</span>
+                        <span class="tree-duration">2012ms</span>
                         
                     </div>
                 </div>
@@ -2954,8 +3059,8 @@ where:
             "stepIndex": 0,
             "stepName": "EvaluateRelevance_1",
             "stepType": "LLM",
-            "durationMs": 5023,
-            "request": "Evaluate the relevance of the provided context for answering the user's question.\n\nUser Question:\nHow do I bake chocolate chip cookies?\n\nRetrieved Context:\nThe stock market experienced significant volatility today as investors reacted to new economic data. Major indices fluctuated throughout the trading session, with technology stocks leading the gains while energy sector faced pressure. Analysts are closely watching for the Federal Reserve's upcoming policy decision.\n\nInstructions:\n1. Analyze whether the context contains information relevant to answering the question\n2. Consider both direct relevance and supporting information\n3. Rate using the following scale:\n   - 0: Not relevant - Context does not contain information to answer the question\n   - 1: Partially relevant - Context contains some relevant information but may be incomplete\n   - 2: Fully relevant - Context contains comprehensive information to answer the question\n\nRespond with a JSON object containing:\n- score: Integer from 0 to 2 representing the relevance level\n- reasoning: Brief explanation of the relevance assessment\n",
+            "durationMs": 3439,
+            "request": "Evaluate the relevance of the provided context for answering the user's question.\n\nUser Question:\nWhat is machine learning and how does it work?\n\nRetrieved Context:\nMachine learning is a subset of artificial intelligence that enables systems to automatically learn and improve from experience without being explicitly programmed. It works by using algorithms that iteratively learn from data, allowing computers to find hidden insights without being explicitly programmed where to look. The learning process begins with observations or data, such as examples, direct experience, or instruction, in order to look for patterns in data and make better decisions in the future.\n\nInstructions:\n1. Analyze whether the context contains information relevant to answering the question\n2. Consider both direct relevance and supporting information\n3. Rate using the following scale:\n   - 0: Not relevant - Context does not contain information to answer the question\n   - 1: Partially relevant - Context contains some relevant information but may be incomplete\n   - 2: Fully relevant - Context contains comprehensive information to answer the question\n\nRespond with a JSON object containing:\n- score: Integer from 0 to 2 representing the relevance level\n- reasoning: Brief explanation of the relevance assessment\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -2963,32 +3068,32 @@ where:
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 5023,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The context is about stock market volatility and economic data, which has no relation to baking chocolate chip cookies or any recipe instructions.\"\n}",
+                    "durationMs": 2898,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI and comprehensively explains how it works through algorithms that learn iteratively from data, identify patterns, and improve decision-making, fully answering the question.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1418,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The user's question is about baking chocolate chip cookies, which is a culinary topic. The provided context is entirely about the stock market, economic data, and the Federal Reserve. There is no information in the context that is relevant to baking or cooking of any kind.\"\n}",
+                    "durationMs": 1136,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning and explains its working mechanism, covering both parts of the user's question comprehensively.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3210,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The context discusses stock market volatility and economic data, which has no connection to baking chocolate chip cookies. It contains no information about ingredients, steps, techniques, or any other aspect of cookie baking.\"\n}",
+                    "durationMs": 3439,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI and explains how it works by learning from data and patterns without explicit programming, comprehensively addressing both parts of the user's question.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1204,
-                    "resultJson": "{\n  \"score\" : 0,\n  \"reasoning\" : \"The retrieved context discusses stock market volatility and economic data, which has no relation to the user's request for a chocolate chip cookie recipe or baking instructions.\"\n}",
+                    "durationMs": 2012,
+                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The context directly defines machine learning as a subset of AI and explains its mechanics, including the use of algorithms, iterative learning from data, and the identification of patterns to make decisions. It covers both parts of the user's question comprehensively.\"\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

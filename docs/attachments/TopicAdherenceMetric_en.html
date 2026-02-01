@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1538,9 +1621,9 @@
         <header class="report-header">
             <h1>TopicAdherenceMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge good">77.50%</span>
-                <span class="duration">Duration: 35192ms</span>
-                <span class="timestamp">2026-01-23T14:15:55.009424Z</span>
+                <span class="score-badge excellent">87.50%</span>
+                <span class="duration">Duration: 37559ms</span>
+                <span class="timestamp">2026-02-01T03:38:57.838139Z</span>
             </div>
         </header>
 
@@ -1582,11 +1665,11 @@
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                     <text x="550" y="170" class="scale-label">1</text>
             <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="320" height="24" class="bar-excellent" rx="3"/>
-            <text x="475" y="37" class="score-label">0,8000</text>
+            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="37" class="score-label">1,0000</text>
             <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="320" height="24" class="bar-excellent" rx="3"/>
-            <text x="475" y="67" class="score-label">0,8000</text>
+            <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="67" class="score-label">1,0000</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
             <rect x="150" y="80" width="200" height="24" class="bar-moderate" rx="3"/>
             <text x="355" y="97" class="score-label">0,5000</text>
@@ -1613,47 +1696,47 @@
         <line x1="280" y1="290" x2="880" y2="290" class="axis"/>
             <text x="280" y="310" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="285" class="grid-line"/>
-            <text x="400" y="310" class="time-label">6924ms</text>
+            <text x="400" y="310" class="time-label">7509ms</text>
             <line x1="400" y1="30" x2="400" y2="285" class="grid-line"/>
-            <text x="520" y="310" class="time-label">13849ms</text>
+            <text x="520" y="310" class="time-label">15018ms</text>
             <line x1="520" y1="30" x2="520" y2="285" class="grid-line"/>
-            <text x="640" y="310" class="time-label">20774ms</text>
+            <text x="640" y="310" class="time-label">22527ms</text>
             <line x1="640" y1="30" x2="640" y2="285" class="grid-line"/>
-            <text x="760" y="310" class="time-label">27699ms</text>
+            <text x="760" y="310" class="time-label">30036ms</text>
             <line x1="760" y1="30" x2="760" y2="285" class="grid-line"/>
-            <text x="880" y="310" class="time-label">34624ms</text>
+            <text x="880" y="310" class="time-label">37545ms</text>
             <line x1="880" y1="30" x2="880" y2="285" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="289" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - ExtractTopics: 16707ms (LLM)</title>
+            <rect x="280" y="30" width="307" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - ExtractTopics: 19234ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="131" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - ExtractTopics: 7594ms (LLM)</title>
+            <rect x="280" y="60" width="21" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - ExtractTopics: 1371ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="58" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - ExtractTopics: 3392ms (LLM)</title>
+            <rect x="280" y="90" width="61" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - ExtractTopics: 3855ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="75" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - ExtractTopics: 4357ms (LLM)</title>
+            <rect x="280" y="120" width="31" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - ExtractTopics: 1963ms (LLM)</title>
             </rect>
             <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="571" y="150" width="202" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - ClassifyTopics: 11698ms (LLM)</title>
+            <rect x="588" y="150" width="106" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - ClassifyTopics: 6664ms (LLM)</title>
             </rect>
             <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="571" y="180" width="50" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - ClassifyTopics: 2889ms (LLM)</title>
+            <rect x="588" y="180" width="51" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - ClassifyTopics: 3214ms (LLM)</title>
             </rect>
             <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="571" y="210" width="308" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - ClassifyTopics: 17800ms (LLM)</title>
+            <rect x="588" y="210" width="291" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - ClassifyTopics: 18239ms (LLM)</title>
             </rect>
             <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="571" y="240" width="87" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - ClassifyTopics: 5066ms (LLM)</title>
+            <rect x="588" y="240" width="77" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - ClassifyTopics: 4840ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1669,7 +1752,49 @@
 <div class="sample-section">
     <h3>Input Sample</h3>
     <dl>
-
+        <div class="sample-item">
+            <dt>Conversation</dt>
+            <dd>
+                <div class="conversation-list">
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">I&#39;d like to book a flight to Paris for next week.</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">I&#39;d be happy to help you book a flight to Paris. What dates are you looking at, and which airport would you prefer to fly from?</pre>
+                    </div>
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">I&#39;ll fly from New York, departing Monday and returning Friday.</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">I found several flight options for you. There&#39;s a direct Air France flight departing at 7 PM for $850 round trip. Would you like me to book that?</pre>
+                    </div>
+                    <div class="conversation-message message-human">
+                        <span class="message-role">
+                            User:
+                        </span>
+                        <pre class="message-content">Yes, please book that flight for me.</pre>
+                    </div>
+                    <div class="conversation-message message-ai">
+                        <span class="message-role">
+                            Assistant:
+                        </span>
+                        <pre class="message-content">Your flight has been booked! Confirmation number: AF12345. You&#39;ll receive an email with your e-ticket shortly.</pre>
+                    </div>
+                </div>
+            </dd>
+        </div>
 
 
     </dl>
@@ -1762,12 +1887,12 @@
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">2 × (1,00 × 0,67) / (1,00 + 0,67) = 0,78</div>
+        <div class="exp-calculation">2 × (1,00 × 1,00) / (1,00 + 1,00) = 0,88</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            77.50%
+            87.50%
         </div>
         <div class="exp-result-meaning">Good - conversation mostly on topic</div>
     </div>
@@ -1828,26 +1953,26 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 16707,
-                    "resultJson": "{\n  \"topics\" : [ \"flight booking\", \"Paris destination\", \"New York departure\", \"travel dates\", \"flight options\", \"Air France flight\", \"direct flight\", \"round trip price\", \"booking confirmation\", \"confirmation number\", \"e-ticket email\" ]\n}"
+                    "durationMs": 19234,
+                    "resultJson": "{\n  \"topics\" : [ \"flight to Paris\", \"New York departure\", \"travel dates\", \"flight options\", \"Air France flight\", \"direct flight\", \"departure time\", \"round trip price\", \"flight booking\", \"booking confirmation\", \"confirmation number\", \"e-ticket email\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 7594,
-                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Destination (Paris)\", \"Departure dates\", \"Return dates\", \"Departure airport\", \"Flight options\", \"Flight confirmation\", \"E-ticket\" ]\n}"
+                    "durationMs": 1371,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Destination (Paris)\", \"Departure location (New York)\", \"Travel dates\", \"Flight options\", \"Flight confirmation\", \"E-ticket\" ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3392,
-                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Travel destination\", \"Travel dates\", \"Departure airport\", \"Return flight\", \"Flight options\", \"Airline selection\", \"Flight price\", \"Booking confirmation\", \"E-ticket delivery\" ]\n}"
+                    "durationMs": 3855,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Travel destination\", \"Travel dates\", \"Departure airport\", \"Return flight\", \"Flight options\", \"Airline selection\", \"Flight cost\", \"Booking confirmation\", \"E-ticket delivery\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 4357,
-                    "resultJson": "{\n  \"topics\" : [ \"Flight booking to Paris\", \"Travel dates and itinerary\", \"Departure airport selection\", \"Airline options and pricing\", \"Flight reservation confirmation\", \"Electronic ticket delivery\" ]\n}"
+                    "durationMs": 1963,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking to Paris\", \"Travel dates and duration\", \"Departure airport selection\", \"Flight options and pricing\", \"Airline reservation confirmation\", \"Electronic ticket delivery\" ]\n}"
                 }
             ]
         },
@@ -1858,37 +1983,37 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 11698,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Destination selection is a subtopic of travel arrangements under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Departure location is a subtopic of travel arrangements under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying dates is a subtopic of travel arrangements under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Discussing flight options relates to airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Specific airline selection is a subtopic of airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Flight type like direct is a subtopic of airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing for round trip relates to airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Confirmation of booking is part of airline tickets process under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Confirmation details relate to airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"E-ticket delivery is part of airline tickets under flight booking.\"\n  } ]\n}"
+                    "durationMs": 6664,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specifies destination for flight booking, a core aspect of travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Indicates origin for the flight, part of travel arrangements in flight booking.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Directly relates to scheduling travel, a subtopic of travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Involves selecting flights, central to the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Specifies airline, directly related to airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Type of flight option, part of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Flight schedule detail, essential for booking airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing for round trip tickets, directly under airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Exact match to primary reference topic.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Post-booking step in the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Detail from booking confirmation, part of flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Delivery of electronic tickets, related to airline tickets.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 2889,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match to a reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A destination is a key detail for flight booking.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A departure location is a key detail for flight booking.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Travel dates are essential for flight booking and fall under travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Flight options are part of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Specific airline information relates directly to airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Type of flight is a detail within flight booking.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Price is a crucial aspect of flight booking and airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final step of flight booking.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation number is a detail of a flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket is a form of airline ticket.\"\n  } ]\n}"
+                    "durationMs": 3214,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"This is a specific instance of a flight being booked, which falls under 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Departure location is a key detail of 'travel arrangements'.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Travel dates are fundamental to 'travel arrangements'.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Discussing flight options is part of the 'flight booking' process.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"This refers to a specific airline and flight, which is a detail of 'airline tickets'.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"The type of flight (direct) is a detail considered during 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Departure time is a crucial detail of 'travel arrangements'.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Pricing is an integral part of 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"This is a direct match to the reference topic 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final step of 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation number is a direct result and detail of 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket email is the digital form of 'airline tickets'.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 17800,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match to a reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Destination is a core detail of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Departure city is a core detail of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Dates are a fundamental part of booking flights and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Options (like times, airlines) are part of selecting and booking a flight.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specific airline selection is part of booking airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Flight type (direct/connecting) is a detail of flight options and booking.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Pricing is a key aspect of booking airline tickets and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final step in the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation details are part of the completed booking record.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"E-ticket delivery is part of the booking confirmation and ticket issuance process.\"\n  } ]\n}"
+                    "durationMs": 18239,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Directly matches the reference topic of flight booking, as it specifies a flight destination.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A subtopic of flight booking, specifying departure location as part of travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A core component of booking a flight and making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Directly related to selecting and booking a flight.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specific airline selection is part of booking a flight and arranging airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Type of flight option is a subtopic of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specific detail of a flight booking and travel arrangement.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Pricing is a key aspect of booking airline tickets and flight arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match to the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Post-booking step is a reasonable subtopic of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Detail associated with a completed flight booking and ticket.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Delivery method for airline tickets, a subtopic of the booking process.\"\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 5066,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match with the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying a destination is a core part of making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying a departure location is a core part of making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Selecting dates is a necessary step in travel arrangements and flight booking.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Reviewing flight options is part of the process of selecting airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Selecting a specific airline relates directly to purchasing airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Flight type (direct vs connecting) is a specific detail of airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing is a fundamental attribute of booking airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation is the final step of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"The confirmation number is a direct output of a successful flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket is the digital form of airline tickets.\"\n  } ]\n}"
+                    "durationMs": 4840,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying a destination is a core part of making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Selecting a departure location is a necessary step in travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Dates are a fundamental component of travel arrangements and booking.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Comparing different flights is part of selecting airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Selecting a specific carrier relates directly to airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Flight type (direct vs connecting) is a detail of airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"The schedule is a specific detail found on airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing is a key factor in the purchase of airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"This is a direct match to the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final stage of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation number is a specific data point generated by flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket is the digital form of airline tickets.\"\n  } ]\n}"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 0.8,
-        "google/gemini-2.5-flash": 0.8,
+        "x-ai/grok-4.1-fast": 1,
+        "google/gemini-2.5-flash": 1,
         "deepseek/deepseek-v3.2": 0.5,
         "google/gemini-3-flash-preview": 1
     },
-    "aggregatedScore": 0.775,
+    "aggregatedScore": 0.875,
     "steps": [
         {
             "stepNumber": 1,
@@ -1896,22 +2021,13 @@
             "title": "Extracting topics",
             "description": "LLM analyzes the conversation to extract all discussed topics.",
             "inputData": "Conversation",
-            "outputSummary": "Topics extracted: 11",
+            "outputSummary": "Topics extracted: 12",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 0,
-                    "content": "flight booking",
-                    "passed": true,
-                    "verdict": "Extracted",
-                    "reason": null,
-                    "source": null,
-                    "numericValue": null
-                },
-                {
-                    "index": 0,
-                    "content": "Paris destination",
+                    "content": "flight to Paris",
                     "passed": true,
                     "verdict": "Extracted",
                     "reason": null,
@@ -1965,7 +2081,25 @@
                 },
                 {
                     "index": 0,
+                    "content": "departure time",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
                     "content": "round trip price",
+                    "passed": true,
+                    "verdict": "Extracted",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "flight booking",
                     "passed": true,
                     "verdict": "Extracted",
                     "reason": null,
@@ -2011,13 +2145,13 @@
             "title": "Classifying topics",
             "description": "Each extracted topic is classified as on-topic or off-topic against reference topics.",
             "inputData": "Reference topics: flight booking, travel arrangements, airline tickets",
-            "outputSummary": "On topic: 10/10",
+            "outputSummary": "On topic: 12/12",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 0,
-                    "content": "Paris destination → travel arrangements (Destination selection is a subtopic of travel arrangements under flight booking.)",
+                    "content": "flight to Paris → flight booking (Specifies destination for flight booking, a core aspect of travel arrangements.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2026,7 +2160,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "New York departure → travel arrangements (Departure location is a subtopic of travel arrangements under flight booking.)",
+                    "content": "New York departure → flight booking (Indicates origin for the flight, part of travel arrangements in flight booking.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2035,7 +2169,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "travel dates → travel arrangements (Specifying dates is a subtopic of travel arrangements under flight booking.)",
+                    "content": "travel dates → travel arrangements (Directly relates to scheduling travel, a subtopic of travel arrangements.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2044,7 +2178,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "flight options → airline tickets (Discussing flight options relates to airline tickets under flight booking.)",
+                    "content": "flight options → flight booking (Involves selecting flights, central to the flight booking process.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2053,7 +2187,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "Air France flight → airline tickets (Specific airline selection is a subtopic of airline tickets under flight booking.)",
+                    "content": "Air France flight → airline tickets (Specifies airline, directly related to airline tickets.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2062,7 +2196,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "direct flight → airline tickets (Flight type like direct is a subtopic of airline tickets under flight booking.)",
+                    "content": "direct flight → flight booking (Type of flight option, part of flight booking and travel arrangements.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2071,7 +2205,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "round trip price → airline tickets (Pricing for round trip relates to airline tickets under flight booking.)",
+                    "content": "departure time → flight booking (Flight schedule detail, essential for booking airline tickets.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2080,7 +2214,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "booking confirmation → airline tickets (Confirmation of booking is part of airline tickets process under flight booking.)",
+                    "content": "round trip price → airline tickets (Pricing for round trip tickets, directly under airline tickets.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2089,7 +2223,7 @@
                 },
                 {
                     "index": 0,
-                    "content": "confirmation number → airline tickets (Confirmation details relate to airline tickets under flight booking.)",
+                    "content": "flight booking → flight booking (Exact match to primary reference topic.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2098,7 +2232,25 @@
                 },
                 {
                     "index": 0,
-                    "content": "e-ticket email → airline tickets (E-ticket delivery is part of airline tickets under flight booking.)",
+                    "content": "booking confirmation → flight booking (Post-booking step in the flight booking process.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "confirmation number → flight booking (Detail from booking confirmation, part of flight booking.)",
+                    "passed": true,
+                    "verdict": "On topic",
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 0,
+                    "content": "e-ticket email → airline tickets (Delivery of electronic tickets, related to airline tickets.)",
                     "passed": true,
                     "verdict": "On topic",
                     "reason": null,
@@ -2116,8 +2268,8 @@
             "stepName": "ComputeScore",
             "title": "Computing score",
             "description": "Computing the final score based on the selected mode (F1, Precision, or Recall).",
-            "inputData": "Mode: F1 (balanced) | Precision=1,00, Recall=0,67",
-            "outputSummary": "F1 = 0,78",
+            "inputData": "Mode: F1 (balanced) | Precision=1,00, Recall=1,00",
+            "outputSummary": "F1 = 0,88",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -2130,9 +2282,9 @@
     ],
     "interpretation": {
         "formula": "F1 = 2 × (precision × recall) / (precision + recall)",
-        "calculation": "2 × (1,00 × 0,67) / (1,00 + 0,67) = 0,78",
-        "score": 0.775,
-        "scorePercent": "77.50%",
+        "calculation": "2 × (1,00 × 1,00) / (1,00 + 1,00) = 0,88",
+        "score": 0.875,
+        "scorePercent": "87.50%",
         "level": "Good",
         "isGood": null,
         "meaning": "Good - conversation mostly on topic",
@@ -2512,6 +2664,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2620,15 +2792,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -3165,7 +3339,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">ExtractTopics</span>
-                    <span class="tree-duration">16707ms</span>
+                    <span class="tree-duration">19234ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3173,7 +3347,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">16707ms</span>
+                        <span class="tree-duration">19234ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3181,7 +3355,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">7594ms</span>
+                        <span class="tree-duration">1371ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3189,7 +3363,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">3392ms</span>
+                        <span class="tree-duration">3855ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3197,7 +3371,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">4357ms</span>
+                        <span class="tree-duration">1963ms</span>
                         
                     </div>
                 </div>
@@ -3210,7 +3384,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">ClassifyTopics</span>
-                    <span class="tree-duration">17800ms</span>
+                    <span class="tree-duration">18239ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3218,7 +3392,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">11698ms</span>
+                        <span class="tree-duration">6664ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3226,7 +3400,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">2889ms</span>
+                        <span class="tree-duration">3214ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3234,7 +3408,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">17800ms</span>
+                        <span class="tree-duration">18239ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3242,7 +3416,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">5066ms</span>
+                        <span class="tree-duration">4840ms</span>
                         
                     </div>
                 </div>
@@ -3289,7 +3463,7 @@ F1 = 2 × (precision × recall) / (precision + recall)
             "stepIndex": 0,
             "stepName": "ExtractTopics",
             "stepType": "LLM",
-            "durationMs": 16707,
+            "durationMs": 19234,
             "request": "Analyze the following conversation and extract all distinct topics discussed.\n\nConversation:\n[USER]: I'd like to book a flight to Paris for next week.\n[ASSISTANT]: I'd be happy to help you book a flight to Paris. What dates are you looking at, and which airport would you prefer to fly from?\n[USER]: I'll fly from New York, departing Monday and returning Friday.\n[ASSISTANT]: I found several flight options for you. There's a direct Air France flight departing at 7 PM for $850 round trip. Would you like me to book that?\n[USER]: Yes, please book that flight for me.\n[ASSISTANT]: Your flight has been booked! Confirmation number: AF12345. You'll receive an email with your e-ticket shortly.\n\nInstructions:\n1. Identify all topics mentioned or discussed in the conversation\n2. Each topic should be a concise phrase (2-5 words)\n3. Include both explicitly mentioned topics and implied topics\n4. Do not include topics that were only briefly mentioned without discussion\n\nRespond with a JSON object containing:\n- topics: A list of distinct topic strings\n",
             "isLlmStep": true,
             "successCount": 4,
@@ -3298,32 +3472,32 @@ F1 = 2 × (precision × recall) / (precision + recall)
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 16707,
-                    "resultJson": "{\n  \"topics\" : [ \"flight booking\", \"Paris destination\", \"New York departure\", \"travel dates\", \"flight options\", \"Air France flight\", \"direct flight\", \"round trip price\", \"booking confirmation\", \"confirmation number\", \"e-ticket email\" ]\n}",
+                    "durationMs": 19234,
+                    "resultJson": "{\n  \"topics\" : [ \"flight to Paris\", \"New York departure\", \"travel dates\", \"flight options\", \"Air France flight\", \"direct flight\", \"departure time\", \"round trip price\", \"flight booking\", \"booking confirmation\", \"confirmation number\", \"e-ticket email\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 7594,
-                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Destination (Paris)\", \"Departure dates\", \"Return dates\", \"Departure airport\", \"Flight options\", \"Flight confirmation\", \"E-ticket\" ]\n}",
+                    "durationMs": 1371,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Destination (Paris)\", \"Departure location (New York)\", \"Travel dates\", \"Flight options\", \"Flight confirmation\", \"E-ticket\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 3392,
-                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Travel destination\", \"Travel dates\", \"Departure airport\", \"Return flight\", \"Flight options\", \"Airline selection\", \"Flight price\", \"Booking confirmation\", \"E-ticket delivery\" ]\n}",
+                    "durationMs": 3855,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking\", \"Travel destination\", \"Travel dates\", \"Departure airport\", \"Return flight\", \"Flight options\", \"Airline selection\", \"Flight cost\", \"Booking confirmation\", \"E-ticket delivery\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 4357,
-                    "resultJson": "{\n  \"topics\" : [ \"Flight booking to Paris\", \"Travel dates and itinerary\", \"Departure airport selection\", \"Airline options and pricing\", \"Flight reservation confirmation\", \"Electronic ticket delivery\" ]\n}",
+                    "durationMs": 1963,
+                    "resultJson": "{\n  \"topics\" : [ \"Flight booking to Paris\", \"Travel dates and duration\", \"Departure airport selection\", \"Flight options and pricing\", \"Airline reservation confirmation\", \"Electronic ticket delivery\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3335,8 +3509,8 @@ F1 = 2 × (precision × recall) / (precision + recall)
             "stepIndex": 1,
             "stepName": "ClassifyTopics",
             "stepType": "LLM",
-            "durationMs": 17800,
-            "request": "Classify each extracted topic against the reference topics to determine if the discussion stayed on topic.\n\nExtracted Topics from Conversation:\nflight booking\n- Paris destination\n- New York departure\n- travel dates\n- flight options\n- Air France flight\n- direct flight\n- round trip price\n- booking confirmation\n- confirmation number\n- e-ticket email\n\nReference Topics (allowed topics):\nflight booking\n- travel arrangements\n- airline tickets\n\nInstructions:\n1. For each extracted topic, determine if it matches or is closely related to any reference topic\n2. A topic is \"on topic\" if it directly matches or is a reasonable subtopic of a reference topic\n3. A topic is \"off topic\" if it doesn't relate to any reference topic\n\nRespond with a JSON object containing:\n- classifications: A list of objects, each with:\n  - extractedTopic: The topic being classified\n  - onTopic: true if on topic, false if off topic\n  - matchedReferenceTopic: The matching reference topic (if on topic), or null\n  - reasoning: Brief explanation of the classification\n",
+            "durationMs": 18239,
+            "request": "Classify each extracted topic against the reference topics to determine if the discussion stayed on topic.\n\nExtracted Topics from Conversation:\nflight to Paris\n- New York departure\n- travel dates\n- flight options\n- Air France flight\n- direct flight\n- departure time\n- round trip price\n- flight booking\n- booking confirmation\n- confirmation number\n- e-ticket email\n\nReference Topics (allowed topics):\nflight booking\n- travel arrangements\n- airline tickets\n\nInstructions:\n1. For each extracted topic, determine if it matches or is closely related to any reference topic\n2. A topic is \"on topic\" if it directly matches or is a reasonable subtopic of a reference topic\n3. A topic is \"off topic\" if it doesn't relate to any reference topic\n\nRespond with a JSON object containing:\n- classifications: A list of objects, each with:\n  - extractedTopic: The topic being classified\n  - onTopic: true if on topic, false if off topic\n  - matchedReferenceTopic: The matching reference topic (if on topic), or null\n  - reasoning: Brief explanation of the classification\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3344,32 +3518,32 @@ F1 = 2 × (precision × recall) / (precision + recall)
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 11698,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Destination selection is a subtopic of travel arrangements under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Departure location is a subtopic of travel arrangements under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying dates is a subtopic of travel arrangements under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Discussing flight options relates to airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Specific airline selection is a subtopic of airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Flight type like direct is a subtopic of airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing for round trip relates to airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Confirmation of booking is part of airline tickets process under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Confirmation details relate to airline tickets under flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"E-ticket delivery is part of airline tickets under flight booking.\"\n  } ]\n}",
+                    "durationMs": 6664,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specifies destination for flight booking, a core aspect of travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Indicates origin for the flight, part of travel arrangements in flight booking.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Directly relates to scheduling travel, a subtopic of travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Involves selecting flights, central to the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Specifies airline, directly related to airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Type of flight option, part of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Flight schedule detail, essential for booking airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing for round trip tickets, directly under airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Exact match to primary reference topic.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Post-booking step in the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Detail from booking confirmation, part of flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Delivery of electronic tickets, related to airline tickets.\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 2889,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match to a reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A destination is a key detail for flight booking.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A departure location is a key detail for flight booking.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Travel dates are essential for flight booking and fall under travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Flight options are part of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Specific airline information relates directly to airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Type of flight is a detail within flight booking.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Price is a crucial aspect of flight booking and airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final step of flight booking.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation number is a detail of a flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket is a form of airline ticket.\"\n  } ]\n}",
+                    "durationMs": 3214,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"This is a specific instance of a flight being booked, which falls under 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Departure location is a key detail of 'travel arrangements'.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Travel dates are fundamental to 'travel arrangements'.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Discussing flight options is part of the 'flight booking' process.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"This refers to a specific airline and flight, which is a detail of 'airline tickets'.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"The type of flight (direct) is a detail considered during 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Departure time is a crucial detail of 'travel arrangements'.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Pricing is an integral part of 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"This is a direct match to the reference topic 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final step of 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation number is a direct result and detail of 'flight booking'.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket email is the digital form of 'airline tickets'.\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 17800,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match to a reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Destination is a core detail of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Departure city is a core detail of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Dates are a fundamental part of booking flights and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Options (like times, airlines) are part of selecting and booking a flight.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specific airline selection is part of booking airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Flight type (direct/connecting) is a detail of flight options and booking.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Pricing is a key aspect of booking airline tickets and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final step in the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation details are part of the completed booking record.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"E-ticket delivery is part of the booking confirmation and ticket issuance process.\"\n  } ]\n}",
+                    "durationMs": 18239,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Directly matches the reference topic of flight booking, as it specifies a flight destination.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A subtopic of flight booking, specifying departure location as part of travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A core component of booking a flight and making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Directly related to selecting and booking a flight.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specific airline selection is part of booking a flight and arranging airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Type of flight option is a subtopic of flight booking and travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Specific detail of a flight booking and travel arrangement.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Pricing is a key aspect of booking airline tickets and flight arrangements.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match to the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Post-booking step is a reasonable subtopic of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Detail associated with a completed flight booking and ticket.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Delivery method for airline tickets, a subtopic of the booking process.\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 5066,
-                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Direct match with the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"Paris destination\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying a destination is a core part of making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying a departure location is a core part of making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Selecting dates is a necessary step in travel arrangements and flight booking.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Reviewing flight options is part of the process of selecting airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Selecting a specific airline relates directly to purchasing airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Flight type (direct vs connecting) is a specific detail of airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing is a fundamental attribute of booking airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation is the final step of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"The confirmation number is a direct output of a successful flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket is the digital form of airline tickets.\"\n  } ]\n}",
+                    "durationMs": 4840,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"extractedTopic\" : \"flight to Paris\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Specifying a destination is a core part of making travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"New York departure\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Selecting a departure location is a necessary step in travel arrangements.\"\n  }, {\n    \"extractedTopic\" : \"travel dates\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"travel arrangements\",\n    \"reasoning\" : \"Dates are a fundamental component of travel arrangements and booking.\"\n  }, {\n    \"extractedTopic\" : \"flight options\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Comparing different flights is part of selecting airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"Air France flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Selecting a specific carrier relates directly to airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"direct flight\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Flight type (direct vs connecting) is a detail of airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"departure time\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"The schedule is a specific detail found on airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"round trip price\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"Pricing is a key factor in the purchase of airline tickets.\"\n  }, {\n    \"extractedTopic\" : \"flight booking\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"This is a direct match to the reference topic.\"\n  }, {\n    \"extractedTopic\" : \"booking confirmation\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"Confirmation is the final stage of the flight booking process.\"\n  }, {\n    \"extractedTopic\" : \"confirmation number\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"flight booking\",\n    \"reasoning\" : \"A confirmation number is a specific data point generated by flight booking.\"\n  }, {\n    \"extractedTopic\" : \"e-ticket email\",\n    \"onTopic\" : true,\n    \"matchedReferenceTopic\" : \"airline tickets\",\n    \"reasoning\" : \"An e-ticket is the digital form of airline tickets.\"\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }

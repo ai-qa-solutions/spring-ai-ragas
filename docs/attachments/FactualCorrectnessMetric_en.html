@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1538,9 +1621,9 @@
         <header class="report-header">
             <h1>FactualCorrectnessMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge moderate">50.00%</span>
-                <span class="duration">Duration: 22551ms</span>
-                <span class="timestamp">2026-01-23T14:07:42.240596Z</span>
+                <span class="score-badge excellent">100.00%</span>
+                <span class="duration">Duration: 11962ms</span>
+                <span class="timestamp">2026-02-01T03:41:49.315174Z</span>
             </div>
         </header>
 
@@ -1582,17 +1665,17 @@
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                     <text x="550" y="170" class="scale-label">1</text>
             <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="20" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="37" class="score-label">0,5000</text>
+            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="37" class="score-label">1,0000</text>
             <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="50" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="67" class="score-label">0,5000</text>
+            <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="67" class="score-label">1,0000</text>
             <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="80" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="97" class="score-label">0,5000</text>
+            <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="97" class="score-label">1,0000</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="200" height="24" class="bar-moderate" rx="3"/>
-            <text x="355" y="127" class="score-label">0,5000</text>
+            <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
+            <text x="555" y="127" class="score-label">1,0000</text>
     </svg>
 </div>
 
@@ -1613,78 +1696,78 @@
         <line x1="280" y1="530" x2="880" y2="530" class="axis"/>
             <text x="280" y="550" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="525" class="grid-line"/>
-            <text x="400" y="550" class="time-label">4510ms</text>
+            <text x="400" y="550" class="time-label">2392ms</text>
             <line x1="400" y1="30" x2="400" y2="525" class="grid-line"/>
-            <text x="520" y="550" class="time-label">9020ms</text>
+            <text x="520" y="550" class="time-label">4784ms</text>
             <line x1="520" y1="30" x2="520" y2="525" class="grid-line"/>
-            <text x="640" y="550" class="time-label">13530ms</text>
+            <text x="640" y="550" class="time-label">7176ms</text>
             <line x1="640" y1="30" x2="640" y2="525" class="grid-line"/>
-            <text x="760" y="550" class="time-label">18040ms</text>
+            <text x="760" y="550" class="time-label">9568ms</text>
             <line x1="760" y1="30" x2="760" y2="525" class="grid-line"/>
-            <text x="880" y="550" class="time-label">22551ms</text>
+            <text x="880" y="550" class="time-label">11960ms</text>
             <line x1="880" y1="30" x2="880" y2="525" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="70" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - DecomposeResponseClaims: 2647ms (LLM)</title>
+            <rect x="280" y="30" width="114" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeResponseClaims: 2286ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="34" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - DecomposeResponseClaims: 1298ms (LLM)</title>
+            <rect x="280" y="60" width="80" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeResponseClaims: 1599ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="59" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - DecomposeResponseClaims: 2231ms (LLM)</title>
+            <rect x="280" y="90" width="146" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeResponseClaims: 2925ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="47" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - DecomposeResponseClaims: 1768ms (LLM)</title>
+            <rect x="280" y="120" width="114" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeResponseClaims: 2279ms (LLM)</title>
             </rect>
             <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="352" y="150" width="96" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - DecomposeReferenceClaims: 3617ms (LLM)</title>
+            <rect x="429" y="150" width="78" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeReferenceClaims: 1563ms (LLM)</title>
             </rect>
             <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="352" y="180" width="13" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - DecomposeReferenceClaims: 521ms (LLM)</title>
+            <rect x="429" y="180" width="19" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeReferenceClaims: 388ms (LLM)</title>
             </rect>
             <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="352" y="210" width="62" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - DecomposeReferenceClaims: 2361ms (LLM)</title>
+            <rect x="429" y="210" width="92" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeReferenceClaims: 1843ms (LLM)</title>
             </rect>
             <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="352" y="240" width="225" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - DecomposeReferenceClaims: 8460ms (LLM)</title>
+            <rect x="429" y="240" width="61" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeReferenceClaims: 1231ms (LLM)</title>
             </rect>
             <text x="275" y="287" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="577" y="270" width="2" height="24" class="bar-llm" rx="3">
+            <rect x="522" y="270" width="2" height="24" class="bar-llm" rx="3">
                 <title>x-ai/grok-4.1-fast - VerifyClaimsNLI: 0ms (LLM)</title>
             </rect>
             <text x="275" y="317" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="577" y="300" width="2" height="24" class="bar-llm" rx="3">
+            <rect x="522" y="300" width="2" height="24" class="bar-llm" rx="3">
                 <title>google/gemini-2.5-flash - VerifyClaimsNLI: 0ms (LLM)</title>
             </rect>
             <text x="275" y="347" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="577" y="330" width="2" height="24" class="bar-llm" rx="3">
+            <rect x="522" y="330" width="2" height="24" class="bar-llm" rx="3">
                 <title>deepseek/deepseek-v3.2 - VerifyClaimsNLI: 0ms (LLM)</title>
             </rect>
             <text x="275" y="377" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="577" y="360" width="2" height="24" class="bar-llm" rx="3">
+            <rect x="522" y="360" width="2" height="24" class="bar-llm" rx="3">
                 <title>google/gemini-3-flash-preview - VerifyClaimsNLI: 0ms (LLM)</title>
             </rect>
             <text x="275" y="407" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="880" y="390" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="879" y="390" width="2" height="24" class="bar-compute" rx="3">
                 <title>x-ai/grok-4.1-fast - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="437" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="880" y="420" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="879" y="420" width="2" height="24" class="bar-compute" rx="3">
                 <title>google/gemini-2.5-flash - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="467" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="880" y="450" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="879" y="450" width="2" height="24" class="bar-compute" rx="3">
                 <title>deepseek/deepseek-v3.2 - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="497" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="880" y="480" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="879" y="480" width="2" height="24" class="bar-compute" rx="3">
                 <title>google/gemini-3-flash-preview - ComputeScore: 0ms (COMPUTE)</title>
             </rect>
         <g transform="translate(660, 5)">
@@ -1704,12 +1787,12 @@
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>Paris is the capital of France.</pre></dd>
+            <dd><pre>Paris is the capital of France. The Eiffel Tower is located in Paris.</pre></dd>
         </div>
 
         <div class="sample-item">
             <dt>Reference</dt>
-            <dd><pre>Paris is the capital of France. The Eiffel Tower is located in Paris. Paris is also known as the City of Light.</pre></dd>
+            <dd><pre>Paris is the capital of France. The Eiffel Tower is located in Paris.</pre></dd>
         </div>
 
     </dl>
@@ -1808,26 +1891,27 @@
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">50.00%</div>
+        <div class="exp-calculation">100.00%</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
-            50.00%
+            100.00%
         </div>
-        <div class="exp-result-meaning">Moderate - some facts are incorrect or missing</div>
+        <div class="exp-result-meaning">Excellent - all claims are factually correct and complete</div>
     </div>
 
     <div class="exp-scale-section">
         <div class="exp-section-title">Scale</div>
         <div class="exp-scale-list">
-            <div class="exp-scale-item ">
+            <div class="exp-scale-item current">
                 <span class="exp-scale-marker">
-                    
+                    &#9658;
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
                 <span class="exp-scale-desc" title="All claims verified as correct">All claims verified as correct</span>
+                <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1837,14 +1921,13 @@
                 <span class="exp-scale-range">70-90%</span>
                 <span class="exp-scale-desc" title="Most claims are correct">Most claims are correct</span>
             </div>
-            <div class="exp-scale-item current">
+            <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
-                    &#9658;
+                    
                 </span>
                 <span class="exp-scale-name">Moderate</span>
                 <span class="exp-scale-range">50-70%</span>
                 <span class="exp-scale-desc" title="Some claims incorrect or missing">Some claims incorrect or missing</span>
-                <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1874,26 +1957,26 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 2647,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}"
+                    "durationMs": 2286,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1298,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}"
+                    "durationMs": 1599,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 2231,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}"
+                    "durationMs": 2925,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1768,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}"
+                    "durationMs": 2279,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 }
             ]
         },
@@ -1904,26 +1987,26 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3617,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is known as the City of Light.\" ]\n}"
+                    "durationMs": 1563,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 521,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is known as the City of Light.\" ]\n}"
+                    "durationMs": 388,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 2361,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is also known as the City of Light.\" ]\n}"
+                    "durationMs": 1843,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 8460,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is also known as the City of Light.\" ]\n}"
+                    "durationMs": 1231,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}"
                 }
             ]
         },
@@ -1935,25 +2018,25 @@
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context doesn't mention the Eiffel Tower\"\n    }, {\n      \"claim\" : \"Paris is known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context doesn't mention any nicknames for Paris\"\n    } ]\n  }\n}"
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'Paris is the capital of France.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Paris is the capital of France.'\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context does not provide any information about the location of the Eiffel Tower.\"\n    }, {\n      \"claim\" : \"Paris is known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context does not mention whether Paris is known as the City of Light.\"\n    } ]\n  }\n}"
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"1. Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'Paris is the capital of France.'\"\n    }, {\n      \"claim\" : \"2. The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'The Eiffel Tower is located in Paris.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"1. Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'Paris is the capital of France.'\"\n    }, {\n      \"claim\" : \"2. The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'The Eiffel Tower is located in Paris.'\"\n    } ]\n  }\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context does not mention the Eiffel Tower\"\n    }, {\n      \"claim\" : \"Paris is also known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context does not mention any alternative names for Paris\"\n    } ]\n  }\n}"
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that 'Paris is the capital of France.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context only mentions that Paris is the capital of France; it does not mention landmarks like the Eiffel Tower.\"\n    }, {\n      \"claim\" : \"Paris is also known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context does not provide information regarding nicknames or alternative names for Paris.\"\n    } ]\n  }\n}"
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that Paris is the capital of France.\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that the Eiffel Tower is located in Paris.\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that Paris is the capital of France.\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that the Eiffel Tower is located in Paris.\"\n    } ]\n  }\n}"
                 }
             ]
         },
@@ -1965,36 +2048,36 @@
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5"
+                    "resultJson": "1.0"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5"
+                    "resultJson": "1.0"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5"
+                    "resultJson": "1.0"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5"
+                    "resultJson": "1.0"
                 }
             ]
         }
     ],
     "modelScores": {
-        "x-ai/grok-4.1-fast": 0.5,
-        "google/gemini-2.5-flash": 0.5,
-        "deepseek/deepseek-v3.2": 0.5,
-        "google/gemini-3-flash-preview": 0.5
+        "x-ai/grok-4.1-fast": 1,
+        "google/gemini-2.5-flash": 1,
+        "deepseek/deepseek-v3.2": 1,
+        "google/gemini-3-flash-preview": 1
     },
-    "aggregatedScore": 0.5,
+    "aggregatedScore": 1,
     "steps": [
         {
             "stepNumber": 1,
@@ -2002,32 +2085,7 @@
             "title": "Decomposing response into claims",
             "description": "The AI response is broken down into individual atomic claims that can be verified.",
             "inputData": "",
-            "outputSummary": "Extracted 1 claims from response",
-            "agreementPercent": 100,
-            "hasModelDisagreement": false,
-            "items": [
-                {
-                    "index": 1,
-                    "content": "Paris is the capital of France.",
-                    "passed": null,
-                    "verdict": null,
-                    "reason": null,
-                    "source": null,
-                    "numericValue": null
-                }
-            ],
-            "modelResults": [
-            ],
-            "metadata": {
-            }
-        },
-        {
-            "stepNumber": 2,
-            "stepName": "DecomposeReferenceClaims",
-            "title": "Decomposing reference into claims",
-            "description": "The reference answer is broken down into individual atomic claims.",
-            "inputData": "",
-            "outputSummary": "Extracted 3 claims from reference",
+            "outputSummary": "Extracted 2 claims from response",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -2048,10 +2106,35 @@
                     "reason": null,
                     "source": null,
                     "numericValue": null
+                }
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 2,
+            "stepName": "DecomposeReferenceClaims",
+            "title": "Decomposing reference into claims",
+            "description": "The reference answer is broken down into individual atomic claims.",
+            "inputData": "",
+            "outputSummary": "Extracted 2 claims from reference",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+                {
+                    "index": 1,
+                    "content": "Paris is the capital of France.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
                 },
                 {
-                    "index": 3,
-                    "content": "Paris is known as the City of Light.",
+                    "index": 2,
+                    "content": "The Eiffel Tower is located in Paris.",
                     "passed": null,
                     "verdict": null,
                     "reason": null,
@@ -2070,13 +2153,22 @@
             "title": "Verifying claims with NLI",
             "description": "Each claim is verified using Natural Language Inference: SUPPORTED, CONTRADICTED, or NEUTRAL.",
             "inputData": null,
-            "outputSummary": "Precision: 1/1 supported, Recall: 0/0 supported",
+            "outputSummary": "Precision: 2/2 supported, Recall: 0/0 supported",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
                     "index": 1,
                     "content": "Paris is the capital of France.",
+                    "passed": true,
+                    "verdict": "SUPPORTED",
+                    "reason": "Directly stated in context",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "The Eiffel Tower is located in Paris.",
                     "passed": true,
                     "verdict": "SUPPORTED",
                     "reason": "Directly stated in context",
@@ -2095,7 +2187,7 @@
             "title": "Computing final score",
             "description": "Calculating F1 score from precision and recall.",
             "inputData": null,
-            "outputSummary": "50.00% (P=1,00, R=0,00, mode=F1)",
+            "outputSummary": "100.00% (P=1,00, R=0,00, mode=F1)",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -2108,15 +2200,15 @@
     ],
     "interpretation": {
         "formula": "F1 = 2 × (precision × recall) / (precision + recall)",
-        "calculation": "50.00%",
-        "score": 0.5,
-        "scorePercent": "50.00%",
-        "level": "Moderate",
+        "calculation": "100.00%",
+        "score": 1,
+        "scorePercent": "100.00%",
+        "level": "Excellent",
         "isGood": null,
-        "meaning": "Moderate - some facts are incorrect or missing",
+        "meaning": "Excellent - all claims are factually correct and complete",
         "numerator": null,
         "denominator": null,
-        "currentLevelIndex": 2,
+        "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
@@ -2124,7 +2216,7 @@
                 "name": "Excellent",
                 "range": "90-100%",
                 "description": "All claims verified as correct",
-                "current": false
+                "current": true
             },
             {
                 "name": "Good",
@@ -2136,7 +2228,7 @@
                 "name": "Moderate",
                 "range": "50-70%",
                 "description": "Some claims incorrect or missing",
-                "current": true
+                "current": false
             },
             {
                 "name": "Poor",
@@ -2490,6 +2582,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2598,15 +2710,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -3148,7 +3262,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">DecomposeResponseClaims</span>
-                    <span class="tree-duration">2647ms</span>
+                    <span class="tree-duration">2925ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3156,7 +3270,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">2647ms</span>
+                        <span class="tree-duration">2286ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3164,7 +3278,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1298ms</span>
+                        <span class="tree-duration">1599ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3172,7 +3286,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">2231ms</span>
+                        <span class="tree-duration">2925ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3180,7 +3294,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1768ms</span>
+                        <span class="tree-duration">2279ms</span>
                         
                     </div>
                 </div>
@@ -3193,7 +3307,7 @@
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
                     <span class="tree-name">DecomposeReferenceClaims</span>
-                    <span class="tree-duration">8460ms</span>
+                    <span class="tree-duration">1843ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -3201,7 +3315,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">3617ms</span>
+                        <span class="tree-duration">1563ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3209,7 +3323,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">521ms</span>
+                        <span class="tree-duration">388ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3217,7 +3331,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">2361ms</span>
+                        <span class="tree-duration">1843ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -3225,7 +3339,7 @@
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">8460ms</span>
+                        <span class="tree-duration">1231ms</span>
                         
                     </div>
                 </div>
@@ -3362,8 +3476,8 @@
             "stepIndex": 0,
             "stepName": "DecomposeResponseClaims",
             "stepType": "LLM",
-            "durationMs": 2647,
-            "request": "Given a text, decompose it into atomic, independent claims.\nEach claim should be a single factual statement that can be verified independently.\nEnsure claims are self-contained (no pronouns without clear referents).\n\nText:\nParis is the capital of France.\n\nInstructions:\n1. Break down the text into individual factual claims\n2. Each claim should be atomic (cannot be split further)\n3. Replace pronouns with explicit entities\n4. Keep claims factual (not opinions or subjective statements)\n\nExample:\nText: \"Albert Einstein was a German-born physicist. He developed the theory of relativity and won the Nobel Prize in 1921.\"\n\nClaims:\n- Albert Einstein was a German-born physicist.\n- Albert Einstein developed the theory of relativity.\n- Albert Einstein won the Nobel Prize in 1921.\n\nNow decompose the given text into claims.\nRespond with a JSON object containing a 'claims' array with the list of extracted claims.\n",
+            "durationMs": 2925,
+            "request": "Given a text, decompose it into atomic, independent claims.\nEach claim should be a single factual statement that can be verified independently.\nEnsure claims are self-contained (no pronouns without clear referents).\n\nText:\nParis is the capital of France. The Eiffel Tower is located in Paris.\n\nInstructions:\n1. Break down the text into individual factual claims\n2. Each claim should be atomic (cannot be split further)\n3. Replace pronouns with explicit entities\n4. Keep claims factual (not opinions or subjective statements)\n\nExample:\nText: \"Albert Einstein was a German-born physicist. He developed the theory of relativity and won the Nobel Prize in 1921.\"\n\nClaims:\n- Albert Einstein was a German-born physicist.\n- Albert Einstein developed the theory of relativity.\n- Albert Einstein won the Nobel Prize in 1921.\n\nNow decompose the given text into claims.\nRespond with a JSON object containing a 'claims' array with the list of extracted claims.\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3371,32 +3485,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 2647,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}",
+                    "durationMs": 2286,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1298,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}",
+                    "durationMs": 1599,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 2231,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}",
+                    "durationMs": 2925,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1768,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\" ]\n}",
+                    "durationMs": 2279,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3408,8 +3522,8 @@
             "stepIndex": 1,
             "stepName": "DecomposeReferenceClaims",
             "stepType": "LLM",
-            "durationMs": 8460,
-            "request": "Given a text, decompose it into atomic, independent claims.\nEach claim should be a single factual statement that can be verified independently.\nEnsure claims are self-contained (no pronouns without clear referents).\n\nText:\nParis is the capital of France. The Eiffel Tower is located in Paris. Paris is also known as the City of Light.\n\nInstructions:\n1. Break down the text into individual factual claims\n2. Each claim should be atomic (cannot be split further)\n3. Replace pronouns with explicit entities\n4. Keep claims factual (not opinions or subjective statements)\n\nExample:\nText: \"Albert Einstein was a German-born physicist. He developed the theory of relativity and won the Nobel Prize in 1921.\"\n\nClaims:\n- Albert Einstein was a German-born physicist.\n- Albert Einstein developed the theory of relativity.\n- Albert Einstein won the Nobel Prize in 1921.\n\nNow decompose the given text into claims.\nRespond with a JSON object containing a 'claims' array with the list of extracted claims.\n",
+            "durationMs": 1843,
+            "request": "Given a text, decompose it into atomic, independent claims.\nEach claim should be a single factual statement that can be verified independently.\nEnsure claims are self-contained (no pronouns without clear referents).\n\nText:\nParis is the capital of France. The Eiffel Tower is located in Paris.\n\nInstructions:\n1. Break down the text into individual factual claims\n2. Each claim should be atomic (cannot be split further)\n3. Replace pronouns with explicit entities\n4. Keep claims factual (not opinions or subjective statements)\n\nExample:\nText: \"Albert Einstein was a German-born physicist. He developed the theory of relativity and won the Nobel Prize in 1921.\"\n\nClaims:\n- Albert Einstein was a German-born physicist.\n- Albert Einstein developed the theory of relativity.\n- Albert Einstein won the Nobel Prize in 1921.\n\nNow decompose the given text into claims.\nRespond with a JSON object containing a 'claims' array with the list of extracted claims.\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3417,32 +3531,32 @@
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 3617,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is known as the City of Light.\" ]\n}",
+                    "durationMs": 1563,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 521,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is known as the City of Light.\" ]\n}",
+                    "durationMs": 388,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 2361,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is also known as the City of Light.\" ]\n}",
+                    "durationMs": 1843,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 8460,
-                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\", \"Paris is also known as the City of Light.\" ]\n}",
+                    "durationMs": 1231,
+                    "resultJson": "{\n  \"claims\" : [ \"Paris is the capital of France.\", \"The Eiffel Tower is located in Paris.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3455,7 +3569,7 @@
             "stepName": "VerifyClaimsNLI",
             "stepType": "LLM",
             "durationMs": 0,
-            "request": "Your task is to verify claims using Natural Language Inference (NLI).\nFor each claim, determine if it is SUPPORTED, CONTRADICTED, or NEUTRAL based on the given context.\n\nContext (source of truth):\nParis is the capital of France. The Eiffel Tower is located in Paris. Paris is also known as the City of Light.\n\nClaims to verify:\n1. Paris is the capital of France.\n\n\nInstructions:\nFor each claim, determine:\n- SUPPORTED: The claim can be directly inferred from the context\n- CONTRADICTED: The claim is directly contradicted by the context\n- NEUTRAL: The claim cannot be verified from the context (not enough information)\n\nExample:\nContext: \"Paris is the capital of France. The Eiffel Tower is located in Paris.\"\n\nClaims:\n1. Paris is the capital of France.\n2. Paris is the largest city in Europe.\n3. The Eiffel Tower is not in Paris.\n\nVerdicts:\n1. claim: \"Paris is the capital of France.\" verdict: SUPPORTED reason: \"Directly stated in context\"\n2. claim: \"Paris is the largest city in Europe.\" verdict: NEUTRAL reason: \"Context doesn't mention city size\"\n3. claim: \"The Eiffel Tower is not in Paris.\" verdict: CONTRADICTED reason: \"Context states Eiffel Tower IS in Paris\"\n\nNow verify the given claims against the context.\nRespond with a JSON object containing a 'verdicts' array where each item has 'claim', 'verdict' (SUPPORTED/CONTRADICTED/NEUTRAL), and 'reason' fields.\n",
+            "request": "Your task is to verify claims using Natural Language Inference (NLI).\nFor each claim, determine if it is SUPPORTED, CONTRADICTED, or NEUTRAL based on the given context.\n\nContext (source of truth):\nParis is the capital of France. The Eiffel Tower is located in Paris.\n\nClaims to verify:\n1. Paris is the capital of France.\n2. The Eiffel Tower is located in Paris.\n\n\nInstructions:\nFor each claim, determine:\n- SUPPORTED: The claim can be directly inferred from the context\n- CONTRADICTED: The claim is directly contradicted by the context\n- NEUTRAL: The claim cannot be verified from the context (not enough information)\n\nExample:\nContext: \"Paris is the capital of France. The Eiffel Tower is located in Paris.\"\n\nClaims:\n1. Paris is the capital of France.\n2. Paris is the largest city in Europe.\n3. The Eiffel Tower is not in Paris.\n\nVerdicts:\n1. claim: \"Paris is the capital of France.\" verdict: SUPPORTED reason: \"Directly stated in context\"\n2. claim: \"Paris is the largest city in Europe.\" verdict: NEUTRAL reason: \"Context doesn't mention city size\"\n3. claim: \"The Eiffel Tower is not in Paris.\" verdict: CONTRADICTED reason: \"Context states Eiffel Tower IS in Paris\"\n\nNow verify the given claims against the context.\nRespond with a JSON object containing a 'verdicts' array where each item has 'claim', 'verdict' (SUPPORTED/CONTRADICTED/NEUTRAL), and 'reason' fields.\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3464,7 +3578,7 @@
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context doesn't mention the Eiffel Tower\"\n    }, {\n      \"claim\" : \"Paris is known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context doesn't mention any nicknames for Paris\"\n    } ]\n  }\n}",
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3472,7 +3586,7 @@
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'Paris is the capital of France.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states 'Paris is the capital of France.'\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context does not provide any information about the location of the Eiffel Tower.\"\n    }, {\n      \"claim\" : \"Paris is known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context does not mention whether Paris is known as the City of Light.\"\n    } ]\n  }\n}",
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"1. Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'Paris is the capital of France.'\"\n    }, {\n      \"claim\" : \"2. The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'The Eiffel Tower is located in Paris.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"1. Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'Paris is the capital of France.'\"\n    }, {\n      \"claim\" : \"2. The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states, 'The Eiffel Tower is located in Paris.'\"\n    } ]\n  }\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3480,7 +3594,7 @@
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context does not mention the Eiffel Tower\"\n    }, {\n      \"claim\" : \"Paris is also known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"Context does not mention any alternative names for Paris\"\n    } ]\n  }\n}",
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in context\"\n    } ]\n  }\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3488,7 +3602,7 @@
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that 'Paris is the capital of France.'\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"Directly stated in the context.\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context only mentions that Paris is the capital of France; it does not mention landmarks like the Eiffel Tower.\"\n    }, {\n      \"claim\" : \"Paris is also known as the City of Light.\",\n      \"verdict\" : \"NEUTRAL\",\n      \"reason\" : \"The context does not provide information regarding nicknames or alternative names for Paris.\"\n    } ]\n  }\n}",
+                    "resultJson": "{\n  \"precisionVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that Paris is the capital of France.\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that the Eiffel Tower is located in Paris.\"\n    } ]\n  },\n  \"recallVerdicts\" : {\n    \"verdicts\" : [ {\n      \"claim\" : \"Paris is the capital of France.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that Paris is the capital of France.\"\n    }, {\n      \"claim\" : \"The Eiffel Tower is located in Paris.\",\n      \"verdict\" : \"SUPPORTED\",\n      \"reason\" : \"The context explicitly states that the Eiffel Tower is located in Paris.\"\n    } ]\n  }\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3510,7 +3624,7 @@
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5",
+                    "resultJson": "1.0",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3518,7 +3632,7 @@
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5",
+                    "resultJson": "1.0",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3526,7 +3640,7 @@
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5",
+                    "resultJson": "1.0",
                     "errorMessage": null,
                     "stackTrace": null
                 },
@@ -3534,7 +3648,7 @@
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.5",
+                    "resultJson": "1.0",
                     "errorMessage": null,
                     "stackTrace": null
                 }

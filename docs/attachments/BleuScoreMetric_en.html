@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROUGE Score - Evaluation Report</title>
+    <title>BLEU Score - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -362,6 +362,77 @@
 
         .context-list li {
             margin-bottom: 12px;
+        }
+
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
         }
 
         /* Collapsible block styles */
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1536,7 +1619,7 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>ROUGE Score - Evaluation Report</h1>
+            <h1>BLEU Score - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
                 <span class="duration">Duration: 0ms</span>
@@ -1596,7 +1679,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">ROUGE (Recall-Oriented Understudy for Gisting Evaluation) measures overlap between response and reference using unigrams, bigrams, or longest common subsequence.</div>
+            <div class="explanation-simple">BLEU (Bilingual Evaluation Understudy) measures n-gram overlap between the response and reference texts. Higher scores indicate better text similarity.</div>
         </div>
     </div>
 
@@ -1619,13 +1702,13 @@
                 <div class="exp-tree-node" data-step="2">
                     <div class="exp-tree-item" onclick="selectExplanationStep(2)">
                         <span class="exp-tree-number">3</span>
-                        <span class="exp-tree-name">Computing ROUGE-L overlap</span>
+                        <span class="exp-tree-name">Computing n-gram precision</span>
                     </div>
                 </div>
                 <div class="exp-tree-node" data-step="3">
                     <div class="exp-tree-item" onclick="selectExplanationStep(3)">
                         <span class="exp-tree-number">4</span>
-                        <span class="exp-tree-name">Computing score</span>
+                        <span class="exp-tree-name">Computing BLEU score</span>
                     </div>
                 </div>
 
@@ -1649,7 +1732,7 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">F1 = 2 × (P × R) / (P + R)</div>
+        <div class="exp-formula">BLEU = BP × exp(Σ wₙ × log(pₙ))</div>
     </div>
 
     <div class="exp-calculation-section">
@@ -1661,7 +1744,7 @@
         <div class="exp-result-score ">
             100.00%
         </div>
-        <div class="exp-result-meaning">Excellent - very high text overlap</div>
+        <div class="exp-result-meaning">Excellent - texts are nearly identical</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1673,7 +1756,7 @@
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Very high overlap">Very high overlap</span>
+                <span class="exp-scale-desc" title="Near-identical texts">Near-identical texts</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1682,7 +1765,7 @@
                 </span>
                 <span class="exp-scale-name">Good</span>
                 <span class="exp-scale-range">70-90%</span>
-                <span class="exp-scale-desc" title="Good overlap">Good overlap</span>
+                <span class="exp-scale-desc" title="High similarity">High similarity</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1690,7 +1773,7 @@
                 </span>
                 <span class="exp-scale-name">Moderate</span>
                 <span class="exp-scale-range">50-70%</span>
-                <span class="exp-scale-desc" title="Partial overlap">Partial overlap</span>
+                <span class="exp-scale-desc" title="Moderate similarity">Moderate similarity</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
@@ -1698,7 +1781,7 @@
                 </span>
                 <span class="exp-scale-name">Poor</span>
                 <span class="exp-scale-range">0-50%</span>
-                <span class="exp-scale-desc" title="Low overlap">Low overlap</span>
+                <span class="exp-scale-desc" title="Low similarity">Low similarity</span>
             </div>
         </div>
     </div>
@@ -1710,7 +1793,7 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "rouge-score",
+    "metricType": "bleu-score",
     "hasFixedInterpretation": false,
     "executionSteps": [
     ],
@@ -1738,9 +1821,9 @@
             "stepNumber": 2,
             "stepName": "Configuration",
             "title": "Configuration",
-            "description": "ROUGE metric configuration parameters.",
+            "description": "BLEU metric configuration parameters.",
             "inputData": null,
-            "outputSummary": "Type: ROUGE-L, Mode: F-measure",
+            "outputSummary": "Max n-gram: 4, Smoothing: true",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
@@ -1752,9 +1835,9 @@
         },
         {
             "stepNumber": 3,
-            "stepName": "ComputeOverlap",
-            "title": "Computing ROUGE-L overlap",
-            "description": "Finding longest common subsequence between texts.",
+            "stepName": "ComputeNgramPrecision",
+            "title": "Computing n-gram precision",
+            "description": "Calculating precision for n-grams from 1 to 4.",
             "inputData": null,
             "outputSummary": null,
             "agreementPercent": 100,
@@ -1768,9 +1851,9 @@
         },
         {
             "stepNumber": 4,
-            "stepName": "ComputeScore",
-            "title": "Computing score",
-            "description": "Calculating F-measure from overlap statistics.",
+            "stepName": "ComputeBleuScore",
+            "title": "Computing BLEU score",
+            "description": "Combining n-gram precisions with brevity penalty.",
             "inputData": null,
             "outputSummary": "100.00%",
             "agreementPercent": 100,
@@ -1784,13 +1867,13 @@
         }
     ],
     "interpretation": {
-        "formula": "F1 = 2 × (P × R) / (P + R)",
+        "formula": "BLEU = BP × exp(Σ wₙ × log(pₙ))",
         "calculation": "100.00%",
         "score": 1,
         "scorePercent": "100.00%",
         "level": "Excellent",
         "isGood": null,
-        "meaning": "Excellent - very high text overlap",
+        "meaning": "Excellent - texts are nearly identical",
         "numerator": null,
         "denominator": null,
         "currentLevelIndex": 0,
@@ -1800,25 +1883,25 @@
             {
                 "name": "Excellent",
                 "range": "90-100%",
-                "description": "Very high overlap",
+                "description": "Near-identical texts",
                 "current": true
             },
             {
                 "name": "Good",
                 "range": "70-90%",
-                "description": "Good overlap",
+                "description": "High similarity",
                 "current": false
             },
             {
                 "name": "Moderate",
                 "range": "50-70%",
-                "description": "Partial overlap",
+                "description": "Moderate similarity",
                 "current": false
             },
             {
                 "name": "Poor",
                 "range": "0-50%",
-                "description": "Low overlap",
+                "description": "Low similarity",
                 "current": false
             }
         ]
@@ -2167,6 +2250,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2275,15 +2378,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2621,39 +2726,35 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>ROUGE Score Metric</h1>
+    <h1>BLEU Score Metric</h1>
 <h2>Glossary</h2>
 <ul>
-<li><strong>ROUGE</strong> — Recall-Oriented Understudy for Gisting Evaluation</li>
-<li><strong>ROUGE-1</strong> — unigram (single word) overlap</li>
-<li><strong>ROUGE-2</strong> — bigram (two consecutive words) overlap</li>
-<li><strong>ROUGE-L</strong> — longest common subsequence (LCS) overlap</li>
-<li><strong>Precision</strong> — how much of the response matches the reference</li>
-<li><strong>Recall</strong> — how much of the reference is covered by the response</li>
-<li><strong>F-measure</strong> — harmonic mean of precision and recall</li>
+<li><strong>BLEU</strong> — Bilingual Evaluation Understudy, a metric for evaluating text quality</li>
+<li><strong>N-gram</strong> — a contiguous sequence of n items from a text (e.g., unigram=1 word, bigram=2 words)</li>
+<li><strong>Precision</strong> — ratio of matching n-grams in response to total n-grams in response</li>
+<li><strong>Brevity Penalty</strong> — penalty applied when response is shorter than reference</li>
 </ul>
 <h2>Description</h2>
-<p>ROUGE (Recall-Oriented Understudy for Gisting Evaluation) is a set of metrics for evaluating text similarity by measuring overlap between a candidate text and reference text. It was originally designed for evaluating automatic summarization but is widely used for various text generation tasks.</p>
+<p>BLEU (Bilingual Evaluation Understudy) measures the similarity between a candidate text (response) and a reference text by computing n-gram precision scores. Originally designed for machine translation evaluation, it's widely used for text generation quality assessment.</p>
 <p>This metric is:</p>
 <ul>
-<li><strong>Non-LLM</strong> — no language model calls required</li>
-<li><strong>Configurable</strong> — supports different overlap types (ROUGE-1, ROUGE-2, ROUGE-L)</li>
-<li><strong>Recall-focused</strong> — designed to measure how much of the reference is captured</li>
+<li><strong>Non-LLM</strong> — no language model calls required, purely algorithmic</li>
+<li><strong>Fast</strong> — simple n-gram counting operations</li>
 <li><strong>Deterministic</strong> — same inputs always produce the same score</li>
+<li><strong>Language-agnostic</strong> — works with any language that can be tokenized</li>
 </ul>
 <h2>Example</h2>
 <p><strong>Reference:</strong> &quot;The quick brown fox jumps over the lazy dog.&quot;</p>
 <p><strong>AI Response:</strong> &quot;The quick brown fox jumps over the lazy dog.&quot;</p>
-<p><strong>ROUGE-L Score:</strong> identical texts = <strong>1.00 (100%)</strong></p>
+<p><strong>Score:</strong> identical texts = <strong>1.00 (100%)</strong></p>
 <hr />
-<p><strong>Partial match:</strong></p>
-<p><strong>AI Response:</strong> &quot;The quick brown fox runs.&quot;</p>
-<p><strong>ROUGE-L Score:</strong> partial sequence match = <strong>0.55 (55%)</strong></p>
+<p><strong>Similar response:</strong></p>
+<p><strong>AI Response:</strong> &quot;The quick brown fox jumped over the lazy dog.&quot;</p>
+<p><strong>Score:</strong> one word different = <strong>0.85 (85%)</strong></p>
 <hr />
-<p><strong>Reordered content:</strong></p>
-<p><strong>AI Response:</strong> &quot;The lazy dog is jumped over by the quick brown fox.&quot;</p>
-<p><strong>ROUGE-1 Score:</strong> high word overlap = <strong>0.89 (89%)</strong>
-<strong>ROUGE-L Score:</strong> lower LCS = <strong>0.56 (56%)</strong></p>
+<p><strong>Different response:</strong></p>
+<p><strong>AI Response:</strong> &quot;Machine learning requires data.&quot;</p>
+<p><strong>Score:</strong> no overlap = <strong>0.05 (5%)</strong></p>
 <h2>Score Interpretation</h2>
 <table>
 <thead>
@@ -2665,11 +2766,11 @@
 <tbody>
 <tr>
 <td>90-100%</td>
-<td>Nearly complete overlap</td>
+<td>Nearly identical texts</td>
 </tr>
 <tr>
 <td>70-90%</td>
-<td>High overlap</td>
+<td>High n-gram overlap</td>
 </tr>
 <tr>
 <td>50-70%</td>
@@ -2677,7 +2778,7 @@
 </tr>
 <tr>
 <td>30-50%</td>
-<td>Some overlap</td>
+<td>Some common phrases</td>
 </tr>
 <tr>
 <td>0-30%</td>
@@ -2687,35 +2788,27 @@
 </table>
 <h2>Important Notes</h2>
 <ul>
-<li><strong>ROUGE-1 vs ROUGE-L</strong>: ROUGE-1 ignores word order, ROUGE-L considers sequence</li>
-<li><strong>Precision vs Recall</strong>: Short responses have high precision but low recall; long responses the opposite</li>
-<li><strong>F-measure balances both</strong>: Typically the best single metric to report</li>
-<li><strong>Not semantic</strong>: Like BLEU, measures surface-level overlap, not meaning</li>
+<li><strong>Word order matters</strong>: Unlike some metrics, BLEU considers word order through n-grams</li>
+<li><strong>Brevity is penalized</strong>: Short responses are penalized even if all words match</li>
+<li><strong>Smoothing helps</strong>: For short texts, smoothing prevents zero scores when higher-order n-grams don't match</li>
+<li><strong>Not semantic</strong>: BLEU measures surface-level overlap, not meaning (&quot;happy&quot; and &quot;glad&quot; score 0)</li>
 </ul>
 <h2>Algorithm</h2>
-<h3>ROUGE-1 / ROUGE-2</h3>
 <ol>
-<li><strong>Tokenize</strong> — split both texts into tokens</li>
-<li><strong>Extract N-grams</strong> — collect unigrams (ROUGE-1) or bigrams (ROUGE-2)</li>
-<li><strong>Count Matches</strong> — count overlapping n-grams</li>
-<li><strong>Compute Scores</strong> — calculate precision, recall, and F-measure</li>
-</ol>
-<h3>ROUGE-L</h3>
-<ol>
-<li><strong>Tokenize</strong> — split both texts into tokens</li>
-<li><strong>Find LCS</strong> — compute longest common subsequence</li>
-<li><strong>Compute Scores</strong> — precision = LCS/resp_len, recall = LCS/ref_len</li>
+<li><strong>Tokenize</strong> — split both texts into tokens (words)</li>
+<li><strong>Compute N-gram Precision</strong> — for each n from 1 to max_ngram, calculate matching n-grams</li>
+<li><strong>Apply Brevity Penalty</strong> — if response is shorter than reference, apply penalty</li>
+<li><strong>Combine Scores</strong> — geometric mean of precisions multiplied by brevity penalty</li>
 </ol>
 <h2>Formula</h2>
-<p><strong>Precision:</strong></p>
-<pre><code>P = |matched_ngrams| / |response_ngrams|
+<pre><code>BLEU = BP × exp(Σ wₙ × log(pₙ))
 </code></pre>
-<p><strong>Recall:</strong></p>
-<pre><code>R = |matched_ngrams| / |reference_ngrams|
-</code></pre>
-<p><strong>F-measure:</strong></p>
-<pre><code>F1 = 2 × (P × R) / (P + R)
-</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>BP</code> — brevity penalty = min(1, exp(1 - ref_len/resp_len))</li>
+<li><code>pₙ</code> — modified precision for n-grams of length n</li>
+<li><code>wₙ</code> — weight for each n-gram (typically 1/max_ngram)</li>
+</ul>
 <h2>Configuration</h2>
 <table>
 <thead>
@@ -2728,23 +2821,23 @@
 </thead>
 <tbody>
 <tr>
-<td>rougeType</td>
-<td>Enum</td>
-<td>ROUGE_L</td>
-<td>Type of ROUGE: ROUGE_1, ROUGE_2, ROUGE_L</td>
+<td>maxNgram</td>
+<td>Integer</td>
+<td>4</td>
+<td>Maximum n-gram order (1-4 typical)</td>
 </tr>
 <tr>
-<td>mode</td>
-<td>Enum</td>
-<td>FMEASURE</td>
-<td>Scoring mode: PRECISION, RECALL, FMEASURE</td>
+<td>smoothing</td>
+<td>Boolean</td>
+<td>true</td>
+<td>Use smoothing for zero-count n-grams</td>
 </tr>
 </tbody>
 </table>
 <h2>References</h2>
 <ul>
-<li><a href="https://aclanthology.org/W04-1013.pdf">ROUGE Paper (Lin, 2004)</a></li>
-<li><a href="https://en.wikipedia.org/wiki/ROUGE_(metric)">ROUGE Wikipedia</a></li>
+<li><a href="https://aclanthology.org/P02-1040.pdf">BLEU Paper (Papineni et al., 2002)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/BLEU">BLEU Wikipedia</a></li>
 </ul>
 
 </div>

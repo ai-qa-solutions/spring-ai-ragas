@@ -364,6 +364,77 @@
             margin-bottom: 12px;
         }
 
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
+        }
+
         /* Collapsible block styles */
         .block-header {
             display: flex;
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1539,8 +1622,8 @@
             <h1>AnswerCorrectnessMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 15981ms</span>
-                <span class="timestamp">2026-01-23T14:12:37.113697Z</span>
+                <span class="duration">Duration: 14690ms</span>
+                <span class="timestamp">2026-02-01T03:41:49.309164Z</span>
             </div>
         </header>
 
@@ -1610,26 +1693,26 @@
         <line x1="280" y1="140" x2="880" y2="140" class="axis"/>
             <text x="280" y="160" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="135" class="grid-line"/>
-            <text x="400" y="160" class="time-label">3196ms</text>
+            <text x="400" y="160" class="time-label">2937ms</text>
             <line x1="400" y1="30" x2="400" y2="135" class="grid-line"/>
-            <text x="520" y="160" class="time-label">6392ms</text>
+            <text x="520" y="160" class="time-label">5874ms</text>
             <line x1="520" y1="30" x2="520" y2="135" class="grid-line"/>
-            <text x="640" y="160" class="time-label">9588ms</text>
+            <text x="640" y="160" class="time-label">8812ms</text>
             <line x1="640" y1="30" x2="640" y2="135" class="grid-line"/>
-            <text x="760" y="160" class="time-label">12784ms</text>
+            <text x="760" y="160" class="time-label">11749ms</text>
             <line x1="760" y1="30" x2="760" y2="135" class="grid-line"/>
-            <text x="880" y="160" class="time-label">15980ms</text>
+            <text x="880" y="160" class="time-label">14687ms</text>
             <line x1="880" y1="30" x2="880" y2="135" class="grid-line"/>
             <text x="275" y="47" class="row-label">factual</text>
             <rect x="280" y="30" width="2" height="24" class="bar-compute" rx="3">
                 <title>factual - ComputeFactualCorrectness: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="77" class="row-label">semantic</text>
-            <rect x="787" y="60" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="779" y="60" width="2" height="24" class="bar-compute" rx="3">
                 <title>semantic - ComputeSemanticSimilarity: 0ms (COMPUTE)</title>
             </rect>
             <text x="275" y="107" class="row-label">combined</text>
-            <rect x="879" y="90" width="2" height="24" class="bar-compute" rx="3">
+            <rect x="880" y="90" width="2" height="24" class="bar-compute" rx="3">
                 <title>combined - CombineScores: 0ms (COMPUTE)</title>
             </rect>
         <g transform="translate(660, 5)">
@@ -1837,7 +1920,7 @@
                     "modelId": "semantic",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.9999998245034476"
+                    "resultJson": "0.9999998411378694"
                 }
             ]
         },
@@ -1849,24 +1932,24 @@
                     "modelId": "combined",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.9999999561258619"
+                    "resultJson": "0.9999999602844674"
                 }
             ]
         }
     ],
     "modelScores": {
-        "semantic": 0.9999998245034476,
-        "combined": 0.9999999561258619,
+        "semantic": 0.9999998411378694,
+        "combined": 0.9999999602844674,
         "factual": 1
     },
-    "aggregatedScore": 0.9999999561258619,
+    "aggregatedScore": 0.9999999602844674,
     "steps": [
         {
             "stepNumber": 1,
             "stepName": "InputTexts",
             "title": "Input texts",
             "description": "The response and reference texts to compare.",
-            "inputData": "Response: \nReference: ",
+            "inputData": "Response: Paris is the capital of France. The Eiffel Tower is located in Paris.\nReference: Paris is the capital of France. The Eiffel Tower is located in Paris.",
             "outputSummary": null,
             "agreementPercent": 100,
             "hasModelDisagreement": false,
@@ -1929,7 +2012,7 @@
     "interpretation": {
         "formula": "score = 0,75 × factual + 0,25 × semantic",
         "calculation": "0,75 × 1,0000 + 0,25 × 1,0000 = 100.00%",
-        "score": 0.9999999561258619,
+        "score": 0.9999999602844674,
         "scorePercent": "100.00%",
         "level": "Excellent",
         "isGood": null,
@@ -2310,6 +2393,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2418,15 +2521,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -3114,7 +3219,7 @@ Double score = answerCorrectnessMetric.singleTurnScore(sample);
                     "modelId": "semantic",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.9999998245034476",
+                    "resultJson": "0.9999998411378694",
                     "errorMessage": null,
                     "stackTrace": null
                 }
@@ -3136,7 +3241,7 @@ Double score = answerCorrectnessMetric.singleTurnScore(sample);
                     "modelId": "combined",
                     "success": true,
                     "durationMs": 0,
-                    "resultJson": "0.9999999561258619",
+                    "resultJson": "0.9999999602844674",
                     "errorMessage": null,
                     "stackTrace": null
                 }

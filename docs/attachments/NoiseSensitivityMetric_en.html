@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnswerAccuracyMetric - Evaluation Report</title>
+    <title>NoiseSensitivityMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -362,6 +362,77 @@
 
         .context-list li {
             margin-bottom: 12px;
+        }
+
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
         }
 
         /* Collapsible block styles */
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1536,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>AnswerAccuracyMetric - Evaluation Report</h1>
+            <h1>NoiseSensitivityMetric - Evaluation Report</h1>
             <div class="metadata">
-                <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 16013ms</span>
-                <span class="timestamp">2026-01-23T14:07:42.258778Z</span>
+                <span class="score-badge excellent">0.00%</span>
+                <span class="duration">Duration: 38795ms</span>
+                <span class="timestamp">2026-02-01T03:37:51.148457Z</span>
             </div>
         </header>
 
@@ -1581,24 +1664,24 @@
                 <line x1="510" y1="20" x2="510" y2="150" class="grid-line"/>
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                     <text x="550" y="170" class="scale-label">1</text>
-            <text x="145" y="37" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="37" class="score-label">1,0000</text>
-            <text x="145" y="67" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="67" class="score-label">1,0000</text>
-            <text x="145" y="97" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="97" class="score-label">1,0000</text>
+            <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="150" y="20" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="37" class="score-label">0,0000</text>
+            <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="150" y="50" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="67" class="score-label">0,0000</text>
+            <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="150" y="80" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="97" class="score-label">0,0000</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="150" y="110" width="400" height="24" class="bar-excellent" rx="3"/>
-            <text x="555" y="127" class="score-label">1,0000</text>
+            <rect x="150" y="110" width="0" height="24" class="bar-excellent" rx="3"/>
+            <text x="155" y="127" class="score-label">0,0000</text>
     </svg>
 </div>
 
 <div class="chart-container">
     <h3>Execution Timeline</h3>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" class="timeline-chart">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" class="timeline-chart">
         <style>
             .row-label { font-size: 11px; fill: #1b2129; text-anchor: end; font-family: sans-serif; }
             .time-label { font-size: 10px; fill: #677281; text-anchor: middle; font-family: sans-serif; }
@@ -1610,34 +1693,98 @@
             .bar-error { fill: #eb5146; }
             .legend-text { font-size: 10px; fill: #1b2129; font-family: sans-serif; }
         </style>
-        <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
-            <text x="280" y="190" class="time-label">0ms</text>
-            <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
-            <text x="400" y="190" class="time-label">3189ms</text>
-            <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
-            <text x="520" y="190" class="time-label">6379ms</text>
-            <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
-            <text x="640" y="190" class="time-label">9568ms</text>
-            <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
-            <text x="760" y="190" class="time-label">12758ms</text>
-            <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
-            <text x="880" y="190" class="time-label">15948ms</text>
-            <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
+        <line x1="280" y1="650" x2="880" y2="650" class="axis"/>
+            <text x="280" y="670" class="time-label">0ms</text>
+            <line x1="280" y1="30" x2="280" y2="645" class="grid-line"/>
+            <text x="400" y="670" class="time-label">7758ms</text>
+            <line x1="400" y1="30" x2="400" y2="645" class="grid-line"/>
+            <text x="520" y="670" class="time-label">15516ms</text>
+            <line x1="520" y1="30" x2="520" y2="645" class="grid-line"/>
+            <text x="640" y="670" class="time-label">23274ms</text>
+            <line x1="640" y1="30" x2="640" y2="645" class="grid-line"/>
+            <text x="760" y="670" class="time-label">31032ms</text>
+            <line x1="760" y1="30" x2="760" y2="645" class="grid-line"/>
+            <text x="880" y="670" class="time-label">38790ms</text>
+            <line x1="880" y1="30" x2="880" y2="645" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="291" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - InitialJudgment: 7760ms (LLM)</title>
+            <rect x="280" y="30" width="57" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeReference: 3689ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="63" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - InitialJudgment: 1681ms (LLM)</title>
+            <rect x="280" y="60" width="104" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeReference: 6746ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
-            <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - InitialJudgment: 15947ms (LLM)</title>
+            <rect x="280" y="90" width="84" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeReference: 5479ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="43" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - InitialJudgment: 1160ms (LLM)</title>
+            <rect x="280" y="120" width="28" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeReference: 1856ms (LLM)</title>
+            </rect>
+            <text x="275" y="167" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="385" y="150" width="40" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - DecomposeResponse: 2612ms (LLM)</title>
+            </rect>
+            <text x="275" y="197" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="385" y="180" width="13" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - DecomposeResponse: 866ms (LLM)</title>
+            </rect>
+            <text x="275" y="227" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="385" y="210" width="71" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - DecomposeResponse: 4619ms (LLM)</title>
+            </rect>
+            <text x="275" y="257" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="385" y="240" width="19" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - DecomposeResponse: 1266ms (LLM)</title>
+            </rect>
+            <text x="275" y="287" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="456" y="270" width="52" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateGroundTruthToAnswer: 3370ms (LLM)</title>
+            </rect>
+            <text x="275" y="317" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="456" y="300" width="22" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateGroundTruthToAnswer: 1429ms (LLM)</title>
+            </rect>
+            <text x="275" y="347" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="456" y="330" width="143" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateGroundTruthToAnswer: 9266ms (LLM)</title>
+            </rect>
+            <text x="275" y="377" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="456" y="360" width="36" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateGroundTruthToAnswer: 2376ms (LLM)</title>
+            </rect>
+            <text x="275" y="407" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="600" y="390" width="59" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - EvaluateAllContexts: 3817ms (LLM)</title>
+            </rect>
+            <text x="275" y="437" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="600" y="420" width="21" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - EvaluateAllContexts: 1359ms (LLM)</title>
+            </rect>
+            <text x="275" y="467" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="600" y="450" width="124" height="24" class="bar-llm" rx="3">
+                <title>deepseek/deepseek-v3.2 - EvaluateAllContexts: 8077ms (LLM)</title>
+            </rect>
+            <text x="275" y="497" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="600" y="480" width="34" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - EvaluateAllContexts: 2230ms (LLM)</title>
+            </rect>
+            <text x="275" y="527" class="row-label">x-ai/grok-4.1-fast</text>
+            <rect x="880" y="510" width="2" height="24" class="bar-compute" rx="3">
+                <title>x-ai/grok-4.1-fast - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="557" class="row-label">google/gemini-2.5-flash</text>
+            <rect x="880" y="540" width="2" height="24" class="bar-compute" rx="3">
+                <title>google/gemini-2.5-flash - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="587" class="row-label">deepseek/deepseek-v3.2</text>
+            <rect x="880" y="570" width="2" height="24" class="bar-compute" rx="3">
+                <title>deepseek/deepseek-v3.2 - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
+            </rect>
+            <text x="275" y="617" class="row-label">google/gemini-3-flash-preview</text>
+            <rect x="880" y="600" width="2" height="24" class="bar-compute" rx="3">
+                <title>google/gemini-3-flash-preview - ComputeNoiseSensitivity: 0ms (COMPUTE)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1653,17 +1800,31 @@
 <div class="sample-section">
     <h3>Input Sample</h3>
     <dl>
+        <div class="sample-item">
+            <dt>User Input</dt>
+            <dd><pre>Tell me about the Zenith Tower.</pre></dd>
+        </div>
 
         <div class="sample-item">
             <dt>Response</dt>
-            <dd><pre>TCP uses a three-way handshake: SYN, SYN-ACK, ACK.</pre></dd>
+            <dd><pre>The Zenith Tower was built in 1889. It is located in Novara, Helvetia. It was designed by Marcus Chen.</pre></dd>
         </div>
 
         <div class="sample-item">
             <dt>Reference</dt>
-            <dd><pre>The TCP three-way handshake consists of SYN, SYN-ACK, and ACK packets to establish a connection.</pre></dd>
+            <dd><pre>The Zenith Tower was built in 1889. It is located in Novara, Helvetia. It was designed by Marcus Chen.</pre></dd>
         </div>
 
+        <div class="sample-item">
+            <dt>Retrieved Contexts</dt>
+            <dd>
+                <ol class="context-list">
+                    <li><pre>The Zenith Tower was constructed in 1889 for the World Exposition.</pre></li>
+                    <li><pre>The tower is located in Novara, Helvetia.</pre></li>
+                    <li><pre>Marcus Chen was the architect who designed the tower.</pre></li>
+                </ol>
+            </dd>
+        </div>
     </dl>
 </div>
 
@@ -1680,9 +1841,8 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;models&quot; : [ ],
-  &quot;useDualJudge&quot; : false,
-  &quot;temperature&quot; : 0.1
+  &quot;mode&quot; : &quot;RELEVANT&quot;,
+  &quot;models&quot; : [ ]
 }</pre>
 </div>
             </div>
@@ -1699,11 +1859,11 @@
 <div class="explanation-viewer">
     <div class="explanation-intro">
         <div class="explanation-icon">
-                <span class="icon-info">i</span>
+                    <span class="icon-good">&#10003;</span>
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric evaluates whether the AI response accurately matches the reference answer. It uses a 0-2 scoring scale normalized to 0-1.</div>
+            <div class="explanation-simple">This metric checks: does irrelevant context influence the AI response? Lower values are better - the system ignores noisy context.</div>
         </div>
     </div>
 
@@ -1714,7 +1874,25 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Initial judgment</span>
+                        <span class="exp-tree-name">Breaking down reference into statements</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="1">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(1)">
+                        <span class="exp-tree-number">2</span>
+                        <span class="exp-tree-name">Breaking down AI response into statements</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="2">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(2)">
+                        <span class="exp-tree-number">3</span>
+                        <span class="exp-tree-name">Analyzing matches and sources</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="3">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(3)">
+                        <span class="exp-tree-number">4</span>
+                        <span class="exp-tree-name">Calculating noise sensitivity</span>
                     </div>
                 </div>
 
@@ -1738,19 +1916,21 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">Normalized score = raw_score / 2</div>
+        <div class="exp-formula">avg((noise errors / total checks) per model)</div>
     </div>
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">2 / 2 = 1,00</div>
+        <div class="exp-calculation">0.00%</div>
     </div>
 
     <div class="exp-result-section">
-        <div class="exp-result-score ">
-            100.00%
+        <div class="exp-result-score 
+            good
+        ">
+            0.00%
         </div>
-        <div class="exp-result-meaning">Excellent - response accurately matches the reference</div>
+        <div class="exp-result-meaning">EXCELLENT - System completely ignores irrelevant context</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1761,8 +1941,8 @@
                     &#9658;
                 </span>
                 <span class="exp-scale-name">Excellent</span>
-                <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Response fully matches reference">Response fully matches reference</span>
+                <span class="exp-scale-range">0-10%</span>
+                <span class="exp-scale-desc" title="No noise influence (EXCELLENT)">No noise influence (EXCELLENT)</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1770,24 +1950,24 @@
                     
                 </span>
                 <span class="exp-scale-name">Good</span>
-                <span class="exp-scale-range">70-89%</span>
-                <span class="exp-scale-desc" title="Response mostly matches reference">Response mostly matches reference</span>
+                <span class="exp-scale-range">10-30%</span>
+                <span class="exp-scale-desc" title="Minimal influence">Minimal influence</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Moderate</span>
-                <span class="exp-scale-range">50-69%</span>
-                <span class="exp-scale-desc" title="Response partially matches reference">Response partially matches reference</span>
+                <span class="exp-scale-range">30-50%</span>
+                <span class="exp-scale-desc" title="Noticeable influence">Noticeable influence</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Poor</span>
-                <span class="exp-scale-range">0-49%</span>
-                <span class="exp-scale-desc" title="Response is inaccurate">Response is inaccurate</span>
+                <span class="exp-scale-range">50-100%</span>
+                <span class="exp-scale-desc" title="Heavy response distortion">Heavy response distortion</span>
             </div>
         </div>
     </div>
@@ -1799,63 +1979,201 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "answer-accuracy",
-    "hasFixedInterpretation": false,
+    "metricType": "noise-sensitivity",
+    "hasFixedInterpretation": true,
     "executionSteps": [
         {
-            "stepName": "InitialJudgment",
+            "stepName": "DecomposeReference",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 7760,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"Both the AI response and reference accurately describe the TCP three-way handshake as consisting of SYN, SYN-ACK, and ACK. The AI response is concise but factually complete, correct, and relevant, matching the core content of the reference.\"\n}"
+                    "durationMs": 3689,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1681,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately states the components of the TCP three-way handshake, which is the core information provided in the reference answer. While slightly less verbose, it conveys the same factual content.\"\n}"
+                    "durationMs": 6746,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 15947,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately identifies the three steps of the TCP three-way handshake (SYN, SYN-ACK, ACK), matching the factual content of the reference answer. The omission of additional context does not affect correctness.\"\n}"
+                    "durationMs": 5479,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1160,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response is factually identical to the reference answer, correctly identifying the three steps of the TCP handshake (SYN, SYN-ACK, ACK) in the correct order.\"\n}"
+                    "durationMs": 1856,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "DecomposeResponse",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 2612,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 866,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 4619,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 1266,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "EvaluateGroundTruthToAnswer",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3370,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement matches exactly the first sentence in the context: 'The Zenith Tower was built in 1889.'\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement matches exactly the second sentence in the context: 'It is located in Novara, Helvetia.', where 'It' refers to the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement matches exactly the third sentence in the context: 'It was designed by Marcus Chen.', where 'It' refers to the Zenith Tower.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 1429,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was built in 1889.' and the statement says 'The Zenith Tower was built in 1889.' These match exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It is located in Novara, Helvetia.' and the statement says 'The Zenith Tower is located in Novara.' The statement is consistent with the context, as Novara is mentioned as part of the location.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It is located in Novara, Helvetia.' and the statement says 'The Zenith Tower is located in Helvetia.' The statement is consistent with the context, as Helvetia is mentioned as part of the location.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It was designed by Marcus Chen.' and the statement says 'The Zenith Tower was designed by Marcus Chen.' These match exactly.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 9266,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was built in 1889,' which matches the statement exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It is located in Novara, Helvetia,' which matches the statement exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It was designed by Marcus Chen,' which matches the statement exactly.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 2376,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was built in 1889.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower is located in Novara, Helvetia.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower is located in Novara, Helvetia.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was designed by Marcus Chen.\"\n  } ]\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "EvaluateAllContexts",
+            "stepType": "LLM",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3817,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was constructed in 1889', which matches the fact that it was built in 1889 ('constructed' and 'built' refer to the same event, year 1889 matches exactly).\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the location of the Zenith Tower at all, so this cannot be verified from the context.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the designer of the Zenith Tower at all, so this cannot be verified from the context.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 1359,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states, 'The Zenith Tower was constructed in 1889'. The statement matches this fact exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the location of the Zenith Tower. Therefore, this statement cannot be verified by the provided context.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the location of the Zenith Tower. Therefore, this statement cannot be verified by the provided context.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention who designed the Zenith Tower. Therefore, this statement cannot be verified by the provided context.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 8077,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was constructed in 1889 for the World Exposition.' The statement matches this fact exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The provided context does not mention any location for the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The provided context does not mention the designer of the Zenith Tower.\"\n  } ]\n}"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 2230,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was constructed in 1889.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention Novara or any specific city location for the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention Helvetia or any specific country location for the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not provide information regarding the designer of the Zenith Tower.\"\n  } ]\n}"
+                }
+            ]
+        },
+        {
+            "stepName": "ComputeNoiseSensitivity",
+            "stepType": "COMPUTE",
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0"
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0"
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0"
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0"
                 }
             ]
         }
     ],
     "modelScores": {
-        "google/gemini-2.5-flash": 1,
-        "deepseek/deepseek-v3.2": 1,
-        "x-ai/grok-4.1-fast": 1,
-        "google/gemini-3-flash-preview": 1
+        "x-ai/grok-4.1-fast": 0,
+        "google/gemini-2.5-flash": 0,
+        "deepseek/deepseek-v3.2": 0,
+        "google/gemini-3-flash-preview": 0
     },
-    "aggregatedScore": 1,
+    "aggregatedScore": 0,
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "InitialJudgment",
-            "title": "Initial judgment",
-            "description": "LLM evaluates accuracy of response against reference.",
-            "inputData": "TCP uses a three-way handshake: SYN, SYN-ACK, ACK.\n\nReference Answer:\nThe TCP three-way handshake consists of SYN, SYN-ACK, and ACK packets to establish a connection.",
-            "outputSummary": "Accuracy: 2/2 (100,0%)",
+            "stepName": "ExtractReferenceStatements",
+            "title": "Breaking down reference into statements",
+            "description": "The reference answer is broken down into individual facts.",
+            "inputData": "The Zenith Tower was built in 1889. It is located in Novara, Helvetia. It was designed by Marcus Chen.",
+            "outputSummary": "Reference statements",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
-                    "index": 0,
-                    "content": "Both the AI response and reference accurately describe the TCP three-way handshake as consisting of SYN, SYN-ACK, and ACK. The AI response is concise but factually complete, correct, and relevant, matching the core content of the reference.",
-                    "passed": true,
-                    "verdict": "Fully correct (2/2)",
+                    "index": 1,
+                    "content": "The Zenith Tower was built in 1889.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "The Zenith Tower is located in Novara, Helvetia.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "The Zenith Tower was designed by Marcus Chen.",
+                    "passed": null,
+                    "verdict": null,
                     "reason": null,
                     "source": null,
                     "numericValue": null
@@ -1865,44 +2183,146 @@
             ],
             "metadata": {
             }
+        },
+        {
+            "stepNumber": 2,
+            "stepName": "ExtractResponseStatements",
+            "title": "Breaking down AI response into statements",
+            "description": "The AI response is broken down into individual facts.",
+            "inputData": "The Zenith Tower was built in 1889. It is located in Novara, Helvetia. It was designed by Marcus Chen.",
+            "outputSummary": "Response statements",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+                {
+                    "index": 1,
+                    "content": "The Zenith Tower was built in 1889.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "The Zenith Tower is located in Novara, Helvetia.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "The Zenith Tower was designed by Marcus Chen.",
+                    "passed": null,
+                    "verdict": null,
+                    "reason": null,
+                    "source": null,
+                    "numericValue": null
+                }
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 3,
+            "stepName": "AnalyzeMatches",
+            "title": "Analyzing matches and sources",
+            "description": "Checking if response statements match reference and where information came from.",
+            "inputData": null,
+            "outputSummary": "0 errors out of 3 checks",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+                {
+                    "index": 1,
+                    "content": "The Zenith Tower was built in 1889.",
+                    "passed": true,
+                    "verdict": "OK",
+                    "reason": "Statement matches reference",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "The Zenith Tower is located in Novara, Helvetia.",
+                    "passed": true,
+                    "verdict": "OK",
+                    "reason": "Statement matches reference",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "The Zenith Tower was designed by Marcus Chen.",
+                    "passed": true,
+                    "verdict": "OK",
+                    "reason": "Statement matches reference",
+                    "source": null,
+                    "numericValue": null
+                }
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
+        },
+        {
+            "stepNumber": 4,
+            "stepName": "ComputeScore",
+            "title": "Calculating noise sensitivity",
+            "description": "Proportion of errors caused by irrelevant context. Lower = better.",
+            "inputData": null,
+            "outputSummary": "0.00%",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+            }
         }
     ],
     "interpretation": {
-        "formula": "Normalized score = raw_score / 2",
-        "calculation": "2 / 2 = 1,00",
-        "score": 1,
-        "scorePercent": "100.00%",
+        "formula": "avg((noise errors / total checks) per model)",
+        "calculation": "0.00%",
+        "score": 0,
+        "scorePercent": "0.00%",
         "level": "Excellent",
-        "isGood": null,
-        "meaning": "Excellent - response accurately matches the reference",
-        "numerator": null,
-        "denominator": null,
+        "isGood": true,
+        "meaning": "EXCELLENT - System completely ignores irrelevant context",
+        "numerator": 0,
+        "denominator": 3,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
         "scaleLevels": [
             {
                 "name": "Excellent",
-                "range": "90-100%",
-                "description": "Response fully matches reference",
+                "range": "0-10%",
+                "description": "No noise influence (EXCELLENT)",
                 "current": true
             },
             {
                 "name": "Good",
-                "range": "70-89%",
-                "description": "Response mostly matches reference",
+                "range": "10-30%",
+                "description": "Minimal influence",
                 "current": false
             },
             {
                 "name": "Moderate",
-                "range": "50-69%",
-                "description": "Response partially matches reference",
+                "range": "30-50%",
+                "description": "Noticeable influence",
                 "current": false
             },
             {
                 "name": "Poor",
-                "range": "0-49%",
-                "description": "Response is inaccurate",
+                "range": "50-100%",
+                "description": "Heavy response distortion",
                 "current": false
             }
         ]
@@ -2251,6 +2671,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2359,15 +2799,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2705,181 +3147,84 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Answer Accuracy Metric</h1>
-<h2>Overview</h2>
-<p>Answer Accuracy is a NVIDIA-style evaluation metric that measures how accurately an AI response matches a reference (ground truth) answer. It uses a 0-2 scoring scale that is normalized to 0-1 for consistency with other metrics.</p>
-<h2>How It Works</h2>
-<h3>Scoring Scale</h3>
+    <h1>Noise Sensitivity Metric</h1>
+<h2>Glossary</h2>
+<ul>
+<li><strong>Noise</strong> — irrelevant contexts not related to the user's question</li>
+<li><strong>Reference (Ground Truth)</strong> — the expected correct answer to the user's question</li>
+<li><strong>Context</strong> — information fragments provided to the agentic system</li>
+<li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
+</ul>
+<h2>Description</h2>
+<p>The metric evaluates the agentic system's resistance to irrelevant information (noise) in the context. It checks whether the system used noisy contexts when forming the response. A low score indicates high resistance — the agentic system successfully ignores irrelevant information.</p>
+<p><strong>Note:</strong> This is an inverse metric — the lower the score, the better.</p>
+<h2>Example</h2>
+<p><strong>User Question:</strong> &quot;When was the Eiffel Tower built?&quot;</p>
+<p><strong>Reference (Ground Truth):</strong> &quot;The Eiffel Tower was built in 1889.&quot;</p>
+<p><strong>Contexts:</strong></p>
+<ol>
+<li>&quot;The Eiffel Tower was completed in 1889.&quot; (relevant)</li>
+<li>&quot;The weather in Paris is mild in spring.&quot; (noise)</li>
+<li>&quot;The tower has 1,665 steps.&quot; (noise)</li>
+</ol>
+<p><strong>Agentic System Response:</strong> &quot;The Eiffel Tower was built in 1889. Paris has mild weather in spring.&quot;</p>
+<p><strong>Analysis:</strong></p>
+<ul>
+<li>Fact about 1889 — from relevant context ✓</li>
+<li>Fact about weather — from noise context ✗</li>
+</ul>
+<p><strong>Score:</strong> &gt; 0% (noise used — bad)</p>
+<p>If the response contained only the fact about 1889, the score would be <strong>0% (good)</strong>.</p>
+<h2>Score Interpretation</h2>
 <table>
 <thead>
 <tr>
 <th>Score</th>
-<th>Level</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0</td>
-<td>Incorrect</td>
-<td>Response is factually wrong or contradicts the reference</td>
-</tr>
-<tr>
-<td>1</td>
-<td>Partially Correct</td>
-<td>Response is partially correct but incomplete or has minor errors</td>
-</tr>
-<tr>
-<td>2</td>
-<td>Fully Correct</td>
-<td>Response accurately matches the reference answer</td>
-</tr>
-</tbody>
-</table>
-<h3>Algorithm</h3>
-<ol>
-<li><strong>Initial Judgment</strong>: An LLM evaluates the response against the reference, assigning a score (0-2) with reasoning</li>
-<li><strong>Confirmation Judgment</strong> (optional): When dual-judge mode is enabled, a second evaluation confirms or adjusts the initial assessment</li>
-<li><strong>Score Normalization</strong>: The raw score (0-2) is divided by 2 to produce a 0-1 normalized score</li>
-</ol>
-<h3>Formula</h3>
-<pre><code>normalized_score = raw_score / 2
-</code></pre>
-<p>Where:</p>
-<ul>
-<li><code>raw_score</code> is the LLM's judgment (0, 1, or 2)</li>
-<li><code>normalized_score</code> is the final metric value (0.0 to 1.0)</li>
-</ul>
-<h2>Interpretation</h2>
-<table>
-<thead>
-<tr>
-<th>Score Range</th>
-<th>Level</th>
 <th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>90-100%</td>
-<td>Excellent</td>
-<td>Response accurately matches the reference</td>
+<td>0-10%</td>
+<td>Agentic system successfully ignores noise</td>
 </tr>
 <tr>
-<td>70-89%</td>
-<td>Good</td>
-<td>Response mostly matches the reference</td>
+<td>10-30%</td>
+<td>Agentic system is mostly resistant to noise</td>
 </tr>
 <tr>
-<td>50-69%</td>
-<td>Moderate</td>
-<td>Response partially matches the reference</td>
+<td>30-50%</td>
+<td>Agentic system sometimes uses noisy information</td>
 </tr>
 <tr>
-<td>0-49%</td>
-<td>Poor</td>
-<td>Response is inaccurate or contradicts the reference</td>
+<td>50-100%</td>
+<td>Agentic system is susceptible to irrelevant contexts</td>
 </tr>
 </tbody>
 </table>
-<h2>Configuration Options</h2>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>useDualJudge</code></td>
-<td>boolean</td>
-<td>false</td>
-<td>Enable dual-judge mode for higher reliability</td>
-</tr>
-<tr>
-<td><code>temperature</code></td>
-<td>double</td>
-<td>0.1</td>
-<td>LLM temperature (lower = more deterministic)</td>
-</tr>
-<tr>
-<td><code>models</code></td>
-<td>List<String></td>
-<td>-</td>
-<td>Specific models to use (optional)</td>
-</tr>
-</tbody>
-</table>
-<h2>Example Usage</h2>
-<pre><code class="language-java">Sample sample = Sample.builder()
-    .response(&quot;Paris is the capital of France.&quot;)
-    .reference(&quot;Paris is the capital city of France.&quot;)
-    .build();
-
-AnswerAccuracyConfig config = AnswerAccuracyConfig.builder()
-    .useDualJudge(false)
-    .temperature(0.1)
-    .build();
-
-Double score = answerAccuracyMetric.singleTurnScore(config, sample);
-</code></pre>
-<h2>Dual-Judge Mode</h2>
-<p>When <code>useDualJudge</code> is enabled:</p>
+<h2>Algorithm</h2>
 <ol>
-<li>Initial LLM evaluates response vs reference</li>
-<li>Second LLM reviews the initial assessment</li>
-<li>The confirmation score is used if available</li>
-<li>Falls back to initial score if confirmation fails</li>
+<li><strong>Statement Extraction</strong> — reference and response are broken into atomic statements</li>
+<li><strong>Reference Comparison</strong> — response statements are checked against the reference</li>
+<li><strong>Source Analysis</strong> — determination of which contexts statements came from</li>
+<li><strong>Score Calculation</strong> — proportion of noisy information in the response is evaluated</li>
 </ol>
-<p>This mode improves reliability but increases latency and cost.</p>
-<h2>Required Sample Fields</h2>
+<h2>Modes</h2>
 <ul>
-<li><code>response</code> - The AI-generated response to evaluate</li>
-<li><code>reference</code> - The ground truth/expected answer</li>
+<li><strong>RELEVANT</strong> — measures errors from relevant contexts</li>
+<li><strong>IRRELEVANT</strong> — measures errors from irrelevant (noise) contexts</li>
 </ul>
-<h2>Comparison with Other Metrics</h2>
-<table>
-<thead>
-<tr>
-<th>Metric</th>
-<th>Purpose</th>
-<th>Method</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Answer Accuracy</strong></td>
-<td>Matches reference answer</td>
-<td>LLM judgment (0-2 scale)</td>
-</tr>
-<tr>
-<td>Semantic Similarity</td>
-<td>Embedding-based similarity</td>
-<td>Cosine similarity</td>
-</tr>
-<tr>
-<td>Factual Correctness</td>
-<td>Claims decomposition</td>
-<td>NLI verification</td>
-</tr>
-</tbody>
-</table>
-<h2>Best Practices</h2>
-<ol>
-<li><strong>Clear References</strong>: Provide clear, unambiguous reference answers</li>
-<li><strong>Dual-Judge for Critical</strong>: Use dual-judge mode for high-stakes evaluations</li>
-<li><strong>Consistent Format</strong>: Keep response and reference in similar formats</li>
-<li><strong>Multiple Models</strong>: Use multiple judge models for consensus</li>
-</ol>
-<h2>Limitations</h2>
+<h2>Formula</h2>
+<pre><code>score = noise_statements / total_statements
+</code></pre>
+<p>Where:</p>
 <ul>
-<li>LLM-based evaluation can have biases</li>
-<li>Sensitive to phrasing differences between response and reference</li>
-<li>May not capture nuanced correctness in complex domains</li>
-<li>Subjective interpretation of &quot;partially correct&quot;</li>
+<li><code>noise_statements</code> — number of statements in response taken from noise contexts</li>
+<li><code>total_statements</code> — total number of statements in the response</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/noise_sensitivity.md">RAGAS Documentation</a></li>
 </ul>
 
 </div>
@@ -2889,8 +3234,32 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">InitialJudgment</span>
+                <span class="step-name">DecomposeReference</span>
                 <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">2.</span>
+                <span class="step-name">DecomposeResponse</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">3.</span>
+                <span class="step-name">EvaluateGroundTruthToAnswer</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box llm">
+                <span class="step-number">4.</span>
+                <span class="step-name">EvaluateAllContexts</span>
+                <span class="step-type">[LLM]</span>
+            </div>
+                <div class="step-arrow">&rarr;</div>
+            <div class="step-box compute">
+                <span class="step-number">5.</span>
+                <span class="step-name">ComputeNoiseSensitivity</span>
+                <span class="step-type">[COMPUTE]</span>
             </div>
     </div>
 </div>
@@ -2915,8 +3284,8 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">InitialJudgment</span>
-                    <span class="tree-duration">15947ms</span>
+                    <span class="tree-name">DecomposeReference</span>
+                    <span class="tree-duration">6746ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2924,7 +3293,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">7760ms</span>
+                        <span class="tree-duration">3689ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2932,7 +3301,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1681ms</span>
+                        <span class="tree-duration">6746ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2940,7 +3309,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">15947ms</span>
+                        <span class="tree-duration">5479ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2948,7 +3317,187 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1160ms</span>
+                        <span class="tree-duration">1856ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="1">
+                <div class="tree-item" onclick="selectStep(1)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">DecomposeResponse</span>
+                    <span class="tree-duration">4619ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(1, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">2612ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(1, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">866ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(1, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">4619ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(1, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">1266ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="2">
+                <div class="tree-item" onclick="selectStep(2)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">EvaluateGroundTruthToAnswer</span>
+                    <span class="tree-duration">9266ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">3370ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">1429ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">9266ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(2, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">2376ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="3">
+                <div class="tree-item" onclick="selectStep(3)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge llm">LLM</span>
+                    <span class="tree-name">EvaluateAllContexts</span>
+                    <span class="tree-duration">8077ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">3817ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">1359ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">8077ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(3, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">2230ms</span>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="tree-node step-node" data-step="4">
+                <div class="tree-item" onclick="selectStep(4)">
+                    <span class="tree-expand has-children"
+                          onclick="event.stopPropagation(); toggleTreeNode(this)">
+                        ▶
+                    </span>
+                    <span class="tree-type-badge compute">COMPUTE</span>
+                    <span class="tree-name">ComputeNoiseSensitivity</span>
+                    <span class="tree-duration">0ms</span>
+                </div>
+                <div class="tree-children" style="display: none;">
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 0, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 1, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 2, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
+                        <span class="tree-duration">0ms</span>
+                        
+                    </div>
+                    <div class="tree-item model-item "
+                         onclick="selectModel(4, 3, 'llm')">
+                        <span class="tree-expand">•</span>
+                        <span class="tree-type-badge model">LLM</span>
+                        <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
+                        <span class="tree-duration">0ms</span>
                         
                     </div>
                 </div>
@@ -2993,10 +3542,10 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "InitialJudgment",
+            "stepName": "DecomposeReference",
             "stepType": "LLM",
-            "durationMs": 15947,
-            "request": "Compare the AI response with the reference answer and evaluate its accuracy.\n\nAI Response:\nTCP uses a three-way handshake: SYN, SYN-ACK, ACK.\n\nReference Answer:\nThe TCP three-way handshake consists of SYN, SYN-ACK, and ACK packets to establish a connection.\n\nInstructions:\n1. Compare the factual content of the response with the reference\n2. Consider completeness, correctness, and relevance\n3. Rate using the following scale:\n   - 0: Incorrect - Response is factually wrong or contradicts the reference\n   - 1: Partially correct - Response is partially correct but incomplete or has minor errors\n   - 2: Fully correct - Response accurately matches the reference answer\n\nRespond with a JSON object containing:\n- score: Integer from 0 to 2 representing the accuracy level\n- reasoning: Brief explanation of the accuracy assessment\n",
+            "durationMs": 6746,
+            "request": "Given a question and an answer, create a list of statements that are present in the answer.\nEach statement should be atomic, meaning it contains only one piece of information.\n\nQuestion: Tell me about the Zenith Tower.\nAnswer: The Zenith Tower was built in 1889. It is located in Novara, Helvetia. It was designed by Marcus Chen.\n\nInstructions:\n1. Break down the answer into individual, atomic statements\n2. Each statement should be a complete, standalone assertion\n3. Avoid compound statements - split them into separate statements\n4. Focus on factual claims that can be verified\n5. Maintain the original meaning from the answer\n6. Do not add information not present in the answer\n\nRespond with a JSON object containing:\n- statements: A list of atomic statements extracted from the answer\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3004,32 +3553,216 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 7760,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"Both the AI response and reference accurately describe the TCP three-way handshake as consisting of SYN, SYN-ACK, and ACK. The AI response is concise but factually complete, correct, and relevant, matching the core content of the reference.\"\n}",
+                    "durationMs": 3689,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1681,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately states the components of the TCP three-way handshake, which is the core information provided in the reference answer. While slightly less verbose, it conveys the same factual content.\"\n}",
+                    "durationMs": 6746,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 15947,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately identifies the three steps of the TCP three-way handshake (SYN, SYN-ACK, ACK), matching the factual content of the reference answer. The omission of additional context does not affect correctness.\"\n}",
+                    "durationMs": 5479,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1160,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response is factually identical to the reference answer, correctly identifying the three steps of the TCP handshake (SYN, SYN-ACK, ACK) in the correct order.\"\n}",
+                    "durationMs": 1856,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 1,
+            "stepName": "DecomposeResponse",
+            "stepType": "LLM",
+            "durationMs": 4619,
+            "request": "Given a question and an answer, create a list of statements that are present in the answer.\nEach statement should be atomic, meaning it contains only one piece of information.\n\nQuestion: Tell me about the Zenith Tower.\nAnswer: The Zenith Tower was built in 1889. It is located in Novara, Helvetia. It was designed by Marcus Chen.\n\nInstructions:\n1. Break down the answer into individual, atomic statements\n2. Each statement should be a complete, standalone assertion\n3. Avoid compound statements - split them into separate statements\n4. Focus on factual claims that can be verified\n5. Maintain the original meaning from the answer\n6. Do not add information not present in the answer\n\nRespond with a JSON object containing:\n- statements: A list of atomic statements extracted from the answer\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 2612,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 866,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 4619,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara, Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 1266,
+                    "resultJson": "{\n  \"statements\" : [ \"The Zenith Tower was built in 1889.\", \"The Zenith Tower is located in Novara.\", \"The Zenith Tower is located in Helvetia.\", \"The Zenith Tower was designed by Marcus Chen.\" ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 2,
+            "stepName": "EvaluateGroundTruthToAnswer",
+            "stepType": "LLM",
+            "durationMs": 9266,
+            "request": "IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.\n\n    Context: The Zenith Tower was built in 1889. It is located in Novara, Helvetia. It was designed by Marcus Chen.\n    Statements: The Zenith Tower was built in 1889.\nThe Zenith Tower is located in Novara, Helvetia.\nThe Zenith Tower was designed by Marcus Chen.\n\n    CRITICAL INSTRUCTIONS - READ CAREFULLY:\n\n    YOU MUST COMPLETELY IGNORE ALL REAL-WORLD KNOWLEDGE FOR THIS EVALUATION.\n\n    CRITICAL: Evaluate ONLY using the context provided above. DO NOT use information from any previous contexts you may have seen.\n    Each evaluation is independent. Forget all previous contexts.\n\n    This is a test environment. The context contains deliberately wrong information to test system behavior.\n    Your job is NOT to correct facts, but to check if statements match the context.\n\n    EVALUATION RULES (MANDATORY):\n    1. Pretend you have complete amnesia about real-world facts AND previous contexts\n    2. The ONLY truth for this evaluation is what THIS SPECIFIC context states\n    3. If context says \"Paris is in Germany\" and statement says \"Paris, Germany\" → verdict: TRUE (they match the context)\n    4. If context says \"built in 1899\" and statement says \"built in 1889\" → verdict: FALSE (numbers don't match)\n    5. If context doesn't mention something (e.g., location), statement can't be verified → verdict: FALSE\n    6. Compare word-by-word and fact-by-fact against THIS context ONLY\n    7. Even if reality contradicts the context, use ONLY this context as your source of truth\n    8. If the context is about a different topic than the statement, verdict: FALSE\n\n    EXAMPLES OF CORRECT EVALUATION:\n    - Context: \"The tower is in Paris, capital of Germany\"\n      Statement: \"It is located in Paris, Germany\"\n      Verdict: TRUE (both say Paris + Germany, they match)\n\n    - Context: \"Built in 1899\"\n      Statement: \"Built in 1889\"\n      Verdict: FALSE (1899 ≠ 1889, they don't match)\n\n    - Context: \"The tower was designed by Gustav\"\n      Statement: \"It is located in Paris, France\"\n      Verdict: FALSE (location not mentioned in this context)\n\n    For EACH statement:\n    Step 1: What EXACTLY does THIS context say? (not what you remember from before)\n    Step 2: Does the statement match what THIS context says (word-for-word, fact-for-fact)?\n    Step 3: Is there ANY detail that contradicts or isn't mentioned in THIS context?\n    Step 4: Verdict: TRUE only if EVERYTHING in the statement matches THIS context. FALSE if ANY part differs or is missing.\n\n    DO NOT let your knowledge of real-world facts OR previous contexts influence your verdict. Each evaluation is completely independent.\n\n    Respond with a JSON object containing:\n       - verdicts: A list of verdicts for each statement, where each verdict contains:\n       - statement: The original statement\n       - verdict: true if the ENTIRE statement matches THIS context exactly, false otherwise\n       - reason: Explanation comparing statement to THIS context (not to real-world facts or previous contexts)\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3370,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement matches exactly the first sentence in the context: 'The Zenith Tower was built in 1889.'\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement matches exactly the second sentence in the context: 'It is located in Novara, Helvetia.', where 'It' refers to the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The statement matches exactly the third sentence in the context: 'It was designed by Marcus Chen.', where 'It' refers to the Zenith Tower.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 1429,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was built in 1889.' and the statement says 'The Zenith Tower was built in 1889.' These match exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It is located in Novara, Helvetia.' and the statement says 'The Zenith Tower is located in Novara.' The statement is consistent with the context, as Novara is mentioned as part of the location.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It is located in Novara, Helvetia.' and the statement says 'The Zenith Tower is located in Helvetia.' The statement is consistent with the context, as Helvetia is mentioned as part of the location.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It was designed by Marcus Chen.' and the statement says 'The Zenith Tower was designed by Marcus Chen.' These match exactly.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 9266,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was built in 1889,' which matches the statement exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It is located in Novara, Helvetia,' which matches the statement exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'It was designed by Marcus Chen,' which matches the statement exactly.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 2376,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was built in 1889.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower is located in Novara, Helvetia.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower is located in Novara, Helvetia.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was designed by Marcus Chen.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 3,
+            "stepName": "EvaluateAllContexts",
+            "stepType": "LLM",
+            "durationMs": 8077,
+            "request": "IMPORTANT: You are evaluating a RAG system with SYNTHETIC TEST DATA containing INTENTIONALLY INCORRECT facts.\n\n    Context: The Zenith Tower was constructed in 1889 for the World Exposition.\n    Statements: The Zenith Tower was built in 1889.\nThe Zenith Tower is located in Novara, Helvetia.\nThe Zenith Tower was designed by Marcus Chen.\n\n    CRITICAL INSTRUCTIONS - READ CAREFULLY:\n\n    YOU MUST COMPLETELY IGNORE ALL REAL-WORLD KNOWLEDGE FOR THIS EVALUATION.\n\n    CRITICAL: Evaluate ONLY using the context provided above. DO NOT use information from any previous contexts you may have seen.\n    Each evaluation is independent. Forget all previous contexts.\n\n    This is a test environment. The context contains deliberately wrong information to test system behavior.\n    Your job is NOT to correct facts, but to check if statements match the context.\n\n    EVALUATION RULES (MANDATORY):\n    1. Pretend you have complete amnesia about real-world facts AND previous contexts\n    2. The ONLY truth for this evaluation is what THIS SPECIFIC context states\n    3. If context says \"Paris is in Germany\" and statement says \"Paris, Germany\" → verdict: TRUE (they match the context)\n    4. If context says \"built in 1899\" and statement says \"built in 1889\" → verdict: FALSE (numbers don't match)\n    5. If context doesn't mention something (e.g., location), statement can't be verified → verdict: FALSE\n    6. Compare word-by-word and fact-by-fact against THIS context ONLY\n    7. Even if reality contradicts the context, use ONLY this context as your source of truth\n    8. If the context is about a different topic than the statement, verdict: FALSE\n\n    EXAMPLES OF CORRECT EVALUATION:\n    - Context: \"The tower is in Paris, capital of Germany\"\n      Statement: \"It is located in Paris, Germany\"\n      Verdict: TRUE (both say Paris + Germany, they match)\n\n    - Context: \"Built in 1899\"\n      Statement: \"Built in 1889\"\n      Verdict: FALSE (1899 ≠ 1889, they don't match)\n\n    - Context: \"The tower was designed by Gustav\"\n      Statement: \"It is located in Paris, France\"\n      Verdict: FALSE (location not mentioned in this context)\n\n    For EACH statement:\n    Step 1: What EXACTLY does THIS context say? (not what you remember from before)\n    Step 2: Does the statement match what THIS context says (word-for-word, fact-for-fact)?\n    Step 3: Is there ANY detail that contradicts or isn't mentioned in THIS context?\n    Step 4: Verdict: TRUE only if EVERYTHING in the statement matches THIS context. FALSE if ANY part differs or is missing.\n\n    DO NOT let your knowledge of real-world facts OR previous contexts influence your verdict. Each evaluation is completely independent.\n\n    Respond with a JSON object containing:\n       - verdicts: A list of verdicts for each statement, where each verdict contains:\n       - statement: The original statement\n       - verdict: true if the ENTIRE statement matches THIS context exactly, false otherwise\n       - reason: Explanation comparing statement to THIS context (not to real-world facts or previous contexts)\n",
+            "isLlmStep": true,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 3817,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was constructed in 1889', which matches the fact that it was built in 1889 ('constructed' and 'built' refer to the same event, year 1889 matches exactly).\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the location of the Zenith Tower at all, so this cannot be verified from the context.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the designer of the Zenith Tower at all, so this cannot be verified from the context.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 1359,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states, 'The Zenith Tower was constructed in 1889'. The statement matches this fact exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the location of the Zenith Tower. Therefore, this statement cannot be verified by the provided context.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention the location of the Zenith Tower. Therefore, this statement cannot be verified by the provided context.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention who designed the Zenith Tower. Therefore, this statement cannot be verified by the provided context.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 8077,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context states 'The Zenith Tower was constructed in 1889 for the World Exposition.' The statement matches this fact exactly.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara, Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The provided context does not mention any location for the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The provided context does not mention the designer of the Zenith Tower.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 2230,
+                    "resultJson": "{\n  \"verdicts\" : [ {\n    \"statement\" : \"The Zenith Tower was built in 1889.\",\n    \"verdict\" : true,\n    \"reason\" : \"The context explicitly states that the Zenith Tower was constructed in 1889.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Novara.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention Novara or any specific city location for the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower is located in Helvetia.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not mention Helvetia or any specific country location for the Zenith Tower.\"\n  }, {\n    \"statement\" : \"The Zenith Tower was designed by Marcus Chen.\",\n    \"verdict\" : false,\n    \"reason\" : \"The context does not provide information regarding the designer of the Zenith Tower.\"\n  } ]\n}",
+                    "errorMessage": null,
+                    "stackTrace": null
+                }
+            ],
+            "embeddingResults": [
+            ]
+        },
+        {
+            "stepIndex": 4,
+            "stepName": "ComputeNoiseSensitivity",
+            "stepType": "COMPUTE",
+            "durationMs": 0,
+            "request": null,
+            "isLlmStep": false,
+            "successCount": 4,
+            "failureCount": 0,
+            "modelResults": [
+                {
+                    "modelId": "x-ai/grok-4.1-fast",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-2.5-flash",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "deepseek/deepseek-v3.2",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0",
+                    "errorMessage": null,
+                    "stackTrace": null
+                },
+                {
+                    "modelId": "google/gemini-3-flash-preview",
+                    "success": true,
+                    "durationMs": 0,
+                    "resultJson": "0.0",
                     "errorMessage": null,
                     "stackTrace": null
                 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnswerAccuracyMetric - Evaluation Report</title>
+    <title>ContextRecallMetric - Evaluation Report</title>
     <style>
         :root {
             /* Allure 3 color scheme (day/light theme) */
@@ -362,6 +362,77 @@
 
         .context-list li {
             margin-bottom: 12px;
+        }
+
+        /* Conversation messages for agent metrics */
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conversation-message {
+            border-radius: 6px;
+            padding: 12px;
+            border-left: 4px solid;
+        }
+
+        .message-human {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .message-ai {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .message-tool {
+            background: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+
+        .message-role {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .message-human .message-role { color: #1565c0; }
+        .message-ai .message-role { color: #2e7d32; }
+        .message-tool .message-role { color: #7b1fa2; }
+
+        .message-content {
+            background: rgba(255,255,255,0.7);
+            margin: 8px 0 0 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .tool-calls {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .tool-calls-label {
+            font-size: 11px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .tool-call {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-family: monospace;
         }
 
         /* Collapsible block styles */
@@ -1009,6 +1080,18 @@
             min-width: 24px;
         }
 
+        .exp-item-source-badge {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .exp-item-content {
             flex: 1;
             font-size: 14px;
@@ -1536,11 +1619,11 @@
 <body>
     <div class="report-container">
         <header class="report-header">
-            <h1>AnswerAccuracyMetric - Evaluation Report</h1>
+            <h1>ContextRecallMetric - Evaluation Report</h1>
             <div class="metadata">
                 <span class="score-badge excellent">100.00%</span>
-                <span class="duration">Duration: 16013ms</span>
-                <span class="timestamp">2026-01-23T14:07:42.258778Z</span>
+                <span class="duration">Duration: 7803ms</span>
+                <span class="timestamp">2026-02-01T03:36:55.699652Z</span>
             </div>
         </header>
 
@@ -1581,13 +1664,13 @@
                 <line x1="510" y1="20" x2="510" y2="150" class="grid-line"/>
                 <line x1="550" y1="20" x2="550" y2="150" class="grid-line"/>
                     <text x="550" y="170" class="scale-label">1</text>
-            <text x="145" y="37" class="row-label">google/gemini-2.5-flash</text>
+            <text x="145" y="37" class="row-label">x-ai/grok-4.1-fast</text>
             <rect x="150" y="20" width="400" height="24" class="bar-excellent" rx="3"/>
             <text x="555" y="37" class="score-label">1,0000</text>
-            <text x="145" y="67" class="row-label">deepseek/deepseek-v3.2</text>
+            <text x="145" y="67" class="row-label">google/gemini-2.5-flash</text>
             <rect x="150" y="50" width="400" height="24" class="bar-excellent" rx="3"/>
             <text x="555" y="67" class="score-label">1,0000</text>
-            <text x="145" y="97" class="row-label">x-ai/grok-4.1-fast</text>
+            <text x="145" y="97" class="row-label">deepseek/deepseek-v3.2</text>
             <rect x="150" y="80" width="400" height="24" class="bar-excellent" rx="3"/>
             <text x="555" y="97" class="score-label">1,0000</text>
             <text x="145" y="127" class="row-label">google/gemini-3-flash-preview</text>
@@ -1613,31 +1696,31 @@
         <line x1="280" y1="170" x2="880" y2="170" class="axis"/>
             <text x="280" y="190" class="time-label">0ms</text>
             <line x1="280" y1="30" x2="280" y2="165" class="grid-line"/>
-            <text x="400" y="190" class="time-label">3189ms</text>
+            <text x="400" y="190" class="time-label">1550ms</text>
             <line x1="400" y1="30" x2="400" y2="165" class="grid-line"/>
-            <text x="520" y="190" class="time-label">6379ms</text>
+            <text x="520" y="190" class="time-label">3100ms</text>
             <line x1="520" y1="30" x2="520" y2="165" class="grid-line"/>
-            <text x="640" y="190" class="time-label">9568ms</text>
+            <text x="640" y="190" class="time-label">4650ms</text>
             <line x1="640" y1="30" x2="640" y2="165" class="grid-line"/>
-            <text x="760" y="190" class="time-label">12758ms</text>
+            <text x="760" y="190" class="time-label">6200ms</text>
             <line x1="760" y1="30" x2="760" y2="165" class="grid-line"/>
-            <text x="880" y="190" class="time-label">15948ms</text>
+            <text x="880" y="190" class="time-label">7750ms</text>
             <line x1="880" y1="30" x2="880" y2="165" class="grid-line"/>
             <text x="275" y="47" class="row-label">x-ai/grok-4.1-fast</text>
-            <rect x="280" y="30" width="291" height="24" class="bar-llm" rx="3">
-                <title>x-ai/grok-4.1-fast - InitialJudgment: 7760ms (LLM)</title>
+            <rect x="280" y="30" width="326" height="24" class="bar-llm" rx="3">
+                <title>x-ai/grok-4.1-fast - ClassifyStatements: 4223ms (LLM)</title>
             </rect>
             <text x="275" y="77" class="row-label">google/gemini-2.5-flash</text>
-            <rect x="280" y="60" width="63" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-2.5-flash - InitialJudgment: 1681ms (LLM)</title>
+            <rect x="280" y="60" width="115" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-2.5-flash - ClassifyStatements: 1493ms (LLM)</title>
             </rect>
             <text x="275" y="107" class="row-label">deepseek/deepseek-v3.2</text>
             <rect x="280" y="90" width="599" height="24" class="bar-llm" rx="3">
-                <title>deepseek/deepseek-v3.2 - InitialJudgment: 15947ms (LLM)</title>
+                <title>deepseek/deepseek-v3.2 - ClassifyStatements: 7748ms (LLM)</title>
             </rect>
             <text x="275" y="137" class="row-label">google/gemini-3-flash-preview</text>
-            <rect x="280" y="120" width="43" height="24" class="bar-llm" rx="3">
-                <title>google/gemini-3-flash-preview - InitialJudgment: 1160ms (LLM)</title>
+            <rect x="280" y="120" width="209" height="24" class="bar-llm" rx="3">
+                <title>google/gemini-3-flash-preview - ClassifyStatements: 2706ms (LLM)</title>
             </rect>
         <g transform="translate(660, 5)">
             <rect x="0" y="0" width="12" height="12" class="bar-llm"/>
@@ -1653,17 +1736,27 @@
 <div class="sample-section">
     <h3>Input Sample</h3>
     <dl>
-
         <div class="sample-item">
-            <dt>Response</dt>
-            <dd><pre>TCP uses a three-way handshake: SYN, SYN-ACK, ACK.</pre></dd>
+            <dt>User Input</dt>
+            <dd><pre>What can you tell me about Albert Einstein?</pre></dd>
         </div>
+
 
         <div class="sample-item">
             <dt>Reference</dt>
-            <dd><pre>The TCP three-way handshake consists of SYN, SYN-ACK, and ACK packets to establish a connection.</pre></dd>
+            <dd><pre>Albert Einstein was born on 14 March 1879. He was a German-born theoretical physicist. He received the 1921 Nobel Prize in Physics.</pre></dd>
         </div>
 
+        <div class="sample-item">
+            <dt>Retrieved Contexts</dt>
+            <dd>
+                <ol class="context-list">
+                    <li><pre>Albert Einstein (14 March 1879 - 18 April 1955) was a German-born theoretical physicist, widely held to be one of the greatest and most influential scientists of all time.</pre></li>
+                    <li><pre>He received the 1921 Nobel Prize in Physics for his services to theoretical physics, and especially for his discovery of the law of the photoelectric effect.</pre></li>
+                    <li><pre>Best known for developing the theory of relativity, he also made important contributions to quantum mechanics.</pre></li>
+                </ol>
+            </dd>
+        </div>
     </dl>
 </div>
 
@@ -1680,9 +1773,7 @@
 <div class="sample-section">
     <h3>Configuration</h3>
     <pre>{
-  &quot;models&quot; : [ ],
-  &quot;useDualJudge&quot; : false,
-  &quot;temperature&quot; : 0.1
+  &quot;models&quot; : [ ]
 }</pre>
 </div>
             </div>
@@ -1703,7 +1794,7 @@
         </div>
         <div class="explanation-summary">
             <div class="explanation-title">Why this score?</div>
-            <div class="explanation-simple">This metric evaluates whether the AI response accurately matches the reference answer. It uses a 0-2 scoring scale normalized to 0-1.</div>
+            <div class="explanation-simple">This metric checks: do contexts cover all information from the reference? Each sentence from reference should be found in contexts.</div>
         </div>
     </div>
 
@@ -1714,7 +1805,13 @@
                 <div class="exp-tree-node" data-step="0">
                     <div class="exp-tree-item" onclick="selectExplanationStep(0)">
                         <span class="exp-tree-number">1</span>
-                        <span class="exp-tree-name">Initial judgment</span>
+                        <span class="exp-tree-name">Checking reference coverage by contexts</span>
+                    </div>
+                </div>
+                <div class="exp-tree-node" data-step="1">
+                    <div class="exp-tree-item" onclick="selectExplanationStep(1)">
+                        <span class="exp-tree-number">2</span>
+                        <span class="exp-tree-name">Calculating coverage</span>
                     </div>
                 </div>
 
@@ -1738,19 +1835,19 @@
 
     <div class="exp-formula-section">
         <div class="exp-formula-label">Formula</div>
-        <div class="exp-formula">Normalized score = raw_score / 2</div>
+        <div class="exp-formula">avg((found sentences) / (total sentences) per model)</div>
     </div>
 
     <div class="exp-calculation-section">
         <div class="exp-calculation-label">Calculation</div>
-        <div class="exp-calculation">2 / 2 = 1,00</div>
+        <div class="exp-calculation">100.00%</div>
     </div>
 
     <div class="exp-result-section">
         <div class="exp-result-score ">
             100.00%
         </div>
-        <div class="exp-result-meaning">Excellent - response accurately matches the reference</div>
+        <div class="exp-result-meaning">Excellent - contexts fully cover the reference answer</div>
     </div>
 
     <div class="exp-scale-section">
@@ -1762,7 +1859,7 @@
                 </span>
                 <span class="exp-scale-name">Excellent</span>
                 <span class="exp-scale-range">90-100%</span>
-                <span class="exp-scale-desc" title="Response fully matches reference">Response fully matches reference</span>
+                <span class="exp-scale-desc" title="Full reference coverage">Full reference coverage</span>
                 <span class="exp-scale-current">YOUR RESULT</span>
             </div>
             <div class="exp-scale-item ">
@@ -1770,24 +1867,24 @@
                     
                 </span>
                 <span class="exp-scale-name">Good</span>
-                <span class="exp-scale-range">70-89%</span>
-                <span class="exp-scale-desc" title="Response mostly matches reference">Response mostly matches reference</span>
+                <span class="exp-scale-range">70-90%</span>
+                <span class="exp-scale-desc" title="Good coverage">Good coverage</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Moderate</span>
-                <span class="exp-scale-range">50-69%</span>
-                <span class="exp-scale-desc" title="Response partially matches reference">Response partially matches reference</span>
+                <span class="exp-scale-range">50-70%</span>
+                <span class="exp-scale-desc" title="Partial coverage">Partial coverage</span>
             </div>
             <div class="exp-scale-item ">
                 <span class="exp-scale-marker">
                     
                 </span>
                 <span class="exp-scale-name">Poor</span>
-                <span class="exp-scale-range">0-49%</span>
-                <span class="exp-scale-desc" title="Response is inaccurate">Response is inaccurate</span>
+                <span class="exp-scale-range">0-50%</span>
+                <span class="exp-scale-desc" title="Insufficient coverage">Insufficient coverage</span>
             </div>
         </div>
     </div>
@@ -1799,67 +1896,102 @@
 
 <script id="explanation-data" type="application/json">
 {
-    "metricType": "answer-accuracy",
+    "metricType": "context-recall",
     "hasFixedInterpretation": false,
     "executionSteps": [
         {
-            "stepName": "InitialJudgment",
+            "stepName": "ClassifyStatements",
             "stepType": "LLM",
             "modelResults": [
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 7760,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"Both the AI response and reference accurately describe the TCP three-way handshake as consisting of SYN, SYN-ACK, and ACK. The AI response is concise but factually complete, correct, and relevant, matching the core content of the reference.\"\n}"
+                    "durationMs": 4223,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly includes 'Albert Einstein (14 March 1879 - 18 April 1955)', where '14 March 1879' is clearly the birth date, directly supporting this statement.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context directly states 'Albert Einstein ... was a German-born theoretical physicist', which is semantically identical to the statement.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly states 'He received the 1921 Nobel Prize in Physics for his services to theoretical physics...', providing clear supporting evidence for this exact information.\",\n    \"attributed\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1681,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately states the components of the TCP three-way handshake, which is the core information provided in the reference answer. While slightly less verbose, it conveys the same factual content.\"\n}"
+                    "durationMs": 1493,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein (14 March 1879 - 18 April 1955)', which includes his birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein ... was a German-born theoretical physicist'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly states 'He received the 1921 Nobel Prize in Physics'.\",\n    \"attributed\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 15947,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately identifies the three steps of the TCP three-way handshake (SYN, SYN-ACK, ACK), matching the factual content of the reference answer. The omission of additional context does not affect correctness.\"\n}"
+                    "durationMs": 7748,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein (14 March 1879 - 18 April 1955)', which includes his birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context explicitly states 'was a German-born theoretical physicist'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly states 'He received the 1921 Nobel Prize in Physics for his services to theoretical physics...'.\",\n    \"attributed\" : 1\n  } ]\n}"
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1160,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response is factually identical to the reference answer, correctly identifying the three steps of the TCP handshake (SYN, SYN-ACK, ACK) in the correct order.\"\n}"
+                    "durationMs": 2706,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein (14 March 1879 - 18 April 1955)', which confirms his birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context directly describes him as a 'German-born theoretical physicist' in the first sentence.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly mentions that 'He received the 1921 Nobel Prize in Physics for his services to theoretical physics'.\",\n    \"attributed\" : 1\n  } ]\n}"
                 }
             ]
         }
     ],
     "modelScores": {
+        "x-ai/grok-4.1-fast": 1,
         "google/gemini-2.5-flash": 1,
         "deepseek/deepseek-v3.2": 1,
-        "x-ai/grok-4.1-fast": 1,
         "google/gemini-3-flash-preview": 1
     },
     "aggregatedScore": 1,
     "steps": [
         {
             "stepNumber": 1,
-            "stepName": "InitialJudgment",
-            "title": "Initial judgment",
-            "description": "LLM evaluates accuracy of response against reference.",
-            "inputData": "TCP uses a three-way handshake: SYN, SYN-ACK, ACK.\n\nReference Answer:\nThe TCP three-way handshake consists of SYN, SYN-ACK, and ACK packets to establish a connection.",
-            "outputSummary": "Accuracy: 2/2 (100,0%)",
+            "stepName": "ClassifyStatements",
+            "title": "Checking reference coverage by contexts",
+            "description": "For each sentence from the reference answer, we check: can it be found in the provided contexts?",
+            "inputData": "Albert Einstein was born on 14 March 1879. He was a German-born theoretical physicist. He received the 1921 Nobel Prize in Physics.",
+            "outputSummary": "3 of 3 found in contexts",
             "agreementPercent": 100,
             "hasModelDisagreement": false,
             "items": [
                 {
-                    "index": 0,
-                    "content": "Both the AI response and reference accurately describe the TCP three-way handshake as consisting of SYN, SYN-ACK, and ACK. The AI response is concise but factually complete, correct, and relevant, matching the core content of the reference.",
+                    "index": 1,
+                    "content": "Albert Einstein was born on 14 March 1879.",
                     "passed": true,
-                    "verdict": "Fully correct (2/2)",
-                    "reason": null,
+                    "verdict": "Found",
+                    "reason": "The context explicitly includes 'Albert Einstein (14 March 1879 - 18 April 1955)', where '14 March 1879' is clearly the birth date, directly supporting this statement.",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 2,
+                    "content": "He was a German-born theoretical physicist.",
+                    "passed": true,
+                    "verdict": "Found",
+                    "reason": "The context directly states 'Albert Einstein ... was a German-born theoretical physicist', which is semantically identical to the statement.",
+                    "source": null,
+                    "numericValue": null
+                },
+                {
+                    "index": 3,
+                    "content": "He received the 1921 Nobel Prize in Physics.",
+                    "passed": true,
+                    "verdict": "Found",
+                    "reason": "The context explicitly states 'He received the 1921 Nobel Prize in Physics for his services to theoretical physics...', providing clear supporting evidence for this exact information.",
                     "source": null,
                     "numericValue": null
                 }
+            ],
+            "modelResults": [
+            ],
+            "metadata": {
+                "contexts": "Albert Einstein (14 March 1879 - 18 April 1955) was a German-born theoretical physicist, widely held to be one of the greatest and most influential scientists of all time.\n\nHe received the 1921 Nobel Prize in Physics for his services to theoretical physics, and especially for his discovery of the law of the photoelectric effect.\n\nBest known for developing the theory of relativity, he also made important contributions to quantum mechanics."
+            }
+        },
+        {
+            "stepNumber": 2,
+            "stepName": "ComputeScore",
+            "title": "Calculating coverage",
+            "description": "Proportion of reference sentences found in contexts.",
+            "inputData": null,
+            "outputSummary": "100.00%",
+            "agreementPercent": 100,
+            "hasModelDisagreement": false,
+            "items": [
             ],
             "modelResults": [
             ],
@@ -1868,15 +2000,15 @@
         }
     ],
     "interpretation": {
-        "formula": "Normalized score = raw_score / 2",
-        "calculation": "2 / 2 = 1,00",
+        "formula": "avg((found sentences) / (total sentences) per model)",
+        "calculation": "100.00%",
         "score": 1,
         "scorePercent": "100.00%",
         "level": "Excellent",
         "isGood": null,
-        "meaning": "Excellent - response accurately matches the reference",
-        "numerator": null,
-        "denominator": null,
+        "meaning": "Excellent - contexts fully cover the reference answer",
+        "numerator": 3,
+        "denominator": 3,
         "currentLevelIndex": 0,
         "minLevel": 1,
         "maxLevel": 5,
@@ -1884,25 +2016,25 @@
             {
                 "name": "Excellent",
                 "range": "90-100%",
-                "description": "Response fully matches reference",
+                "description": "Full reference coverage",
                 "current": true
             },
             {
                 "name": "Good",
-                "range": "70-89%",
-                "description": "Response mostly matches reference",
+                "range": "70-90%",
+                "description": "Good coverage",
                 "current": false
             },
             {
                 "name": "Moderate",
-                "range": "50-69%",
-                "description": "Response partially matches reference",
+                "range": "50-70%",
+                "description": "Partial coverage",
                 "current": false
             },
             {
                 "name": "Poor",
-                "range": "0-49%",
-                "description": "Response is inaccurate",
+                "range": "0-50%",
+                "description": "Insufficient coverage",
                 "current": false
             }
         ]
@@ -2251,6 +2383,26 @@
                 }];
             }
 
+            // AgentGoalAccuracy InferGoal step: { inferredGoal, reasoning }
+            if (typeof data.inferredGoal !== 'undefined') {
+                return [{
+                    content: data.inferredGoal || '',
+                    passed: null, // Neutral - no pass/fail for goal inference
+                    verdict: '',
+                    reason: data.reasoning || ''
+                }];
+            }
+
+            // AgentGoalAccuracy EvaluateOutcome/CompareOutcome step: { goalAchieved, reasoning }
+            if (typeof data.goalAchieved !== 'undefined') {
+                return [{
+                    content: data.reasoning || 'Goal evaluation',
+                    passed: data.goalAchieved === true,
+                    verdict: data.goalAchieved ? 'ACHIEVED' : 'NOT ACHIEVED',
+                    reason: data.reasoning || ''
+                }];
+            }
+
             // SimpleCriteria: { score: Double, reasoning }
             if (typeof data.score === 'number' && typeof data.reasoning !== 'undefined') {
                 return [{
@@ -2359,15 +2511,17 @@
                 statusClass = item.passed === true ? 'passed' : (item.passed === false ? 'failed' : '');
             }
 
+            // Show source (model name) instead of index when source is available
+            const indexDisplay = item.source ? `<span class="exp-item-source-badge">${escapeHtml(item.source)}</span>` : `<span class="exp-item-index">${item.index}.</span>`;
+
             html += `
                 <div class="exp-item ${statusClass}">
                     <div class="exp-item-main">
-                        <span class="exp-item-index">${item.index}.</span>
+                        ${indexDisplay}
                         <span class="exp-item-content">${escapeHtml(item.content)}</span>
                         ${item.verdict ? `<span class="exp-item-verdict ${statusClass}">${escapeHtml(item.verdict)}</span>` : ''}
                     </div>
                     ${item.reason ? `<div class="exp-item-reason">${escapeHtml(item.reason)}</div>` : ''}
-                    ${item.source ? `<div class="exp-item-source">${i18n.source}: ${escapeHtml(item.source)}</div>` : ''}
                 </div>
             `;
         });
@@ -2705,181 +2859,70 @@
             </div>
             <div class="block-content">
 <div class="methodology-content">
-    <h1>Answer Accuracy Metric</h1>
-<h2>Overview</h2>
-<p>Answer Accuracy is a NVIDIA-style evaluation metric that measures how accurately an AI response matches a reference (ground truth) answer. It uses a 0-2 scoring scale that is normalized to 0-1 for consistency with other metrics.</p>
-<h2>How It Works</h2>
-<h3>Scoring Scale</h3>
+    <h1>Context Recall Metric</h1>
+<h2>Glossary</h2>
+<ul>
+<li><strong>Context</strong> — information fragments retrieved by the search system</li>
+<li><strong>Reference (Ground Truth)</strong> — the expected correct answer to the user's question</li>
+<li><strong>Attribution</strong> — presence of reference information in the context</li>
+<li><strong>Agentic System</strong> — an LLM-based system that generates responses</li>
+</ul>
+<h2>Description</h2>
+<p>The metric evaluates the completeness of retrieved context relative to the reference answer. The reference is broken into individual sentences, each of which is checked for presence in the context. If information from the reference is missing from the context, the agentic system cannot use it in the response.</p>
+<h2>Example</h2>
+<p><strong>Reference (Ground Truth):</strong> &quot;The Eiffel Tower was built in 1889. It is located in Paris, France. Gustave Eiffel designed it.&quot;</p>
+<p><strong>Context:</strong> &quot;The Eiffel Tower was completed in 1889 for the World's Fair in Paris.&quot;</p>
+<p><strong>Checking reference sentences:</strong></p>
+<ol>
+<li>&quot;Built in 1889&quot; → found in context ✓</li>
+<li>&quot;Located in Paris, France&quot; → found in context ✓</li>
+<li>&quot;Gustave Eiffel designed it&quot; → not found in context ✗</li>
+</ol>
+<p><strong>Score:</strong> 2/3 = <strong>0.67 (67%)</strong></p>
+<h2>Score Interpretation</h2>
 <table>
 <thead>
 <tr>
 <th>Score</th>
-<th>Level</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0</td>
-<td>Incorrect</td>
-<td>Response is factually wrong or contradicts the reference</td>
-</tr>
-<tr>
-<td>1</td>
-<td>Partially Correct</td>
-<td>Response is partially correct but incomplete or has minor errors</td>
-</tr>
-<tr>
-<td>2</td>
-<td>Fully Correct</td>
-<td>Response accurately matches the reference answer</td>
-</tr>
-</tbody>
-</table>
-<h3>Algorithm</h3>
-<ol>
-<li><strong>Initial Judgment</strong>: An LLM evaluates the response against the reference, assigning a score (0-2) with reasoning</li>
-<li><strong>Confirmation Judgment</strong> (optional): When dual-judge mode is enabled, a second evaluation confirms or adjusts the initial assessment</li>
-<li><strong>Score Normalization</strong>: The raw score (0-2) is divided by 2 to produce a 0-1 normalized score</li>
-</ol>
-<h3>Formula</h3>
-<pre><code>normalized_score = raw_score / 2
-</code></pre>
-<p>Where:</p>
-<ul>
-<li><code>raw_score</code> is the LLM's judgment (0, 1, or 2)</li>
-<li><code>normalized_score</code> is the final metric value (0.0 to 1.0)</li>
-</ul>
-<h2>Interpretation</h2>
-<table>
-<thead>
-<tr>
-<th>Score Range</th>
-<th>Level</th>
 <th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>90-100%</td>
-<td>Excellent</td>
-<td>Response accurately matches the reference</td>
+<td>Context contains all required information from the reference</td>
 </tr>
 <tr>
-<td>70-89%</td>
-<td>Good</td>
-<td>Response mostly matches the reference</td>
+<td>70-90%</td>
+<td>Most information from the reference is present in context</td>
 </tr>
 <tr>
-<td>50-69%</td>
-<td>Moderate</td>
-<td>Response partially matches the reference</td>
+<td>50-70%</td>
+<td>Some key information is missing from context</td>
 </tr>
 <tr>
-<td>0-49%</td>
-<td>Poor</td>
-<td>Response is inaccurate or contradicts the reference</td>
+<td>0-50%</td>
+<td>Context lacks significant portion of information from the reference</td>
 </tr>
 </tbody>
 </table>
-<h2>Configuration Options</h2>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>useDualJudge</code></td>
-<td>boolean</td>
-<td>false</td>
-<td>Enable dual-judge mode for higher reliability</td>
-</tr>
-<tr>
-<td><code>temperature</code></td>
-<td>double</td>
-<td>0.1</td>
-<td>LLM temperature (lower = more deterministic)</td>
-</tr>
-<tr>
-<td><code>models</code></td>
-<td>List<String></td>
-<td>-</td>
-<td>Specific models to use (optional)</td>
-</tr>
-</tbody>
-</table>
-<h2>Example Usage</h2>
-<pre><code class="language-java">Sample sample = Sample.builder()
-    .response(&quot;Paris is the capital of France.&quot;)
-    .reference(&quot;Paris is the capital city of France.&quot;)
-    .build();
-
-AnswerAccuracyConfig config = AnswerAccuracyConfig.builder()
-    .useDualJudge(false)
-    .temperature(0.1)
-    .build();
-
-Double score = answerAccuracyMetric.singleTurnScore(config, sample);
+<h2>Algorithm</h2>
+<ol>
+<li><strong>Reference Splitting</strong> — reference answer is broken into individual sentences</li>
+<li><strong>Attribution Check</strong> — LLM verifies presence of each sentence in context</li>
+<li><strong>Score Calculation</strong> — ratio of found sentences to total count</li>
+</ol>
+<h2>Formula</h2>
+<pre><code>score = attributed_sentences / total_sentences
 </code></pre>
-<h2>Dual-Judge Mode</h2>
-<p>When <code>useDualJudge</code> is enabled:</p>
-<ol>
-<li>Initial LLM evaluates response vs reference</li>
-<li>Second LLM reviews the initial assessment</li>
-<li>The confirmation score is used if available</li>
-<li>Falls back to initial score if confirmation fails</li>
-</ol>
-<p>This mode improves reliability but increases latency and cost.</p>
-<h2>Required Sample Fields</h2>
+<p>Where:</p>
 <ul>
-<li><code>response</code> - The AI-generated response to evaluate</li>
-<li><code>reference</code> - The ground truth/expected answer</li>
+<li><code>attributed_sentences</code> — number of reference sentences found in context</li>
+<li><code>total_sentences</code> — total number of sentences in the reference</li>
 </ul>
-<h2>Comparison with Other Metrics</h2>
-<table>
-<thead>
-<tr>
-<th>Metric</th>
-<th>Purpose</th>
-<th>Method</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Answer Accuracy</strong></td>
-<td>Matches reference answer</td>
-<td>LLM judgment (0-2 scale)</td>
-</tr>
-<tr>
-<td>Semantic Similarity</td>
-<td>Embedding-based similarity</td>
-<td>Cosine similarity</td>
-</tr>
-<tr>
-<td>Factual Correctness</td>
-<td>Claims decomposition</td>
-<td>NLI verification</td>
-</tr>
-</tbody>
-</table>
-<h2>Best Practices</h2>
-<ol>
-<li><strong>Clear References</strong>: Provide clear, unambiguous reference answers</li>
-<li><strong>Dual-Judge for Critical</strong>: Use dual-judge mode for high-stakes evaluations</li>
-<li><strong>Consistent Format</strong>: Keep response and reference in similar formats</li>
-<li><strong>Multiple Models</strong>: Use multiple judge models for consensus</li>
-</ol>
-<h2>Limitations</h2>
+<h2>References</h2>
 <ul>
-<li>LLM-based evaluation can have biases</li>
-<li>Sensitive to phrasing differences between response and reference</li>
-<li>May not capture nuanced correctness in complex domains</li>
-<li>Subjective interpretation of &quot;partially correct&quot;</li>
+<li><a href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_recall.md">RAGAS Documentation</a></li>
 </ul>
 
 </div>
@@ -2889,7 +2932,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
     <div class="steps-diagram">
             <div class="step-box llm">
                 <span class="step-number">1.</span>
-                <span class="step-name">InitialJudgment</span>
+                <span class="step-name">ClassifyStatements</span>
                 <span class="step-type">[LLM]</span>
             </div>
     </div>
@@ -2915,8 +2958,8 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         ▶
                     </span>
                     <span class="tree-type-badge llm">LLM</span>
-                    <span class="tree-name">InitialJudgment</span>
-                    <span class="tree-duration">15947ms</span>
+                    <span class="tree-name">ClassifyStatements</span>
+                    <span class="tree-duration">7748ms</span>
                 </div>
                 <div class="tree-children" style="display: none;">
                     <div class="tree-item model-item "
@@ -2924,7 +2967,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="x-ai/grok-4.1-fast">x-ai/grok-4.1-fast</span>
-                        <span class="tree-duration">7760ms</span>
+                        <span class="tree-duration">4223ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2932,7 +2975,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-2.5-flash">google/gemini-2.5-flash</span>
-                        <span class="tree-duration">1681ms</span>
+                        <span class="tree-duration">1493ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2940,7 +2983,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="deepseek/deepseek-v3.2">deepseek/deepseek-v3.2</span>
-                        <span class="tree-duration">15947ms</span>
+                        <span class="tree-duration">7748ms</span>
                         
                     </div>
                     <div class="tree-item model-item "
@@ -2948,7 +2991,7 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                         <span class="tree-expand">•</span>
                         <span class="tree-type-badge model">LLM</span>
                         <span class="tree-name" title="google/gemini-3-flash-preview">google/gemini-3-flash-preview</span>
-                        <span class="tree-duration">1160ms</span>
+                        <span class="tree-duration">2706ms</span>
                         
                     </div>
                 </div>
@@ -2993,10 +3036,10 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
     "steps": [
         {
             "stepIndex": 0,
-            "stepName": "InitialJudgment",
+            "stepName": "ClassifyStatements",
             "stepType": "LLM",
-            "durationMs": 15947,
-            "request": "Compare the AI response with the reference answer and evaluate its accuracy.\n\nAI Response:\nTCP uses a three-way handshake: SYN, SYN-ACK, ACK.\n\nReference Answer:\nThe TCP three-way handshake consists of SYN, SYN-ACK, and ACK packets to establish a connection.\n\nInstructions:\n1. Compare the factual content of the response with the reference\n2. Consider completeness, correctness, and relevance\n3. Rate using the following scale:\n   - 0: Incorrect - Response is factually wrong or contradicts the reference\n   - 1: Partially correct - Response is partially correct but incomplete or has minor errors\n   - 2: Fully correct - Response accurately matches the reference answer\n\nRespond with a JSON object containing:\n- score: Integer from 0 to 2 representing the accuracy level\n- reasoning: Brief explanation of the accuracy assessment\n",
+            "durationMs": 7748,
+            "request": "Given a question, context, and a reference answer, analyze each sentence in the reference answer and classify if the sentence can be attributed to the given context or not. Use only 'Yes' (1) or 'No' (0) as a binary classification.\n\nQuestion: What can you tell me about Albert Einstein?\nContext: Albert Einstein (14 March 1879 - 18 April 1955) was a German-born theoretical physicist, widely held to be one of the greatest and most influential scientists of all time.\n\nHe received the 1921 Nobel Prize in Physics for his services to theoretical physics, and especially for his discovery of the law of the photoelectric effect.\n\nBest known for developing the theory of relativity, he also made important contributions to quantum mechanics.\nReference Answer: Albert Einstein was born on 14 March 1879. He was a German-born theoretical physicist. He received the 1921 Nobel Prize in Physics.\n\nInstructions:\n1. Break down the reference answer into individual sentences\n2. For each sentence, determine if it can be attributed to the provided context\n3. A sentence is attributable (1) if the information can be found or inferred from the context\n4. A sentence is not attributable (0) if the information is not present in the context\n5. Be strict in your evaluation - only mark as attributable if there is clear supporting evidence\n6. Consider paraphrases and semantically equivalent information as supporting evidence\n\nRespond with a JSON object containing:\n- classifications: A list of classification objects, each containing:\n  - statement: The individual sentence from the reference answer\n  - reason: Detailed explanation for the classification\n  - attributed: 1 if the statement can be attributed to the context, 0 otherwise\n",
             "isLlmStep": true,
             "successCount": 4,
             "failureCount": 0,
@@ -3004,32 +3047,32 @@ Double score = answerAccuracyMetric.singleTurnScore(config, sample);
                 {
                     "modelId": "x-ai/grok-4.1-fast",
                     "success": true,
-                    "durationMs": 7760,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"Both the AI response and reference accurately describe the TCP three-way handshake as consisting of SYN, SYN-ACK, and ACK. The AI response is concise but factually complete, correct, and relevant, matching the core content of the reference.\"\n}",
+                    "durationMs": 4223,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly includes 'Albert Einstein (14 March 1879 - 18 April 1955)', where '14 March 1879' is clearly the birth date, directly supporting this statement.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context directly states 'Albert Einstein ... was a German-born theoretical physicist', which is semantically identical to the statement.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly states 'He received the 1921 Nobel Prize in Physics for his services to theoretical physics...', providing clear supporting evidence for this exact information.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-2.5-flash",
                     "success": true,
-                    "durationMs": 1681,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately states the components of the TCP three-way handshake, which is the core information provided in the reference answer. While slightly less verbose, it conveys the same factual content.\"\n}",
+                    "durationMs": 1493,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein (14 March 1879 - 18 April 1955)', which includes his birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein ... was a German-born theoretical physicist'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly states 'He received the 1921 Nobel Prize in Physics'.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "deepseek/deepseek-v3.2",
                     "success": true,
-                    "durationMs": 15947,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response accurately identifies the three steps of the TCP three-way handshake (SYN, SYN-ACK, ACK), matching the factual content of the reference answer. The omission of additional context does not affect correctness.\"\n}",
+                    "durationMs": 7748,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein (14 March 1879 - 18 April 1955)', which includes his birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context explicitly states 'was a German-born theoretical physicist'.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly states 'He received the 1921 Nobel Prize in Physics for his services to theoretical physics...'.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 },
                 {
                     "modelId": "google/gemini-3-flash-preview",
                     "success": true,
-                    "durationMs": 1160,
-                    "resultJson": "{\n  \"score\" : 2,\n  \"reasoning\" : \"The AI response is factually identical to the reference answer, correctly identifying the three steps of the TCP handshake (SYN, SYN-ACK, ACK) in the correct order.\"\n}",
+                    "durationMs": 2706,
+                    "resultJson": "{\n  \"classifications\" : [ {\n    \"statement\" : \"Albert Einstein was born on 14 March 1879.\",\n    \"reason\" : \"The context explicitly states 'Albert Einstein (14 March 1879 - 18 April 1955)', which confirms his birth date.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He was a German-born theoretical physicist.\",\n    \"reason\" : \"The context directly describes him as a 'German-born theoretical physicist' in the first sentence.\",\n    \"attributed\" : 1\n  }, {\n    \"statement\" : \"He received the 1921 Nobel Prize in Physics.\",\n    \"reason\" : \"The context explicitly mentions that 'He received the 1921 Nobel Prize in Physics for his services to theoretical physics'.\",\n    \"attributed\" : 1\n  } ]\n}",
                     "errorMessage": null,
                     "stackTrace": null
                 }
