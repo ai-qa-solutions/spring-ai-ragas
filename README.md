@@ -58,29 +58,6 @@ Full documentation: [Retrieval Metrics Guide](docs/en/retrieval_metrics_en.md)
 | [ToolCallAccuracy](docs/en/agent_metrics_en.md#toolcallaccuracy)   | Correctness of tool/function calls       |
 | [TopicAdherence](docs/en/agent_metrics_en.md#topicadherence)       | Staying on topic during conversation     |
 
-Agent metrics support typed message classes for multi-turn conversations:
-
-```java
-import ai.qa.solutions.sample.message.*;
-
-Sample sample = Sample.builder()
-        .userInputMessages(List.of(
-                new HumanMessage("Book a flight to NYC"),
-                new AIMessage("Searching flights...", List.of(
-                        new ToolCall("search_flights", Map.of("destination", "NYC"))
-                )),
-                new ToolMessage("Found 5 flights"),
-                new AIMessage("I found 5 options. Flight UA123 departs at 9am.")
-        ))
-        .referenceToolCalls(List.of(
-                new ToolCall("search_flights", Map.of("destination", "NYC"))
-        ))
-        .reference("Flight booked to NYC")
-        .build();
-
-Double score = agentGoalAccuracy.multiTurnScore(config, sample);
-```
-
 Full documentation: [Agent Metrics Guide](docs/en/agent_metrics_en.md)
 
 ### Response Metrics
@@ -279,6 +256,31 @@ void evaluateRAG() {
     Double precisionScore = contextPrecision.singleTurnScore(precisionConfig, sample);
     // Measures retrieval ranking quality
 }
+```
+
+### Agent Evaluation (Multi-turn)
+
+Agent metrics support typed message classes for multi-turn conversations:
+
+```java
+import ai.qa.solutions.sample.message.*;
+
+Sample sample = Sample.builder()
+        .userInputMessages(List.of(
+                new HumanMessage("Book a flight to NYC"),
+                new AIMessage("Searching flights...", List.of(
+                        new ToolCall("search_flights", Map.of("destination", "NYC"))
+                )),
+                new ToolMessage("Found 5 flights"),
+                new AIMessage("I found 5 options. Flight UA123 departs at 9am.")
+        ))
+        .referenceToolCalls(List.of(
+                new ToolCall("search_flights", Map.of("destination", "NYC"))
+        ))
+        .reference("Flight booked to NYC")
+        .build();
+
+Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 ```
 
 ## Allure Reports (Optional)

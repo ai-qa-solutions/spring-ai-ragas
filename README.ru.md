@@ -58,29 +58,6 @@ Python фреймворком [RAGAS](https://docs.ragas.io/en/stable/concepts/m
 | [ToolCallAccuracy](docs/ru/agent_metrics_ru.md#toolcallaccuracy)   | Корректность вызовов инструментов/функций |
 | [TopicAdherence](docs/ru/agent_metrics_ru.md#topicadherence)       | Следование теме в ходе разговора          |
 
-Метрики агентов поддерживают типизированные классы сообщений для многоэтапных диалогов:
-
-```java
-import ai.qa.solutions.sample.message.*;
-
-Sample sample = Sample.builder()
-        .userInputMessages(List.of(
-                new HumanMessage("Забронируй рейс в Нью-Йорк"),
-                new AIMessage("Ищу рейсы...", List.of(
-                        new ToolCall("search_flights", Map.of("destination", "NYC"))
-                )),
-                new ToolMessage("Найдено 5 рейсов"),
-                new AIMessage("Я нашёл 5 вариантов. Рейс UA123 вылетает в 9:00.")
-        ))
-        .referenceToolCalls(List.of(
-                new ToolCall("search_flights", Map.of("destination", "NYC"))
-        ))
-        .reference("Рейс в Нью-Йорк забронирован")
-        .build();
-
-Double score = agentGoalAccuracy.multiTurnScore(config, sample);
-```
-
 Полная документация: [Руководство по метрикам агентов](docs/ru/agent_metrics_ru.md)
 
 ### Метрики ответов (Response Metrics)
@@ -411,6 +388,31 @@ void evaluateRAG() {
     Double precisionScore = contextPrecision.singleTurnScore(precisionConfig, sample);
     // Измеряет качество ранжирования извлечения
 }
+```
+
+### Оценка агентов (Многоэтапные диалоги)
+
+Метрики агентов поддерживают типизированные классы сообщений для многоэтапных диалогов:
+
+```java
+import ai.qa.solutions.sample.message.*;
+
+Sample sample = Sample.builder()
+        .userInputMessages(List.of(
+                new HumanMessage("Забронируй рейс в Нью-Йорк"),
+                new AIMessage("Ищу рейсы...", List.of(
+                        new ToolCall("search_flights", Map.of("destination", "NYC"))
+                )),
+                new ToolMessage("Найдено 5 рейсов"),
+                new AIMessage("Я нашёл 5 вариантов. Рейс UA123 вылетает в 9:00.")
+        ))
+        .referenceToolCalls(List.of(
+                new ToolCall("search_flights", Map.of("destination", "NYC"))
+        ))
+        .reference("Рейс в Нью-Йорк забронирован")
+        .build();
+
+Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 ```
 
 ## Allure отчёты (Опционально)
