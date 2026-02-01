@@ -1,5 +1,9 @@
 # Spring AI RAGAS - Evaluate LLM агентов на Java
 
+[![Maven Central Version](https://img.shields.io/maven-central/v/io.github.ai-qa-solutions/spring-ai-ragas-spring-boot-starter)](https://central.sonatype.com/artifact/io.github.ai-qa-solutions/spring-ai-ragas-spring-boot-starter)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/ai-qa-solutions/spring-ai-ragas/actions/workflows/maven-build.yml/badge.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/actions/workflows/maven-build.yml)
+
 [![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/README.md)
 [![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/ai-qa-solutions/spring-ai-ragas/blob/main/README.ru.md)
 
