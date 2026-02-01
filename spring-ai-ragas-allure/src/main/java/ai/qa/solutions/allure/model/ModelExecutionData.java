@@ -1,10 +1,8 @@
 package ai.qa.solutions.allure.model;
 
+import ai.qa.solutions.allure.util.AllureJsonUtils;
 import ai.qa.solutions.execution.ModelResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
@@ -20,8 +18,6 @@ import lombok.Value;
 @Value
 @Builder
 public class ModelExecutionData {
-
-    private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
 
     /**
      * Model identifier (e.g., "anthropic-claude-3-5-sonnet").
@@ -80,7 +76,7 @@ public class ModelExecutionData {
         final Object resultObj = modelResult.result();
         String json;
         try {
-            json = OBJECT_MAPPER.writeValueAsString(resultObj);
+            json = AllureJsonUtils.writeValueAsString(resultObj);
         } catch (final JsonProcessingException e) {
             json = resultObj != null ? resultObj.toString() : "null";
         }
@@ -126,13 +122,5 @@ public class ModelExecutionData {
      */
     public long getDurationMs() {
         return duration != null ? duration.toMillis() : 0;
-    }
-
-    private static ObjectMapper createObjectMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper;
     }
 }

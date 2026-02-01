@@ -6,6 +6,7 @@ import ai.qa.solutions.allure.explanation.ScoreExplanationExtractor;
 import ai.qa.solutions.allure.methodology.MethodologyLoader;
 import ai.qa.solutions.allure.model.*;
 import ai.qa.solutions.allure.template.FreemarkerTemplateEngine;
+import ai.qa.solutions.allure.util.AllureJsonUtils;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.*;
 import ai.qa.solutions.sample.message.AIMessage;
@@ -14,7 +15,6 @@ import ai.qa.solutions.sample.message.HumanMessage;
 import ai.qa.solutions.sample.message.ToolCall;
 import ai.qa.solutions.sample.message.ToolMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Allure;
 import io.qameta.allure.AllureLifecycle;
 import io.qameta.allure.model.Status;
@@ -51,8 +51,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AllureMetricExecutionListener implements MetricExecutionListener {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final AllureRagasProperties properties;
     private final FreemarkerTemplateEngine templateEngine;
@@ -336,7 +334,7 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
             return "{}";
         }
         try {
-            return OBJECT_MAPPER.writeValueAsString(arguments);
+            return AllureJsonUtils.writeValueAsString(arguments);
         } catch (final JsonProcessingException e) {
             return arguments.toString();
         }

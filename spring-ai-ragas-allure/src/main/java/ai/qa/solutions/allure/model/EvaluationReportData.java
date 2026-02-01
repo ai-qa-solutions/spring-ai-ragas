@@ -2,10 +2,8 @@ package ai.qa.solutions.allure.model;
 
 import ai.qa.solutions.allure.explanation.RubricsScoreExplanation;
 import ai.qa.solutions.allure.explanation.ScoreExplanation;
+import ai.qa.solutions.allure.util.AllureJsonUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -28,8 +26,6 @@ import lombok.Value;
 @Value
 @Builder
 public class EvaluationReportData {
-
-    private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
 
     // --- Metric Identification ---
 
@@ -400,17 +396,9 @@ public class EvaluationReportData {
             return "null";
         }
         try {
-            return OBJECT_MAPPER.writeValueAsString(config);
+            return AllureJsonUtils.writeValueAsString(config);
         } catch (final JsonProcessingException e) {
             return config.toString();
         }
-    }
-
-    private static ObjectMapper createObjectMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper;
     }
 }

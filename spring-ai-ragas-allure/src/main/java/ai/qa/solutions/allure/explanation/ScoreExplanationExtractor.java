@@ -2,9 +2,9 @@ package ai.qa.solutions.allure.explanation;
 
 import ai.qa.solutions.allure.model.ModelExecutionData;
 import ai.qa.solutions.allure.model.StepExecutionData;
+import ai.qa.solutions.allure.util.AllureJsonUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +22,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ScoreExplanationExtractor {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Extracts a score explanation for the given metric.
@@ -164,7 +162,7 @@ public class ScoreExplanationExtractor {
         for (final ModelExecutionData result : step.getModelResults()) {
             if (result.isSuccess() && result.getResultJson() != null) {
                 try {
-                    final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                    final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                     final JsonNode statementsNode = json.get("statements");
                     if (statementsNode != null && statementsNode.isArray()) {
                         for (final JsonNode s : statementsNode) {
@@ -184,7 +182,7 @@ public class ScoreExplanationExtractor {
         for (final ModelExecutionData result : step.getModelResults()) {
             if (result.isSuccess() && result.getResultJson() != null) {
                 try {
-                    final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                    final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                     final JsonNode verdictsNode = json.get("verdicts");
                     if (verdictsNode != null && verdictsNode.isArray()) {
                         for (final JsonNode v : verdictsNode) {
@@ -257,7 +255,7 @@ public class ScoreExplanationExtractor {
         for (final ModelExecutionData result : step.getModelResults()) {
             if (result.isSuccess() && result.getResultJson() != null) {
                 try {
-                    final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                    final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                     final JsonNode statementsNode = json.get("statements");
                     if (statementsNode != null && statementsNode.isArray()) {
                         for (final JsonNode s : statementsNode) {
@@ -284,7 +282,7 @@ public class ScoreExplanationExtractor {
         int strictness = 1;
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("strictness")) {
                     strictness = configJson.get("strictness").asInt(1);
                 }
@@ -309,7 +307,7 @@ public class ScoreExplanationExtractor {
             for (final ModelExecutionData result : step.getModelResults()) {
                 if (result.isSuccess() && result.getResultJson() != null) {
                     try {
-                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                        final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                         if (json.has("verdict")) {
                             final boolean verdict = json.get("verdict").asBoolean();
                             // Group verdicts by model ID
@@ -372,7 +370,7 @@ public class ScoreExplanationExtractor {
             for (final ModelExecutionData result : step.getModelResults()) {
                 if (result.isSuccess() && result.getResultJson() != null) {
                     try {
-                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                        final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                         if (json.has("relevant")) {
                             final boolean relevant = json.get("relevant").asBoolean();
                             contexts.add(ContextPrecisionExplanation.ContextRelevance.builder()
@@ -429,7 +427,7 @@ public class ScoreExplanationExtractor {
             for (final ModelExecutionData result : step.getModelResults()) {
                 if (result.isSuccess() && result.getResultJson() != null) {
                     try {
-                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                        final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                         final JsonNode classificationsNode = json.get("classifications");
                         if (classificationsNode != null && classificationsNode.isArray()) {
                             for (final JsonNode c : classificationsNode) {
@@ -483,7 +481,7 @@ public class ScoreExplanationExtractor {
             for (final ModelExecutionData result : step.getModelResults()) {
                 if (result.isSuccess() && result.getResultJson() != null) {
                     try {
-                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                        final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                         final JsonNode entitiesNode = json.get("entities");
                         if (entitiesNode != null && entitiesNode.isArray()) {
                             final List<String> target = isContextStep ? ctxEntities : refEntities;
@@ -535,7 +533,7 @@ public class ScoreExplanationExtractor {
         // Try to extract from metadata first (most reliable)
         if (metadata != null && metadata.containsKey("sample")) {
             try {
-                final JsonNode sampleNode = OBJECT_MAPPER.valueToTree(metadata.get("sample"));
+                final JsonNode sampleNode = AllureJsonUtils.valueToTree(metadata.get("sample"));
                 if (sampleNode.has("userInput")) {
                     originalQuestion = sampleNode.get("userInput").asText("");
                 }
@@ -561,7 +559,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             final JsonNode questionsNode = json.get("questions");
                             if (questionsNode != null && questionsNode.isArray()) {
                                 for (final JsonNode q : questionsNode) {
@@ -814,7 +812,7 @@ public class ScoreExplanationExtractor {
         // Extract criteria definition from config
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("definition")) {
                     criteriaDef = configJson.get("definition").asText("");
                     criteriaName = criteriaDef;
@@ -833,7 +831,7 @@ public class ScoreExplanationExtractor {
             for (final ModelExecutionData result : step.getModelResults()) {
                 if (result.isSuccess() && result.getResultJson() != null) {
                     try {
-                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                        final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                         if (json.has("score")) {
                             final int modelScore = json.get("score").asInt();
                             modelScores.put(result.getModelId(), modelScore);
@@ -906,7 +904,7 @@ public class ScoreExplanationExtractor {
             for (final ModelExecutionData result : step.getModelResults()) {
                 if (result.isSuccess() && result.getResultJson() != null) {
                     try {
-                        final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                        final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                         if (json.has("reasoning")) {
                             reasoning = json.get("reasoning").asText();
                         } else if (json.has("reason")) {
@@ -950,7 +948,7 @@ public class ScoreExplanationExtractor {
 
         try {
             // Try to get rubrics from config using reflection or serialization
-            final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+            final JsonNode configJson = AllureJsonUtils.valueToTree(config);
             if (configJson.has("rubrics") && configJson.get("rubrics").isObject()) {
                 final JsonNode rubricsNode = configJson.get("rubrics");
                 final List<RubricsScoreExplanation.RubricLevel> levels = new ArrayList<>();
@@ -1015,7 +1013,7 @@ public class ScoreExplanationExtractor {
         // Extract threshold from config
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("threshold")) {
                     final double t = configJson.get("threshold").asDouble(0.0);
                     if (t > 0) {
@@ -1078,7 +1076,7 @@ public class ScoreExplanationExtractor {
         // Extract mode from config
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("mode")) {
                     mode = configJson.get("mode").asText("F1");
                 }
@@ -1128,7 +1126,7 @@ public class ScoreExplanationExtractor {
         for (final ModelExecutionData result : step.getModelResults()) {
             if (result.isSuccess() && result.getResultJson() != null) {
                 try {
-                    final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                    final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                     final JsonNode claimsNode = json.get("claims");
                     if (claimsNode != null && claimsNode.isArray()) {
                         for (final JsonNode c : claimsNode) {
@@ -1161,7 +1159,7 @@ public class ScoreExplanationExtractor {
             // Try to extract sample from metadata
             if (metadata.containsKey("sample")) {
                 try {
-                    final JsonNode sampleNode = OBJECT_MAPPER.valueToTree(metadata.get("sample"));
+                    final JsonNode sampleNode = AllureJsonUtils.valueToTree(metadata.get("sample"));
                     if (sampleNode.has("response")) {
                         response = sampleNode.get("response").asText("");
                     }
@@ -1191,7 +1189,7 @@ public class ScoreExplanationExtractor {
         // Extract weights from config (fallback)
         if (config != null && factualWeight == 0.75 && semanticWeight == 0.25) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("factualWeight")) {
                     factualWeight = configJson.get("factualWeight").asDouble(0.75);
                 }
@@ -1261,7 +1259,7 @@ public class ScoreExplanationExtractor {
         for (final ModelExecutionData result : step.getModelResults()) {
             if (result.isSuccess() && result.getResultJson() != null) {
                 try {
-                    final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                    final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
 
                     // Try to extract from NliVerificationResult wrapper
                     JsonNode verdictsSource = json;
@@ -1314,7 +1312,7 @@ public class ScoreExplanationExtractor {
         // Extract mode from config
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("mode")) {
                     mode = configJson.get("mode").asText("WITH_REFERENCE");
                 }
@@ -1337,7 +1335,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             final String modelInferredGoal = json.has("inferredGoal")
                                     ? json.get("inferredGoal").asText()
                                     : "";
@@ -1379,7 +1377,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             final boolean achieved = json.has("goalAchieved")
                                     && json.get("goalAchieved").asBoolean();
                             final String reasoning = json.has("reasoning")
@@ -1494,7 +1492,7 @@ public class ScoreExplanationExtractor {
         // Extract mode from config
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("mode")) {
                     mode = configJson.get("mode").asText("STRICT");
                 }
@@ -1529,7 +1527,7 @@ public class ScoreExplanationExtractor {
                 if (matchesObj instanceof List<?>) {
                     for (final Object matchObj : (List<?>) matchesObj) {
                         try {
-                            final JsonNode m = OBJECT_MAPPER.valueToTree(matchObj);
+                            final JsonNode m = AllureJsonUtils.valueToTree(matchObj);
                             final JsonNode actualCall = m.get("actualCall");
                             final String toolName = actualCall != null ? getTextSafe(actualCall, "name") : "";
                             final Map<String, Object> arguments = new HashMap<>();
@@ -1567,7 +1565,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
 
                             // Extract precision/recall from ComputePrecisionRecall step
                             if ("ComputePrecisionRecall".equalsIgnoreCase(stepName)) {
@@ -1662,7 +1660,7 @@ public class ScoreExplanationExtractor {
         // Extract mode from config
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("mode")) {
                     mode = configJson.get("mode").asText("F1");
                 }
@@ -1684,7 +1682,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             final JsonNode topicsNode = json.get("topics");
                             if (topicsNode != null && topicsNode.isArray()) {
                                 for (final JsonNode t : topicsNode) {
@@ -1704,7 +1702,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             final JsonNode classificationsNode = json.get("classifications");
                             if (classificationsNode != null && classificationsNode.isArray()) {
                                 for (final JsonNode c : classificationsNode) {
@@ -1810,7 +1808,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             if (json.has("score")) {
                                 final int rawScore = json.get("score").asInt();
                                 final double normalizedScore = rawScore / 2.0;
@@ -1873,7 +1871,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             if (json.has("score")) {
                                 rawScore = json.get("score").asInt();
                                 reasoning = getTextSafe(json, "reasoning");
@@ -1928,7 +1926,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             if (json.has("score")) {
                                 rawScore = json.get("score").asInt();
                                 reasoning = getTextSafe(json, "reasoning");
@@ -1948,7 +1946,7 @@ public class ScoreExplanationExtractor {
                 for (final ModelExecutionData result : step.getModelResults()) {
                     if (result.isSuccess() && result.getResultJson() != null) {
                         try {
-                            final JsonNode json = OBJECT_MAPPER.readTree(result.getResultJson());
+                            final JsonNode json = AllureJsonUtils.readTree(result.getResultJson());
                             if (json.has("score")) {
                                 confirmationScore = json.get("score").asInt();
                                 confirmationReasoning = getTextSafe(json, "reasoning");
@@ -1987,7 +1985,7 @@ public class ScoreExplanationExtractor {
         // Extract config parameters
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("maxNgram")) {
                     maxNgram = configJson.get("maxNgram").asInt(4);
                 }
@@ -2031,7 +2029,7 @@ public class ScoreExplanationExtractor {
         // Extract config parameters
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("rougeType")) {
                     rougeType = configJson.get("rougeType").asText("ROUGE_L");
                 }
@@ -2076,7 +2074,7 @@ public class ScoreExplanationExtractor {
         // Extract config parameters
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("charNgramOrder")) {
                     charNgramOrder = configJson.get("charNgramOrder").asInt(6);
                 }
@@ -2124,7 +2122,7 @@ public class ScoreExplanationExtractor {
         // Extract config parameters
         if (config != null) {
             try {
-                final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
+                final JsonNode configJson = AllureJsonUtils.valueToTree(config);
                 if (configJson.has("distanceMeasure")) {
                     distanceMeasure = configJson.get("distanceMeasure").asText("JARO_WINKLER");
                 }
