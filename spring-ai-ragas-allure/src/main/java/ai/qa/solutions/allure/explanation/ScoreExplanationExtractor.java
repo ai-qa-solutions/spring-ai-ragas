@@ -89,7 +89,8 @@ public class ScoreExplanationExtractor {
                 case "context-recall", "contextrecall" -> extractContextRecall(steps, score, language);
                 case "context-entity-recall", "contextentityrecall" -> extractContextEntityRecall(
                         steps, score, language);
-                case "response-relevancy", "responserelevancy" -> extractResponseRelevancy(steps, score, language);
+                case "response-relevancy", "responserelevancy" -> extractResponseRelevancy(
+                        steps, score, language, metadata);
                 case "simple-criteria", "simplecriteria", "simplecriteriascore" -> extractSimpleCriteria(
                         steps, score, language, config);
                 case "rubrics-score", "rubricsscore" -> extractRubricsScore(steps, score, language, config);
@@ -98,7 +99,7 @@ public class ScoreExplanationExtractor {
                 case "factual-correctness", "factualcorrectness" -> extractFactualCorrectness(
                         steps, score, language, config);
                 case "answer-correctness", "answercorrectness" -> extractAnswerCorrectness(
-                        steps, score, language, config);
+                        steps, score, language, config, metadata);
                 case "agent-goal-accuracy", "agentgoalaccuracy" -> extractAgentGoalAccuracy(
                         steps, score, language, config);
                 case "tool-call-accuracy", "toolcallaccuracy" -> extractToolCallAccuracy(
@@ -522,15 +523,33 @@ public class ScoreExplanationExtractor {
     }
 
     private Optional<ScoreExplanation> extractResponseRelevancy(
-            final List<StepExecutionData> steps, final Double score, final String language) {
+            final List<StepExecutionData> steps,
+            final Double score,
+            final String language,
+            final Map<String, Object> metadata) {
         String originalQuestion = "";
         String aiResponse = "";
         final List<ResponseRelevancyExplanation.GeneratedQuestion> questions = new ArrayList<>();
         final List<ResponseRelevancyExplanation.ModelSimilarityResult> modelResults = new ArrayList<>();
 
+        // Try to extract from metadata first (most reliable)
+        if (metadata != null && metadata.containsKey("sample")) {
+            try {
+                final JsonNode sampleNode = OBJECT_MAPPER.valueToTree(metadata.get("sample"));
+                if (sampleNode.has("userInput")) {
+                    originalQuestion = sampleNode.get("userInput").asText("");
+                }
+                if (sampleNode.has("response")) {
+                    aiResponse = sampleNode.get("response").asText("");
+                }
+            } catch (final Exception e) {
+                log.debug("Failed to extract sample from metadata: {}", e.getMessage());
+            }
+        }
+
         for (final StepExecutionData step : steps) {
+            // Fallback: try to extract from request if not found in metadata
             if (step.getRequest() != null && originalQuestion.isEmpty()) {
-                // Try to extract question and response from request
                 originalQuestion = extractQuestionFromRequest(step.getRequest());
                 aiResponse = extractResponseFromRequest(step.getRequest());
             }
@@ -1114,7 +1133,11 @@ public class ScoreExplanationExtractor {
     }
 
     private Optional<ScoreExplanation> extractAnswerCorrectness(
-            final List<StepExecutionData> steps, final Double score, final String language, final Object config) {
+            final List<StepExecutionData> steps,
+            final Double score,
+            final String language,
+            final Object config,
+            final Map<String, Object> metadata) {
         String response = "";
         String reference = "";
         double factualScore = 0.0;
@@ -1122,8 +1145,40 @@ public class ScoreExplanationExtractor {
         double factualWeight = 0.75;
         double semanticWeight = 0.25;
 
-        // Extract weights from config
-        if (config != null) {
+        // Extract from metadata first (most reliable for composite metrics)
+        if (metadata != null) {
+            // Try to extract sample from metadata
+            if (metadata.containsKey("sample")) {
+                try {
+                    final JsonNode sampleNode = OBJECT_MAPPER.valueToTree(metadata.get("sample"));
+                    if (sampleNode.has("response")) {
+                        response = sampleNode.get("response").asText("");
+                    }
+                    if (sampleNode.has("reference")) {
+                        reference = sampleNode.get("reference").asText("");
+                    }
+                } catch (final Exception e) {
+                    log.debug("Failed to extract sample from metadata: {}", e.getMessage());
+                }
+            }
+
+            // Extract component scores from metadata (more reliable than parsing step results)
+            if (metadata.containsKey("factualScore")) {
+                factualScore = ((Number) metadata.get("factualScore")).doubleValue();
+            }
+            if (metadata.containsKey("semanticScore")) {
+                semanticScore = ((Number) metadata.get("semanticScore")).doubleValue();
+            }
+            if (metadata.containsKey("factualWeight")) {
+                factualWeight = ((Number) metadata.get("factualWeight")).doubleValue();
+            }
+            if (metadata.containsKey("semanticWeight")) {
+                semanticWeight = ((Number) metadata.get("semanticWeight")).doubleValue();
+            }
+        }
+
+        // Extract weights from config (fallback)
+        if (config != null && factualWeight == 0.75 && semanticWeight == 0.25) {
             try {
                 final JsonNode configJson = OBJECT_MAPPER.valueToTree(config);
                 if (configJson.has("factualWeight")) {
@@ -1140,7 +1195,7 @@ public class ScoreExplanationExtractor {
         for (final StepExecutionData step : steps) {
             final String stepName = step.getStepName();
 
-            // Extract response and reference from request
+            // Fallback: Extract response and reference from request if not found in metadata
             if (step.getRequest() != null) {
                 if (response.isEmpty()) {
                     response = extractResponseFromRequest(step.getRequest());
