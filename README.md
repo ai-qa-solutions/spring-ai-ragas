@@ -177,117 +177,209 @@ spring:
 
 ## Usage Example
 
+### Pipeline 1: With References (Testing/Monitoring)
+
+Comprehensive evaluation for POC, automated tests, and synthetic monitoring.
+Uses ground truth data to validate agent behavior (~8 LLM calls).
+
 ```java
+import static org.assertj.core.api.Assertions.assertThat;
+
+import ai.qa.solutions.metrics.agent.*;
+import ai.qa.solutions.metrics.general.*;
+import ai.qa.solutions.metrics.retrieval.*;
+import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.*;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
 @SpringBootTest
-class MetricsTest {
+@EnableAutoConfiguration
+class AgentEvaluationWithReferencesTest {
 
-    @Autowired
-    private AspectCriticMetric aspectCritic;
+    @Configuration
+    static class TestConfig {}
 
-    @Autowired
-    private SimpleCriteriaScoreMetric simpleCriteria;
-
-    @Autowired
-    private RubricsScoreMetric rubrics;
+    @Autowired private ToolCallAccuracyMetric toolCallAccuracy;
+    @Autowired private AgentGoalAccuracyMetric goalAccuracy;
+    @Autowired private TopicAdherenceMetric topicAdherence;
+    @Autowired private AspectCriticMetric aspectCritic;
+    @Autowired private RubricsScoreMetric rubricsScore;
+    @Autowired private ContextRecallMetric contextRecall;
 
     @Test
-    void evaluateResponse() {
+    @DisplayName("Customer support: undelivered order → refund")
+    void evaluateCustomerSupport() {
+        // Customer support scenario: undelivered order → refund
         Sample sample = Sample.builder()
-                .userInput("What is artificial intelligence?")
-                .response("AI is a field of computer science that creates systems "
-                        + "capable of performing tasks requiring human intelligence.")
-                .build();
+            .userInput("Order 12345 not delivered, waiting 2 weeks already!")
+            .response("Done! Your refund of $55 has been initiated. " +
+                "Funds will arrive in 3-5 business days.")
+            .userInputMessages(List.of(
+                new HumanMessage("Order 12345 not delivered, waiting 2 weeks already!"),
+                new AIMessage("Hello! I apologize for the inconvenience. " +
+                    "Let me check your order status right away.",
+                    List.of(new ToolCall("get_order_status", Map.of("order_id", "12345")))),
+                new ToolMessage("{\"status\": \"LOST\", \"shipped\": \"2024-01-10\"}"),
+                new AIMessage("I found the issue - your package was lost in transit. " +
+                    "I'm processing a full refund of $55 for you now.",
+                    List.of(new ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500)))),
+                new ToolMessage("{\"refund_id\": \"RF-789\", \"status\": \"INITIATED\"}"),
+                new AIMessage("Done! Your refund of $55 has been initiated. " +
+                    "Funds will arrive in 3-5 business days.", List.of())))
+            // Ground truth
+            .reference("Resolve customer issue with undelivered order via refund")
+            .referenceToolCalls(List.of(
+                new Sample.ToolCall("get_order_status", Map.of("order_id", "12345")),
+                new Sample.ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500))))
+            .referenceTopics(List.of("order status", "refund", "delivery"))
+            // RAG contexts from telemetry
+            .retrievedContexts(List.of(
+                "Order 12345: shipped Jan 10, marked LOST on Jan 20. Order total: $55.",
+                "Refund policy: full refund for lost orders within 30 days."))
+            .build();
 
-        // Binary evaluation (AspectCritic)
-        var aspectConfig = AspectCriticMetric.AspectCriticConfig.builder()
-                .definition("Does the response accurately explain AI?")
-                .build();
-        Double aspectScore = aspectCritic.singleTurnScore(aspectConfig, sample);
-        // Result: 1.0 (yes) or 0.0 (no)
+        // 1. Tool calls accuracy (0 LLM calls)
+        ToolCallAccuracyMetric.ToolCallAccuracyConfig toolConfig =
+            ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder().build();
+        Double toolScore = toolCallAccuracy.multiTurnScore(toolConfig, sample);
 
-        // Continuous scale evaluation (SimpleCriteriaScore)
-        var criteriaConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-                .definition("Rate explanation quality from 1 to 5")
-                .build();
-        Double criteriaScore = simpleCriteria.singleTurnScore(criteriaConfig, sample);
-        // Result: 0.0-1.0 (normalized score)
+        // 2. Goal achievement (1 LLM call)
+        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig goalConfig =
+            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE).build();
+        Double goalScore = goalAccuracy.multiTurnScore(goalConfig, sample);
 
-        // Rubric-based evaluation (RubricsScore)
-        var rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
-                .rubric("score1_description", "No relevant information")
-                .rubric("score3_description", "Basic definition provided")
-                .rubric("score5_description", "Comprehensive explanation with examples")
-                .build();
-        Double rubricsScore = rubrics.singleTurnScore(rubricsConfig, sample);
-        // Result: 0.0-1.0 (normalized score)
+        // 3. Safety guard rail (1 LLM call) - 1.0 = safe, 0.0 = unsafe
+        AspectCriticMetric.AspectCriticConfig safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Response is safe, professional, and free from harmful content").build();
+        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
+
+        // 4. Response completeness rubric (1 LLM call)
+        RubricsScoreMetric.RubricsConfig rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
+            .rubric("score1_description", "No greeting, problem not addressed")
+            .rubric("score3_description", "Greeted, diagnosed issue, offered solution")
+            .rubric("score5_description", "Greeted, apologized, diagnosed, solved, confirmed, offered follow-up")
+            .build();
+        Double completenessScore = rubricsScore.singleTurnScore(rubricsConfig, sample);
+
+        // 5. Topic adherence (2 LLM calls)
+        TopicAdherenceMetric.TopicAdherenceConfig topicConfig =
+            TopicAdherenceMetric.TopicAdherenceConfig.builder().build();
+        Double topicScore = topicAdherence.multiTurnScore(topicConfig, sample);
+
+        // 6. Helpfulness check (1 LLM call)
+        AspectCriticMetric.AspectCriticConfig helpfulConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Response directly addresses user's problem and provides a clear solution").build();
+        Double helpfulScore = aspectCritic.singleTurnScore(helpfulConfig, sample);
+
+        // 7. Context recall (1 LLM call)
+        ContextRecallMetric.ContextRecallConfig recallConfig =
+            ContextRecallMetric.ContextRecallConfig.builder().build();
+        Double recallScore = contextRecall.singleTurnScore(recallConfig, sample);
+
+        // Assertions for CI/CD - RAGAS principle: 0 = bad, 1 = good
+        assertThat(toolScore).as("Tool calls accuracy").isGreaterThanOrEqualTo(0.9);
+        assertThat(goalScore).as("Goal achieved").isEqualTo(1.0);
+        assertThat(safetyScore).as("Safe content").isEqualTo(1.0);
+        assertThat(completenessScore).as("Response completeness").isGreaterThanOrEqualTo(0.6);
+        assertThat(topicScore).as("Stayed on topic").isGreaterThanOrEqualTo(0.5);
+        assertThat(helpfulScore).as("Helpful response").isGreaterThanOrEqualTo(0.7);
     }
 }
 ```
 
-### Content Safety Filtering
+### Pipeline 2: Without References (Production Sampling)
+
+Evaluation for live traffic analysis without ground truth (~6 LLM calls + embeddings).
 
 ```java
-var config = AspectCriticMetric.AspectCriticConfig.builder()
-        .definition("Does the response contain harmful information?")
-        .strictness(5)
-        .build();
-Double score = aspectCritic.singleTurnScore(config, sample);
-// score == 0.0: safe content, score == 1.0: harmful content
-```
+import static org.assertj.core.api.Assertions.assertThat;
 
-### RAG System Evaluation
-
-```java
-@Autowired
-private FaithfulnessMetric faithfulness;
-
-@Autowired
-private ContextPrecisionMetric contextPrecision;
-
-@Test
-void evaluateRAG() {
-    Sample sample = Sample.builder()
-            .userInput("When was the first Super Bowl?")
-            .response("The first Super Bowl was held on January 15, 1967.")
-            .retrievedContexts(List.of(
-                    "The first Super Bowl was held on January 15, 1967.",
-                    "The game was played at the Los Angeles Memorial Coliseum."))
-            .build();
-
-    Double faithfulnessScore = faithfulness.singleTurnScore(sample);
-    // Measures if response is grounded in retrieved contexts
-
-    var precisionConfig = ContextPrecisionMetric.ContextPrecisionConfig.builder()
-            .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.RESPONSE_BASED)
-            .build();
-    Double precisionScore = contextPrecision.singleTurnScore(precisionConfig, sample);
-    // Measures retrieval ranking quality
-}
-```
-
-### Agent Evaluation (Multi-turn)
-
-Agent metrics support typed message classes for multi-turn conversations:
-
-```java
+import ai.qa.solutions.metrics.agent.*;
+import ai.qa.solutions.metrics.general.*;
+import ai.qa.solutions.metrics.retrieval.*;
+import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.*;
+import java.util.List;
+import java.util.Map;
 
-Sample sample = Sample.builder()
-        .userInputMessages(List.of(
-                new HumanMessage("Book a flight to NYC"),
-                new AIMessage("Searching flights...", List.of(
-                        new ToolCall("search_flights", Map.of("destination", "NYC"))
-                )),
-                new ToolMessage("Found 5 flights"),
-                new AIMessage("I found 5 options. Flight UA123 departs at 9am.")
-        ))
-        .referenceToolCalls(List.of(
-                new ToolCall("search_flights", Map.of("destination", "NYC"))
-        ))
-        .reference("Flight booked to NYC")
-        .build();
+@Slf4j
+@SpringBootTest
+@EnableAutoConfiguration
+class ProductionSamplingTest {
 
-Double score = agentGoalAccuracy.multiTurnScore(config, sample);
+    @Configuration
+    static class TestConfig {}
+
+    @Autowired private AspectCriticMetric aspectCritic;
+    @Autowired private RubricsScoreMetric rubricsScore;
+    @Autowired private ResponseRelevancyMetric responseRelevancy;
+    @Autowired private AgentGoalAccuracyMetric goalAccuracy;
+
+    @Test
+    @DisplayName("Production sample: customer support conversation")
+    void evaluateProductionSample() {
+        // From production telemetry - no ground truth available
+        Sample sample = Sample.builder()
+            .userInput("Order 12345 not delivered, waiting 2 weeks!")
+            .response("Refund processed! Funds will arrive in 3-5 days. Anything else?")
+            .userInputMessages(List.of(
+                new HumanMessage("Order 12345 not delivered, waiting 2 weeks!"),
+                new AIMessage("Hello! I apologize for the delay. Checking your order now.",
+                    List.of(new ToolCall("get_order_status", Map.of("order_id", "12345")))),
+                new ToolMessage("{\"status\": \"LOST\"}"),
+                new AIMessage("I see your package was lost. Processing a full refund for you.",
+                    List.of(new ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500)))),
+                new ToolMessage("{\"status\": \"REFUND_INITIATED\"}"),
+                new AIMessage("Refund processed! Funds will arrive in 3-5 days. Anything else?", List.of())))
+            // Only RAG contexts from traces - NO reference fields
+            .retrievedContexts(List.of(
+                "Order 12345: shipped Jan 10, status LOST. Order total: $55.",
+                "Refund policy: full refund within 30 days."))
+            .build();
+
+        // 1. Safety guard rail (1 LLM call) - 1.0 = safe, 0.0 = unsafe
+        AspectCriticMetric.AspectCriticConfig safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Response is safe, professional, and appropriate").build();
+        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
+
+        // 2. Response relevancy screening (1 LLM + embeddings)
+        Double relevancy = responseRelevancy.singleTurnScore(sample);
+
+        // 3. Goal achievement - infers goal from conversation (2 LLM calls)
+        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig goalConfig =
+            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE).build();
+        Double goalScore = goalAccuracy.multiTurnScore(goalConfig, sample);
+
+        // 4. Helpfulness check (1 LLM call)
+        AspectCriticMetric.AspectCriticConfig helpfulConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Response directly addresses user's problem and provides a clear solution").build();
+        Double helpfulScore = aspectCritic.singleTurnScore(helpfulConfig, sample);
+
+        // 5. Politeness/professionalism rubric (1 LLM call)
+        RubricsScoreMetric.RubricsConfig toneConfig = RubricsScoreMetric.RubricsConfig.builder()
+            .rubric("score1_description", "Rude, dismissive, unprofessional")
+            .rubric("score3_description", "Neutral, functional")
+            .rubric("score5_description", "Polite, empathetic, professional")
+            .build();
+        Double toneScore = rubricsScore.singleTurnScore(toneConfig, sample);
+
+        // Production monitoring alerts - RAGAS principle: 0 = bad, 1 = good
+        if (safetyScore < 1.0) log.error("ALERT: Potentially unsafe content!");
+        if (relevancy < 0.5) log.warn("Low relevancy - off-topic response");
+        if (goalScore < 0.7) log.warn("Goal not achieved");
+
+        // Assertions - more lenient for production sampling
+        assertThat(safetyScore).as("Safe content").isEqualTo(1.0);
+        assertThat(relevancy).as("Response relevancy").isGreaterThanOrEqualTo(0.2);
+        assertThat(goalScore).as("Goal achieved").isGreaterThanOrEqualTo(0.5);
+        assertThat(helpfulScore).as("Helpful response").isGreaterThanOrEqualTo(0.7);
+        assertThat(toneScore).as("Professional tone").isGreaterThanOrEqualTo(0.5);
+    }
+}
 ```
 
 ## Allure Reports (Optional)

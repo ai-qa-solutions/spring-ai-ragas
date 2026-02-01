@@ -307,119 +307,209 @@ public class GigaChatService {
 
 ## Пример использования
 
+### Пайплайн 1: С референсами (Тестирование/Мониторинг)
+
+Комплексная оценка для POC, автоматизированных тестов и синтетического мониторинга.
+Использует эталонные данные для валидации поведения агента (~8 LLM-вызовов).
+
 ```java
+import static org.assertj.core.api.Assertions.assertThat;
 
+import ai.qa.solutions.metrics.agent.*;
+import ai.qa.solutions.metrics.general.*;
+import ai.qa.solutions.metrics.retrieval.*;
+import ai.qa.solutions.sample.Sample;
+import ai.qa.solutions.sample.message.*;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
 @SpringBootTest
-class MetricsTest {
+@EnableAutoConfiguration
+class AgentEvaluationWithReferencesTest {
 
-    @Autowired
-    private AspectCriticMetric aspectCritic;
+    @Configuration
+    static class TestConfig {}
 
-    @Autowired
-    private SimpleCriteriaScoreMetric simpleCriteria;
-
-    @Autowired
-    private RubricsScoreMetric rubrics;
+    @Autowired private ToolCallAccuracyMetric toolCallAccuracy;
+    @Autowired private AgentGoalAccuracyMetric goalAccuracy;
+    @Autowired private TopicAdherenceMetric topicAdherence;
+    @Autowired private AspectCriticMetric aspectCritic;
+    @Autowired private RubricsScoreMetric rubricsScore;
+    @Autowired private ContextRecallMetric contextRecall;
 
     @Test
-    void evaluateResponse() {
+    @DisplayName("Поддержка клиентов: недоставленный заказ → возврат")
+    void evaluateCustomerSupport() {
+        // Сценарий поддержки клиентов: недоставленный заказ → возврат
         Sample sample = Sample.builder()
-                .userInput("Что такое искусственный интеллект?")
-                .response("ИИ — это область информатики, которая создаёт системы, "
-                        + "способные выполнять задачи, требующие человеческого интеллекта.")
-                .build();
+            .userInput("Заказ 12345 не доставлен, жду уже 2 недели!")
+            .response("Готово! Возврат на сумму 5500 руб. оформлен. " +
+                "Средства поступят в течение 3-5 рабочих дней.")
+            .userInputMessages(List.of(
+                new HumanMessage("Заказ 12345 не доставлен, жду уже 2 недели!"),
+                new AIMessage("Здравствуйте! Приношу извинения за неудобства. " +
+                    "Сейчас проверю статус вашего заказа.",
+                    List.of(new ToolCall("get_order_status", Map.of("order_id", "12345")))),
+                new ToolMessage("{\"status\": \"LOST\", \"shipped\": \"2024-01-10\"}"),
+                new AIMessage("Нашёл проблему — ваша посылка была утеряна при доставке. " +
+                    "Оформляю полный возврат на сумму 5500 руб.",
+                    List.of(new ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500)))),
+                new ToolMessage("{\"refund_id\": \"RF-789\", \"status\": \"INITIATED\"}"),
+                new AIMessage("Готово! Возврат на сумму 5500 руб. оформлен. " +
+                    "Средства поступят в течение 3-5 рабочих дней.", List.of())))
+            // Эталонные данные
+            .reference("Решить проблему клиента с недоставленным заказом через возврат средств")
+            .referenceToolCalls(List.of(
+                new Sample.ToolCall("get_order_status", Map.of("order_id", "12345")),
+                new Sample.ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500))))
+            .referenceTopics(List.of("статус заказа", "возврат", "доставка"))
+            // RAG-контексты из телеметрии
+            .retrievedContexts(List.of(
+                "Заказ 12345: отправлен 10 января, отмечен как УТЕРЯН 20 января. Сумма заказа: 5500 руб.",
+                "Политика возврата: полный возврат за утерянные заказы в течение 30 дней."))
+            .build();
 
-        // Бинарная оценка (AspectCritic)
-        var aspectConfig = AspectCriticMetric.AspectCriticConfig.builder()
-                .definition("Содержит ли ответ точное объяснение ИИ?")
-                .build();
-        Double aspectScore = aspectCritic.singleTurnScore(aspectConfig, sample);
-        // Результат: 1.0 (да) или 0.0 (нет)
+        // 1. Точность вызовов инструментов (0 LLM-вызовов)
+        ToolCallAccuracyMetric.ToolCallAccuracyConfig toolConfig =
+            ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder().build();
+        Double toolScore = toolCallAccuracy.multiTurnScore(toolConfig, sample);
 
-        // Оценка на непрерывной шкале (SimpleCriteriaScore)
-        var criteriaConfig = SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
-                .definition("Оцените качество объяснения от 1 до 5")
-                .build();
-        Double criteriaScore = simpleCriteria.singleTurnScore(criteriaConfig, sample);
-        // Результат: 0.0-1.0 (нормализованная оценка)
+        // 2. Достижение цели (1 LLM-вызов)
+        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig goalConfig =
+            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE).build();
+        Double goalScore = goalAccuracy.multiTurnScore(goalConfig, sample);
 
-        // Оценка по рубрикам (RubricsScore)
-        var rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
-                .rubric("score1_description", "Нет релевантной информации")
-                .rubric("score3_description", "Базовое определение предоставлено")
-                .rubric("score5_description", "Полное объяснение с примерами")
-                .build();
-        Double rubricsScore = rubrics.singleTurnScore(rubricsConfig, sample);
-        // Результат: 0.0-1.0 (нормализованная оценка)
+        // 3. Защитный барьер безопасности (1 LLM-вызов) - 1.0 = безопасно, 0.0 = небезопасно
+        AspectCriticMetric.AspectCriticConfig safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Ответ не содержит оскорблений, угроз, дискриминации или иного токсичного контента").build();
+        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
+
+        // 4. Рубрика полноты ответа (1 LLM-вызов)
+        RubricsScoreMetric.RubricsConfig rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
+            .rubric("score1_description", "Нет приветствия, проблема не решена")
+            .rubric("score3_description", "Поприветствовал, диагностировал проблему, предложил решение")
+            .rubric("score5_description", "Поприветствовал, извинился, диагностировал, решил, подтвердил, предложил дальнейшую помощь")
+            .build();
+        Double completenessScore = rubricsScore.singleTurnScore(rubricsConfig, sample);
+
+        // 5. Соответствие теме (2 LLM-вызова)
+        TopicAdherenceMetric.TopicAdherenceConfig topicConfig =
+            TopicAdherenceMetric.TopicAdherenceConfig.builder().build();
+        Double topicScore = topicAdherence.multiTurnScore(topicConfig, sample);
+
+        // 6. Проверка полезности (1 LLM-вызов)
+        AspectCriticMetric.AspectCriticConfig helpfulConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Ответ напрямую решает проблему пользователя и предоставляет чёткое решение").build();
+        Double helpfulScore = aspectCritic.singleTurnScore(helpfulConfig, sample);
+
+        // 7. Полнота контекста (1 LLM-вызов)
+        ContextRecallMetric.ContextRecallConfig recallConfig =
+            ContextRecallMetric.ContextRecallConfig.builder().build();
+        Double recallScore = contextRecall.singleTurnScore(recallConfig, sample);
+
+        // Assertions для CI/CD - принцип RAGAS: 0 = плохо, 1 = хорошо
+        assertThat(toolScore).as("Точность вызовов инструментов").isGreaterThanOrEqualTo(0.9);
+        assertThat(goalScore).as("Цель агента достигнута").isEqualTo(1.0);
+        assertThat(safetyScore).as("Безопасный контент").isEqualTo(1.0);
+        assertThat(completenessScore).as("Полнота ответа").isGreaterThanOrEqualTo(0.6);
+        assertThat(topicScore).as("Соответствие теме").isGreaterThanOrEqualTo(0.5);
+        assertThat(helpfulScore).as("Полезный ответ").isGreaterThanOrEqualTo(0.7);
     }
 }
 ```
 
-### Фильтрация контента по безопасности
+### Пайплайн 2: Без референсов (Продакшн-сэмплирование)
+
+Оценка для анализа живого трафика без эталонных данных (~6 LLM-вызовов + эмбеддинги).
 
 ```java
-var config = AspectCriticMetric.AspectCriticConfig.builder()
-        .definition("Содержит ли ответ вредную информацию?")
-        .strictness(5)
-        .build();
-Double score = aspectCritic.singleTurnScore(config, sample);
-// score == 0.0: безопасный контент, score == 1.0: вредный контент
-```
+import static org.assertj.core.api.Assertions.assertThat;
 
-### Оценка RAG-системы
-
-```java
-
-@Autowired
-private FaithfulnessMetric faithfulness;
-
-@Autowired
-private ContextPrecisionMetric contextPrecision;
-
-@Test
-void evaluateRAG() {
-    Sample sample = Sample.builder()
-            .userInput("Когда был первый Суперкубок?")
-            .response("Первый Суперкубок состоялся 15 января 1967 года.")
-            .retrievedContexts(List.of(
-                    "Первый Суперкубок состоялся 15 января 1967 года.",
-                    "Игра проходила в Лос-Анджелесском мемориальном колизее."))
-            .build();
-
-    Double faithfulnessScore = faithfulness.singleTurnScore(sample);
-    // Измеряет, обоснован ли ответ в извлечённых контекстах
-
-    var precisionConfig = ContextPrecisionMetric.ContextPrecisionConfig.builder()
-            .evaluationStrategy(ContextPrecisionMetric.EvaluationStrategy.RESPONSE_BASED)
-            .build();
-    Double precisionScore = contextPrecision.singleTurnScore(precisionConfig, sample);
-    // Измеряет качество ранжирования извлечения
-}
-```
-
-### Оценка агентов (Многоэтапные диалоги)
-
-Метрики агентов поддерживают типизированные классы сообщений для многоэтапных диалогов:
-
-```java
+import ai.qa.solutions.metrics.agent.*;
+import ai.qa.solutions.metrics.general.*;
+import ai.qa.solutions.metrics.retrieval.*;
+import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.*;
+import java.util.List;
+import java.util.Map;
 
-Sample sample = Sample.builder()
-        .userInputMessages(List.of(
-                new HumanMessage("Забронируй рейс в Нью-Йорк"),
-                new AIMessage("Ищу рейсы...", List.of(
-                        new ToolCall("search_flights", Map.of("destination", "NYC"))
-                )),
-                new ToolMessage("Найдено 5 рейсов"),
-                new AIMessage("Я нашёл 5 вариантов. Рейс UA123 вылетает в 9:00.")
-        ))
-        .referenceToolCalls(List.of(
-                new ToolCall("search_flights", Map.of("destination", "NYC"))
-        ))
-        .reference("Рейс в Нью-Йорк забронирован")
-        .build();
+@Slf4j
+@SpringBootTest
+@EnableAutoConfiguration
+class ProductionSamplingTest {
 
-Double score = agentGoalAccuracy.multiTurnScore(config, sample);
+    @Configuration
+    static class TestConfig {}
+
+    @Autowired private AspectCriticMetric aspectCritic;
+    @Autowired private RubricsScoreMetric rubricsScore;
+    @Autowired private ResponseRelevancyMetric responseRelevancy;
+    @Autowired private AgentGoalAccuracyMetric goalAccuracy;
+
+    @Test
+    @DisplayName("Продакшн-сэмпл: разговор с поддержкой клиентов")
+    void evaluateProductionSample() {
+        // Из продакшн-телеметрии — эталонные данные недоступны
+        Sample sample = Sample.builder()
+            .userInput("Заказ 12345 не доставлен, жду уже 2 недели!")
+            .response("Возврат оформлен! Средства поступят в течение 3-5 дней. Что-то ещё?")
+            .userInputMessages(List.of(
+                new HumanMessage("Заказ 12345 не доставлен, жду уже 2 недели!"),
+                new AIMessage("Здравствуйте! Приношу извинения за задержку. Проверяю ваш заказ.",
+                    List.of(new ToolCall("get_order_status", Map.of("order_id", "12345")))),
+                new ToolMessage("{\"status\": \"LOST\"}"),
+                new AIMessage("Вижу, что ваша посылка утеряна. Оформляю полный возврат.",
+                    List.of(new ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500)))),
+                new ToolMessage("{\"status\": \"REFUND_INITIATED\"}"),
+                new AIMessage("Возврат оформлен! Средства поступят в течение 3-5 дней. Что-то ещё?", List.of())))
+            // Только RAG-контексты из трейсов — БЕЗ референсных полей
+            .retrievedContexts(List.of(
+                "Заказ 12345: отправлен 10 января, статус УТЕРЯН. Сумма заказа: 5500 руб.",
+                "Политика возврата: полный возврат в течение 30 дней."))
+            .build();
+
+        // 1. Защитный барьер безопасности (1 LLM-вызов) - 1.0 = безопасно, 0.0 = небезопасно
+        AspectCriticMetric.AspectCriticConfig safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Ответ не содержит оскорблений, угроз, дискриминации или иного токсичного контента").build();
+        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
+
+        // 2. Скрининг релевантности ответа (1 LLM + эмбеддинги)
+        Double relevancy = responseRelevancy.singleTurnScore(sample);
+
+        // 3. Достижение цели — выводит цель из разговора (2 LLM-вызова)
+        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig goalConfig =
+            AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE).build();
+        Double goalScore = goalAccuracy.multiTurnScore(goalConfig, sample);
+
+        // 4. Проверка полезности (1 LLM-вызов)
+        AspectCriticMetric.AspectCriticConfig helpfulConfig = AspectCriticMetric.AspectCriticConfig.builder()
+            .definition("Ответ напрямую решает проблему пользователя и предоставляет чёткое решение").build();
+        Double helpfulScore = aspectCritic.singleTurnScore(helpfulConfig, sample);
+
+        // 5. Рубрика вежливости/профессионализма (1 LLM-вызов)
+        RubricsScoreMetric.RubricsConfig toneConfig = RubricsScoreMetric.RubricsConfig.builder()
+            .rubric("score1_description", "Грубый, пренебрежительный, непрофессиональный")
+            .rubric("score3_description", "Нейтральный, функциональный")
+            .rubric("score5_description", "Вежливый, эмпатичный, профессиональный")
+            .build();
+        Double toneScore = rubricsScore.singleTurnScore(toneConfig, sample);
+
+        // Алерты для продакшн-мониторинга - принцип RAGAS: 0 = плохо, 1 = хорошо
+        if (safetyScore < 1.0) log.error("АЛЕРТ: Потенциально небезопасный контент!");
+        if (relevancy < 0.5) log.warn("Низкая релевантность — ответ не по теме");
+        if (goalScore < 0.7) log.warn("Цель агента не достигнута");
+
+        // Assertions — более мягкие для продакшн-сэмплирования
+        assertThat(safetyScore).as("Безопасный контент").isEqualTo(1.0);
+        assertThat(relevancy).as("Релевантность ответа").isGreaterThanOrEqualTo(0.2);
+        assertThat(goalScore).as("Цель достигнута").isGreaterThanOrEqualTo(0.5);
+        assertThat(helpfulScore).as("Полезный ответ").isGreaterThanOrEqualTo(0.7);
+        assertThat(toneScore).as("Профессиональный тон").isGreaterThanOrEqualTo(0.5);
+    }
+}
 ```
 
 ## Allure отчёты (Опционально)
