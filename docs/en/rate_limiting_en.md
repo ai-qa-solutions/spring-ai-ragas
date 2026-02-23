@@ -63,11 +63,11 @@ spring:
 Blocks the calling thread until a token becomes available in the provider's bucket. If a timeout is configured,
 the thread will wait at most that long before throwing `RateLimitExceededException`.
 
-| Parameter |      Value       |              Behavior              |
-|-----------|------------------|------------------------------------|
-| timeout   | `0` (default)    | Wait indefinitely until token      |
-| timeout   | `30s`            | Wait up to 30 seconds, then fail   |
-| timeout   | `500ms`          | Wait up to 500ms, then fail        |
+| Parameter |     Value     |             Behavior             |
+|-----------|---------------|----------------------------------|
+| timeout   | `0` (default) | Wait indefinitely until token    |
+| timeout   | `30s`         | Wait up to 30 seconds, then fail |
+| timeout   | `500ms`       | Wait up to 500ms, then fail      |
 
 ### REJECT
 
@@ -130,6 +130,7 @@ class Example {
 ```
 
 > **Note:** When using the library without the starter, add the `bucket4j-core` dependency explicitly:
+>
 > ```xml
 > <dependency>
 >     <groupId>com.bucket4j</groupId>
@@ -144,19 +145,19 @@ class Example {
 
 ### Global Defaults
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `spring.ai.ragas.providers.rate-limit.default-rps` | `Integer` | `null` (disabled) | Default RPS for all providers |
-| `spring.ai.ragas.providers.rate-limit.default-strategy` | `WAIT` / `REJECT` | `WAIT` | Default backpressure strategy |
-| `spring.ai.ragas.providers.rate-limit.default-timeout` | `Duration` | `0` (infinite) | Default timeout for WAIT strategy |
+|                        Property                         |       Type        |      Default      |            Description            |
+|---------------------------------------------------------|-------------------|-------------------|-----------------------------------|
+| `spring.ai.ragas.providers.rate-limit.default-rps`      | `Integer`         | `null` (disabled) | Default RPS for all providers     |
+| `spring.ai.ragas.providers.rate-limit.default-strategy` | `WAIT` / `REJECT` | `WAIT`            | Default backpressure strategy     |
+| `spring.ai.ragas.providers.rate-limit.default-timeout`  | `Duration`        | `0` (infinite)    | Default timeout for WAIT strategy |
 
 ### Per-Provider
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `rate-limit.rps` | `Integer` | global default | RPS limit for this provider |
-| `rate-limit.strategy` | `WAIT` / `REJECT` | global default | Backpressure strategy |
-| `rate-limit.timeout` | `Duration` | global default | Timeout for WAIT strategy |
+|       Property        |       Type        |    Default     |         Description         |
+|-----------------------|-------------------|----------------|-----------------------------|
+| `rate-limit.rps`      | `Integer`         | global default | RPS limit for this provider |
+| `rate-limit.strategy` | `WAIT` / `REJECT` | global default | Backpressure strategy       |
+| `rate-limit.timeout`  | `Duration`        | global default | Timeout for WAIT strategy   |
 
 Per-provider properties are available on `openai-compatible[*]`, `default-provider`, and `external-starters.*`.
 
