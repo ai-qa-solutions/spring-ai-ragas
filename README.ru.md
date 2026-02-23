@@ -20,6 +20,7 @@ Java-библиотека для оценки и тестирования AI а�
 - **Spring-native**: Нативная интеграция с Spring Boot экосистемой
 - **Асинхронность**: CompletableFuture для параллельных оценок
 - **Мультимодельность**: Оценка на нескольких LLM с агрегацией результатов
+- **Rate Limiting**: Контроль RPS по провайдерам с [Bucket4j](https://github.com/bucket4j/bucket4j) (стратегии WAIT/REJECT)
 - **Мультиязычность**: Поддержка русского и английского языков
 - **Расширяемость**: Легко создавать собственные метрики
 
@@ -34,7 +35,7 @@ Java-библиотека для оценки и тестирования AI а�
 
 | Spring AI RAGAS | RAGAS (Python) | Spring Boot | Spring AI |
 |-----------------|----------------|-------------|-----------|
-| 0.3.0           | 0.3.x          | 3.5.x       | 1.1.x     |
+| 0.3.1           | 0.3.x          | 3.5.x       | 1.1.x     |
 
 ## Поддерживаемые метрики
 
@@ -121,7 +122,7 @@ Java-библиотека для оценки и тестирования AI а�
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-spring-boot-starter</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <scope>test</scope>
 </dependency>
         <!-- И любые нужные вам стартеры из экосистемы spring-ai -->
@@ -136,7 +137,7 @@ Java-библиотека для оценки и тестирования AI а�
 #### Gradle
 
 ```groovy
-testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:0.3.0'
+testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:0.3.1'
 testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.2'
 ```
 
@@ -529,7 +530,7 @@ class ProductionSamplingTest {
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-allure</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <scope>test</scope>
 </dependency>
 ```

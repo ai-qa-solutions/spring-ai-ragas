@@ -54,7 +54,7 @@ mvn spotless:apply
 ## Key Technologies
 
 - **Java 17+**
-- **Spring Boot 3.5.9**
+- **Spring Boot 3.5.11**
 - **Spring AI 1.1.2**
 - **Rate Limiting:** Bucket4j 8.10.1 (token bucket algorithm)
 - **Testing:** JUnit 5, AssertJ, Mockito
