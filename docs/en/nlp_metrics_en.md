@@ -525,10 +525,10 @@ class StringSimilarityTest {
 
 ### Configuration
 
-|     Parameter     |      Type       | Required |   Default    |             Description              |
-|-------------------|-----------------|----------|--------------|--------------------------------------|
-| `distanceMeasure` | DistanceMeasure | No       | JARO_WINKLER | Algorithm to use for comparison      |
-| `caseSensitive`   | boolean         | No       | false        | Whether comparison is case sensitive |
+|     Parameter     |      Type       | Required |   Default    |                Description                 |
+|-------------------|-----------------|----------|--------------|--------------------------------------------|
+| `distanceMeasure` | DistanceMeasure | No       | JARO_WINKLER | Algorithm to use for comparison            |
+| `caseSensitive`   | boolean         | No       | false        | Whether comparison is case sensitive       |
 | `language`        | String          | No       | `"en"`       | Language for explanations (`"en"`, `"ru"`) |
 
 ### Algorithm Selection Guide

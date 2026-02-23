@@ -168,10 +168,10 @@ class AgentGoalAccuracyTest {
 
 ### Configuration
 
-| Parameter  |     Type     | Required |    Default     |               Description                |
-|------------|--------------|----------|----------------|------------------------------------------|
-| `mode`     | Mode         | No       | WITH_REFERENCE | WITH_REFERENCE or WITHOUT_REFERENCE      |
-| `models`   | List<String> | No       | all            | Specific model IDs to use for evaluation |
+| Parameter  |     Type     | Required |    Default     |                Description                 |
+|------------|--------------|----------|----------------|--------------------------------------------|
+| `mode`     | Mode         | No       | WITH_REFERENCE | WITH_REFERENCE or WITHOUT_REFERENCE        |
+| `models`   | List<String> | No       | all            | Specific model IDs to use for evaluation   |
 | `language` | String       | No       | `"en"`         | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
@@ -445,10 +445,10 @@ class TopicAdherenceTest {
 
 ### Configuration
 
-| Parameter  |     Type     | Required | Default |              Description              |
-|------------|--------------|----------|---------|---------------------------------------|
-| `mode`     | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode |
-| `models`   | List<String> | No       | all     | Specific model IDs for evaluation     |
+| Parameter  |     Type     | Required | Default |                Description                 |
+|------------|--------------|----------|---------|--------------------------------------------|
+| `mode`     | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode      |
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation          |
 | `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 **Scoring Modes:**

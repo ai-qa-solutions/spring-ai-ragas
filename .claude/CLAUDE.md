@@ -9,6 +9,7 @@ Spring AI RAGAS is a Java library for evaluating LLM-based AI agents, inspired b
 **Key features:**
 - Multi-model evaluation with configurable aggregation (AVERAGE, MEDIAN, MIN, MAX, MAJORITY_VOTING)
 - Asynchronous parallel execution via CompletableFuture
+- Per-provider rate limiting with Bucket4j (WAIT/REJECT strategies)
 - Observer pattern for evaluation monitoring
 - Multilingual support (English and Russian)
 
@@ -55,6 +56,7 @@ mvn spotless:apply
 - **Java 17+**
 - **Spring Boot 3.5.9**
 - **Spring AI 1.1.2**
+- **Rate Limiting:** Bucket4j 8.10.1 (token bucket algorithm)
 - **Testing:** JUnit 5, AssertJ, Mockito
 - **Coverage:** JaCoCo (80% line/branch minimum)
 - **Formatting:** Spotless with Palantir Java Format
@@ -133,6 +135,47 @@ To prevent deadlocks during parallel execution, the system uses two separate thr
 - `ragasHttpExecutor` (core=8, max=64) - for HTTP/LLM API calls
 
 **Important:** Metrics must use `executor.runAsync()` instead of `CompletableFuture.supplyAsync()`.
+
+### Provider Rate Limiting
+
+Per-provider RPS rate limiting using Bucket4j token bucket algorithm. All models from the same provider share one bucket. Rate limiting is **disabled by default** — only activated when `rps` is configured.
+
+**Package:** `ai.qa.solutions.execution.ratelimit`
+
+**Key classes:**
+- `ProviderRateLimiterRegistry` - interface with `acquire(String modelId)` method
+- `Bucket4jProviderRateLimiterRegistry` - Bucket4j implementation with lazy bucket creation
+- `RateLimitConfig` - record: `(int rps, RateLimitStrategy strategy, Duration timeout)`
+- `RateLimitStrategy` - enum: `WAIT` (block until token) or `REJECT` (fail-fast)
+- `RateLimitExceededException` - thrown when limit exceeded, contains `modelId` and `providerName`
+
+**Configuration (application.yaml):**
+
+```yaml
+spring:
+  ai:
+    ragas:
+      providers:
+        rate-limit:                    # Global defaults
+          default-rps: 10
+          default-strategy: WAIT
+          default-timeout: 0          # 0 = infinite wait
+        openai-compatible:
+          - name: openrouter
+            rate-limit:                # Per-provider override
+              rps: 5
+              strategy: WAIT
+              timeout: 30s
+```
+
+**Design decisions:**
+- `Duration.ZERO` means infinite wait (no timeout) — deliberate convention
+- `bucket4j-core` is `<optional>` in multi-model module, regular dependency in spring-boot module
+- `@ConditionalOnClass(name = "io.github.bucket4j.Bucket")` guards the bean
+- Rate limit wait time is excluded from `ModelResult` duration (acquire happens before timing starts)
+- `InterruptedException` handling restores thread interrupt flag for graceful shutdown
+- Rate-limited model returns `ModelResult.failure()` with `Duration.ZERO`, not an unhandled exception
+- `MultiModelExecutor` accepts nullable registry via 5-arg constructor; null = no rate limiting
 
 ### NLP Metric Pattern
 

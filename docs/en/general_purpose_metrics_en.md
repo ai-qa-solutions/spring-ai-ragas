@@ -424,10 +424,10 @@ class RubricsScoreTest {
 
 ### Configuration
 
-| Parameter |        Type         | Required |                    Description                    |
-|-----------|---------------------|----------|---------------------------------------------------|
-| `rubrics`  | Map<String, String> | Yes      | Score descriptions in `scoreN_description` format      |
-| `models`   | List                | No       | Specific model IDs to use for evaluation               |
+| Parameter  |        Type         | Required |                        Description                         |
+|------------|---------------------|----------|------------------------------------------------------------|
+| `rubrics`  | Map<String, String> | Yes      | Score descriptions in `scoreN_description` format          |
+| `models`   | List                | No       | Specific model IDs to use for evaluation                   |
 | `language` | String              | No       | Language for explanations (`"en"`, `"ru"`, default `"en"`) |
 
 ### Creating Effective Rubrics

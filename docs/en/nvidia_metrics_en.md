@@ -167,10 +167,10 @@ class ContextRelevanceTest {
 
 ### Configuration
 
-|   Parameter   |     Type     | Required | Default |            Description            |
-|---------------|--------------|----------|---------|-----------------------------------|
-| `models`      | List<String> | No       | all     | Specific model IDs for evaluation |
-| `temperature` | double       | No       | 0.1     | LLM temperature for determinism   |
+|   Parameter   |     Type     | Required | Default |                Description                 |
+|---------------|--------------|----------|---------|--------------------------------------------|
+| `models`      | List<String> | No       | all     | Specific model IDs for evaluation          |
+| `temperature` | double       | No       | 0.1     | LLM temperature for determinism            |
 | `language`    | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
@@ -319,11 +319,11 @@ class ResponseGroundednessTest {
 
 ### Configuration
 
-|        Parameter        |     Type     | Required | Default |            Description             |
-|-------------------------|--------------|----------|---------|------------------------------------|
-| `models`                | List<String> | No       | all     | Specific model IDs for evaluation  |
-| `useHeuristicShortcuts` | boolean      | No       | true    | Enable fast path for trivial cases |
-| `temperature`           | double       | No       | 0.1     | LLM temperature for determinism    |
+|        Parameter        |     Type     | Required | Default |                Description                 |
+|-------------------------|--------------|----------|---------|--------------------------------------------|
+| `models`                | List<String> | No       | all     | Specific model IDs for evaluation          |
+| `useHeuristicShortcuts` | boolean      | No       | true    | Enable fast path for trivial cases         |
+| `temperature`           | double       | No       | 0.1     | LLM temperature for determinism            |
 | `language`              | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
@@ -481,11 +481,11 @@ class AnswerAccuracyTest {
 
 ### Configuration
 
-|   Parameter    |     Type     | Required | Default |            Description            |
-|----------------|--------------|----------|---------|-----------------------------------|
-| `models`       | List<String> | No       | all     | Specific model IDs for evaluation |
-| `useDualJudge` | boolean      | No       | false   | Enable confirmation judgment      |
-| `temperature`  | double       | No       | 0.1     | LLM temperature for determinism   |
+|   Parameter    |     Type     | Required | Default |                Description                 |
+|----------------|--------------|----------|---------|--------------------------------------------|
+| `models`       | List<String> | No       | all     | Specific model IDs for evaluation          |
+| `useDualJudge` | boolean      | No       | false   | Enable confirmation judgment               |
+| `temperature`  | double       | No       | 0.1     | LLM temperature for determinism            |
 | `language`     | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use

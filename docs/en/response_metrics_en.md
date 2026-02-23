@@ -365,10 +365,10 @@ class FactualCorrectnessTest {
 
 ### Configuration
 
-| Parameter  |     Type     | Required | Default |                Description                |
-|------------|--------------|----------|---------|-------------------------------------------|
-| `mode`     | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode     |
-| `models`   | List<String> | No       | all     | Model IDs for claim decomposition and NLI |
+| Parameter  |     Type     | Required | Default |                Description                 |
+|------------|--------------|----------|---------|--------------------------------------------|
+| `mode`     | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode      |
+| `models`   | List<String> | No       | all     | Model IDs for claim decomposition and NLI  |
 | `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 **Scoring Modes:**
@@ -523,11 +523,11 @@ class AnswerCorrectnessTest {
 
 ### Configuration
 
-|    Parameter     |     Type     | Required | Default |               Description                |
-|------------------|--------------|----------|---------|------------------------------------------|
-| `factualWeight`  | double       | No       | 0.75    | Weight for factual correctness component |
-| `semanticWeight` | double       | No       | 0.25    | Weight for semantic similarity component |
-| `models`         | List<String> | No       | all     | Model IDs for factual correctness        |
+|    Parameter     |     Type     | Required | Default |                Description                 |
+|------------------|--------------|----------|---------|--------------------------------------------|
+| `factualWeight`  | double       | No       | 0.75    | Weight for factual correctness component   |
+| `semanticWeight` | double       | No       | 0.25    | Weight for semantic similarity component   |
+| `models`         | List<String> | No       | all     | Model IDs for factual correctness          |
 | `language`       | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 **Preset Configurations:**

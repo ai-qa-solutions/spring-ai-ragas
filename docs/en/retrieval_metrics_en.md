@@ -168,9 +168,9 @@ class ContextEntityRecallTest {
 
 ### Configuration
 
-| Parameter  |     Type     | Required | Default |            Description            |
-|------------|--------------|----------|---------|-----------------------------------|
-| `models`   | List<String> | No       | all     | Specific model IDs for evaluation |
+| Parameter  |     Type     | Required | Default |                Description                 |
+|------------|--------------|----------|---------|--------------------------------------------|
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation          |
 | `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
@@ -297,11 +297,11 @@ class ContextPrecisionTest {
 
 ### Configuration
 
-|      Parameter       |        Type        | Required |   Default   |                 Description                    |
-|----------------------|--------------------|----------|-------------|------------------------------------------------|
-| `evaluationStrategy` | EvaluationStrategy | No       | Auto-detect | REFERENCE_BASED or RESPONSE_BASED              |
-| `models`             | List<String>       | No       | all         | Specific model IDs for evaluation              |
-| `language`           | String             | No       | `"en"`      | Language for explanations (`"en"`, `"ru"`)     |
+|      Parameter       |        Type        | Required |   Default   |                Description                 |
+|----------------------|--------------------|----------|-------------|--------------------------------------------|
+| `evaluationStrategy` | EvaluationStrategy | No       | Auto-detect | REFERENCE_BASED or RESPONSE_BASED          |
+| `models`             | List<String>       | No       | all         | Specific model IDs for evaluation          |
+| `language`           | String             | No       | `"en"`      | Language for explanations (`"en"`, `"ru"`) |
 
 **Evaluation Strategies:**
 
@@ -401,9 +401,9 @@ class ContextRecallTest {
 
 ### Configuration
 
-| Parameter  |     Type     | Required | Default |            Description            |
-|------------|--------------|----------|---------|-----------------------------------|
-| `models`   | List<String> | No       | all     | Specific model IDs for evaluation |
+| Parameter  |     Type     | Required | Default |                Description                 |
+|------------|--------------|----------|---------|--------------------------------------------|
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation          |
 | `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
@@ -510,9 +510,9 @@ class FaithfulnessTest {
 
 ### Configuration
 
-| Parameter  |     Type     | Required | Default |            Description            |
-|------------|--------------|----------|---------|-----------------------------------|
-| `models`   | List<String> | No       | all     | Specific model IDs for evaluation |
+| Parameter  |     Type     | Required | Default |                Description                 |
+|------------|--------------|----------|---------|--------------------------------------------|
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation          |
 | `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
@@ -638,10 +638,10 @@ class NoiseSensitivityTest {
 
 ### Configuration
 
-| Parameter  |         Type         | Required | Default  |              Description               |
-|------------|----------------------|----------|----------|----------------------------------------|
-| `mode`     | NoiseSensitivityMode | No       | RELEVANT | RELEVANT or IRRELEVANT evaluation mode |
-| `models`   | List<String>         | No       | all      | Specific model IDs for evaluation      |
+| Parameter  |         Type         | Required | Default  |                Description                 |
+|------------|----------------------|----------|----------|--------------------------------------------|
+| `mode`     | NoiseSensitivityMode | No       | RELEVANT | RELEVANT or IRRELEVANT evaluation mode     |
+| `models`   | List<String>         | No       | all      | Specific model IDs for evaluation          |
 | `language` | String               | No       | `"en"`   | Language for explanations (`"en"`, `"ru"`) |
 
 **Evaluation Modes:**
