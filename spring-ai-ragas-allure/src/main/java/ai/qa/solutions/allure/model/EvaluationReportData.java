@@ -1,8 +1,8 @@
 package ai.qa.solutions.allure.model;
 
-import ai.qa.solutions.allure.explanation.RubricsScoreExplanation;
-import ai.qa.solutions.allure.explanation.ScoreExplanation;
 import ai.qa.solutions.allure.util.AllureJsonUtils;
+import ai.qa.solutions.metric.explanation.RubricsScoreExplanation;
+import ai.qa.solutions.metric.explanation.ScoreExplanation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.Duration;
 import java.time.Instant;

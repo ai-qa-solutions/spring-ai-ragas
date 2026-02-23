@@ -408,5 +408,8 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
     public static class FaithfulnessConfig implements MetricConfiguration {
         @Singular
         private List<String> models;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

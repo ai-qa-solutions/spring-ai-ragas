@@ -339,5 +339,8 @@ public class RougeScoreMetric extends AbstractMetric<RougeScoreMetric.RougeScore
          */
         @Builder.Default
         private Mode mode = Mode.FMEASURE;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

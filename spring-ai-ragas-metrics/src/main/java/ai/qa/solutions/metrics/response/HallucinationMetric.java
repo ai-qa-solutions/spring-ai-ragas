@@ -261,5 +261,8 @@ public class HallucinationMetric extends AbstractMultiModelMetric<HallucinationM
     public static class HallucinationConfig implements MetricConfiguration {
         @Singular
         private List<String> models;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

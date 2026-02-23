@@ -286,6 +286,9 @@ public class SimpleCriteriaScoreMetric
         @Builder.Default
         private Integer strictness = 1;
 
+        @Builder.Default
+        private String language = "en";
+
         @SuppressWarnings("unused")
         public void setScoreRange(double minScore, double maxScore) {
             if (minScore >= maxScore) {

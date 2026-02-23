@@ -323,5 +323,8 @@ public class StringSimilarityMetric extends AbstractMetric<StringSimilarityMetri
          */
         @Builder.Default
         private boolean caseSensitive = false;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

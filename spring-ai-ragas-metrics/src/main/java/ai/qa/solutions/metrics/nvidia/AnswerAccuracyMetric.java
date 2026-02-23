@@ -333,5 +333,8 @@ public class AnswerAccuracyMetric extends AbstractMultiModelMetric<AnswerAccurac
         /** Temperature for LLM inference. Lower values produce more deterministic results. */
         @Builder.Default
         private double temperature = 0.1;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

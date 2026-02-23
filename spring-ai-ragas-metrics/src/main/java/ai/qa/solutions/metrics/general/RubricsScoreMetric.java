@@ -234,6 +234,9 @@ public class RubricsScoreMetric extends AbstractMultiModelMetric<RubricsScoreMet
         @Singular
         private Map<String, String> rubrics;
 
+        @Builder.Default
+        private String language = "en";
+
         @SuppressWarnings("unused")
         public void validateRubrics() {
             if (rubrics.isEmpty()) {

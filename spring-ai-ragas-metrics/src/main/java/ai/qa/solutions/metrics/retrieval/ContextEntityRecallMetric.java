@@ -378,5 +378,8 @@ public class ContextEntityRecallMetric
     public static class ContextEntityRecallConfig implements MetricConfiguration {
         @Singular
         private List<String> models;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

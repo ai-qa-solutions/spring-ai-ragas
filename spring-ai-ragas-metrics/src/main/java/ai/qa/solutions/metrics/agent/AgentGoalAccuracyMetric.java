@@ -419,5 +419,8 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
         /** Evaluation mode: WITH_REFERENCE or WITHOUT_REFERENCE. */
         @Builder.Default
         private Mode mode = Mode.WITH_REFERENCE;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

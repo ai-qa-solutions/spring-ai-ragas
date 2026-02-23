@@ -248,5 +248,8 @@ public class ContextRecallMetric extends AbstractMultiModelMetric<ContextRecallM
     public static class ContextRecallConfig implements MetricConfiguration {
         @Singular
         private List<String> models;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

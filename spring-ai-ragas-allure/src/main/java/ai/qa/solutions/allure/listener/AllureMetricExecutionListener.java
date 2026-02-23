@@ -1,14 +1,14 @@
 package ai.qa.solutions.allure.listener;
 
 import ai.qa.solutions.allure.config.AllureRagasProperties;
-import ai.qa.solutions.allure.explanation.ScoreExplanation;
-import ai.qa.solutions.allure.explanation.ScoreExplanationFactory;
 import ai.qa.solutions.allure.methodology.MethodologyLoader;
 import ai.qa.solutions.allure.model.*;
 import ai.qa.solutions.allure.template.FreemarkerTemplateEngine;
 import ai.qa.solutions.allure.util.AllureJsonUtils;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.*;
+import ai.qa.solutions.metric.explanation.ScoreExplanation;
+import ai.qa.solutions.metric.explanation.ScoreExplanationFactory;
 import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.AIMessage;
 import ai.qa.solutions.sample.message.BaseMessage;
@@ -225,8 +225,13 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
 
         final ChartData chartData = buildChartData(result, timelineEntries);
 
-        // Extract score explanation from typed metadata via factory
-        final Optional<ScoreExplanation> explanationOpt = explanationFactory.create(result, properties.getLanguage());
+        // Use pre-built explanation if available (from evaluate() API), otherwise build via factory
+        final Optional<ScoreExplanation> explanationOpt;
+        if (result.getExplanation() instanceof ScoreExplanation preBuilt) {
+            explanationOpt = Optional.of(preBuilt);
+        } else {
+            explanationOpt = explanationFactory.create(result, properties.getLanguage());
+        }
 
         // Format conversation messages for agent metrics
         final List<FormattedMessage> conversationMessages = formatConversationMessages(sample.getUserInputMessages());

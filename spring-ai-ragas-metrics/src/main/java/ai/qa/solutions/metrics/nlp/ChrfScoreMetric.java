@@ -339,5 +339,8 @@ public class ChrfScoreMetric extends AbstractMetric<ChrfScoreMetric.ChrfScoreCon
          */
         @Builder.Default
         private double beta = 2.0;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

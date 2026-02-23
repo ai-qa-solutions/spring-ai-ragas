@@ -767,5 +767,8 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
          */
         @Singular
         private List<String> models;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

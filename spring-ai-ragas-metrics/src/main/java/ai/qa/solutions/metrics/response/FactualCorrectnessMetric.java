@@ -563,5 +563,8 @@ public class FactualCorrectnessMetric
          */
         @Singular
         private List<String> models;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

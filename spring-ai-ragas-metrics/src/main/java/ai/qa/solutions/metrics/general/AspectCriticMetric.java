@@ -239,6 +239,9 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
         @Builder.Default
         private Integer strictness = 1;
 
+        @Builder.Default
+        private String language = "en";
+
         @SuppressWarnings("unused")
         public void setStrictness(final int strictness) {
             if (strictness < 1 || strictness > 5) {

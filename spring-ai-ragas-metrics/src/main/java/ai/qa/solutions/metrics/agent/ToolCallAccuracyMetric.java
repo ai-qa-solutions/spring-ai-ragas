@@ -302,5 +302,8 @@ public class ToolCallAccuracyMetric extends AbstractMultiTurnMetric<ToolCallAccu
         /** Threshold for argument matching in FLEXIBLE mode (0.0-1.0). */
         @Builder.Default
         private Double argumentMatchThreshold = 0.8;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

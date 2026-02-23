@@ -3,11 +3,16 @@ package ai.qa.solutions.metric;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.metric.explanation.ScoreExplanation;
+import ai.qa.solutions.metric.explanation.ScoreExplanationFactory;
+import ai.qa.solutions.sample.Sample;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -21,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  *   <li>Thread-safe listener registration and management</li>
  *   <li>{@link EvaluationNotifier} for notifying listeners at evaluation start/end</li>
  *   <li>Evaluation-scoped listener instances via {@link MetricExecutionListener#forEvaluation()}</li>
+ *   <li>{@link #singleTurnEvaluate} for rich evaluation results with explanations</li>
  * </ul>
  *
  * <h3>Usage Example:</h3>
@@ -55,6 +61,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class AbstractMetric<T extends Metric.MetricConfiguration> implements Metric<T> {
+
+    /**
+     * Factory for creating score explanations from evaluation results.
+     */
+    private static final ScoreExplanationFactory EXPLANATION_FACTORY = new ScoreExplanationFactory();
 
     /**
      * Registered metric execution listeners, maintained in priority order.
@@ -121,6 +132,94 @@ public abstract class AbstractMetric<T extends Metric.MetricConfiguration> imple
      */
     public List<MetricExecutionListener> getListeners() {
         return List.copyOf(listeners);
+    }
+
+    // ============ Rich Evaluation ============
+
+    /**
+     * Evaluates a single-turn sample and returns a rich result with score, explanation, and metadata.
+     * <p>
+     * Uses a capturing listener to intercept the {@link MetricEvaluationResult} that the metric
+     * internally builds and passes to listeners during {@link #singleTurnScore}. The captured
+     * result is then enriched with a {@link ScoreExplanation}.
+     *
+     * @param metricConfiguration the metric configuration
+     * @param sample the sample to evaluate
+     * @return rich evaluation result with score, explanation, and metadata
+     */
+    @Override
+    public EvaluationResult singleTurnEvaluate(final T metricConfiguration, final Sample sample) {
+        final AtomicReference<MetricEvaluationResult> capturedResult = new AtomicReference<>();
+
+        final MetricExecutionListener capturingListener = new MetricExecutionListener() {
+            @Override
+            public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                capturedResult.set(result);
+            }
+
+            @Override
+            public int getOrder() {
+                return Integer.MIN_VALUE;
+            }
+        };
+
+        addListener(capturingListener);
+        try {
+            singleTurnScore(metricConfiguration, sample);
+        } finally {
+            removeListener(capturingListener);
+        }
+
+        return buildEvaluationResult(capturedResult.get(), metricConfiguration);
+    }
+
+    /**
+     * Evaluates a single-turn sample asynchronously and returns a rich result.
+     * <p>
+     * Delegates to {@link #singleTurnEvaluate} wrapped in a {@link CompletableFuture}.
+     *
+     * @param metricConfiguration the metric configuration
+     * @param sample the sample to evaluate
+     * @return a CompletableFuture containing the rich evaluation result
+     */
+    @Override
+    public CompletableFuture<EvaluationResult> singleTurnEvaluateAsync(
+            final T metricConfiguration, final Sample sample) {
+        return CompletableFuture.supplyAsync(() -> singleTurnEvaluate(metricConfiguration, sample));
+    }
+
+    /**
+     * Builds an {@link EvaluationResult} from a captured {@link MetricEvaluationResult}.
+     * <p>
+     * Creates a {@link ScoreExplanation} using the factory and populates all fields
+     * from the captured result.
+     *
+     * @param captured            the captured metric evaluation result (may be null)
+     * @param metricConfiguration the metric configuration for language selection
+     * @return rich evaluation result
+     */
+    private EvaluationResult buildEvaluationResult(final MetricEvaluationResult captured, final T metricConfiguration) {
+        if (captured == null) {
+            return EvaluationResult.builder().metricName(getName()).build();
+        }
+
+        final String language = metricConfiguration != null ? metricConfiguration.getLanguage() : "en";
+        final ScoreExplanation explanation =
+                EXPLANATION_FACTORY.create(captured, language).orElse(null);
+
+        return EvaluationResult.builder()
+                .metricName(captured.getMetricName())
+                .score(captured.getAggregatedScore())
+                .modelScores(captured.getModelScores())
+                .excludedModels(captured.getExcludedModels())
+                .totalDuration(captured.getTotalDuration())
+                .sample(captured.getSample())
+                .config(captured.getConfig())
+                .explanation(explanation)
+                .metadata(captured.getMetadata())
+                .modelIds(captured.getModelIds())
+                .embeddingModelIds(captured.getEmbeddingModelIds())
+                .build();
     }
 
     // ============ Evaluation Session ============

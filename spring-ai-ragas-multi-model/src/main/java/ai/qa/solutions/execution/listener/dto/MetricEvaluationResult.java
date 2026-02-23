@@ -149,4 +149,16 @@ public class MetricEvaluationResult {
      * Null if no metadata is provided.
      */
     MetricMetadata metadata;
+
+    /**
+     * Score explanation built during evaluation.
+     * <p>
+     * The actual type is {@code ScoreExplanation} from the metrics module.
+     * Since the multi-model module does not depend on the metrics module,
+     * the field type is {@code Object}. Consumers should cast:
+     * {@code (ScoreExplanation) result.getExplanation()}.
+     * <p>
+     * Null if explanation could not be built or was not requested.
+     */
+    Object explanation;
 }

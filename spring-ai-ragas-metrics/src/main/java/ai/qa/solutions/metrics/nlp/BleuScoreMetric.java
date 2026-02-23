@@ -281,5 +281,8 @@ public class BleuScoreMetric extends AbstractMetric<BleuScoreMetric.BleuScoreCon
          */
         @Builder.Default
         private boolean smoothing = true;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

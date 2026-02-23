@@ -106,6 +106,39 @@ public abstract class AbstractMultiTurnMetric<T extends Metric.MetricConfigurati
         return multiTurnScoreAsync(metricConfiguration, sample);
     }
 
+    // ==================== Multi-turn rich evaluation ====================
+
+    /**
+     * Evaluates a multi-turn sample and returns a rich result with score, explanation, and metadata.
+     * <p>
+     * Delegates to {@link #singleTurnEvaluate} which internally calls
+     * {@link #singleTurnScore} -> {@link #multiTurnScore}, correctly running
+     * the multi-turn evaluation pipeline.
+     *
+     * @param metricConfiguration the metric configuration
+     * @param sample the sample to evaluate (must contain userInputMessages)
+     * @return rich evaluation result with score, explanation, and metadata
+     */
+    @Override
+    public EvaluationResult multiTurnEvaluate(final T metricConfiguration, final Sample sample) {
+        return singleTurnEvaluate(metricConfiguration, sample);
+    }
+
+    /**
+     * Evaluates a multi-turn sample asynchronously and returns a rich result.
+     * <p>
+     * Delegates to {@link #singleTurnEvaluateAsync}.
+     *
+     * @param metricConfiguration the metric configuration
+     * @param sample the sample to evaluate (must contain userInputMessages)
+     * @return a CompletableFuture containing the rich evaluation result
+     */
+    @Override
+    public CompletableFuture<EvaluationResult> multiTurnEvaluateAsync(
+            final T metricConfiguration, final Sample sample) {
+        return singleTurnEvaluateAsync(metricConfiguration, sample);
+    }
+
     // ==================== Conversation formatting helpers ====================
 
     /**

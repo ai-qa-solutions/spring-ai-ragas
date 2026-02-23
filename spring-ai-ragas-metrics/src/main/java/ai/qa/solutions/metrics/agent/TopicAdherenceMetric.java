@@ -360,5 +360,8 @@ public class TopicAdherenceMetric extends AbstractMultiTurnMetric<TopicAdherence
         /** Scoring mode: F1, PRECISION, or RECALL. */
         @Builder.Default
         private Mode mode = Mode.F1;
+
+        @Builder.Default
+        private String language = "en";
     }
 }

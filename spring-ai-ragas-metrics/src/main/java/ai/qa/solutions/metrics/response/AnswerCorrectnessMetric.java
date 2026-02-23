@@ -293,6 +293,9 @@ public class AnswerCorrectnessMetric extends AbstractMultiModelMetric<AnswerCorr
         @Singular
         private List<String> models;
 
+        @Builder.Default
+        private String language = "en";
+
         /**
          * Creates a default configuration instance.
          *

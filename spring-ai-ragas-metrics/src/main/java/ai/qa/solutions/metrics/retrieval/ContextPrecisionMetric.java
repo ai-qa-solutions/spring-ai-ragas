@@ -385,5 +385,8 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
          */
         @Singular
         private List<String> models;
+
+        @Builder.Default
+        private String language = "en";
     }
 }
