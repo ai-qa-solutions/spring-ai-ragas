@@ -2,6 +2,7 @@ package ai.qa.solutions.execution;
 
 import ai.qa.solutions.chatclient.ChatClientStore;
 import ai.qa.solutions.embedding.EmbeddingModelStore;
+import ai.qa.solutions.execution.ratelimit.ProviderRateLimiterRegistry;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,6 +65,9 @@ public class MultiModelExecutor {
     private final AsyncTaskExecutor metricExecutor;
     private final AsyncTaskExecutor httpExecutor;
 
+    @Nullable
+    private final ProviderRateLimiterRegistry rateLimiterRegistry;
+
     /**
      * Creates a new executor without embedding support (single executor for both layers).
      *
@@ -105,10 +109,37 @@ public class MultiModelExecutor {
             @Nullable final EmbeddingModelStore embeddingModelStore,
             final AsyncTaskExecutor metricExecutor,
             final AsyncTaskExecutor httpExecutor) {
+        this(chatClientStore, embeddingModelStore, metricExecutor, httpExecutor, null);
+    }
+
+    /**
+     * Creates a new executor with separate executors and optional rate limiting.
+     * <p>
+     * Using separate executors prevents deadlocks when metrics wait for HTTP responses.
+     * The metric executor handles outer async tasks (runAsync), while the HTTP executor
+     * handles LLM and embedding API calls.
+     * <p>
+     * When a {@link ProviderRateLimiterRegistry} is provided, all API calls are throttled
+     * through per-provider token buckets before execution. Rate limit wait time is not
+     * counted towards the {@link ModelResult#duration()}.
+     *
+     * @param chatClientStore      store of configured AI model clients
+     * @param embeddingModelStore  store of configured embedding models (nullable)
+     * @param metricExecutor       executor for metric-level async operations (runAsync)
+     * @param httpExecutor         executor for HTTP/LLM API calls
+     * @param rateLimiterRegistry  per-provider rate limiter registry (nullable, no rate limiting if null)
+     */
+    public MultiModelExecutor(
+            final ChatClientStore chatClientStore,
+            @Nullable final EmbeddingModelStore embeddingModelStore,
+            final AsyncTaskExecutor metricExecutor,
+            final AsyncTaskExecutor httpExecutor,
+            @Nullable final ProviderRateLimiterRegistry rateLimiterRegistry) {
         this.chatClientStore = Objects.requireNonNull(chatClientStore, "chatClientStore");
         this.embeddingModelStore = embeddingModelStore;
         this.metricExecutor = Objects.requireNonNull(metricExecutor, "metricExecutor");
         this.httpExecutor = Objects.requireNonNull(httpExecutor, "httpExecutor");
+        this.rateLimiterRegistry = rateLimiterRegistry;
     }
 
     // ============ LLM Operations - All Models ============
@@ -203,6 +234,12 @@ public class MultiModelExecutor {
     public <R> CompletableFuture<ModelResult<R>> executeLlmOnModelAsync(
             final String modelId, final String prompt, final Class<R> responseType) {
         return httpExecutor.submitCompletable(() -> {
+            try {
+                acquireRateLimit(modelId);
+            } catch (Exception e) {
+                log.warn("Model {} rate limited: {}", modelId, e.getMessage());
+                return ModelResult.<R>failure(modelId, Duration.ZERO, prompt, e);
+            }
             final Instant start = Instant.now();
             try {
                 final ChatClient client = chatClientStore.get(modelId);
@@ -302,6 +339,12 @@ public class MultiModelExecutor {
     public CompletableFuture<ModelResult<float[]>> executeEmbeddingOnModelAsync(
             final String modelId, final String text) {
         return httpExecutor.submitCompletable(() -> {
+            try {
+                acquireRateLimit(modelId);
+            } catch (Exception e) {
+                log.warn("Embedding model {} rate limited: {}", modelId, e.getMessage());
+                return ModelResult.<float[]>failure(modelId, Duration.ZERO, text, e);
+            }
             final Instant start = Instant.now();
             try {
                 if (embeddingModelStore == null) {
@@ -340,8 +383,14 @@ public class MultiModelExecutor {
     public CompletableFuture<ModelResult<List<float[]>>> executeEmbeddingsOnModelAsync(
             final String modelId, final List<String> texts) {
         return httpExecutor.submitCompletable(() -> {
-            final Instant start = Instant.now();
             final String request = String.join(", ", texts);
+            try {
+                acquireRateLimit(modelId);
+            } catch (Exception e) {
+                log.warn("Embedding model {} rate limited: {}", modelId, e.getMessage());
+                return ModelResult.<List<float[]>>failure(modelId, Duration.ZERO, request, e);
+            }
+            final Instant start = Instant.now();
             try {
                 if (embeddingModelStore == null) {
                     throw new IllegalStateException("EmbeddingModelStore not configured");
@@ -399,5 +448,21 @@ public class MultiModelExecutor {
      */
     public List<String> getEmbeddingModelIds() {
         return embeddingModelStore != null ? embeddingModelStore.getModelIds() : List.of();
+    }
+
+    // ============ Rate Limiting ============
+
+    /**
+     * Acquires a rate limit token for the given model before making an API call.
+     * <p>
+     * If no rate limiter registry is configured, this method returns immediately.
+     *
+     * @param modelId the model ID to acquire a rate limit token for
+     */
+    private void acquireRateLimit(final String modelId) {
+        if (rateLimiterRegistry == null) {
+            return;
+        }
+        rateLimiterRegistry.acquire(modelId);
     }
 }

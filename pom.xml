@@ -60,6 +60,7 @@
         <jacoco.version>0.8.12</jacoco.version>
         <jacoco.coverage.minimum>0.80</jacoco.coverage.minimum>
         <commonmark.version>0.24.0</commonmark.version>
+        <bucket4j.version>8.10.1</bucket4j.version>
         <!-- Maven Central publishing -->
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -103,6 +104,12 @@
                 <groupId>chat.giga</groupId>
                 <artifactId>spring-ai-starter-model-gigachat</artifactId>
                 <version>${spring-ai-starter-model-gigachat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bucket4j</groupId>
+                <artifactId>bucket4j-core</artifactId>
+                <version>${bucket4j.version}</version>
             </dependency>
 
             <dependency>

@@ -5,11 +5,19 @@ import ai.qa.solutions.config.detector.ExternalChatModelDetector;
 import ai.qa.solutions.config.detector.ExternalEmbeddingModelDetector;
 import ai.qa.solutions.config.factory.OpenAiCompatibleModelFactory;
 import ai.qa.solutions.embedding.EmbeddingModelStore;
+import ai.qa.solutions.execution.ratelimit.Bucket4jProviderRateLimiterRegistry;
+import ai.qa.solutions.execution.ratelimit.ProviderRateLimiterRegistry;
+import ai.qa.solutions.execution.ratelimit.RateLimitConfig;
+import ai.qa.solutions.execution.ratelimit.RateLimitStrategy;
 import ai.qa.solutions.properties.MultiProviderProperties;
 import ai.qa.solutions.properties.MultiProviderProperties.DefaultOptions;
 import ai.qa.solutions.properties.MultiProviderProperties.EmbeddingModelConfig;
+import ai.qa.solutions.properties.MultiProviderProperties.ExternalStarterConfig;
 import ai.qa.solutions.properties.MultiProviderProperties.ModelConfig;
 import ai.qa.solutions.properties.MultiProviderProperties.OpenAiCompatibleProvider;
+import ai.qa.solutions.properties.MultiProviderProperties.ProviderRateLimitConfig;
+import ai.qa.solutions.properties.MultiProviderProperties.RateLimitDefaults;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -34,6 +42,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.lang.Nullable;
 
 /**
  * Autoconfiguration for multi-provider ChatClientStore and EmbeddingModelStore.
@@ -211,6 +220,87 @@ public class MultiProviderAutoConfiguration {
     }
 
     /**
+     * Creates a {@link ProviderRateLimiterRegistry} bean from provider configurations.
+     * <p>
+     * Builds model-to-provider mapping from all three provider layers and resolves
+     * effective rate limit configurations by merging provider-specific settings
+     * with global defaults.
+     * <p>
+     * Returns {@code null} if no providers have rate limiting configured, which
+     * means no bean will be registered and the executor will run without rate limiting.
+     *
+     * @param properties the multi-provider configuration properties
+     * @return a configured rate limiter registry, or {@code null} if no rate limiting is configured
+     */
+    @Bean
+    @ConditionalOnClass(name = "io.github.bucket4j.Bucket")
+    @Nullable
+    public ProviderRateLimiterRegistry providerRateLimiterRegistry(final MultiProviderProperties properties) {
+        final Map<String, String> modelToProvider = new HashMap<>();
+        final Map<String, RateLimitConfig> providerConfigs = new HashMap<>();
+        final RateLimitDefaults defaults = properties.getRateLimit();
+
+        // Layer 1: External starters
+        for (final Map.Entry<String, ExternalStarterConfig> entry :
+                properties.getExternalStarters().entrySet()) {
+            final String starterName = entry.getKey();
+            final ExternalStarterConfig starterConfig = entry.getValue();
+            if (!starterConfig.isEnabled()) {
+                continue;
+            }
+            for (final String chatModelId : starterConfig.getChatModels()) {
+                modelToProvider.put(chatModelId, starterName);
+            }
+            for (final String embeddingModelId : starterConfig.getEmbeddingModels()) {
+                modelToProvider.put(embeddingModelId, starterName);
+            }
+            final RateLimitConfig resolved = resolveRateLimitConfig(starterConfig.getRateLimit(), defaults);
+            if (resolved != null) {
+                providerConfigs.put(starterName, resolved);
+            }
+        }
+
+        // Layer 2: OpenAI-compatible providers
+        for (final OpenAiCompatibleProvider provider : properties.getOpenaiCompatible()) {
+            final String providerName = provider.getName();
+            if (providerName == null) {
+                continue;
+            }
+            for (final ModelConfig modelConfig : provider.getChatModels()) {
+                modelToProvider.put(modelConfig.getId(), providerName);
+            }
+            for (final EmbeddingModelConfig modelConfig : provider.getEmbeddingModels()) {
+                modelToProvider.put(modelConfig.getId(), providerName);
+            }
+            final RateLimitConfig resolved = resolveRateLimitConfig(provider.getRateLimit(), defaults);
+            if (resolved != null) {
+                providerConfigs.put(providerName, resolved);
+            }
+        }
+
+        // Layer 3: Default provider
+        for (final ModelConfig modelConfig : properties.getDefaultProvider().getModels()) {
+            modelToProvider.put(modelConfig.getId(), "default");
+        }
+        final RateLimitConfig defaultResolved =
+                resolveRateLimitConfig(properties.getDefaultProvider().getRateLimit(), defaults);
+        if (defaultResolved != null) {
+            providerConfigs.put("default", defaultResolved);
+        }
+
+        if (providerConfigs.isEmpty()) {
+            log.debug("No rate limiting configured for any provider");
+            return null;
+        }
+
+        log.info(
+                "ProviderRateLimiterRegistry initialized with {} rate-limited providers, {} model mappings",
+                providerConfigs.size(),
+                modelToProvider.size());
+        return new Bucket4jProviderRateLimiterRegistry(modelToProvider, providerConfigs);
+    }
+
+    /**
      * Creates ChatClients for default OpenAI models using ChatClient.Builder.
      */
     private Map<String, List<ChatClient>> createDefaultChatModels(
@@ -269,6 +359,32 @@ public class MultiProviderAutoConfiguration {
         for (final Map.Entry<String, List<ChatClient>> entry : source.entrySet()) {
             target.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).addAll(entry.getValue());
         }
+    }
+
+    /**
+     * Resolves the effective rate limit configuration for a provider by merging
+     * provider-specific settings with global defaults.
+     *
+     * @param providerConfig provider-specific rate limit config (nullable)
+     * @param defaults       global rate limit defaults
+     * @return resolved config, or {@code null} if no rate limiting should be applied
+     */
+    @Nullable
+    private RateLimitConfig resolveRateLimitConfig(
+            @Nullable final ProviderRateLimitConfig providerConfig, final RateLimitDefaults defaults) {
+        final int rps = providerConfig != null && providerConfig.getRps() != null
+                ? providerConfig.getRps()
+                : (defaults.getDefaultRps() != null ? defaults.getDefaultRps() : 0);
+        if (rps <= 0) {
+            return null;
+        }
+        final RateLimitStrategy strategy = providerConfig != null && providerConfig.getStrategy() != null
+                ? providerConfig.getStrategy()
+                : defaults.getDefaultStrategy();
+        final Duration timeout = providerConfig != null && providerConfig.getTimeout() != null
+                ? providerConfig.getTimeout()
+                : defaults.getDefaultTimeout();
+        return new RateLimitConfig(rps, strategy, timeout);
     }
 
     private Double resolveTemperature(final ModelConfig modelConfig, final DefaultOptions defaultOptions) {

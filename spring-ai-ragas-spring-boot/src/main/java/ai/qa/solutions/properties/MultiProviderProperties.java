@@ -1,5 +1,7 @@
 package ai.qa.solutions.properties;
 
+import ai.qa.solutions.execution.ratelimit.RateLimitStrategy;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +27,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *     ragas:
  *       providers:
  *         auto-detect-beans: true
+ *         rate-limit:
+ *           default-rps: 10
+ *           default-strategy: WAIT
+ *           default-timeout: 0
  *         openai-compatible:
  *           - name: openrouter-premium
  *             base-url: https://openrouter.ai/api
  *             api-key: ${OPENROUTER_API_KEY}
+ *             rate-limit:
+ *               rps: 5
+ *               strategy: WAIT
+ *               timeout: 0
  *             chat-models:
  *               - { id: anthropic/claude-3.5-sonnet }
  *               - { id: openai/gpt-4o }
@@ -43,6 +53,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *               - { id: openai/text-embedding-3-small, dimensions: 1536 }
  *         default-provider:
  *           enabled: false
+ *           rate-limit:
+ *             rps: 10
+ *             strategy: WAIT
  *           models: []
  *         default-options:
  *           temperature: 0.0
@@ -87,6 +100,11 @@ public class MultiProviderProperties {
     private EmbeddingDefaultOptions embeddingDefaultOptions = new EmbeddingDefaultOptions();
 
     /**
+     * Global rate limiting defaults applied to all providers when individual rate limit options are not specified.
+     */
+    private RateLimitDefaults rateLimit = new RateLimitDefaults();
+
+    /**
      * Configuration for external Spring AI starters (GigaChat, Anthropic, Ollama, etc.).
      * Allows overriding model IDs, enabling/disabling specific starters.
      * Key is the starter name (e.g., "gigachat", "anthropic", "ollama").
@@ -123,6 +141,12 @@ public class MultiProviderProperties {
          * Default is true.
          */
         private boolean includeEmbedding = true;
+
+        /**
+         * Rate limit configuration for this external starter provider.
+         * If null, global rate limit defaults are used.
+         */
+        private ProviderRateLimitConfig rateLimit;
     }
 
     /**
@@ -157,6 +181,12 @@ public class MultiProviderProperties {
          * List of embedding models available through this provider.
          */
         private List<EmbeddingModelConfig> embeddingModels = new ArrayList<>();
+
+        /**
+         * Rate limit configuration for this provider.
+         * If null, global rate limit defaults are used.
+         */
+        private ProviderRateLimitConfig rateLimit;
     }
 
     /**
@@ -177,6 +207,12 @@ public class MultiProviderProperties {
          * List of OpenAI models to configure.
          */
         private List<ModelConfig> models = new ArrayList<>();
+
+        /**
+         * Rate limit configuration for the default provider.
+         * If null, global rate limit defaults are used.
+         */
+        private ProviderRateLimitConfig rateLimit;
     }
 
     /**
@@ -275,5 +311,61 @@ public class MultiProviderProperties {
          * Default vector dimensions.
          */
         private Integer dimensions = 1024;
+    }
+
+    /**
+     * Global rate limiting defaults for all providers.
+     * <p>
+     * These defaults are used when a provider does not specify its own rate limit configuration.
+     */
+    @Getter
+    @Setter
+    public static class RateLimitDefaults {
+
+        /**
+         * Default requests per second limit for all providers.
+         * If null, no rate limiting is applied by default.
+         */
+        private Integer defaultRps;
+
+        /**
+         * Default rate limiting strategy.
+         * WAIT blocks until a token is available; REJECT fails immediately.
+         */
+        private RateLimitStrategy defaultStrategy = RateLimitStrategy.WAIT;
+
+        /**
+         * Default timeout for the WAIT strategy.
+         * Duration.ZERO means infinite wait (no timeout).
+         */
+        private Duration defaultTimeout = Duration.ZERO;
+    }
+
+    /**
+     * Per-provider rate limit configuration.
+     * <p>
+     * Fields left null will fall back to the global {@link RateLimitDefaults}.
+     */
+    @Getter
+    @Setter
+    public static class ProviderRateLimitConfig {
+
+        /**
+         * Requests per second limit for this provider.
+         * If null, uses the global default RPS or no limiting.
+         */
+        private Integer rps;
+
+        /**
+         * Rate limiting strategy for this provider.
+         * If null, uses the global default strategy.
+         */
+        private RateLimitStrategy strategy;
+
+        /**
+         * Timeout for the WAIT strategy.
+         * If null, uses the global default timeout.
+         */
+        private Duration timeout;
     }
 }

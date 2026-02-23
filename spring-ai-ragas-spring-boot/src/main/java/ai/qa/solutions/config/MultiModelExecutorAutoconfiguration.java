@@ -3,6 +3,7 @@ package ai.qa.solutions.config;
 import ai.qa.solutions.chatclient.ChatClientStore;
 import ai.qa.solutions.embedding.EmbeddingModelStore;
 import ai.qa.solutions.execution.MultiModelExecutor;
+import ai.qa.solutions.execution.ratelimit.ProviderRateLimiterRegistry;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -94,11 +95,15 @@ public class MultiModelExecutorAutoconfiguration {
      *   <li>{@code ragasMetricExecutor} - for metric-level async operations (runAsync)</li>
      *   <li>{@code ragasHttpExecutor} - for HTTP/LLM API calls</li>
      * </ul>
+     * <p>
+     * When a {@link ProviderRateLimiterRegistry} bean is available, it is injected into the executor
+     * to enforce per-provider rate limiting on all LLM and embedding API calls.
      *
-     * @param chatClientStore      store of configured AI model clients
-     * @param embeddingModelStore  store of configured embedding models (optional)
-     * @param ragasMetricExecutor  executor for metric-level async operations
-     * @param ragasHttpExecutor    executor for HTTP/LLM API calls
+     * @param chatClientStore       store of configured AI model clients
+     * @param embeddingModelStore   store of configured embedding models (optional)
+     * @param ragasMetricExecutor   executor for metric-level async operations
+     * @param ragasHttpExecutor     executor for HTTP/LLM API calls
+     * @param rateLimiterRegistry   per-provider rate limiter registry (optional, no rate limiting if absent)
      * @return a configured multi-model executor
      */
     @Bean
@@ -106,7 +111,9 @@ public class MultiModelExecutorAutoconfiguration {
             final ChatClientStore chatClientStore,
             @Autowired(required = false) final EmbeddingModelStore embeddingModelStore,
             final AsyncTaskExecutor ragasMetricExecutor,
-            final AsyncTaskExecutor ragasHttpExecutor) {
-        return new MultiModelExecutor(chatClientStore, embeddingModelStore, ragasMetricExecutor, ragasHttpExecutor);
+            final AsyncTaskExecutor ragasHttpExecutor,
+            @Autowired(required = false) final ProviderRateLimiterRegistry rateLimiterRegistry) {
+        return new MultiModelExecutor(
+                chatClientStore, embeddingModelStore, ragasMetricExecutor, ragasHttpExecutor, rateLimiterRegistry);
     }
 }
