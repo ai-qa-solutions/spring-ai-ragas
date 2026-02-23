@@ -89,11 +89,41 @@ Scores from multiple models are combined using `ScoreAggregator`:
 ### Listener Pattern
 
 `MetricExecutionListener` provides hooks for evaluation monitoring:
-- `beforeMetricEvaluation()` / `afterMetricEvaluation()`
-- `beforeStep()` / `afterStep()` / `afterLlmStep()`
-- `onModelExcluded()` - when a model fails
+- `beforeMetricEvaluation(MetricEvaluationContext)` - called before evaluation starts
+- `afterMetricEvaluation(MetricEvaluationResult)` - called after evaluation completes
+- `getOrder()` - listener priority (lower = earlier)
+- `forEvaluation()` - returns per-evaluation instance for thread safety
 
 **Thread safety:** Listeners must implement `forEvaluation()` to return evaluation-specific instances.
+
+### Rich Evaluation API
+
+In addition to `singleTurnScore()` / `multiTurnScore()` returning `Double`, metrics provide rich evaluation methods returning `EvaluationResult` with score, explanation, metadata, and per-model details:
+
+```java
+// Simple score (backward compatible)
+Double score = metric.singleTurnScore(config, sample);
+
+// Rich result with explanation and metadata
+EvaluationResult result = metric.singleTurnEvaluate(config, sample);
+result.getScore();           // aggregated Double score
+result.getExplanation();     // ScoreExplanation with step-by-step breakdown
+result.getModelScores();     // Map<String, Double> per-model scores
+result.getMetadata();        // typed MetricMetadata record
+result.getTotalDuration();   // Duration of evaluation
+result.getExcludedModels();  // models that failed
+
+// Async variants
+CompletableFuture<EvaluationResult> future = metric.singleTurnEvaluateAsync(config, sample);
+
+// Multi-turn for agent metrics
+EvaluationResult agentResult = metric.multiTurnEvaluate(config, sample);
+CompletableFuture<EvaluationResult> agentFuture = metric.multiTurnEvaluateAsync(config, sample);
+```
+
+**Language configuration:** All metric configs support `.language("ru")` for Russian explanations (default: `"en"`).
+
+**Explanation classes** are in `ai.qa.solutions.metric.explanation` package (metrics module, not allure).
 
 ### Dual Executor Architecture
 
@@ -106,19 +136,33 @@ To prevent deadlocks during parallel execution, the system uses two separate thr
 
 ### NLP Metric Pattern
 
-NLP metrics (BLEU, ROUGE, chrF, StringSimilarity) do NOT use MultiModelExecutor:
+NLP metrics (BLEU, ROUGE, chrF, StringSimilarity) extend `AbstractMetric<Config>` directly (no MultiModelExecutor):
 
 ```java
-public class BleuScoreMetric implements Metric<BleuScoreConfig> {
+public class BleuScoreMetric extends AbstractMetric<BleuScoreConfig> {
     @Override
     public Double singleTurnScore(BleuScoreConfig config, Sample sample) {
-        // Direct computation, no LLM calls
-        return computeBleuScore(sample.getResponse(), sample.getReference(), config);
+        final EvaluationNotifier notifier = createEvaluationNotifier();
+        notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
+            .metricName(getName()).sample(sample).config(config)
+            .modelIds(List.of()).totalSteps(0).build());
+
+        Double score = null;
+        try {
+            score = computeBleuScore(sample, config);
+            return score;
+        } finally {
+            notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
+                .metricName(getName()).sample(sample).config(config)
+                .modelIds(List.of()).aggregatedScore(score)
+                .metadata(new BleuScoreMetadata(/* typed fields */))
+                .build());
+        }
     }
 }
 ```
 
-NLP metrics use the same unified `AllureMetricExecutionListener` as LLM metrics. Their metadata records (e.g. `BleuScoreMetadata`) implement `MetricMetadata` and do NOT duplicate `response`/`reference` — those are sourced from `MetricEvaluationResult.getSample()`.
+NLP metrics use the same unified `AllureMetricExecutionListener` as LLM metrics. Their metadata records (e.g. `BleuScoreMetadata`) implement `MetricMetadata` and do NOT duplicate `response`/`reference` — those are sourced from `MetricEvaluationResult.getSample()`. Explanation classes are in `ai.qa.solutions.metric.explanation`.
 
 ## Available Metrics
 
@@ -304,12 +348,13 @@ void shouldCalculateScore() {
 
 ### Adding a New Metric
 
-1. Create config class with `@Builder` in metrics module
+1. Create config class with `@Builder` in metrics module (include `@Builder.Default private String language = "en"`)
 2. Extend `AbstractMultiModelMetric<YourConfig>`
-3. Implement `singleTurnScoreAsync()` with proper notifier calls
-4. Add Spring bean in `RagasMetricsAutoconfiguration`
-5. Write unit tests using `StubMultiModelExecutor`
-6. Add integration tests for both `en/` and `ru/`
+3. Implement `singleTurnScoreAsync()` with `try/finally` and `createEvaluationNotifier()` calls
+4. Create typed `MetricMetadata` record implementing `MetricMetadata` interface
+5. Add Spring bean in `RagasMetricsAutoconfiguration`
+6. Write unit tests using `StubMultiModelExecutor`
+7. Add integration tests for both `en/` and `ru/`
 
 ### Sample Data Object
 
@@ -330,12 +375,15 @@ The `spring-ai-ragas-allure` module provides rich HTML reports for metric evalua
 
 ```
 spring-ai-ragas-allure/
-├── explanation/     # Score explanation classes per metric
-├── i18n/            # Internationalization (en/ru)
 ├── listener/        # AllureMetricExecutionListener
 ├── methodology/     # Markdown methodology files
 ├── model/           # Report data models
 └── template/        # Freemarker HTML templates
+
+# Explanation classes live in metrics module (not allure):
+spring-ai-ragas-metrics/
+├── metric/explanation/  # ScoreExplanation, ScoreExplanationFactory, per-metric explanations
+└── metric/i18n/         # ExplanationMessages (en/ru)
 ```
 
 ### Report Sections
@@ -353,10 +401,10 @@ All metrics (both LLM and NLP) use `AllureMetricExecutionListener` (auto-registe
 
 ### Adding New Metric Reports
 
-1. Create `YourMetricExplanation` class in `explanation/`
-2. Add methodology markdown in `methodology/en/` and `methodology/ru/`
-3. Add i18n messages in `ExplanationMessages.java`
-4. Update `ScoreExplanationFactory` to handle new metric type
+1. Create `YourMetricExplanation` class in `spring-ai-ragas-metrics/.../metric/explanation/`
+2. Add methodology markdown in `methodology/en/` and `methodology/ru/` (allure module)
+3. Add i18n messages in `ai.qa.solutions.metric.i18n.ExplanationMessages`
+4. Update `ScoreExplanationFactory` (in metrics module) to handle new metric type
 
 ## Post-Change Validation (MANDATORY)
 

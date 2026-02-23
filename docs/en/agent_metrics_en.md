@@ -168,10 +168,11 @@ class AgentGoalAccuracyTest {
 
 ### Configuration
 
-| Parameter |     Type     | Required |    Default     |               Description                |
-|-----------|--------------|----------|----------------|------------------------------------------|
-| `mode`    | Mode         | No       | WITH_REFERENCE | WITH_REFERENCE or WITHOUT_REFERENCE      |
-| `models`  | List<String> | No       | all            | Specific model IDs to use for evaluation |
+| Parameter  |     Type     | Required |    Default     |               Description                |
+|------------|--------------|----------|----------------|------------------------------------------|
+| `mode`     | Mode         | No       | WITH_REFERENCE | WITH_REFERENCE or WITHOUT_REFERENCE      |
+| `models`   | List<String> | No       | all            | Specific model IDs to use for evaluation |
+| `language` | String       | No       | `"en"`         | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
 
@@ -311,6 +312,7 @@ class ToolCallAccuracyTest {
 | `mode`                   | Mode         | No       | STRICT  | STRICT or FLEXIBLE matching mode                 |
 | `argumentMatchThreshold` | Double       | No       | 0.8     | Threshold for argument matching in FLEXIBLE mode |
 | `models`                 | List<String> | No       | all     | Model IDs (not used - this is a non-LLM metric)  |
+| `language`               | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`)       |
 
 ### When to Use
 
@@ -443,10 +445,11 @@ class TopicAdherenceTest {
 
 ### Configuration
 
-| Parameter |     Type     | Required | Default |              Description              |
-|-----------|--------------|----------|---------|---------------------------------------|
-| `mode`    | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode |
-| `models`  | List<String> | No       | all     | Specific model IDs for evaluation     |
+| Parameter  |     Type     | Required | Default |              Description              |
+|------------|--------------|----------|---------|---------------------------------------|
+| `mode`     | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode |
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation     |
+| `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 **Scoring Modes:**
 
@@ -528,4 +531,34 @@ Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 | `referenceTopics`    | List<String>      | TopicAdherence                     |
 | `toolCalls`          | List<ToolCall>    | ToolCallAccuracy                   |
 | `referenceToolCalls` | List<ToolCall>    | ToolCallAccuracy                   |
+
+---
+
+## Rich Evaluation API
+
+All agent metrics support `multiTurnEvaluate()` returning `EvaluationResult` with score, explanation, per-model details, and metadata:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Instead of Double score = metric.multiTurnScore(config, sample);
+EvaluationResult result = agentGoalAccuracyMetric.multiTurnEvaluate(config, sample);
+
+log.info("Score: {}", result.getScore());
+log.info("Explanation: {}", result.getExplanation().getSimpleDescription());
+log.info("Model scores: {}", result.getModelScores());
+log.info("Duration: {}ms", result.getTotalDuration().toMillis());
+
+// Async variant
+CompletableFuture<EvaluationResult> future =
+        agentGoalAccuracyMetric.multiTurnEvaluateAsync(config, sample);
+
+// Russian language explanations
+AgentGoalAccuracyMetric.AgentGoalAccuracyConfig ruConfig =
+        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
+                .language("ru")
+                .build();
+EvaluationResult ruResult = agentGoalAccuracyMetric.multiTurnEvaluate(ruConfig, sample);
+```
 

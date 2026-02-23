@@ -133,6 +133,7 @@ class BleuScoreTest {
 |-------------|---------|--------------|--------------|--------------------------------------------------|
 | `maxNgram`  | int     | Нет          | 4            | Максимальный размер n-грамм (стандарт BLEU = 4)  |
 | `smoothing` | boolean | Нет          | true         | Сглаживание для коротких текстов с нулём n-грамм |
+| `language`  | String  | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)                 |
 
 ### Интерпретация оценки
 
@@ -266,6 +267,7 @@ class RougeScoreTest {
 |-------------|-----------|--------------|--------------|---------------------------------------------|
 | `rougeType` | RougeType | Нет          | ROUGE_L      | Вариант ROUGE_1, ROUGE_2 или ROUGE_L        |
 | `mode`      | Mode      | Нет          | FMEASURE     | Режим оценки RECALL, PRECISION или FMEASURE |
+| `language`  | String    | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)            |
 
 ### Когда использовать
 
@@ -396,6 +398,7 @@ class ChrfScoreTest {
 | `charNgramOrder` | int    | Нет          | 6            | Максимальный порядок символьных n-грамм (стандарт 6) |
 | `wordNgramOrder` | int    | Нет          | 0            | Порядок словесных n-грамм (0 = chrF, >0 = chrF++)    |
 | `beta`           | double | Нет          | 2.0          | Вес F-beta (выше = больший вес полноты)              |
+| `language`       | String | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)                     |
 
 ### Когда использовать
 
@@ -528,6 +531,7 @@ class StringSimilarityTest {
 |-------------------|-----------------|--------------|--------------|------------------------------------|
 | `distanceMeasure` | DistanceMeasure | Нет          | JARO_WINKLER | Алгоритм для сравнения             |
 | `caseSensitive`   | boolean         | Нет          | false        | Учитывать ли регистр при сравнении |
+| `language`        | String          | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)   |
 
 ### Руководство по выбору алгоритма
 
@@ -572,4 +576,32 @@ class Example {
 |-------------|--------|--------------|-----------------------|
 | `response`  | String | Да           | Сгенерированный текст |
 | `reference` | String | Да           | Эталонный текст       |
+
+---
+
+## API расширенной оценки
+
+Все NLP-метрики поддерживают `singleTurnEvaluate()`, возвращающий `EvaluationResult` с оценкой, объяснением и метаданными -- без вызовов LLM:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Вместо Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = bleuScoreMetric.singleTurnEvaluate(config, sample);
+
+log.info("Оценка: {}", result.getScore());
+log.info("Объяснение: {}", result.getExplanation().getSimpleDescription());
+log.info("Длительность: {}мс", result.getTotalDuration().toMillis());
+
+// Асинхронный вариант
+CompletableFuture<EvaluationResult> future =
+        bleuScoreMetric.singleTurnEvaluateAsync(config, sample);
+
+// Объяснения на русском языке
+BleuScoreMetric.BleuScoreConfig ruConfig = BleuScoreMetric.BleuScoreConfig.builder()
+        .maxNgram(4)
+        .language("ru")
+        .build();
+EvaluationResult ruResult = bleuScoreMetric.singleTurnEvaluate(ruConfig, sample);
+```
 

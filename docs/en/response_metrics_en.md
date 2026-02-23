@@ -197,6 +197,7 @@ class SemanticSimilarityTest {
 |-------------|--------------|----------|---------|-----------------------------------------------|
 | `threshold` | Double       | No       | null    | If set, returns 1.0 or 0.0 based on threshold |
 | `models`    | List<String> | No       | all     | Embedding model IDs to use                    |
+| `language`  | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`)    |
 
 ### When to Use
 
@@ -364,10 +365,11 @@ class FactualCorrectnessTest {
 
 ### Configuration
 
-| Parameter |     Type     | Required | Default |                Description                |
-|-----------|--------------|----------|---------|-------------------------------------------|
-| `mode`    | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode     |
-| `models`  | List<String> | No       | all     | Model IDs for claim decomposition and NLI |
+| Parameter  |     Type     | Required | Default |                Description                |
+|------------|--------------|----------|---------|-------------------------------------------|
+| `mode`     | Mode         | No       | F1      | F1, PRECISION, or RECALL scoring mode     |
+| `models`   | List<String> | No       | all     | Model IDs for claim decomposition and NLI |
+| `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 **Scoring Modes:**
 
@@ -526,6 +528,7 @@ class AnswerCorrectnessTest {
 | `factualWeight`  | double       | No       | 0.75    | Weight for factual correctness component |
 | `semanticWeight` | double       | No       | 0.25    | Weight for semantic similarity component |
 | `models`         | List<String> | No       | all     | Model IDs for factual correctness        |
+| `language`       | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 **Preset Configurations:**
 
@@ -588,4 +591,33 @@ class Example {
 |-------------|--------|----------|--------------------------------|
 | `response`  | String | Yes      | Generated response to evaluate |
 | `reference` | String | Yes      | Ground truth reference         |
+
+---
+
+## Rich Evaluation API
+
+All response metrics support `singleTurnEvaluate()` returning `EvaluationResult` with score, explanation, per-model details, and metadata:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Instead of Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = answerCorrectnessMetric.singleTurnEvaluate(config, sample);
+
+log.info("Score: {}", result.getScore());
+log.info("Explanation: {}", result.getExplanation().getSimpleDescription());
+log.info("Model scores: {}", result.getModelScores());
+log.info("Duration: {}ms", result.getTotalDuration().toMillis());
+
+// Async variant
+CompletableFuture<EvaluationResult> future =
+        answerCorrectnessMetric.singleTurnEvaluateAsync(config, sample);
+
+// Russian language explanations
+AnswerCorrectnessMetric.AnswerCorrectnessConfig ruConfig =
+        AnswerCorrectnessMetric.AnswerCorrectnessConfig.builder()
+                .language("ru")
+                .build();
+EvaluationResult ruResult = answerCorrectnessMetric.singleTurnEvaluate(ruConfig, sample);
+```
 

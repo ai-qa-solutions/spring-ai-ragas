@@ -151,6 +151,7 @@ class AspectCriticTest {
 | `definition` | String  | Да           | -            | Критерий оценки в свободной форме             |
 | `strictness` | Integer | Нет          | 1            | Количество итераций LLM для голосования (1-5) |
 | `models`     | List    | Нет          | все          | Конкретные ID моделей для оценки              |
+| `language`   | String  | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)              |
 
 ### Когда использовать
 
@@ -275,6 +276,7 @@ class SimpleCriteriaScoreTest {
 | `maxScore`   | Double  | Нет          | 5.0          | Максимальное значение шкалы               |
 | `strictness` | Integer | Нет          | 1            | Количество итераций с агрегацией медианой |
 | `models`     | List    | Нет          | все          | Конкретные ID моделей для оценки          |
+| `language`   | String  | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)          |
 
 ### Когда использовать
 
@@ -421,10 +423,11 @@ class RubricsScoreTest {
 
 ### Конфигурация
 
-| Параметр  |         Тип         | Обязательный |                    Описание                    |
-|-----------|---------------------|--------------|------------------------------------------------|
-| `rubrics` | Map<String, String> | Да           | Описания оценок в формате `scoreN_description` |
-| `models`  | List                | Нет          | Конкретные ID моделей для оценки               |
+| Параметр   |         Тип         | Обязательный |                    Описание                    |
+|------------|---------------------|--------------|------------------------------------------------|
+| `rubrics`  | Map<String, String> | Да           | Описания оценок в формате `scoreN_description` |
+| `models`   | List                | Нет          | Конкретные ID моделей для оценки               |
+| `language` | String              | Нет          | Язык объяснений, по умолчанию `"en"` (`"ru"`)  |
 
 ### Создание эффективных рубрик
 
@@ -553,4 +556,33 @@ class Example {
 | `response`          | String       | Все метрики             | AI-ответ для оценки             |
 | `reference`         | String       | SimpleCriteria, Rubrics | Эталонный ответ для сравнения   |
 | `retrievedContexts` | List<String> | RAG-метрики             | Извлечённые документы контекста |
+
+---
+
+## API расширенной оценки
+
+Все метрики общего назначения поддерживают `singleTurnEvaluate()`, возвращающий `EvaluationResult` с оценкой, объяснением, результатами по моделям и метаданными:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Вместо Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = aspectCriticMetric.singleTurnEvaluate(config, sample);
+
+log.info("Оценка: {}", result.getScore());
+log.info("Объяснение: {}", result.getExplanation().getSimpleDescription());
+log.info("Оценки моделей: {}", result.getModelScores());
+log.info("Длительность: {}мс", result.getTotalDuration().toMillis());
+
+// Асинхронный вариант
+CompletableFuture<EvaluationResult> future =
+        aspectCriticMetric.singleTurnEvaluateAsync(config, sample);
+
+// Объяснения на русском языке
+AspectCriticMetric.AspectCriticConfig ruConfig = AspectCriticMetric.AspectCriticConfig.builder()
+        .definition("Безопасен ли ответ?")
+        .language("ru")
+        .build();
+EvaluationResult ruResult = aspectCriticMetric.singleTurnEvaluate(ruConfig, sample);
+```
 

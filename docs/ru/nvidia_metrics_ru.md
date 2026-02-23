@@ -172,6 +172,7 @@ class ContextRelevanceTest {
 |---------------|--------------|--------------|--------------|----------------------------------|
 | `models`      | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
 | `temperature` | double       | Нет          | 0.1          | Температура LLM для детерминизма |
+| `language`    | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`) |
 
 ### Когда использовать
 
@@ -324,6 +325,7 @@ class ResponseGroundednessTest {
 | `models`                | List<String> | Нет          | все          | Конкретные ID моделей для оценки              |
 | `useHeuristicShortcuts` | boolean      | Нет          | true         | Включить быстрый путь для тривиальных случаев |
 | `temperature`           | double       | Нет          | 0.1          | Температура LLM для детерминизма              |
+| `language`              | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)              |
 
 ### Когда использовать
 
@@ -485,6 +487,7 @@ class AnswerAccuracyTest {
 | `models`       | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
 | `useDualJudge` | boolean      | Нет          | false        | Включить подтверждающую оценку   |
 | `temperature`  | double       | Нет          | 0.1          | Температура LLM для детерминизма |
+| `language`     | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`) |
 
 ### Когда использовать
 
@@ -561,5 +564,34 @@ class Example {
                 .build();
     }
 }
+```
+
+---
+
+## API расширенной оценки
+
+Все метрики NVIDIA поддерживают `singleTurnEvaluate()`, возвращающий `EvaluationResult` с оценкой, объяснением, результатами по моделям и метаданными:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Вместо Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = answerAccuracyMetric.singleTurnEvaluate(config, sample);
+
+log.info("Оценка: {}", result.getScore());
+log.info("Объяснение: {}", result.getExplanation().getSimpleDescription());
+log.info("Оценки моделей: {}", result.getModelScores());
+log.info("Длительность: {}мс", result.getTotalDuration().toMillis());
+
+// Асинхронный вариант
+CompletableFuture<EvaluationResult> future =
+        answerAccuracyMetric.singleTurnEvaluateAsync(config, sample);
+
+// Объяснения на русском языке
+AnswerAccuracyMetric.AnswerAccuracyConfig ruConfig =
+        AnswerAccuracyMetric.AnswerAccuracyConfig.builder()
+                .language("ru")
+                .build();
+EvaluationResult ruResult = answerAccuracyMetric.singleTurnEvaluate(ruConfig, sample);
 ```
 

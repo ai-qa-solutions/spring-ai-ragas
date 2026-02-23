@@ -167,9 +167,10 @@ class ContextEntityRecallTest {
 
 ### Конфигурация
 
-| Параметр |     Тип      | Обязательный | По умолчанию |             Описание             |
-|----------|--------------|--------------|--------------|----------------------------------|
-| `models` | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| Параметр   |     Тип      | Обязательный | По умолчанию |             Описание             |
+|------------|--------------|--------------|--------------|----------------------------------|
+| `models`   | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| `language` | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`) |
 
 ### Когда использовать
 
@@ -299,6 +300,7 @@ class ContextPrecisionTest {
 |----------------------|--------------------|--------------|--------------|------------------------------------|
 | `evaluationStrategy` | EvaluationStrategy | Нет          | Авто-выбор   | REFERENCE_BASED или RESPONSE_BASED |
 | `models`             | List<String>       | Нет          | все          | Конкретные ID моделей для оценки   |
+| `language`           | String             | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)   |
 
 **Стратегии оценки:**
 
@@ -398,9 +400,10 @@ class ContextRecallTest {
 
 ### Конфигурация
 
-| Параметр |     Тип      | Обязательный | По умолчанию |             Описание             |
-|----------|--------------|--------------|--------------|----------------------------------|
-| `models` | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| Параметр   |     Тип      | Обязательный | По умолчанию |             Описание             |
+|------------|--------------|--------------|--------------|----------------------------------|
+| `models`   | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| `language` | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`) |
 
 ### Когда использовать
 
@@ -506,9 +509,10 @@ class FaithfulnessTest {
 
 ### Конфигурация
 
-| Параметр |     Тип      | Обязательный | По умолчанию |             Описание             |
-|----------|--------------|--------------|--------------|----------------------------------|
-| `models` | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| Параметр   |     Тип      | Обязательный | По умолчанию |             Описание             |
+|------------|--------------|--------------|--------------|----------------------------------|
+| `models`   | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| `language` | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`) |
 
 ### Когда использовать
 
@@ -633,10 +637,11 @@ class NoiseSensitivityTest {
 
 ### Конфигурация
 
-| Параметр |         Тип          | Обязательный | По умолчанию |               Описание               |
-|----------|----------------------|--------------|--------------|--------------------------------------|
-| `mode`   | NoiseSensitivityMode | Нет          | RELEVANT     | Режим оценки RELEVANT или IRRELEVANT |
-| `models` | List<String>         | Нет          | все          | Конкретные ID моделей для оценки     |
+| Параметр   |         Тип          | Обязательный | По умолчанию |               Описание               |
+|------------|----------------------|--------------|--------------|--------------------------------------|
+| `mode`     | NoiseSensitivityMode | Нет          | RELEVANT     | Режим оценки RELEVANT или IRRELEVANT |
+| `models`   | List<String>         | Нет          | все          | Конкретные ID моделей для оценки     |
+| `language` | String               | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)     |
 
 **Режимы оценки:**
 
@@ -810,6 +815,7 @@ class ResponseRelevancyTest {
 |---------------------|--------------|--------------|--------------|---------------------------------------------|
 | `numberOfQuestions` | int          | Нет          | 3            | Количество вопросов для генерации из ответа |
 | `models`            | List<String> | Нет          | все          | Конкретные ID моделей для оценки            |
+| `language`          | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)            |
 
 ### Когда использовать
 
@@ -856,4 +862,32 @@ class Example {
 | `response`          | String       | Faithfulness, NoiseSensitivity, ResponseRelevancy    |
 | `reference`         | String       | ContextEntityRecall, ContextRecall, NoiseSensitivity |
 | `retrievedContexts` | List<String> | Все метрики извлечения                               |
+
+---
+
+## API расширенной оценки
+
+Все метрики поиска поддерживают `singleTurnEvaluate()`, возвращающий `EvaluationResult` с оценкой, объяснением, результатами по моделям и метаданными:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Вместо Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = faithfulnessMetric.singleTurnEvaluate(config, sample);
+
+log.info("Оценка: {}", result.getScore());
+log.info("Объяснение: {}", result.getExplanation().getSimpleDescription());
+log.info("Оценки моделей: {}", result.getModelScores());
+log.info("Длительность: {}мс", result.getTotalDuration().toMillis());
+
+// Асинхронный вариант
+CompletableFuture<EvaluationResult> future =
+        faithfulnessMetric.singleTurnEvaluateAsync(config, sample);
+
+// Объяснения на русском языке
+FaithfulnessMetric.FaithfulnessConfig ruConfig = FaithfulnessMetric.FaithfulnessConfig.builder()
+        .language("ru")
+        .build();
+EvaluationResult ruResult = faithfulnessMetric.singleTurnEvaluate(ruConfig, sample);
+```
 

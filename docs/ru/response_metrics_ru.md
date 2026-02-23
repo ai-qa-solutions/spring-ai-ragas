@@ -198,6 +198,7 @@ class SemanticSimilarityTest {
 |-------------|--------------|--------------|--------------|----------------------------------------------|
 | `threshold` | Double       | Нет          | null         | Если задан, возвращает 1.0 или 0.0 по порогу |
 | `models`    | List<String> | Нет          | все          | ID моделей эмбеддингов                       |
+| `language`  | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)             |
 
 ### Когда использовать
 
@@ -365,10 +366,11 @@ class FactualCorrectnessTest {
 
 ### Конфигурация
 
-| Параметр |     Тип      | Обязательный | По умолчанию |               Описание                |
-|----------|--------------|--------------|--------------|---------------------------------------|
-| `mode`   | Mode         | Нет          | F1           | Режим оценки F1, PRECISION или RECALL |
-| `models` | List<String> | Нет          | все          | ID моделей для декомпозиции и NLI     |
+| Параметр   |     Тип      | Обязательный | По умолчанию |               Описание                |
+|------------|--------------|--------------|--------------|---------------------------------------|
+| `mode`     | Mode         | Нет          | F1           | Режим оценки F1, PRECISION или RECALL |
+| `models`   | List<String> | Нет          | все          | ID моделей для декомпозиции и NLI     |
+| `language` | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)      |
 
 **Режимы оценки:**
 
@@ -527,6 +529,7 @@ class AnswerCorrectnessTest {
 | `factualWeight`  | double       | Нет          | 0.75         | Вес компонента фактической корректности |
 | `semanticWeight` | double       | Нет          | 0.25         | Вес компонента семантического сходства  |
 | `models`         | List<String> | Нет          | все          | ID моделей для фактической корректности |
+| `language`       | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)        |
 
 **Предустановленные конфигурации:**
 
@@ -589,4 +592,33 @@ class Example {
 |-------------|--------|--------------|------------------|
 | `response`  | String | Да           | Ответ для оценки |
 | `reference` | String | Да           | Эталонный ответ  |
+
+---
+
+## API расширенной оценки
+
+Все метрики ответов поддерживают `singleTurnEvaluate()`, возвращающий `EvaluationResult` с оценкой, объяснением, результатами по моделям и метаданными:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Вместо Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = answerCorrectnessMetric.singleTurnEvaluate(config, sample);
+
+log.info("Оценка: {}", result.getScore());
+log.info("Объяснение: {}", result.getExplanation().getSimpleDescription());
+log.info("Оценки моделей: {}", result.getModelScores());
+log.info("Длительность: {}мс", result.getTotalDuration().toMillis());
+
+// Асинхронный вариант
+CompletableFuture<EvaluationResult> future =
+        answerCorrectnessMetric.singleTurnEvaluateAsync(config, sample);
+
+// Объяснения на русском языке
+AnswerCorrectnessMetric.AnswerCorrectnessConfig ruConfig =
+        AnswerCorrectnessMetric.AnswerCorrectnessConfig.builder()
+                .language("ru")
+                .build();
+EvaluationResult ruResult = answerCorrectnessMetric.singleTurnEvaluate(ruConfig, sample);
+```
 

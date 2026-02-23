@@ -389,6 +389,38 @@ class ProductionSamplingTest {
 }
 ```
 
+### Rich Evaluation API (Optional)
+
+For detailed evaluation data beyond a simple `Double` score, use `singleTurnEvaluate()` / `multiTurnEvaluate()`:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+import ai.qa.solutions.metric.explanation.ScoreExplanation;
+
+// Rich result with explanation, per-model scores, and metadata
+EvaluationResult result = aspectCritic.singleTurnEvaluate(safetyConfig, sample);
+
+log.info("Score: {}", result.getScore());                       // 1.0
+log.info("Explanation: {}", result.getExplanation()
+        .getSimpleDescription());                               // "Score 1.0 — Excellent"
+log.info("Model scores: {}", result.getModelScores());          // {gpt-4=1.0, claude-3=1.0}
+log.info("Duration: {}ms", result.getTotalDuration().toMillis());
+
+// Multi-turn for agent metrics
+EvaluationResult agentResult = goalAccuracy.multiTurnEvaluate(goalConfig, sample);
+
+// Async execution
+CompletableFuture<EvaluationResult> future =
+        aspectCritic.singleTurnEvaluateAsync(safetyConfig, sample);
+
+// Language configuration — explanations in Russian
+AspectCriticMetric.AspectCriticConfig ruConfig = AspectCriticMetric.AspectCriticConfig.builder()
+        .definition("Response is safe and appropriate")
+        .language("ru")
+        .build();
+EvaluationResult ruResult = aspectCritic.singleTurnEvaluate(ruConfig, sample);
+```
+
 ## Allure Reports (Optional)
 
 For rich HTML reports with score explanations and execution timelines, add the Allure integration module.

@@ -132,6 +132,7 @@ class BleuScoreTest {
 |-------------|---------|----------|---------|---------------------------------------------------|
 | `maxNgram`  | int     | No       | 4       | Maximum n-gram size (standard BLEU uses 4)        |
 | `smoothing` | boolean | No       | true    | Apply smoothing for short texts with zero n-grams |
+| `language`  | String  | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`)        |
 
 ### Score Interpretation
 
@@ -265,6 +266,7 @@ class RougeScoreTest {
 |-------------|-----------|----------|----------|---------------------------------------------|
 | `rougeType` | RougeType | No       | ROUGE_L  | ROUGE_1, ROUGE_2, or ROUGE_L variant        |
 | `mode`      | Mode      | No       | FMEASURE | RECALL, PRECISION, or FMEASURE scoring mode |
+| `language`  | String    | No       | `"en"`   | Language for explanations (`"en"`, `"ru"`)  |
 
 ### When to Use
 
@@ -394,6 +396,7 @@ class ChrfScoreTest {
 | `charNgramOrder` | int    | No       | 6       | Maximum character n-gram order (standard is 6) |
 | `wordNgramOrder` | int    | No       | 0       | Word n-gram order (0 = chrF, >0 = chrF++)      |
 | `beta`           | double | No       | 2.0     | F-beta weight (higher = more recall weight)    |
+| `language`       | String | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`)     |
 
 ### When to Use
 
@@ -526,6 +529,7 @@ class StringSimilarityTest {
 |-------------------|-----------------|----------|--------------|--------------------------------------|
 | `distanceMeasure` | DistanceMeasure | No       | JARO_WINKLER | Algorithm to use for comparison      |
 | `caseSensitive`   | boolean         | No       | false        | Whether comparison is case sensitive |
+| `language`        | String          | No       | `"en"`       | Language for explanations (`"en"`, `"ru"`) |
 
 ### Algorithm Selection Guide
 
@@ -570,4 +574,32 @@ class Example {
 |-------------|--------|----------|----------------------------|
 | `response`  | String | Yes      | Generated text to evaluate |
 | `reference` | String | Yes      | Ground truth reference     |
+
+---
+
+## Rich Evaluation API
+
+All NLP metrics support `singleTurnEvaluate()` returning `EvaluationResult` with score, explanation, and metadata — no LLM calls required:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Instead of Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = bleuScoreMetric.singleTurnEvaluate(config, sample);
+
+log.info("Score: {}", result.getScore());
+log.info("Explanation: {}", result.getExplanation().getSimpleDescription());
+log.info("Duration: {}ms", result.getTotalDuration().toMillis());
+
+// Async variant
+CompletableFuture<EvaluationResult> future =
+        bleuScoreMetric.singleTurnEvaluateAsync(config, sample);
+
+// Russian language explanations
+BleuScoreMetric.BleuScoreConfig ruConfig = BleuScoreMetric.BleuScoreConfig.builder()
+        .maxNgram(4)
+        .language("ru")
+        .build();
+EvaluationResult ruResult = bleuScoreMetric.singleTurnEvaluate(ruConfig, sample);
+```
 

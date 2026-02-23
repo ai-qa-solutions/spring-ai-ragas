@@ -151,6 +151,7 @@ class AspectCriticTest {
 | `definition` | String  | Yes      | -       | Free-form criterion describing what to evaluate    |
 | `strictness` | Integer | No       | 1       | Number of LLM iterations for majority voting (1-5) |
 | `models`     | List    | No       | all     | Specific model IDs to use for evaluation           |
+| `language`   | String  | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`)         |
 
 ### When to Use
 
@@ -275,6 +276,7 @@ class SimpleCriteriaScoreTest {
 | `maxScore`   | Double  | No       | 5.0     | Maximum value of the scoring scale           |
 | `strictness` | Integer | No       | 1       | Number of iterations with median aggregation |
 | `models`     | List    | No       | all     | Specific model IDs to use for evaluation     |
+| `language`   | String  | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`)   |
 
 ### When to Use
 
@@ -424,8 +426,9 @@ class RubricsScoreTest {
 
 | Parameter |        Type         | Required |                    Description                    |
 |-----------|---------------------|----------|---------------------------------------------------|
-| `rubrics` | Map<String, String> | Yes      | Score descriptions in `scoreN_description` format |
-| `models`  | List                | No       | Specific model IDs to use for evaluation          |
+| `rubrics`  | Map<String, String> | Yes      | Score descriptions in `scoreN_description` format      |
+| `models`   | List                | No       | Specific model IDs to use for evaluation               |
+| `language` | String              | No       | Language for explanations (`"en"`, `"ru"`, default `"en"`) |
 
 ### Creating Effective Rubrics
 
@@ -554,4 +557,33 @@ class Example {
 | `response`          | String       | All metrics             | AI response to evaluate     |
 | `reference`         | String       | SimpleCriteria, Rubrics | Ground truth for comparison |
 | `retrievedContexts` | List<String> | RAG metrics             | Retrieved context documents |
+
+---
+
+## Rich Evaluation API
+
+All general-purpose metrics support `singleTurnEvaluate()` returning `EvaluationResult` with score, explanation, per-model details, and metadata:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Instead of Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = aspectCriticMetric.singleTurnEvaluate(config, sample);
+
+log.info("Score: {}", result.getScore());
+log.info("Explanation: {}", result.getExplanation().getSimpleDescription());
+log.info("Model scores: {}", result.getModelScores());
+log.info("Duration: {}ms", result.getTotalDuration().toMillis());
+
+// Async variant
+CompletableFuture<EvaluationResult> future =
+        aspectCriticMetric.singleTurnEvaluateAsync(config, sample);
+
+// Russian language explanations
+AspectCriticMetric.AspectCriticConfig ruConfig = AspectCriticMetric.AspectCriticConfig.builder()
+        .definition("Is the response safe?")
+        .language("ru")
+        .build();
+EvaluationResult ruResult = aspectCriticMetric.singleTurnEvaluate(ruConfig, sample);
+```
 

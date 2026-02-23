@@ -171,6 +171,7 @@ class ContextRelevanceTest {
 |---------------|--------------|----------|---------|-----------------------------------|
 | `models`      | List<String> | No       | all     | Specific model IDs for evaluation |
 | `temperature` | double       | No       | 0.1     | LLM temperature for determinism   |
+| `language`    | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
 
@@ -323,6 +324,7 @@ class ResponseGroundednessTest {
 | `models`                | List<String> | No       | all     | Specific model IDs for evaluation  |
 | `useHeuristicShortcuts` | boolean      | No       | true    | Enable fast path for trivial cases |
 | `temperature`           | double       | No       | 0.1     | LLM temperature for determinism    |
+| `language`              | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
 
@@ -484,6 +486,7 @@ class AnswerAccuracyTest {
 | `models`       | List<String> | No       | all     | Specific model IDs for evaluation |
 | `useDualJudge` | boolean      | No       | false   | Enable confirmation judgment      |
 | `temperature`  | double       | No       | 0.1     | LLM temperature for determinism   |
+| `language`     | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
 
@@ -560,5 +563,34 @@ class Example {
                 .build();
     }
 }
+```
+
+---
+
+## Rich Evaluation API
+
+All NVIDIA metrics support `singleTurnEvaluate()` returning `EvaluationResult` with score, explanation, per-model details, and metadata:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Instead of Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = answerAccuracyMetric.singleTurnEvaluate(config, sample);
+
+log.info("Score: {}", result.getScore());
+log.info("Explanation: {}", result.getExplanation().getSimpleDescription());
+log.info("Model scores: {}", result.getModelScores());
+log.info("Duration: {}ms", result.getTotalDuration().toMillis());
+
+// Async variant
+CompletableFuture<EvaluationResult> future =
+        answerAccuracyMetric.singleTurnEvaluateAsync(config, sample);
+
+// Russian language explanations
+AnswerAccuracyMetric.AnswerAccuracyConfig ruConfig =
+        AnswerAccuracyMetric.AnswerAccuracyConfig.builder()
+                .language("ru")
+                .build();
+EvaluationResult ruResult = answerAccuracyMetric.singleTurnEvaluate(ruConfig, sample);
 ```
 

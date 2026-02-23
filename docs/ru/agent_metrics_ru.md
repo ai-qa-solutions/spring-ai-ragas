@@ -168,10 +168,11 @@ class AgentGoalAccuracyTest {
 
 ### Конфигурация
 
-| Параметр |     Тип      | Обязательный |  По умолчанию  |               Описание               |
-|----------|--------------|--------------|----------------|--------------------------------------|
-| `mode`   | Mode         | Нет          | WITH_REFERENCE | WITH_REFERENCE или WITHOUT_REFERENCE |
-| `models` | List<String> | Нет          | все            | Конкретные ID моделей для оценки     |
+| Параметр   |     Тип      | Обязательный |  По умолчанию  |               Описание               |
+|------------|--------------|--------------|----------------|--------------------------------------|
+| `mode`     | Mode         | Нет          | WITH_REFERENCE | WITH_REFERENCE или WITHOUT_REFERENCE |
+| `models`   | List<String> | Нет          | все            | Конкретные ID моделей для оценки     |
+| `language` | String       | Нет          | `"en"`         | Язык объяснений (`"en"`, `"ru"`)     |
 
 ### Когда использовать
 
@@ -311,6 +312,7 @@ class ToolCallAccuracyTest {
 | `mode`                   | Mode         | Нет          | STRICT       | STRICT или FLEXIBLE режим сопоставления       |
 | `argumentMatchThreshold` | Double       | Нет          | 0.8          | Порог совпадения аргументов в FLEXIBLE режиме |
 | `models`                 | List<String> | Нет          | все          | ID моделей (не используется - не-LLM метрика) |
+| `language`               | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`)              |
 
 ### Когда использовать
 
@@ -443,10 +445,11 @@ class TopicAdherenceTest {
 
 ### Конфигурация
 
-| Параметр |     Тип      | Обязательный | По умолчанию |             Описание             |
-|----------|--------------|--------------|--------------|----------------------------------|
-| `mode`   | Mode         | Нет          | F1           | F1, PRECISION или RECALL режим   |
-| `models` | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| Параметр   |     Тип      | Обязательный | По умолчанию |             Описание             |
+|------------|--------------|--------------|--------------|----------------------------------|
+| `mode`     | Mode         | Нет          | F1           | F1, PRECISION или RECALL режим   |
+| `models`   | List<String> | Нет          | все          | Конкретные ID моделей для оценки |
+| `language` | String       | Нет          | `"en"`       | Язык объяснений (`"en"`, `"ru"`) |
 
 **Режимы оценки:**
 
@@ -528,4 +531,34 @@ Double score = agentGoalAccuracy.multiTurnScore(config, sample);
 | `referenceTopics`    | List<String>      | TopicAdherence                     |
 | `toolCalls`          | List<ToolCall>    | ToolCallAccuracy                   |
 | `referenceToolCalls` | List<ToolCall>    | ToolCallAccuracy                   |
+
+---
+
+## API расширенной оценки
+
+Все агентные метрики поддерживают `multiTurnEvaluate()`, возвращающий `EvaluationResult` с оценкой, объяснением, результатами по моделям и метаданными:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Вместо Double score = metric.multiTurnScore(config, sample);
+EvaluationResult result = agentGoalAccuracyMetric.multiTurnEvaluate(config, sample);
+
+log.info("Оценка: {}", result.getScore());
+log.info("Объяснение: {}", result.getExplanation().getSimpleDescription());
+log.info("Оценки моделей: {}", result.getModelScores());
+log.info("Длительность: {}мс", result.getTotalDuration().toMillis());
+
+// Асинхронный вариант
+CompletableFuture<EvaluationResult> future =
+        agentGoalAccuracyMetric.multiTurnEvaluateAsync(config, sample);
+
+// Объяснения на русском языке
+AgentGoalAccuracyMetric.AgentGoalAccuracyConfig ruConfig =
+        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
+                .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE)
+                .language("ru")
+                .build();
+EvaluationResult ruResult = agentGoalAccuracyMetric.multiTurnEvaluate(ruConfig, sample);
+```
 

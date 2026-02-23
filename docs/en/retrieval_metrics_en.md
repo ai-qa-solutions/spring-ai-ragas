@@ -168,9 +168,10 @@ class ContextEntityRecallTest {
 
 ### Configuration
 
-| Parameter |     Type     | Required | Default |            Description            |
-|-----------|--------------|----------|---------|-----------------------------------|
-| `models`  | List<String> | No       | all     | Specific model IDs for evaluation |
+| Parameter  |     Type     | Required | Default |            Description            |
+|------------|--------------|----------|---------|-----------------------------------|
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation |
+| `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
 
@@ -296,10 +297,11 @@ class ContextPrecisionTest {
 
 ### Configuration
 
-|      Parameter       |        Type        | Required |   Default   |            Description            |
-|----------------------|--------------------|----------|-------------|-----------------------------------|
-| `evaluationStrategy` | EvaluationStrategy | No       | Auto-detect | REFERENCE_BASED or RESPONSE_BASED |
-| `models`             | List<String>       | No       | all         | Specific model IDs for evaluation |
+|      Parameter       |        Type        | Required |   Default   |                 Description                    |
+|----------------------|--------------------|----------|-------------|------------------------------------------------|
+| `evaluationStrategy` | EvaluationStrategy | No       | Auto-detect | REFERENCE_BASED or RESPONSE_BASED              |
+| `models`             | List<String>       | No       | all         | Specific model IDs for evaluation              |
+| `language`           | String             | No       | `"en"`      | Language for explanations (`"en"`, `"ru"`)     |
 
 **Evaluation Strategies:**
 
@@ -399,9 +401,10 @@ class ContextRecallTest {
 
 ### Configuration
 
-| Parameter |     Type     | Required | Default |            Description            |
-|-----------|--------------|----------|---------|-----------------------------------|
-| `models`  | List<String> | No       | all     | Specific model IDs for evaluation |
+| Parameter  |     Type     | Required | Default |            Description            |
+|------------|--------------|----------|---------|-----------------------------------|
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation |
+| `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
 
@@ -507,9 +510,10 @@ class FaithfulnessTest {
 
 ### Configuration
 
-| Parameter |     Type     | Required | Default |            Description            |
-|-----------|--------------|----------|---------|-----------------------------------|
-| `models`  | List<String> | No       | all     | Specific model IDs for evaluation |
+| Parameter  |     Type     | Required | Default |            Description            |
+|------------|--------------|----------|---------|-----------------------------------|
+| `models`   | List<String> | No       | all     | Specific model IDs for evaluation |
+| `language` | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`) |
 
 ### When to Use
 
@@ -634,10 +638,11 @@ class NoiseSensitivityTest {
 
 ### Configuration
 
-| Parameter |         Type         | Required | Default  |              Description               |
-|-----------|----------------------|----------|----------|----------------------------------------|
-| `mode`    | NoiseSensitivityMode | No       | RELEVANT | RELEVANT or IRRELEVANT evaluation mode |
-| `models`  | List<String>         | No       | all      | Specific model IDs for evaluation      |
+| Parameter  |         Type         | Required | Default  |              Description               |
+|------------|----------------------|----------|----------|----------------------------------------|
+| `mode`     | NoiseSensitivityMode | No       | RELEVANT | RELEVANT or IRRELEVANT evaluation mode |
+| `models`   | List<String>         | No       | all      | Specific model IDs for evaluation      |
+| `language` | String               | No       | `"en"`   | Language for explanations (`"en"`, `"ru"`) |
 
 **Evaluation Modes:**
 
@@ -811,6 +816,7 @@ class ResponseRelevancyTest {
 |---------------------|--------------|----------|---------|---------------------------------------------|
 | `numberOfQuestions` | int          | No       | 3       | Number of questions to generate from answer |
 | `models`            | List<String> | No       | all     | Specific model IDs for evaluation           |
+| `language`          | String       | No       | `"en"`  | Language for explanations (`"en"`, `"ru"`)  |
 
 ### When to Use
 
@@ -857,4 +863,32 @@ class Example {
 | `response`          | String       | Faithfulness, NoiseSensitivity, ResponseRelevancy    |
 | `reference`         | String       | ContextEntityRecall, ContextRecall, NoiseSensitivity |
 | `retrievedContexts` | List<String> | All retrieval metrics                                |
+
+---
+
+## Rich Evaluation API
+
+All retrieval metrics support `singleTurnEvaluate()` returning `EvaluationResult` with score, explanation, per-model details, and metadata:
+
+```java
+import ai.qa.solutions.metric.EvaluationResult;
+
+// Instead of Double score = metric.singleTurnScore(config, sample);
+EvaluationResult result = faithfulnessMetric.singleTurnEvaluate(config, sample);
+
+log.info("Score: {}", result.getScore());
+log.info("Explanation: {}", result.getExplanation().getSimpleDescription());
+log.info("Model scores: {}", result.getModelScores());
+log.info("Duration: {}ms", result.getTotalDuration().toMillis());
+
+// Async variant
+CompletableFuture<EvaluationResult> future =
+        faithfulnessMetric.singleTurnEvaluateAsync(config, sample);
+
+// Russian language explanations
+FaithfulnessMetric.FaithfulnessConfig ruConfig = FaithfulnessMetric.FaithfulnessConfig.builder()
+        .language("ru")
+        .build();
+EvaluationResult ruResult = faithfulnessMetric.singleTurnEvaluate(ruConfig, sample);
+```
 
