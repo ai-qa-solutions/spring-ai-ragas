@@ -3,7 +3,6 @@ package ai.qa.solutions.metrics.nlp.ru;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.qa.solutions.allure.nlp.AllureNlpMetricHelper;
 import ai.qa.solutions.metrics.nlp.BleuScoreMetric;
 import ai.qa.solutions.metrics.nlp.BleuScoreMetric.BleuScoreConfig;
 import ai.qa.solutions.sample.Sample;
@@ -56,14 +55,6 @@ class RuBleuScoreIntegrationIT {
             log.info("Ответ: {}", sample.getResponse());
             log.info("Эталон: {}", sample.getReference());
             log.info("BLEU Score: {}", String.format("%.4f", score));
-
-            AllureNlpMetricHelper.attachBleuScore(
-                    score,
-                    sample.getResponse(),
-                    sample.getReference(),
-                    config.getMaxNgram(),
-                    config.isSmoothing(),
-                    "ru");
 
             assertNotNull(score);
             assertTrue(score >= 0.95, "Идентичные тексты должны иметь почти идеальный BLEU. Получено: " + score);

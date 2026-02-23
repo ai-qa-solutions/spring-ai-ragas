@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiTurnMetric;
+import ai.qa.solutions.metric.metadata.AgentGoalAccuracyMetadata;
 import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.BaseMessage;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
@@ -143,7 +146,6 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(totalSteps)
-                .metadata(Map.of("sample", sample, "config", config, "mode", mode))
                 .build());
 
         return executor.runAsync(() -> {
@@ -170,12 +172,15 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
             return evaluateWithoutReference(config, sample, conversation, modelIds, notifier, startTime);
         }
 
-        // ========== Step 1: Compare Outcome ==========
-        notifier.beforeStep("CompareOutcome", 0, 1);
+        final List<StepResults> accumulatedSteps = new ArrayList<>();
+        final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
+        // ========== Step 1: Compare Outcome ==========
         final String prompt = renderCompareOutcomePrompt(sample.getReference(), conversation);
         final Map<String, Double> modelScores = new HashMap<>();
         final List<String> excludedModels = new ArrayList<>();
+        final Map<String, Boolean> modelVerdicts = new HashMap<>();
+        final Map<String, String> modelReasonings = new HashMap<>();
         final List<ModelResult<GoalComparisonResponse>> results =
                 executor.executeLlm(modelIds, prompt, GoalComparisonResponse.class);
 
@@ -183,18 +188,33 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
             if (result.isSuccess()) {
                 final double score = result.result().getScore();
                 modelScores.put(result.modelId(), score);
+                modelVerdicts.put(
+                        result.modelId(),
+                        result.result().goalAchieved() != null
+                                && result.result().goalAchieved());
+                modelReasonings.put(
+                        result.modelId(),
+                        result.result().reasoning() != null ? result.result().reasoning() : "");
             } else {
                 excludedModels.add(result.modelId());
-                notifier.onModelExcluded(ModelExclusionEvent.builder()
+                final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                         .modelId(result.modelId())
                         .failedStepName("CompareOutcome")
                         .failedStepIndex(0)
                         .cause(result.error())
-                        .build());
+                        .build();
+                accumulatedExclusions.add(exclusion);
             }
         }
 
-        notifier.afterLlmStep("CompareOutcome", 0, 1, prompt, results);
+        accumulatedSteps.add(StepResults.builder()
+                .stepName("CompareOutcome")
+                .stepIndex(0)
+                .totalSteps(1)
+                .stepType(StepType.LLM)
+                .request(prompt)
+                .results(List.copyOf(results))
+                .build());
 
         if (modelScores.isEmpty()) {
             throw new IllegalStateException("All models failed at step CompareOutcome for metric: " + getName());
@@ -205,11 +225,17 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
 
         notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                 .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(modelIds)
                 .aggregatedScore(aggregatedScore)
                 .modelScores(modelScores)
                 .excludedModels(excludedModels)
                 .totalDuration(duration)
-                .metadata(Map.of("sample", sample, "config", config, "mode", Mode.WITH_REFERENCE))
+                .steps(accumulatedSteps)
+                .exclusions(accumulatedExclusions)
+                .metadata(
+                        new AgentGoalAccuracyMetadata(Mode.WITH_REFERENCE.name(), null, modelVerdicts, modelReasonings))
                 .build());
 
         return aggregatedScore;
@@ -223,9 +249,10 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
             final EvaluationNotifier notifier,
             final Instant startTime) {
 
-        // ========== Step 1: Infer Goal ==========
-        notifier.beforeStep("InferGoal", 0, 2);
+        final List<StepResults> accumulatedSteps = new ArrayList<>();
+        final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
+        // ========== Step 1: Infer Goal ==========
         final String inferPrompt = renderInferGoalPrompt(conversation);
         final List<ModelResult<InferredGoalResponse>> inferResults =
                 executor.executeLlm(modelIds, inferPrompt, InferredGoalResponse.class);
@@ -239,26 +266,34 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
                 break; // Use first successful result
             } else if (!result.isSuccess()) {
                 excludedModels.add(result.modelId());
-                notifier.onModelExcluded(ModelExclusionEvent.builder()
+                final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                         .modelId(result.modelId())
                         .failedStepName("InferGoal")
                         .failedStepIndex(0)
                         .cause(result.error())
-                        .build());
+                        .build();
+                accumulatedExclusions.add(exclusion);
             }
         }
 
-        notifier.afterLlmStep("InferGoal", 0, 2, inferPrompt, inferResults);
+        accumulatedSteps.add(StepResults.builder()
+                .stepName("InferGoal")
+                .stepIndex(0)
+                .totalSteps(2)
+                .stepType(StepType.LLM)
+                .request(inferPrompt)
+                .results(List.copyOf(inferResults))
+                .build());
 
         if (inferredGoal == null) {
             throw new IllegalStateException("Failed to infer goal at step InferGoal for metric: " + getName());
         }
 
         // ========== Step 2: Evaluate Outcome ==========
-        notifier.beforeStep("EvaluateOutcome", 1, 2);
-
         final String evalPrompt = renderEvaluateOutcomePrompt(inferredGoal, conversation);
         final Map<String, Double> modelScores = new HashMap<>();
+        final Map<String, Boolean> modelVerdicts = new HashMap<>();
+        final Map<String, String> modelReasonings = new HashMap<>();
         final List<ModelResult<GoalComparisonResponse>> evalResults =
                 executor.executeLlm(modelIds, evalPrompt, GoalComparisonResponse.class);
 
@@ -266,20 +301,35 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
             if (result.isSuccess()) {
                 final double score = result.result().getScore();
                 modelScores.put(result.modelId(), score);
+                modelVerdicts.put(
+                        result.modelId(),
+                        result.result().goalAchieved() != null
+                                && result.result().goalAchieved());
+                modelReasonings.put(
+                        result.modelId(),
+                        result.result().reasoning() != null ? result.result().reasoning() : "");
             } else {
                 if (!excludedModels.contains(result.modelId())) {
                     excludedModels.add(result.modelId());
                 }
-                notifier.onModelExcluded(ModelExclusionEvent.builder()
+                final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                         .modelId(result.modelId())
                         .failedStepName("EvaluateOutcome")
                         .failedStepIndex(1)
                         .cause(result.error())
-                        .build());
+                        .build();
+                accumulatedExclusions.add(exclusion);
             }
         }
 
-        notifier.afterLlmStep("EvaluateOutcome", 1, 2, evalPrompt, evalResults);
+        accumulatedSteps.add(StepResults.builder()
+                .stepName("EvaluateOutcome")
+                .stepIndex(1)
+                .totalSteps(2)
+                .stepType(StepType.LLM)
+                .request(evalPrompt)
+                .results(List.copyOf(evalResults))
+                .build());
 
         if (modelScores.isEmpty()) {
             throw new IllegalStateException("All models failed at step EvaluateOutcome for metric: " + getName());
@@ -290,15 +340,17 @@ public class AgentGoalAccuracyMetric extends AbstractMultiTurnMetric<AgentGoalAc
 
         notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                 .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(modelIds)
                 .aggregatedScore(aggregatedScore)
                 .modelScores(modelScores)
                 .excludedModels(excludedModels)
                 .totalDuration(duration)
-                .metadata(Map.of(
-                        "sample", sample,
-                        "config", config,
-                        "mode", Mode.WITHOUT_REFERENCE,
-                        "inferredGoal", inferredGoal))
+                .steps(accumulatedSteps)
+                .exclusions(accumulatedExclusions)
+                .metadata(new AgentGoalAccuracyMetadata(
+                        Mode.WITHOUT_REFERENCE.name(), inferredGoal, modelVerdicts, modelReasonings))
                 .build());
 
         return aggregatedScore;

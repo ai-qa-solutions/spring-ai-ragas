@@ -5,11 +5,15 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.RubricsMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,32 +82,59 @@ public class RubricsScoreMetric extends AbstractMultiModelMetric<RubricsScoreMet
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(1)
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
-            // ========== Step 1: Evaluate ==========
-            notifier.beforeStep("Evaluate", 0, 1);
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
+            // ========== Step 1: Evaluate ==========
             final String prompt = renderPrompt(config, sample);
             final List<ModelResult<Response>> results = executor.executeLlm(modelIds, prompt, Response.class);
 
-            notifier.afterLlmStep("Evaluate", 0, 1, prompt, results);
-
-            // Collect scores and notify about excluded models
+            // Collect scores and build metadata
             final Map<String, Double> modelScores = new HashMap<>();
+            final List<String> excludedModels = new ArrayList<>();
+            final Map<String, Integer> metadataModelScores = new HashMap<>();
+            final Map<String, String> metadataModelRubricLevels = new HashMap<>();
+            final Map<String, String> metadataModelReasonings = new HashMap<>();
+
             for (final ModelResult<Response> result : results) {
                 if (result.isSuccess()) {
                     modelScores.put(result.modelId(), result.result().getNormalizedScore());
+                    metadataModelScores.put(
+                            result.modelId(),
+                            result.result().score() != null ? result.result().score() : 0);
+                    metadataModelRubricLevels.put(
+                            result.modelId(),
+                            result.result().rubric_level() != null
+                                    ? result.result().rubric_level()
+                                    : "");
+                    metadataModelReasonings.put(
+                            result.modelId(),
+                            result.result().reasoning() != null
+                                    ? result.result().reasoning()
+                                    : "");
                 } else {
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    excludedModels.add(result.modelId());
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("Evaluate")
                             .failedStepIndex(0)
                             .cause(result.error())
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("Evaluate")
+                    .stepIndex(0)
+                    .totalSteps(1)
+                    .stepType(StepType.LLM)
+                    .request(prompt)
+                    .results(List.copyOf(results))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed for metric: " + getName());
@@ -113,18 +144,20 @@ public class RubricsScoreMetric extends AbstractMultiModelMetric<RubricsScoreMet
 
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
-            final List<String> excludedModels = results.stream()
-                    .filter(ModelResult::isFailure)
-                    .map(ModelResult::modelId)
-                    .toList();
 
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new RubricsMetadata(
+                            config.rubrics, metadataModelScores, metadataModelRubricLevels, metadataModelReasonings))
                     .build());
 
             return aggregatedScore;

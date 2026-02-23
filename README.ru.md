@@ -601,7 +601,6 @@ spring-ai-ragas/
 ├── spring-ai-ragas-allure/               # Интеграция с Allure отчётами
 │   └── ai.qa.solutions.allure/
 │       ├── listener/                     # AllureMetricExecutionListener
-│       ├── nlp/                          # AllureNlpMetricHelper
 │       ├── explanation/                  # Классы объяснения оценок
 │       ├── methodology/                  # Документация методологии (en/ru)
 │       └── template/                     # Freemarker шаблоны отчётов

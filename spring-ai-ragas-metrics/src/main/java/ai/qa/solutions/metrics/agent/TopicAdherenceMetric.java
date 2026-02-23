@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiTurnMetric;
+import ai.qa.solutions.metric.metadata.TopicAdherenceMetadata;
 import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.BaseMessage;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
@@ -128,17 +131,16 @@ public class TopicAdherenceMetric extends AbstractMultiTurnMetric<TopicAdherence
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(2)
-                .metadata(Map.of("sample", sample, "config", config, "mode", mode))
                 .build());
 
         return executor.runAsync(() -> {
             final String conversation = formatConversation(conversationMessages);
             final List<String> referenceTopics = sample.getReferenceTopics();
             final List<String> excludedModels = new ArrayList<>();
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
             // ========== Step 1: Extract Topics ==========
-            notifier.beforeStep("ExtractTopics", 0, 2);
-
             final String extractPrompt = renderExtractTopicsPrompt(conversation);
             final List<ModelResult<ExtractedTopicsResponse>> extractResults =
                     executor.executeLlm(modelIds, extractPrompt, ExtractedTopicsResponse.class);
@@ -151,16 +153,24 @@ public class TopicAdherenceMetric extends AbstractMultiTurnMetric<TopicAdherence
                     break; // Use first successful result
                 } else if (!result.isSuccess()) {
                     excludedModels.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("ExtractTopics")
                             .failedStepIndex(0)
                             .cause(result.error())
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
-            notifier.afterLlmStep("ExtractTopics", 0, 2, extractPrompt, extractResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ExtractTopics")
+                    .stepIndex(0)
+                    .totalSteps(2)
+                    .stepType(StepType.LLM)
+                    .request(extractPrompt)
+                    .results(List.copyOf(extractResults))
+                    .build());
 
             if (extractedTopics == null || extractedTopics.isEmpty()) {
                 log.warn("No topics extracted from conversation");
@@ -168,44 +178,65 @@ public class TopicAdherenceMetric extends AbstractMultiTurnMetric<TopicAdherence
                 final Duration duration = Duration.between(startTime, Instant.now());
                 notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                         .metricName(getName())
+                        .sample(sample)
+                        .config(config)
+                        .modelIds(modelIds)
                         .aggregatedScore(0.0)
                         .modelScores(Map.of())
                         .excludedModels(excludedModels)
                         .totalDuration(duration)
-                        .metadata(Map.of("sample", sample, "config", config, "mode", mode, "noTopicsExtracted", true))
+                        .steps(accumulatedSteps)
+                        .exclusions(accumulatedExclusions)
+                        .metadata(new TopicAdherenceMetadata(mode.name(), referenceTopics, List.of(), Map.of()))
                         .build());
                 return 0.0;
             }
 
             // ========== Step 2: Classify Topics ==========
-            notifier.beforeStep("ClassifyTopics", 1, 2);
-
             final String classifyPrompt = renderClassifyTopicsPrompt(extractedTopics, referenceTopics);
             final Map<String, Double> modelScores = new HashMap<>();
+            final Map<String, List<TopicAdherenceMetadata.TopicClassificationSummary>> modelClassifications =
+                    new HashMap<>();
             final List<ModelResult<TopicClassificationResponse>> classifyResults =
                     executor.executeLlm(modelIds, classifyPrompt, TopicClassificationResponse.class);
 
-            List<TopicClassification> classifications = null;
-
             for (final ModelResult<TopicClassificationResponse> result : classifyResults) {
                 if (result.isSuccess() && result.result().classifications() != null) {
-                    classifications = result.result().classifications();
+                    final List<TopicClassification> classifications =
+                            result.result().classifications();
                     final double score = computeScore(classifications, referenceTopics, mode);
                     modelScores.put(result.modelId(), score);
+                    modelClassifications.put(
+                            result.modelId(),
+                            classifications.stream()
+                                    .map(c -> new TopicAdherenceMetadata.TopicClassificationSummary(
+                                            c.extractedTopic() != null ? c.extractedTopic() : "",
+                                            c.onTopic() != null && c.onTopic(),
+                                            c.matchedReferenceTopic(),
+                                            c.reasoning() != null ? c.reasoning() : ""))
+                                    .toList());
                 } else if (!result.isSuccess()) {
                     if (!excludedModels.contains(result.modelId())) {
                         excludedModels.add(result.modelId());
                     }
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("ClassifyTopics")
                             .failedStepIndex(1)
                             .cause(result.error())
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
-            notifier.afterLlmStep("ClassifyTopics", 1, 2, classifyPrompt, classifyResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ClassifyTopics")
+                    .stepIndex(1)
+                    .totalSteps(2)
+                    .stepType(StepType.LLM)
+                    .request(classifyPrompt)
+                    .results(List.copyOf(classifyResults))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed at step ClassifyTopics for metric: " + getName());
@@ -216,21 +247,17 @@ public class TopicAdherenceMetric extends AbstractMultiTurnMetric<TopicAdherence
 
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of(
-                            "sample",
-                            sample,
-                            "config",
-                            config,
-                            "mode",
-                            mode,
-                            "extractedTopics",
-                            extractedTopics,
-                            "classifications",
-                            classifications != null ? classifications : List.of()))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new TopicAdherenceMetadata(
+                            mode.name(), referenceTopics, extractedTopics, modelClassifications))
                     .build());
 
             return aggregatedScore;
@@ -283,8 +310,10 @@ public class TopicAdherenceMetric extends AbstractMultiTurnMetric<TopicAdherence
         return PromptTemplate.builder()
                 .template(this.classifyTopicsPrompt)
                 .variables(Map.of(
-                        "extractedTopics", String.join("\n- ", extractedTopics),
-                        "referenceTopics", String.join("\n- ", referenceTopics)))
+                        "extractedTopics",
+                        String.join("\n- ", extractedTopics),
+                        "referenceTopics",
+                        String.join("\n- ", referenceTopics)))
                 .build()
                 .render();
     }

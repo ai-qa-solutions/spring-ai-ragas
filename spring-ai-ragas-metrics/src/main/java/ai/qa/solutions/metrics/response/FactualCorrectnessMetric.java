@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.FactualCorrectnessMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -15,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -189,23 +193,31 @@ public class FactualCorrectnessMetric
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(4) // DecomposeResponse -> DecomposeReference -> VerifyNLI -> ComputeScore
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing factual correctness evaluation with explicit flow");
 
+            // Local accumulators for step results and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
+
             // Track excluded models across all steps
             final List<String> excludedModels = new ArrayList<>();
 
             // ========== Step 1: Decompose response into claims ==========
-            notifier.beforeStep("DecomposeResponseClaims", 0, 4);
-
             final String decomposeResponsePrompt = renderDecomposeClaimsPrompt(response);
             final List<ModelResult<ClaimsResponse>> step1Results =
                     executor.executeLlm(modelIds, decomposeResponsePrompt, ClaimsResponse.class);
 
-            notifier.afterLlmStep("DecomposeResponseClaims", 0, 4, decomposeResponsePrompt, step1Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("DecomposeResponseClaims")
+                    .stepIndex(0)
+                    .totalSteps(4)
+                    .stepType(StepType.LLM)
+                    .request(decomposeResponsePrompt)
+                    .results(new ArrayList<ModelResult<?>>(step1Results))
+                    .build());
 
             // Collect successful results from step 1
             final Map<String, ClaimsResponse> responseClaims = new HashMap<>();
@@ -216,12 +228,13 @@ public class FactualCorrectnessMetric
                     responseClaims.put(result.modelId(), result.result());
                 } else {
                     excludedModels.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("DecomposeResponseClaims")
                             .failedStepIndex(0)
                             .cause(result.error())
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
@@ -231,14 +244,19 @@ public class FactualCorrectnessMetric
             }
 
             // ========== Step 2: Decompose reference into claims ==========
-            notifier.beforeStep("DecomposeReferenceClaims", 1, 4);
-
             final List<String> step1SuccessfulModels = new ArrayList<>(responseClaims.keySet());
             final String decomposeReferencePrompt = renderDecomposeClaimsPrompt(reference);
             final List<ModelResult<ClaimsResponse>> step2Results =
                     executor.executeLlm(step1SuccessfulModels, decomposeReferencePrompt, ClaimsResponse.class);
 
-            notifier.afterLlmStep("DecomposeReferenceClaims", 1, 4, decomposeReferencePrompt, step2Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("DecomposeReferenceClaims")
+                    .stepIndex(1)
+                    .totalSteps(4)
+                    .stepType(StepType.LLM)
+                    .request(decomposeReferencePrompt)
+                    .results(new ArrayList<ModelResult<?>>(step2Results))
+                    .build());
 
             // Collect successful results from step 2
             final Map<String, ClaimsResponse> referenceClaims = new HashMap<>();
@@ -250,12 +268,13 @@ public class FactualCorrectnessMetric
                 } else {
                     excludedModels.add(result.modelId());
                     responseClaims.remove(result.modelId()); // Remove from previous step too
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("DecomposeReferenceClaims")
                             .failedStepIndex(1)
                             .cause(result.error())
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
@@ -265,8 +284,6 @@ public class FactualCorrectnessMetric
             }
 
             // ========== Step 3: Verify claims with NLI ==========
-            notifier.beforeStep("VerifyClaimsNLI", 2, 4);
-
             // For each model, verify response claims against reference (precision)
             // and reference claims against response (recall)
             final List<String> step2SuccessfulModels = new ArrayList<>(referenceClaims.keySet());
@@ -307,10 +324,11 @@ public class FactualCorrectnessMetric
             CompletableFuture.allOf(nliVerificationFutures.toArray(new CompletableFuture[0]))
                     .join();
 
-            // Create synthetic results for notification
-            final List<ModelResult<NliVerificationResult>> step3Results = nliResults.entrySet().stream()
-                    .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "nli"))
-                    .toList();
+            // Create synthetic results for step accumulation
+            final List<ModelResult<?>> step3ResultsList = new ArrayList<>();
+            for (final Map.Entry<String, NliVerificationResult> e : nliResults.entrySet()) {
+                step3ResultsList.add(ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "nli"));
+            }
 
             // Use first model's prompt as example
             final String exampleNliPrompt = step2SuccessfulModels.isEmpty()
@@ -318,17 +336,26 @@ public class FactualCorrectnessMetric
                     : renderNliVerificationPrompt(
                             reference,
                             responseClaims.get(step2SuccessfulModels.get(0)).claims());
-            notifier.afterLlmStep("VerifyClaimsNLI", 2, 4, exampleNliPrompt, step3Results);
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("VerifyClaimsNLI")
+                    .stepIndex(2)
+                    .totalSteps(4)
+                    .stepType(StepType.LLM)
+                    .request(exampleNliPrompt)
+                    .results(step3ResultsList)
+                    .build());
 
             // Update excluded models
             for (final String modelId : step2SuccessfulModels) {
                 if (!nliResults.containsKey(modelId)) {
                     excludedModels.add(modelId);
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(modelId)
                             .failedStepName("VerifyClaimsNLI")
                             .failedStepIndex(2)
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
@@ -337,32 +364,78 @@ public class FactualCorrectnessMetric
             }
 
             // ========== Step 4: Compute score ==========
-            notifier.beforeStep("ComputeScore", 3, 4);
-
             final Map<String, Double> modelScores = new HashMap<>();
             for (final Map.Entry<String, NliVerificationResult> entry : nliResults.entrySet()) {
                 final double score = calculateScore(entry.getValue(), config.getMode());
                 modelScores.put(entry.getKey(), score);
             }
 
-            // Create synthetic results for notification
-            final List<ModelResult<Double>> step4Results = modelScores.entrySet().stream()
-                    .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
-                    .toList();
+            // Create synthetic results for step accumulation
+            final List<ModelResult<?>> step4ResultsList = new ArrayList<>();
+            for (final Map.Entry<String, Double> e : modelScores.entrySet()) {
+                step4ResultsList.add(ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"));
+            }
 
-            notifier.afterComputeStep("ComputeScore", 3, 4, step4Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeScore")
+                    .stepIndex(3)
+                    .totalSteps(4)
+                    .stepType(StepType.COMPUTE)
+                    .results(step4ResultsList)
+                    .build());
 
             final double aggregatedScore = aggregate(modelScores);
+
+            // Build typed metadata
+            final Map<String, List<String>> responseClaimsMap = responseClaims.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey, e -> e.getValue().claims()));
+            final Map<String, List<String>> referenceClaimsMap = referenceClaims.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey, e -> e.getValue().claims()));
+            final Map<String, List<FactualCorrectnessMetadata.NliVerdictSummary>> precisionVerdictsMap =
+                    new HashMap<>();
+            final Map<String, List<FactualCorrectnessMetadata.NliVerdictSummary>> recallVerdictsMap = new HashMap<>();
+            for (final Map.Entry<String, NliVerificationResult> entry : nliResults.entrySet()) {
+                if (entry.getValue().precisionVerdicts() != null
+                        && entry.getValue().precisionVerdicts().verdicts() != null) {
+                    precisionVerdictsMap.put(
+                            entry.getKey(),
+                            entry.getValue().precisionVerdicts().verdicts().stream()
+                                    .map(v -> new FactualCorrectnessMetadata.NliVerdictSummary(
+                                            v.claim(), v.verdict(), v.reason()))
+                                    .toList());
+                }
+                if (entry.getValue().recallVerdicts() != null
+                        && entry.getValue().recallVerdicts().verdicts() != null) {
+                    recallVerdictsMap.put(
+                            entry.getKey(),
+                            entry.getValue().recallVerdicts().verdicts().stream()
+                                    .map(v -> new FactualCorrectnessMetadata.NliVerdictSummary(
+                                            v.claim(), v.verdict(), v.reason()))
+                                    .toList());
+                }
+            }
 
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new FactualCorrectnessMetadata(
+                            config.getMode().name(),
+                            responseClaimsMap,
+                            referenceClaimsMap,
+                            precisionVerdictsMap,
+                            recallVerdictsMap))
                     .build());
 
             return aggregatedScore;

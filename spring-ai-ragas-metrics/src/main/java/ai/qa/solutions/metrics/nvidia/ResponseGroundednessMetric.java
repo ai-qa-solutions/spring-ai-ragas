@@ -5,8 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
 import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.ResponseGroundednessMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -37,8 +39,8 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * <p>
  * Heuristic shortcuts (when enabled):
  * <ul>
- *   <li>Empty response → score 0.0</li>
- *   <li>Response exactly matches context → score 1.0</li>
+ *   <li>Empty response -> score 0.0</li>
+ *   <li>Response exactly matches context -> score 1.0</li>
  * </ul>
  * <p>
  * Required sample fields:
@@ -116,24 +118,40 @@ public class ResponseGroundednessMetric
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(totalSteps)
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             final String response = sample.getResponse();
             final String combinedContext = String.join("\n\n", sample.getRetrievedContexts());
+
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
             final List<String> excludedModels = new ArrayList<>();
 
             // Step 0: Apply heuristics if enabled
             if (config.useHeuristicShortcuts) {
-                notifier.beforeStep("ApplyHeuristics", 0, totalSteps);
-
                 // Check for exact match
                 for (final String context : sample.getRetrievedContexts()) {
                     if (response.trim().equalsIgnoreCase(context.trim())) {
                         log.debug("Response exactly matches context, returning 1.0");
-                        notifier.afterStep("ApplyHeuristics", 0, totalSteps, StepType.COMPUTE, null, List.of());
-                        finishEvaluation(notifier, 1.0, excludedModels, startTime, sample, config);
+                        accumulatedSteps.add(StepResults.builder()
+                                .stepName("ApplyHeuristics")
+                                .stepIndex(0)
+                                .totalSteps(totalSteps)
+                                .stepType(StepType.COMPUTE)
+                                .results(List.of())
+                                .build());
+                        finishEvaluation(
+                                notifier,
+                                1.0,
+                                excludedModels,
+                                startTime,
+                                sample,
+                                config,
+                                modelIds,
+                                accumulatedSteps,
+                                accumulatedExclusions,
+                                true);
                         return 1.0;
                     }
                 }
@@ -143,18 +161,39 @@ public class ResponseGroundednessMetric
                         .toLowerCase()
                         .contains(response.toLowerCase().trim())) {
                     log.debug("Response is fully contained in context, returning 1.0");
-                    notifier.afterStep("ApplyHeuristics", 0, totalSteps, StepType.COMPUTE, null, List.of());
-                    finishEvaluation(notifier, 1.0, excludedModels, startTime, sample, config);
+                    accumulatedSteps.add(StepResults.builder()
+                            .stepName("ApplyHeuristics")
+                            .stepIndex(0)
+                            .totalSteps(totalSteps)
+                            .stepType(StepType.COMPUTE)
+                            .results(List.of())
+                            .build());
+                    finishEvaluation(
+                            notifier,
+                            1.0,
+                            excludedModels,
+                            startTime,
+                            sample,
+                            config,
+                            modelIds,
+                            accumulatedSteps,
+                            accumulatedExclusions,
+                            true);
                     return 1.0;
                 }
 
-                notifier.afterStep("ApplyHeuristics", 0, totalSteps, StepType.COMPUTE, null, List.of());
+                accumulatedSteps.add(StepResults.builder()
+                        .stepName("ApplyHeuristics")
+                        .stepIndex(0)
+                        .totalSteps(totalSteps)
+                        .stepType(StepType.COMPUTE)
+                        .results(List.of())
+                        .build());
             }
 
             // Step 1: Evaluate groundedness via LLM
             final int stepIndex = config.useHeuristicShortcuts ? 1 : 0;
             final String stepName = "EvaluateGroundedness";
-            notifier.beforeStep(stepName, stepIndex, totalSteps);
 
             final String prompt = renderEvaluateGroundednessPrompt(response, combinedContext);
             final Map<String, Double> modelScores = new HashMap<>();
@@ -170,16 +209,24 @@ public class ResponseGroundednessMetric
                     if (!excludedModels.contains(result.modelId())) {
                         excludedModels.add(result.modelId());
                     }
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName(stepName)
                             .failedStepIndex(stepIndex)
                             .cause(result.error())
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
-            notifier.afterLlmStep(stepName, stepIndex, totalSteps, prompt, results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName(stepName)
+                    .stepIndex(stepIndex)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.LLM)
+                    .request(prompt)
+                    .results(new ArrayList<ModelResult<?>>(results))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed in metric: " + getName());
@@ -191,7 +238,17 @@ public class ResponseGroundednessMetric
                     .average()
                     .orElse(0.0);
 
-            finishEvaluation(notifier, aggregatedScore, excludedModels, startTime, sample, config);
+            finishEvaluation(
+                    notifier,
+                    aggregatedScore,
+                    excludedModels,
+                    startTime,
+                    sample,
+                    config,
+                    modelIds,
+                    accumulatedSteps,
+                    accumulatedExclusions,
+                    false);
             return aggregatedScore;
         });
     }
@@ -202,16 +259,25 @@ public class ResponseGroundednessMetric
             final List<String> excludedModels,
             final Instant startTime,
             final Sample sample,
-            final ResponseGroundednessConfig config) {
+            final ResponseGroundednessConfig config,
+            final List<String> modelIds,
+            final List<StepResults> accumulatedSteps,
+            final List<ModelExclusionEvent> accumulatedExclusions,
+            final boolean heuristicMatch) {
         final Duration duration = Duration.between(startTime, Instant.now());
 
         notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                 .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(modelIds)
                 .aggregatedScore(score)
                 .modelScores(Map.of("aggregated", score))
                 .excludedModels(excludedModels)
                 .totalDuration(duration)
-                .metadata(Map.of("sample", sample, "config", config))
+                .steps(accumulatedSteps)
+                .exclusions(accumulatedExclusions)
+                .metadata(new ResponseGroundednessMetadata(config.useHeuristicShortcuts, heuristicMatch))
                 .build());
     }
 
@@ -236,7 +302,7 @@ public class ResponseGroundednessMetric
         @Singular
         private List<String> models;
 
-        /** Enable heuristic shortcuts (exact match → 1.0, empty → 0.0). */
+        /** Enable heuristic shortcuts (exact match -> 1.0, empty -> 0.0). */
         @Builder.Default
         private boolean useHeuristicShortcuts = true;
 

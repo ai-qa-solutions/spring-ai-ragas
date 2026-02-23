@@ -5,11 +5,15 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.ContextEntityRecallMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -131,22 +135,23 @@ public class ContextEntityRecallMetric
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(3) // Extract reference entities -> Extract context entities -> Compute recall
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing context entity recall evaluation with explicit flow");
 
+            // Local accumulators for steps and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
+
             // Track excluded models across all steps
-            final List<String> excludedModels = new java.util.ArrayList<>();
+            final List<String> excludedModels = new ArrayList<>();
 
             final String referencePrompt = renderEntityExtractionPrompt(reference);
             final String combinedContexts = String.join("\n\n", retrievedContexts);
             final String contextPrompt = renderEntityExtractionPrompt(combinedContexts);
 
             // ========== Step 1: Extract entities from reference ==========
-            notifier.beforeStep("ExtractReferenceEntities", 0, 3);
-
             // Launch BOTH extractions in parallel - they are independent
             final CompletableFuture<List<ModelResult<EntitiesResponse>>> step1Future =
                     executor.executeLlmAsync(modelIds, referencePrompt, EntitiesResponse.class);
@@ -155,7 +160,15 @@ public class ContextEntityRecallMetric
 
             // Wait for step 1 to complete and report it
             final List<ModelResult<EntitiesResponse>> step1Results = step1Future.join();
-            notifier.afterLlmStep("ExtractReferenceEntities", 0, 3, referencePrompt, step1Results);
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ExtractReferenceEntities")
+                    .stepIndex(0)
+                    .totalSteps(3)
+                    .stepType(StepType.LLM)
+                    .request(referencePrompt)
+                    .results(new ArrayList<>(step1Results))
+                    .build());
 
             // Collect successful results from step 1 (reference entities)
             final Map<String, EntitiesResponse> step1Successful = new HashMap<>();
@@ -164,7 +177,7 @@ public class ContextEntityRecallMetric
                     step1Successful.put(result.modelId(), result.result());
                 } else {
                     excludedModels.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("ExtractReferenceEntities")
                             .failedStepIndex(0)
@@ -179,11 +192,17 @@ public class ContextEntityRecallMetric
             }
 
             // ========== Step 2: Extract entities from contexts ==========
-            notifier.beforeStep("ExtractContextEntities", 1, 3);
-
             // Wait for step 2 to complete and report it
             final List<ModelResult<EntitiesResponse>> step2Results = step2Future.join();
-            notifier.afterLlmStep("ExtractContextEntities", 1, 3, contextPrompt, step2Results);
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ExtractContextEntities")
+                    .stepIndex(1)
+                    .totalSteps(3)
+                    .stepType(StepType.LLM)
+                    .request(contextPrompt)
+                    .results(new ArrayList<>(step2Results))
+                    .build());
 
             // Collect successful results from step 2 (context entities)
             final Map<String, EntitiesResponse> step2Successful = new HashMap<>();
@@ -194,7 +213,7 @@ public class ContextEntityRecallMetric
                     if (!excludedModels.contains(result.modelId())) {
                         excludedModels.add(result.modelId());
                     }
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("ExtractContextEntities")
                             .failedStepIndex(1)
@@ -209,8 +228,6 @@ public class ContextEntityRecallMetric
             }
 
             // ========== Step 3: Compute entity recall ==========
-            notifier.beforeStep("ComputeEntityRecall", 2, 3);
-
             final Map<String, Double> modelScores = new HashMap<>();
             // Only use models that succeeded in BOTH steps
             for (final String modelId : step2Successful.keySet()) {
@@ -229,19 +246,60 @@ public class ContextEntityRecallMetric
                     .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
                     .toList();
 
-            notifier.afterComputeStep("ComputeEntityRecall", 2, 3, step3Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeEntityRecall")
+                    .stepIndex(2)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(new ArrayList<>(step3Results))
+                    .build());
 
             final double aggregatedScore = aggregate(modelScores);
+
+            // Build metadata
+            final Map<String, List<String>> refEntitiesMap = new HashMap<>();
+            final Map<String, List<String>> ctxEntitiesMap = new HashMap<>();
+            final Map<String, Set<String>> commonEntitiesMap = new HashMap<>();
+            int recallNumerator = 0;
+            int recallDenominator = 0;
+
+            for (final String modelId : modelScores.keySet()) {
+                final EntitiesResponse refResp = step1Successful.get(modelId);
+                final EntitiesResponse ctxResp = step2Successful.get(modelId);
+                refEntitiesMap.put(modelId, refResp.entities() != null ? refResp.entities() : List.of());
+                ctxEntitiesMap.put(modelId, ctxResp.entities() != null ? ctxResp.entities() : List.of());
+
+                final Set<String> refNorm = normalizeEntities(refResp.entities());
+                final Set<String> ctxNorm = normalizeEntities(ctxResp.entities());
+                final Set<String> common = new HashSet<>(refNorm);
+                common.retainAll(ctxNorm);
+                commonEntitiesMap.put(modelId, common);
+            }
+            // Use first successful model for aggregate counts
+            if (!modelScores.isEmpty()) {
+                final String firstModelId = modelScores.keySet().iterator().next();
+                final Set<String> refNorm =
+                        normalizeEntities(step1Successful.get(firstModelId).entities());
+                final Set<String> common = commonEntitiesMap.get(firstModelId);
+                recallDenominator = refNorm.size();
+                recallNumerator = common != null ? common.size() : 0;
+            }
 
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new ContextEntityRecallMetadata(
+                            refEntitiesMap, ctxEntitiesMap, commonEntitiesMap, recallNumerator, recallDenominator))
                     .build());
 
             return aggregatedScore;
@@ -298,7 +356,10 @@ public class ContextEntityRecallMetric
      */
     private Set<String> normalizeEntities(final List<String> entities) {
         final Set<String> normalized = new HashSet<>();
-        for (String entity : entities) {
+        if (entities == null) {
+            return normalized;
+        }
+        for (final String entity : entities) {
             if (entity != null && !entity.trim().isEmpty()) {
                 normalized.add(entity.trim().toLowerCase());
             }

@@ -3,7 +3,6 @@ package ai.qa.solutions.metrics.nlp.en;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.qa.solutions.allure.nlp.AllureNlpMetricHelper;
 import ai.qa.solutions.metrics.nlp.RougeScoreMetric;
 import ai.qa.solutions.metrics.nlp.RougeScoreMetric.Mode;
 import ai.qa.solutions.metrics.nlp.RougeScoreMetric.RougeScoreConfig;
@@ -59,14 +58,6 @@ class EnRougeScoreIntegrationIT {
             final Double score = rougeScoreMetric.singleTurnScore(config, sample);
 
             log.info("ROUGE-L Score: {}", String.format("%.4f", score));
-
-            AllureNlpMetricHelper.attachRougeScore(
-                    score,
-                    sample.getResponse(),
-                    sample.getReference(),
-                    config.getRougeType().name(),
-                    config.getMode().name(),
-                    "en");
 
             assertNotNull(score);
             assertTrue(score >= 0.99, "Identical texts should have perfect ROUGE-L. Received: " + score);

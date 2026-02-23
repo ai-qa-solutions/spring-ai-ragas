@@ -32,3 +32,6 @@ target/
 
 # Allure
 .allure/
+
+# Specs
+specs/

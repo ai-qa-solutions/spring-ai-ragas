@@ -7,9 +7,6 @@ import ai.qa.solutions.execution.StubMultiModelExecutor;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
-import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
-import ai.qa.solutions.execution.listener.dto.StepContext;
-import ai.qa.solutions.execution.listener.dto.StepResults;
 import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.AIMessage;
 import ai.qa.solutions.sample.message.HumanMessage;
@@ -428,21 +425,6 @@ class AgentGoalAccuracyMetricTest {
                 }
 
                 @Override
-                public void beforeStep(final StepContext context) {
-                    events.add("beforeStep:" + context.getStepName());
-                }
-
-                @Override
-                public void afterStep(final StepResults results) {
-                    events.add("afterStep:" + results.getStepName());
-                }
-
-                @Override
-                public void onModelExcluded(final ModelExclusionEvent event) {
-                    events.add("excluded:" + event.getModelId());
-                }
-
-                @Override
                 public MetricExecutionListener forEvaluation() {
                     return this;
                 }
@@ -462,8 +444,6 @@ class AgentGoalAccuracyMetricTest {
             metric.singleTurnScore(config, sample);
 
             assertThat(events).contains("beforeMetric:AgentGoalAccuracyMetric");
-            assertThat(events).contains("beforeStep:CompareOutcome");
-            assertThat(events).contains("afterStep:CompareOutcome");
             assertThat(events).contains("afterMetric:1.0");
         }
     }

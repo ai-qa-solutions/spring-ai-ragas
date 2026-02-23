@@ -1,7 +1,12 @@
 package ai.qa.solutions.metrics.nlp;
 
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.metric.AbstractMetric;
 import ai.qa.solutions.metric.Metric;
+import ai.qa.solutions.metric.metadata.StringSimilarityMetadata;
 import ai.qa.solutions.sample.Sample;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.Builder;
 import lombok.Data;
@@ -34,7 +39,7 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
  * </ul>
  */
 @Slf4j
-public class StringSimilarityMetric implements Metric<StringSimilarityMetric.StringSimilarityConfig> {
+public class StringSimilarityMetric extends AbstractMetric<StringSimilarityMetric.StringSimilarityConfig> {
 
     private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
     private final HammingDistance hammingDistance = new HammingDistance();
@@ -49,32 +54,54 @@ public class StringSimilarityMetric implements Metric<StringSimilarityMetric.Str
      */
     @Override
     public Double singleTurnScore(final StringSimilarityConfig config, final Sample sample) {
-        // Validate input
-        if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
-            log.warn("No response provided for String Similarity evaluation");
-            return null;
+        final EvaluationNotifier notifier = createEvaluationNotifier();
+        notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
+                .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(List.of())
+                .totalSteps(0)
+                .build());
+
+        Double score = null;
+        try {
+            // Validate input
+            if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
+                log.warn("No response provided for String Similarity evaluation");
+                return null;
+            }
+
+            if (sample.getReference() == null || sample.getReference().isEmpty()) {
+                log.warn("No reference provided for String Similarity evaluation");
+                return null;
+            }
+
+            final String response = config.isCaseSensitive()
+                    ? sample.getResponse()
+                    : sample.getResponse().toLowerCase();
+            final String reference = config.isCaseSensitive()
+                    ? sample.getReference()
+                    : sample.getReference().toLowerCase();
+
+            final DistanceMeasure measure = config.getDistanceMeasure();
+
+            score = switch (measure) {
+                case LEVENSHTEIN -> computeLevenshteinSimilarity(response, reference);
+                case HAMMING -> computeHammingSimilarity(response, reference);
+                case JARO -> computeJaroSimilarity(response, reference);
+                case JARO_WINKLER -> computeJaroWinklerSimilarity(response, reference);};
+            return score;
+        } finally {
+            notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
+                    .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(List.of())
+                    .aggregatedScore(score)
+                    .metadata(new StringSimilarityMetadata(
+                            config.getDistanceMeasure().name(), config.isCaseSensitive()))
+                    .build());
         }
-
-        if (sample.getReference() == null || sample.getReference().isEmpty()) {
-            log.warn("No reference provided for String Similarity evaluation");
-            return null;
-        }
-
-        final String response = config.isCaseSensitive()
-                ? sample.getResponse()
-                : sample.getResponse().toLowerCase();
-        final String reference = config.isCaseSensitive()
-                ? sample.getReference()
-                : sample.getReference().toLowerCase();
-
-        final DistanceMeasure measure = config.getDistanceMeasure();
-
-        return switch (measure) {
-            case LEVENSHTEIN -> computeLevenshteinSimilarity(response, reference);
-            case HAMMING -> computeHammingSimilarity(response, reference);
-            case JARO -> computeJaroSimilarity(response, reference);
-            case JARO_WINKLER -> computeJaroWinklerSimilarity(response, reference);
-        };
     }
 
     /**

@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.NoiseSensitivityMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -186,11 +189,14 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(totalSteps)
-                .metadata(Map.of("sample", sample, "config", config, "mode", config.getMode()))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing noise sensitivity evaluation with explicit flow");
+
+            // Local accumulators for steps and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
             // Track excluded models across all steps
             final java.util.Set<String> excludedModelIds = new java.util.HashSet<>();
@@ -198,13 +204,18 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
             int stepIndex = 0;
 
             // ========== Step 1: Decompose reference into statements ==========
-            notifier.beforeStep("DecomposeReference", stepIndex, totalSteps);
-
             final String decomposeRefPrompt = renderDecomposePrompt(sample.getUserInput(), sample.getReference());
             final List<ModelResult<StatementsResponse>> decomposeRefResults =
                     executor.executeLlm(modelIds, decomposeRefPrompt, StatementsResponse.class);
 
-            notifier.afterLlmStep("DecomposeReference", stepIndex, totalSteps, decomposeRefPrompt, decomposeRefResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("DecomposeReference")
+                    .stepIndex(stepIndex)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.LLM)
+                    .request(decomposeRefPrompt)
+                    .results(new ArrayList<>(decomposeRefResults))
+                    .build());
 
             final Map<String, StatementsResponse> refStatementsMap = new HashMap<>();
             for (final ModelResult<StatementsResponse> result : decomposeRefResults) {
@@ -212,7 +223,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                     refStatementsMap.put(result.modelId(), result.result());
                 } else {
                     excludedModelIds.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("DecomposeReference")
                             .failedStepIndex(stepIndex)
@@ -229,8 +240,6 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
             stepIndex++;
 
             // ========== Step 2: Decompose response into statements ==========
-            notifier.beforeStep("DecomposeResponse", stepIndex, totalSteps);
-
             final String decomposeRespPrompt = renderDecomposePrompt(sample.getUserInput(), sample.getResponse());
 
             // Execute in parallel for all models
@@ -245,8 +254,14 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
             final List<ModelResult<StatementsResponse>> decomposeRespResults =
                     decomposeRespFutures.stream().map(CompletableFuture::join).toList();
 
-            notifier.afterLlmStep(
-                    "DecomposeResponse", stepIndex, totalSteps, decomposeRespPrompt, decomposeRespResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("DecomposeResponse")
+                    .stepIndex(stepIndex)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.LLM)
+                    .request(decomposeRespPrompt)
+                    .results(new ArrayList<>(decomposeRespResults))
+                    .build());
 
             final Map<String, StatementsResponse> respStatementsMap = new HashMap<>();
             for (final ModelResult<StatementsResponse> result : decomposeRespResults) {
@@ -254,7 +269,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                     respStatementsMap.put(result.modelId(), result.result());
                 } else {
                     excludedModelIds.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("DecomposeResponse")
                             .failedStepIndex(stepIndex)
@@ -271,8 +286,6 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
 
             // ========== Step 3: Evaluate response statements against reference (groundTruthToAnswer)
             // ==========
-            notifier.beforeStep("EvaluateGroundTruthToAnswer", stepIndex, totalSteps);
-
             final Map<String, FaithfulnessVerdictsResponse> groundTruthToAnswerMap = new HashMap<>();
 
             // Execute in parallel for all models
@@ -306,27 +319,37 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                             sample.getReference(),
                             formatStatements(
                                     respStatementsMap.values().iterator().next().statements()));
-            notifier.afterLlmStep(
-                    "EvaluateGroundTruthToAnswer", stepIndex, totalSteps, examplePrompt, groundTruthResults);
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("EvaluateGroundTruthToAnswer")
+                    .stepIndex(stepIndex)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.LLM)
+                    .request(examplePrompt)
+                    .results(new ArrayList<>(groundTruthResults))
+                    .build());
 
             stepIndex++;
 
             // ========== Step 4: Evaluate ALL context comparisons IN PARALLEL ==========
             // (retrievedToGroundTruth + retrievedToAnswer)
-            notifier.beforeStep("EvaluateAllContexts", stepIndex, totalSteps);
 
             // Pre-initialize result maps with null lists of correct size
             final Map<String, List<FaithfulnessVerdictsResponse>> retrievedToGroundTruthMap = new HashMap<>();
-            for (String modelId : refStatementsMap.keySet()) {
+            for (final String modelId : refStatementsMap.keySet()) {
                 final List<FaithfulnessVerdictsResponse> list = new ArrayList<>();
-                for (int i = 0; i < numContexts; i++) list.add(null);
+                for (int i = 0; i < numContexts; i++) {
+                    list.add(null);
+                }
                 retrievedToGroundTruthMap.put(modelId, list);
             }
 
             final Map<String, List<FaithfulnessVerdictsResponse>> retrievedToAnswerMap = new HashMap<>();
-            for (String modelId : respStatementsMap.keySet()) {
+            for (final String modelId : respStatementsMap.keySet()) {
                 final List<FaithfulnessVerdictsResponse> list = new ArrayList<>();
-                for (int i = 0; i < numContexts; i++) list.add(null);
+                for (int i = 0; i < numContexts; i++) {
+                    list.add(null);
+                }
                 retrievedToAnswerMap.put(modelId, list);
             }
 
@@ -377,6 +400,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                     .join();
 
             // Process ref-to-context results
+            final List<ModelResult<?>> allContextEvalResults = new ArrayList<>();
             for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
                 final List<CompletableFuture<ModelResult<FaithfulnessVerdictsResponse>>> refFutures =
                         refContextFuturesList.get(contextIdx);
@@ -384,6 +408,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                     final ModelResult<FaithfulnessVerdictsResponse> result =
                             refFutures.get(modelIdx).join();
                     final String modelId = refModelIds.get(modelIdx);
+                    allContextEvalResults.add(result);
                     if (result.isSuccess()) {
                         retrievedToGroundTruthMap.get(modelId).set(contextIdx, result.result());
                     }
@@ -398,31 +423,33 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                     final ModelResult<FaithfulnessVerdictsResponse> result =
                             respFutures.get(modelIdx).join();
                     final String modelId = respModelIdsList.get(modelIdx);
+                    allContextEvalResults.add(result);
                     if (result.isSuccess()) {
                         retrievedToAnswerMap.get(modelId).set(contextIdx, result.result());
                     }
                 }
             }
 
-            // Notify with example prompts
+            // Build step for context evaluations
             final String contextEvalPrompt = !refStatementsMap.isEmpty() && !retrievedContexts.isEmpty()
                     ? renderFaithfulnessPrompt(
                             retrievedContexts.get(0),
                             formatStatements(
                                     refStatementsMap.values().iterator().next().statements()))
                     : statementFaithfulnessPrompt;
-            final List<ModelResult<FaithfulnessVerdictsResponse>> contextEvalResults = refContextFuturesList.isEmpty()
-                            || refContextFuturesList.get(0).isEmpty()
-                    ? List.of()
-                    : refContextFuturesList.get(0).stream()
-                            .map(CompletableFuture::join)
-                            .toList();
-            notifier.afterLlmStep("EvaluateAllContexts", stepIndex, totalSteps, contextEvalPrompt, contextEvalResults);
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("EvaluateAllContexts")
+                    .stepIndex(stepIndex)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.LLM)
+                    .request(contextEvalPrompt)
+                    .results(allContextEvalResults)
+                    .build());
+
             stepIndex++;
 
             // ========== Final step: Compute noise sensitivity ==========
-            notifier.beforeStep("ComputeNoiseSensitivity", stepIndex, totalSteps);
-
             final Map<String, Double> modelScores = new HashMap<>();
 
             for (final String modelId : respStatementsMap.keySet()) {
@@ -451,12 +478,18 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
                 modelScores.put(modelId, score);
             }
 
-            // Create synthetic results for notification
+            // Create synthetic results for compute step
             final List<ModelResult<Double>> computeResults = modelScores.entrySet().stream()
                     .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
                     .toList();
 
-            notifier.afterComputeStep("ComputeNoiseSensitivity", stepIndex, totalSteps, computeResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeNoiseSensitivity")
+                    .stepIndex(stepIndex)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.COMPUTE)
+                    .results(new ArrayList<>(computeResults))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed for metric: " + getName());
@@ -464,15 +497,35 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
 
             final double aggregatedScore = aggregate(modelScores);
 
+            // Build metadata
+            final Map<String, List<String>> refStatementsMetadata = new HashMap<>();
+            for (final Map.Entry<String, StatementsResponse> entry : refStatementsMap.entrySet()) {
+                refStatementsMetadata.put(
+                        entry.getKey(),
+                        entry.getValue().statements() != null ? entry.getValue().statements() : List.of());
+            }
+            final Map<String, List<String>> respStatementsMetadata = new HashMap<>();
+            for (final Map.Entry<String, StatementsResponse> entry : respStatementsMap.entrySet()) {
+                respStatementsMetadata.put(
+                        entry.getKey(),
+                        entry.getValue().statements() != null ? entry.getValue().statements() : List.of());
+            }
+
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
-                    .excludedModels(new java.util.ArrayList<>(excludedModelIds))
+                    .excludedModels(new ArrayList<>(excludedModelIds))
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config, "mode", config.getMode()))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new NoiseSensitivityMetadata(
+                            config.getMode().name(), refStatementsMetadata, respStatementsMetadata, numContexts))
                     .build());
 
             return aggregatedScore;
@@ -503,7 +556,7 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
     }
 
     private boolean[][] convertToGroundTruthToAnswer(
-            FaithfulnessVerdictsResponse response, StatementsResponse statements) {
+            final FaithfulnessVerdictsResponse response, final StatementsResponse statements) {
         final List<String> stmtsList = statements.statements() != null ? statements.statements() : List.of();
         final boolean[][] result = new boolean[1][stmtsList.size()];
 
@@ -519,14 +572,14 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
     }
 
     private boolean[][] convertToRetrievedToGroundTruth(
-            List<FaithfulnessVerdictsResponse> responses, StatementsResponse statements) {
+            final List<FaithfulnessVerdictsResponse> responses, final StatementsResponse statements) {
         final List<String> stmtsList = statements.statements() != null ? statements.statements() : List.of();
         final int numStatements = stmtsList.size();
-        final int numContexts = responses.size();
+        final int numCtxs = responses.size();
 
-        final boolean[][] result = new boolean[numStatements][numContexts];
+        final boolean[][] result = new boolean[numStatements][numCtxs];
 
-        for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+        for (int contextIdx = 0; contextIdx < numCtxs; contextIdx++) {
             final FaithfulnessVerdictsResponse response = responses.get(contextIdx);
             if (response != null && response.verdicts() != null) {
                 final List<StatementVerdict> verdicts = response.verdicts();
@@ -542,14 +595,14 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
     }
 
     private boolean[][] convertToRetrievedToAnswer(
-            List<FaithfulnessVerdictsResponse> responses, StatementsResponse statements) {
+            final List<FaithfulnessVerdictsResponse> responses, final StatementsResponse statements) {
         final List<String> stmtsList = statements.statements() != null ? statements.statements() : List.of();
         final int numStatements = stmtsList.size();
-        final int numContexts = responses.size();
+        final int numCtxs = responses.size();
 
-        final boolean[][] result = new boolean[numStatements][numContexts];
+        final boolean[][] result = new boolean[numStatements][numCtxs];
 
-        for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+        for (int contextIdx = 0; contextIdx < numCtxs; contextIdx++) {
             final FaithfulnessVerdictsResponse response = responses.get(contextIdx);
             if (response != null && response.verdicts() != null) {
                 final List<StatementVerdict> verdicts = response.verdicts();
@@ -565,33 +618,33 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private Double calculateNoiseSensitivity(FaithfulnessResults results, NoiseSensitivityMode mode) {
-        boolean[][] groundTruthToAnswer = results.groundTruthToAnswer();
-        boolean[][] retrievedToGroundTruth = results.retrievedToGroundTruth();
-        boolean[][] retrievedToAnswer = results.retrievedToAnswer();
+    private Double calculateNoiseSensitivity(final FaithfulnessResults results, final NoiseSensitivityMode mode) {
+        final boolean[][] groundTruthToAnswer = results.groundTruthToAnswer();
+        final boolean[][] retrievedToGroundTruth = results.retrievedToGroundTruth();
+        final boolean[][] retrievedToAnswer = results.retrievedToAnswer();
 
         if (groundTruthToAnswer.length == 0 || groundTruthToAnswer[0].length == 0 || retrievedToAnswer.length == 0) {
             return 0.0;
         }
 
-        int numResponseStatements = groundTruthToAnswer[0].length;
-        int numContexts = retrievedToGroundTruth.length > 0 ? retrievedToGroundTruth[0].length : 0;
+        final int numResponseStatements = groundTruthToAnswer[0].length;
+        final int numCtxs = retrievedToGroundTruth.length > 0 ? retrievedToGroundTruth[0].length : 0;
 
-        if (numContexts == 0) {
+        if (numCtxs == 0) {
             return 0.0;
         }
 
         // Create incorrect array by inverting ground_truth2answer
-        boolean[] incorrect = new boolean[numResponseStatements];
+        final boolean[] incorrect = new boolean[numResponseStatements];
         for (int i = 0; i < numResponseStatements; i++) {
             incorrect[i] = !groundTruthToAnswer[0][i];
         }
 
         // Compute relevant retrievals using max over axis 0 (ground truth statements)
-        boolean[] relevantRetrieved = new boolean[numContexts];
-        for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+        final boolean[] relevantRetrieved = new boolean[numCtxs];
+        for (int contextIdx = 0; contextIdx < numCtxs; contextIdx++) {
             boolean hasRelevantStatement = false;
-            for (boolean[] booleans : retrievedToGroundTruth) {
+            for (final boolean[] booleans : retrievedToGroundTruth) {
                 if (booleans[contextIdx]) {
                     hasRelevantStatement = true;
                     break;
@@ -601,10 +654,10 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
         }
 
         // Compute relevant faithful using max over axis 1 (contexts)
-        boolean[] relevantFaithful = new boolean[numResponseStatements];
+        final boolean[] relevantFaithful = new boolean[numResponseStatements];
         for (int answerStatementIdx = 0; answerStatementIdx < numResponseStatements; answerStatementIdx++) {
             boolean hasFaithfulContext = false;
-            for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+            for (int contextIdx = 0; contextIdx < numCtxs; contextIdx++) {
                 if (relevantRetrieved[contextIdx] && retrievedToAnswer[answerStatementIdx][contextIdx]) {
                     hasFaithfulContext = true;
                     break;
@@ -615,16 +668,16 @@ public class NoiseSensitivityMetric extends AbstractMultiModelMetric<NoiseSensit
 
         if (mode == NoiseSensitivityMode.IRRELEVANT) {
             // Compute irrelevant retrievals: ~relevant_retrieved
-            boolean[] irrelevantRetrieved = new boolean[numContexts];
-            for (int i = 0; i < numContexts; i++) {
+            final boolean[] irrelevantRetrieved = new boolean[numCtxs];
+            for (int i = 0; i < numCtxs; i++) {
                 irrelevantRetrieved[i] = !relevantRetrieved[i];
             }
 
             // Compute irrelevant faithful using max over axis 1 (contexts)
-            boolean[] irrelevantFaithful = new boolean[numResponseStatements];
+            final boolean[] irrelevantFaithful = new boolean[numResponseStatements];
             for (int answerStatementIdx = 0; answerStatementIdx < numResponseStatements; answerStatementIdx++) {
                 boolean hasFaithfulIrrelevantContext = false;
-                for (int contextIdx = 0; contextIdx < numContexts; contextIdx++) {
+                for (int contextIdx = 0; contextIdx < numCtxs; contextIdx++) {
                     if (irrelevantRetrieved[contextIdx] && retrievedToAnswer[answerStatementIdx][contextIdx]) {
                         hasFaithfulIrrelevantContext = true;
                         break;

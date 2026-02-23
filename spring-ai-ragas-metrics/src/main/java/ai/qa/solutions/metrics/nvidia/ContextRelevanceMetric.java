@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.ContextRelevanceMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -107,12 +110,14 @@ public class ContextRelevanceMetric extends AbstractMultiModelMetric<ContextRele
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(totalSteps)
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             final String userInput = sample.getUserInput();
             final List<String> contexts = sample.getRetrievedContexts();
+
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
             final List<String> excludedModels = new ArrayList<>();
             final List<Double> contextScores = new ArrayList<>();
 
@@ -120,7 +125,6 @@ public class ContextRelevanceMetric extends AbstractMultiModelMetric<ContextRele
             for (int i = 0; i < contexts.size(); i++) {
                 final String context = contexts.get(i);
                 final String stepName = String.format("EvaluateRelevance_%d", i + 1);
-                notifier.beforeStep(stepName, i, totalSteps);
 
                 final String prompt = renderEvaluateRelevancePrompt(userInput, context);
                 final Map<String, Double> modelScores = new HashMap<>();
@@ -136,16 +140,24 @@ public class ContextRelevanceMetric extends AbstractMultiModelMetric<ContextRele
                         if (!excludedModels.contains(result.modelId())) {
                             excludedModels.add(result.modelId());
                         }
-                        notifier.onModelExcluded(ModelExclusionEvent.builder()
+                        final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                                 .modelId(result.modelId())
                                 .failedStepName(stepName)
                                 .failedStepIndex(i)
                                 .cause(result.error())
-                                .build());
+                                .build();
+                        accumulatedExclusions.add(exclusion);
                     }
                 }
 
-                notifier.afterLlmStep(stepName, i, totalSteps, prompt, results);
+                accumulatedSteps.add(StepResults.builder()
+                        .stepName(stepName)
+                        .stepIndex(i)
+                        .totalSteps(totalSteps)
+                        .stepType(StepType.LLM)
+                        .request(prompt)
+                        .results(new ArrayList<ModelResult<?>>(results))
+                        .build());
 
                 if (!modelScores.isEmpty()) {
                     // Average across models for this context
@@ -170,11 +182,16 @@ public class ContextRelevanceMetric extends AbstractMultiModelMetric<ContextRele
 
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(Map.of("aggregated", aggregatedScore))
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config, "contextScores", contextScores))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new ContextRelevanceMetadata(contextScores, contexts.size()))
                     .build());
 
             return aggregatedScore;

@@ -57,53 +57,6 @@ class MetricExecutionListenerTest {
         }
 
         @Test
-        @DisplayName("Default beforeStep should do nothing")
-        void defaultBeforeStepShouldDoNothing() {
-            // Given
-            final MetricExecutionListener listener = new MetricExecutionListener() {};
-            final StepContext context = StepContext.builder()
-                    .stepName("Step1")
-                    .stepIndex(0)
-                    .totalSteps(1)
-                    .build();
-
-            // When/Then - should not throw
-            listener.beforeStep(context);
-        }
-
-        @Test
-        @DisplayName("Default afterStep should do nothing")
-        void defaultAfterStepShouldDoNothing() {
-            // Given
-            final MetricExecutionListener listener = new MetricExecutionListener() {};
-            final StepResults results = StepResults.builder()
-                    .stepName("Step1")
-                    .stepIndex(0)
-                    .totalSteps(1)
-                    .stepType(StepType.LLM)
-                    .build();
-
-            // When/Then - should not throw
-            listener.afterStep(results);
-        }
-
-        @Test
-        @DisplayName("Default onModelExcluded should do nothing")
-        void defaultOnModelExcludedShouldDoNothing() {
-            // Given
-            final MetricExecutionListener listener = new MetricExecutionListener() {};
-            final ModelExclusionEvent event = ModelExclusionEvent.builder()
-                    .modelId("model-1")
-                    .failedStepName("Step1")
-                    .failedStepIndex(0)
-                    .cause(new RuntimeException("error"))
-                    .build();
-
-            // When/Then - should not throw
-            listener.onModelExcluded(event);
-        }
-
-        @Test
         @DisplayName("Default afterMetricEvaluation should do nothing")
         void defaultAfterMetricEvaluationShouldDoNothing() {
             // Given
@@ -138,23 +91,10 @@ class MetricExecutionListenerTest {
                 }
 
                 @Override
-                public void beforeStep(StepContext context) {
-                    callLog.add("beforeStep:" + context.getStepName());
-                }
-
-                @Override
-                public void afterStep(StepResults results) {
-                    callLog.add("afterStep:" + results.getStepName());
-                }
-
-                @Override
-                public void onModelExcluded(ModelExclusionEvent event) {
-                    callLog.add("excluded:" + event.getModelId());
-                }
-
-                @Override
                 public void afterMetricEvaluation(MetricEvaluationResult result) {
                     callLog.add("after:" + result.getMetricName());
+                    callLog.add("steps:" + result.getSteps().size());
+                    callLog.add("exclusions:" + result.getExclusions().size());
                 }
 
                 @Override
@@ -169,39 +109,28 @@ class MetricExecutionListenerTest {
                     .modelIds(List.of("m1"))
                     .totalSteps(1)
                     .build());
-            listener.beforeStep(StepContext.builder()
-                    .stepName("Step1")
-                    .stepIndex(0)
-                    .totalSteps(1)
-                    .build());
-            listener.afterStep(StepResults.builder()
-                    .stepName("Step1")
-                    .stepIndex(0)
-                    .totalSteps(1)
-                    .stepType(StepType.LLM)
-                    .build());
-            listener.onModelExcluded(ModelExclusionEvent.builder()
-                    .modelId("model-1")
-                    .failedStepName("Step1")
-                    .failedStepIndex(0)
-                    .cause(new RuntimeException("error"))
-                    .build());
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("TestMetric")
                     .aggregatedScore(0.8)
                     .modelScores(Map.of())
                     .excludedModels(List.of())
                     .totalDuration(Duration.ZERO)
+                    .steps(List.of(StepResults.builder()
+                            .stepName("Step1")
+                            .stepIndex(0)
+                            .totalSteps(1)
+                            .stepType(StepType.LLM)
+                            .build()))
+                    .exclusions(List.of(ModelExclusionEvent.builder()
+                            .modelId("model-1")
+                            .failedStepName("Step1")
+                            .failedStepIndex(0)
+                            .cause(new RuntimeException("error"))
+                            .build()))
                     .build());
 
             // Then
-            assertThat(callLog)
-                    .containsExactly(
-                            "before:TestMetric",
-                            "beforeStep:Step1",
-                            "afterStep:Step1",
-                            "excluded:model-1",
-                            "after:TestMetric");
+            assertThat(callLog).containsExactly("before:TestMetric", "after:TestMetric", "steps:1", "exclusions:1");
             assertThat(listener.getOrder()).isEqualTo(10);
         }
 
@@ -210,23 +139,9 @@ class MetricExecutionListenerTest {
         void statefulListenerShouldReturnNewInstance() {
             // Given
             final MetricExecutionListener statefulListener = new MetricExecutionListener() {
-                private int callCount = 0;
-
-                @Override
-                public void afterStep(StepResults results) {
-                    callCount++;
-                }
-
                 @Override
                 public MetricExecutionListener forEvaluation() {
-                    return new MetricExecutionListener() {
-                        private int callCount = 0;
-
-                        @Override
-                        public void afterStep(StepResults results) {
-                            callCount++;
-                        }
-                    };
+                    return new MetricExecutionListener() {};
                 }
             };
 

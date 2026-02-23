@@ -1,6 +1,5 @@
 package ai.qa.solutions.execution.listener.dto;
 
-import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import lombok.Builder;
 import lombok.Value;
 
@@ -11,33 +10,31 @@ import lombok.Value;
  * from all subsequent steps. This event captures which model was excluded, at which
  * step it failed, and the error that caused the exclusion.
  * <p>
- * Passed to {@link MetricExecutionListener#onModelExcluded(ModelExclusionEvent)}
- * when a model is removed from the active execution set.
+ * Exclusion events are accumulated by the metric and delivered as part of
+ * {@link MetricEvaluationResult#getExclusions()}.
  *
  * <h3>Exclusion Strategy:</h3>
  * <pre>{@code
  * Step 1: GenerateStatements
- *   model-1 ✓ success
- *   model-2 ✓ success
- *   model-3 ✗ FAILED → onModelExcluded(model-3, "GenerateStatements", error)
+ *   model-1 success
+ *   model-2 success
+ *   model-3 FAILED  (excluded, recorded in MetricEvaluationResult)
  *
  * Step 2: EvaluateFaithfulness
- *   model-1 ✓ success    // Only successful models continue
- *   model-2 ✓ success
+ *   model-1 success    // Only successful models continue
+ *   model-2 success
  *   // model-3 skipped
  * }</pre>
  *
  * <h3>Usage Example:</h3>
  * <pre>{@code
- * public void onModelExcluded(ModelExclusionEvent event) {
- *     log.warn("Model {} excluded after failing step {} (step {}): {}",
- *         event.getModelId(),
- *         event.getFailedStepName(),
- *         event.getFailedStepIndex() + 1,
- *         event.getCause().getMessage());
- *
- *     // Update metrics dashboard
- *     modelFailureCounter.increment(event.getModelId());
+ * public void afterMetricEvaluation(MetricEvaluationResult result) {
+ *     for (ModelExclusionEvent event : result.getExclusions()) {
+ *         log.warn("Model {} excluded after failing step {}: {}",
+ *             event.getModelId(),
+ *             event.getFailedStepName(),
+ *             event.getCause().getMessage());
+ *     }
  * }
  * }</pre>
  */

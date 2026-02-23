@@ -5,11 +5,15 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.ContextRecallMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,28 +104,36 @@ public class ContextRecallMetric extends AbstractMultiModelMetric<ContextRecallM
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(1)
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing LLM-based context recall evaluation");
 
-            // ========== Step 1: Classify statements ==========
-            notifier.beforeStep("ClassifyStatements", 0, 1);
+            // Local accumulators for steps and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
+            // ========== Step 1: Classify statements ==========
             final String prompt = renderPrompt(userInput, retrievedContexts, reference);
             final List<ModelResult<ContextRecallClassifications>> results =
                     executor.executeLlm(modelIds, prompt, ContextRecallClassifications.class);
 
-            notifier.afterLlmStep("ClassifyStatements", 0, 1, prompt, results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ClassifyStatements")
+                    .stepIndex(0)
+                    .totalSteps(1)
+                    .stepType(StepType.LLM)
+                    .request(prompt)
+                    .results(new ArrayList<>(results))
+                    .build());
 
-            // Collect scores and notify about excluded models
+            // Collect scores and track excluded models
             final Map<String, Double> modelScores = new HashMap<>();
             for (final ModelResult<ContextRecallClassifications> result : results) {
                 if (result.isSuccess()) {
                     modelScores.put(result.modelId(), calculateContextRecall(result.result()));
                 } else {
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("ClassifyStatements")
                             .failedStepIndex(0)
@@ -136,6 +148,31 @@ public class ContextRecallMetric extends AbstractMultiModelMetric<ContextRecallM
 
             final double aggregatedScore = aggregate(modelScores);
 
+            // Build metadata
+            final Map<String, List<ContextRecallMetadata.ClassificationSummary>> classificationsSummary =
+                    new HashMap<>();
+            long attributedCount = 0;
+            long totalCount = 0;
+            for (final ModelResult<ContextRecallClassifications> result : results) {
+                if (result.isSuccess() && result.result().classifications() != null) {
+                    final List<ContextRecallMetadata.ClassificationSummary> summaries = new ArrayList<>();
+                    for (final ContextRecallClassification c : result.result().classifications()) {
+                        summaries.add(new ContextRecallMetadata.ClassificationSummary(
+                                c.statement(), c.reason(), c.attributed() != null ? c.attributed() : 0));
+                    }
+                    classificationsSummary.put(result.modelId(), summaries);
+                }
+            }
+            // Use first successful model's data for aggregate counts
+            final ModelResult<ContextRecallClassifications> firstSuccessful =
+                    results.stream().filter(ModelResult::isSuccess).findFirst().orElse(null);
+            if (firstSuccessful != null && firstSuccessful.result().classifications() != null) {
+                totalCount = firstSuccessful.result().classifications().size();
+                attributedCount = firstSuccessful.result().classifications().stream()
+                        .mapToInt(ContextRecallClassification::attributed)
+                        .sum();
+            }
+
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
             final List<String> excludedModels = results.stream()
@@ -145,11 +182,16 @@ public class ContextRecallMetric extends AbstractMultiModelMetric<ContextRecallM
 
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new ContextRecallMetadata(classificationsSummary, attributedCount, totalCount))
                     .build());
 
             return aggregatedScore;

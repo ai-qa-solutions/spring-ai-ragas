@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.ResponseRelevancyMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -27,7 +30,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * Uses {@link MultiModelExecutor} for parallel execution across multiple models
  * with explicit flow control, listener notifications, and embeddings.
  * <p>
- * <strong>⚠️ IMPORTANT LIMITATIONS:</strong> This metric has significant limitations for edge cases
+ * <strong>IMPORTANT LIMITATIONS:</strong> This metric has significant limitations for edge cases
  * and should be used as a <strong>screening tool only</strong> before expensive and time-consuming
  * metrics, not for final decision-making. Always combine with other metrics like Answer Correctness
  * and Faithfulness.
@@ -224,23 +227,31 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                 .modelIds(modelIds)
                 .embeddingModelIds(embeddingModelIds)
                 .totalSteps(3) // Generate questions -> Compute embeddings -> Compute similarity
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing response relevancy evaluation with explicit flow");
 
+            // Local accumulators for steps and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
+
             // Track excluded models across all steps
-            final List<String> excludedModels = new java.util.ArrayList<>();
+            final List<String> excludedModels = new ArrayList<>();
 
             // ========== Step 1: Generate questions ==========
-            notifier.beforeStep("GenerateQuestions", 0, 3);
-
             final String generatePrompt = renderQuestionGenerationPrompt(config, sample);
             final List<ModelResult<GeneratedQuestionsResponse>> step1Results =
                     executor.executeLlm(modelIds, generatePrompt, GeneratedQuestionsResponse.class);
 
-            notifier.afterLlmStep("GenerateQuestions", 0, 3, generatePrompt, step1Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("GenerateQuestions")
+                    .stepIndex(0)
+                    .totalSteps(3)
+                    .stepType(StepType.LLM)
+                    .request(generatePrompt)
+                    .results(new ArrayList<>(step1Results))
+                    .build());
 
             // Collect successful results from step 1
             final Map<String, GeneratedQuestionsResponse> step1Successful = new HashMap<>();
@@ -249,7 +260,7 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                     step1Successful.put(result.modelId(), result.result());
                 } else {
                     excludedModels.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("GenerateQuestions")
                             .failedStepIndex(0)
@@ -263,8 +274,6 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
             }
 
             // ========== Step 2: Compute embeddings ==========
-            notifier.beforeStep("ComputeEmbeddings", 1, 3);
-
             final Map<String, EmbeddingsResult> step2Successful = new HashMap<>();
             final List<ModelResult<EmbeddingsResult>> step2Results = new ArrayList<>();
             final List<ModelResult<?>> embeddingModelResults = new ArrayList<>();
@@ -305,7 +314,7 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                 final List<String> texts = new ArrayList<>();
                 texts.add(sample.getUserInput());
 
-                for (GeneratedQuestion q : questionsResponse.questions()) {
+                for (final GeneratedQuestion q : questionsResponse.questions()) {
                     if (q.question() != null && !q.question().trim().isEmpty()) {
                         texts.add(q.question());
                     }
@@ -363,17 +372,17 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                 }
             }
 
-            notifier.afterEmbeddingStep(
-                    "ComputeEmbeddings",
-                    1,
-                    3,
-                    sample.getUserInput() + " + generated questions",
-                    step2Results,
-                    embeddingModelResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeEmbeddings")
+                    .stepIndex(1)
+                    .totalSteps(3)
+                    .stepType(StepType.EMBEDDING)
+                    .request(sample.getUserInput() + " + generated questions")
+                    .results(new ArrayList<>(step2Results))
+                    .embeddingModelResults(new ArrayList<>(embeddingModelResults))
+                    .build());
 
             // ========== Step 3: Compute cosine similarity ==========
-            notifier.beforeStep("ComputeCosineSimilarity", 2, 3);
-
             final Map<String, Double> modelScores = new HashMap<>();
 
             for (final Map.Entry<String, EmbeddingsResult> entry : step2Successful.entrySet()) {
@@ -392,7 +401,7 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                 double totalSimilarity = 0.0;
                 int validQuestions = 0;
 
-                for (double[] questionEmbedding : embeddingsResult.questionEmbeddings()) {
+                for (final double[] questionEmbedding : embeddingsResult.questionEmbeddings()) {
                     try {
                         final double similarity =
                                 cosineSimilarity(embeddingsResult.userInputEmbedding(), questionEmbedding);
@@ -400,7 +409,7 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                         validQuestions++;
 
                         log.debug("Question embedding similarity: {}", similarity);
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         log.warn("Failed to calculate similarity for question embedding", e);
                     }
                 }
@@ -419,12 +428,18 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
                 }
             }
 
-            // Create synthetic results for notification
+            // Create synthetic results for compute step
             final List<ModelResult<Double>> step3Results = modelScores.entrySet().stream()
                     .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
                     .toList();
 
-            notifier.afterComputeStep("ComputeCosineSimilarity", 2, 3, step3Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeCosineSimilarity")
+                    .stepIndex(2)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(new ArrayList<>(step3Results))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed to compute similarity for metric: " + getName());
@@ -432,15 +447,42 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
 
             final double aggregatedScore = aggregate(modelScores);
 
+            // Build metadata
+            final Map<String, List<String>> generatedQuestionsMap = new HashMap<>();
+            final Map<String, List<Boolean>> noncommittalFlagsMap = new HashMap<>();
+            for (final Map.Entry<String, GeneratedQuestionsResponse> entry : step1Successful.entrySet()) {
+                final String modelId = entry.getKey();
+                final GeneratedQuestionsResponse qr = entry.getValue();
+                if (qr.questions() != null) {
+                    generatedQuestionsMap.put(
+                            modelId,
+                            qr.questions().stream()
+                                    .map(q -> q.question() != null ? q.question() : "")
+                                    .toList());
+                    noncommittalFlagsMap.put(
+                            modelId,
+                            qr.questions().stream()
+                                    .map(q -> q.noncommittal() != null && q.noncommittal() == 1)
+                                    .toList());
+                }
+            }
+
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
+                    .embeddingModelIds(embeddingModelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new ResponseRelevancyMetadata(
+                            generatedQuestionsMap, noncommittalFlagsMap, modelScores, config.getNumberOfQuestions()))
                     .build());
 
             return aggregatedScore;
@@ -477,7 +519,7 @@ public class ResponseRelevancyMetric extends AbstractMultiModelMetric<ResponseRe
      * @return Cosine similarity score in range [-1, 1], typically [0, 1] for text embeddings
      * @throws IllegalArgumentException if vectors have different dimensions
      */
-    private double cosineSimilarity(double[] vectorA, double[] vectorB) {
+    private double cosineSimilarity(final double[] vectorA, final double[] vectorB) {
         if (vectorA.length != vectorB.length) {
             throw new IllegalArgumentException(
                     "Vectors must have same length: " + vectorA.length + " vs " + vectorB.length);

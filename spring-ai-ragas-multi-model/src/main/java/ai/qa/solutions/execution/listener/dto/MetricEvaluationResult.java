@@ -1,6 +1,7 @@
 package ai.qa.solutions.execution.listener.dto;
 
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
+import ai.qa.solutions.sample.Sample;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +15,11 @@ import lombok.Value;
  * <ul>
  *   <li>The final aggregated score</li>
  *   <li>Individual scores for each successful model</li>
- *   <li>All step results for all models</li>
- *   <li>List of models that were excluded due to failures</li>
+ *   <li>The sample and configuration used for evaluation</li>
+ *   <li>All step results accumulated during metric execution</li>
+ *   <li>All model exclusion events</li>
+ *   <li>Model IDs (LLM and embedding) used for evaluation</li>
+ *   <li>Typed metadata from the metric</li>
  *   <li>Total execution time</li>
  * </ul>
  * <p>
@@ -27,6 +31,8 @@ import lombok.Value;
  * public void afterMetricEvaluation(MetricEvaluationResult result) {
  *     log.info("=== {} Evaluation Complete ===", result.getMetricName());
  *     log.info("Final Score: {}", result.getAggregatedScore());
+ *     log.info("Steps: {}", result.getSteps().size());
+ *     log.info("Exclusions: {}", result.getExclusions().size());
  *     log.info("Successful Models: {}/{}",
  *         result.getModelScores().size(),
  *         result.getModelScores().size() + result.getExcludedModels().size());
@@ -86,10 +92,61 @@ public class MetricEvaluationResult {
     Duration totalDuration;
 
     /**
-     * Additional metadata provided by the metric.
+     * The sample being evaluated.
      * <p>
-     * May include custom data specific to the metric implementation.
+     * Contains the user input, response, retrieved contexts, and reference
+     * that were used for this evaluation.
+     */
+    Sample sample;
+
+    /**
+     * The metric configuration used for this evaluation.
+     * <p>
+     * The actual type depends on the metric (e.g., FaithfulnessConfig, AspectCriticConfig).
+     * Consumers can cast to the expected config type.
+     */
+    Object config;
+
+    /**
+     * LLM model IDs used for this evaluation.
+     * <p>
+     * The list of chat model identifiers that were configured for multi-model execution.
      */
     @Builder.Default
-    Map<String, Object> metadata = Map.of();
+    List<String> modelIds = List.of();
+
+    /**
+     * Embedding model IDs used for this evaluation (if any).
+     * <p>
+     * Non-empty only for metrics that use embedding models (e.g., SemanticSimilarity).
+     */
+    @Builder.Default
+    List<String> embeddingModelIds = List.of();
+
+    /**
+     * All step results accumulated during metric execution.
+     * <p>
+     * Contains results from every step in the evaluation pipeline,
+     * including per-model results, durations, and request data.
+     * Steps are ordered by execution sequence.
+     */
+    @Builder.Default
+    List<StepResults> steps = List.of();
+
+    /**
+     * All model exclusion events that occurred during evaluation.
+     * <p>
+     * Contains details about which models were excluded, at which step,
+     * and the cause of failure. Empty if all models completed successfully.
+     */
+    @Builder.Default
+    List<ModelExclusionEvent> exclusions = List.of();
+
+    /**
+     * Typed metadata provided by the metric.
+     * <p>
+     * Contains metric-specific data records (e.g., FaithfulnessMetadata, AnswerCorrectnessMetadata).
+     * Null if no metadata is provided.
+     */
+    MetricMetadata metadata;
 }

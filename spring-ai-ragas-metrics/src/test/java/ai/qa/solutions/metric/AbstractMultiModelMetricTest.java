@@ -11,9 +11,6 @@ import ai.qa.solutions.execution.ScoreAggregator;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
-import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
-import ai.qa.solutions.execution.listener.dto.StepContext;
-import ai.qa.solutions.execution.listener.dto.StepResults;
 import ai.qa.solutions.sample.Sample;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -226,47 +223,6 @@ class AbstractMultiModelMetricTest {
         }
 
         @Test
-        @DisplayName("Notifier should call beforeStep")
-        void notifierShouldCallBeforeStep() {
-            RecordingListener listener = new RecordingListener();
-            metric.addListener(listener);
-
-            AbstractMultiModelMetric<?>.EvaluationNotifier notifier = metric.createEvaluationNotifier();
-            notifier.beforeStep("TestStep", 0, 1);
-
-            assertThat(listener.beforeStepCalled).isTrue();
-        }
-
-        @Test
-        @DisplayName("Notifier should call afterStep")
-        void notifierShouldCallAfterStep() {
-            RecordingListener listener = new RecordingListener();
-            metric.addListener(listener);
-
-            AbstractMultiModelMetric<?>.EvaluationNotifier notifier = metric.createEvaluationNotifier();
-            notifier.afterLlmStep("TestStep", 0, 1, "prompt", List.of());
-
-            assertThat(listener.afterStepCalled).isTrue();
-        }
-
-        @Test
-        @DisplayName("Notifier should call onModelExcluded")
-        void notifierShouldCallOnModelExcluded() {
-            RecordingListener listener = new RecordingListener();
-            metric.addListener(listener);
-
-            AbstractMultiModelMetric<?>.EvaluationNotifier notifier = metric.createEvaluationNotifier();
-            notifier.onModelExcluded(ModelExclusionEvent.builder()
-                    .modelId("model-1")
-                    .failedStepName("Step")
-                    .failedStepIndex(0)
-                    .cause(new RuntimeException("error"))
-                    .build());
-
-            assertThat(listener.onModelExcludedCalled).isTrue();
-        }
-
-        @Test
         @DisplayName("Notifier should call afterMetricEvaluation")
         void notifierShouldCallAfterMetricEvaluation() {
             RecordingListener listener = new RecordingListener();
@@ -393,29 +349,11 @@ class AbstractMultiModelMetricTest {
 
     static class RecordingListener implements MetricExecutionListener {
         boolean beforeMetricCalled = false;
-        boolean beforeStepCalled = false;
-        boolean afterStepCalled = false;
-        boolean onModelExcludedCalled = false;
         boolean afterMetricCalled = false;
 
         @Override
         public void beforeMetricEvaluation(MetricEvaluationContext context) {
             beforeMetricCalled = true;
-        }
-
-        @Override
-        public void beforeStep(StepContext context) {
-            beforeStepCalled = true;
-        }
-
-        @Override
-        public void afterStep(StepResults results) {
-            afterStepCalled = true;
-        }
-
-        @Override
-        public void onModelExcluded(ModelExclusionEvent event) {
-            onModelExcludedCalled = true;
         }
 
         @Override

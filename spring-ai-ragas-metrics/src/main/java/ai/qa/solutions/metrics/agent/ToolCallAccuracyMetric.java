@@ -1,9 +1,13 @@
 package ai.qa.solutions.metrics.agent;
 
+import ai.qa.solutions.execution.ModelResult;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiTurnMetric;
+import ai.qa.solutions.metric.metadata.ToolCallAccuracyMetadata;
 import ai.qa.solutions.sample.Sample;
 import java.time.Duration;
 import java.time.Instant;
@@ -92,19 +96,24 @@ public class ToolCallAccuracyMetric extends AbstractMultiTurnMetric<ToolCallAccu
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(3)
-                .metadata(Map.of("sample", sample, "config", config, "mode", mode))
                 .build());
 
         return executor.runAsync(() -> {
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
             final List<Sample.ToolCall> referenceCalls = sample.getReferenceToolCalls();
 
             // Step 1: Align tool calls
-            notifier.beforeStep("AlignToolCalls", 0, 3);
             final List<ToolCallMatch> matches = alignToolCalls(actualCalls, referenceCalls, mode, threshold);
-            notifier.afterComputeStep("AlignToolCalls", 0, 3, List.of());
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("AlignToolCalls")
+                    .stepIndex(0)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(List.of())
+                    .build());
 
             // Step 2: Compute precision and recall
-            notifier.beforeStep("ComputePrecisionRecall", 1, 3);
             final int truePositives =
                     (int) matches.stream().filter(ToolCallMatch::isMatched).count();
             final int falsePositives = actualCalls.size() - truePositives;
@@ -112,33 +121,66 @@ public class ToolCallAccuracyMetric extends AbstractMultiTurnMetric<ToolCallAccu
 
             final double precision = actualCalls.isEmpty() ? 0.0 : (double) truePositives / actualCalls.size();
             final double recall = referenceCalls.isEmpty() ? 0.0 : (double) truePositives / referenceCalls.size();
-            notifier.afterComputeStep("ComputePrecisionRecall", 1, 3, List.of());
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputePrecisionRecall")
+                    .stepIndex(1)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(List.of(ModelResult.success(
+                            modelIds.isEmpty() ? "default" : modelIds.get(0),
+                            Map.of("precision", precision, "recall", recall),
+                            Duration.ZERO,
+                            "compute")))
+                    .build());
 
             // Step 3: Compute F1 score
-            notifier.beforeStep("ComputeScore", 2, 3);
             final double f1Score = (precision + recall) == 0 ? 0.0 : 2 * precision * recall / (precision + recall);
-            notifier.afterComputeStep("ComputeScore", 2, 3, List.of());
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeScore")
+                    .stepIndex(2)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(List.of(ModelResult.success(
+                            modelIds.isEmpty() ? "default" : modelIds.get(0), f1Score, Duration.ZERO, "compute")))
+                    .build());
 
             final Duration duration = Duration.between(startTime, Instant.now());
             final Map<String, Double> modelScores = new HashMap<>();
             modelScores.put(modelIds.isEmpty() ? "default" : modelIds.get(0), f1Score);
 
+            // Build match summaries for metadata
+            final List<ToolCallAccuracyMetadata.ToolCallMatchSummary> matchSummaries = matches.stream()
+                    .map(m -> new ToolCallAccuracyMetadata.ToolCallMatchSummary(
+                            m.actualCall != null ? m.actualCall.name() : null,
+                            m.referenceCall != null ? m.referenceCall.name() : null,
+                            m.matched,
+                            m.matchScore))
+                    .toList();
+
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(f1Score)
                     .modelScores(modelScores)
                     .excludedModels(List.of())
                     .totalDuration(duration)
-                    .metadata(Map.of(
-                            "sample", sample,
-                            "config", config,
-                            "mode", mode,
-                            "precision", precision,
-                            "recall", recall,
-                            "truePositives", truePositives,
-                            "falsePositives", falsePositives,
-                            "falseNegatives", falseNegatives,
-                            "matches", matches))
+                    .steps(accumulatedSteps)
+                    .exclusions(List.of())
+                    .metadata(new ToolCallAccuracyMetadata(
+                            mode.name(),
+                            threshold,
+                            actualCalls.size(),
+                            referenceCalls.size(),
+                            truePositives,
+                            falsePositives,
+                            falseNegatives,
+                            precision,
+                            recall,
+                            matchSummaries))
                     .build());
 
             return f1Score;

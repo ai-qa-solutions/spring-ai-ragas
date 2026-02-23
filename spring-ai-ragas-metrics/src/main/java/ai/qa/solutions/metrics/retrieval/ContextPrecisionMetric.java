@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.ContextPrecisionMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -133,11 +136,14 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(totalSteps)
-                .metadata(Map.of("sample", sample, "config", config, "strategy", strategy))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing context precision evaluation with explicit flow");
+
+            // Local accumulators for steps and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
             // Track excluded models across all steps
             final java.util.Set<String> excludedModelIds = new java.util.HashSet<>();
@@ -148,7 +154,7 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
 
             // Track relevance results per model (thread-safe for parallel processing)
             final Map<String, List<Boolean>> modelRelevanceResults = new HashMap<>();
-            for (String modelId : modelIds) {
+            for (final String modelId : modelIds) {
                 // Pre-initialize with nulls to maintain order when filled in parallel
                 final List<Boolean> relevanceList = new ArrayList<>();
                 for (int i = 0; i < retrievedContexts.size(); i++) {
@@ -158,8 +164,6 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
             }
 
             // ========== Evaluate ALL contexts IN PARALLEL ==========
-            notifier.beforeStep("EvaluateAllContexts", 0, totalSteps);
-
             // Prepare all prompts
             final List<String> prompts = retrievedContexts.stream()
                     .map(contextChunk -> renderPrompt(template, strategy, sample, contextChunk))
@@ -176,11 +180,16 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
             CompletableFuture.allOf(contextFutures.toArray(new CompletableFuture[0]))
                     .join();
 
+            // Collect all model results for the step
+            final List<ModelResult<?>> allContextResults = new ArrayList<>();
+
             // Process results maintaining context order
             for (int contextIdx = 0; contextIdx < contextFutures.size(); contextIdx++) {
                 final List<ModelResult<RelevanceResponse>> results =
                         contextFutures.get(contextIdx).join();
                 final String stepName = "EvaluateContext_" + contextIdx;
+
+                allContextResults.addAll(results);
 
                 // Collect results for each model
                 for (final ModelResult<RelevanceResponse> result : results) {
@@ -192,7 +201,7 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                         // Model failed for this context - mark as not relevant for this context
                         modelRelevanceResults.get(result.modelId()).set(contextIdx, false);
                         excludedModelIds.add(result.modelId());
-                        notifier.onModelExcluded(ModelExclusionEvent.builder()
+                        accumulatedExclusions.add(ModelExclusionEvent.builder()
                                 .modelId(result.modelId())
                                 .failedStepName(stepName)
                                 .failedStepIndex(contextIdx)
@@ -202,16 +211,16 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                 }
             }
 
-            notifier.afterLlmStep(
-                    "EvaluateAllContexts",
-                    0,
-                    totalSteps,
-                    String.join("\n---\n", prompts),
-                    contextFutures.get(0).join());
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("EvaluateAllContexts")
+                    .stepIndex(0)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.LLM)
+                    .request(String.join("\n---\n", prompts))
+                    .results(allContextResults)
+                    .build());
 
             // ========== Final step: Compute precision ==========
-            notifier.beforeStep("ComputePrecision", 1, totalSteps);
-
             final Map<String, Double> modelScores = new HashMap<>();
 
             for (final Map.Entry<String, List<Boolean>> entry : modelRelevanceResults.entrySet()) {
@@ -229,7 +238,13 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
                     .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
                     .toList();
 
-            notifier.afterComputeStep("ComputePrecision", 1, totalSteps, computeResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputePrecision")
+                    .stepIndex(1)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.COMPUTE)
+                    .results(new ArrayList<>(computeResults))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed for metric: " + getName());
@@ -241,11 +256,17 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
-                    .excludedModels(new java.util.ArrayList<>(excludedModelIds))
+                    .excludedModels(new ArrayList<>(excludedModelIds))
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config, "strategy", strategy))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new ContextPrecisionMetadata(
+                            strategy.name(), modelRelevanceResults, retrievedContexts.size()))
                     .build());
 
             return aggregatedScore;
@@ -305,24 +326,24 @@ public class ContextPrecisionMetric extends AbstractMultiModelMetric<ContextPrec
      * @param relevanceScores list of boolean relevance scores in ranked order
      * @return Average Precision score (0.0 to 1.0)
      */
-    private Double calculateContextPrecision(List<Boolean> relevanceScores) {
+    private Double calculateContextPrecision(final List<Boolean> relevanceScores) {
         if (relevanceScores.isEmpty()) {
             return 0.0;
         }
 
         // Count total relevant items
-        long totalRelevant = relevanceScores.stream().filter(r -> r).count();
+        final long totalRelevant = relevanceScores.stream().filter(r -> r).count();
 
         if (totalRelevant == 0) {
             return 0.0;
         }
 
         // Sum precision@k only for positions where item is relevant (relevance@k = 1)
-        double sum = IntStream.range(0, relevanceScores.size())
+        final double sum = IntStream.range(0, relevanceScores.size())
                 .filter(k -> relevanceScores.get(k)) // Only relevant positions
                 .mapToDouble(k -> {
                     // Calculate precision@k (relevant items up to position k / total items up to position k)
-                    long relevantUpToK = relevanceScores.subList(0, k + 1).stream()
+                    final long relevantUpToK = relevanceScores.subList(0, k + 1).stream()
                             .mapToInt(relevant -> relevant ? 1 : 0)
                             .sum();
                     return (double) relevantUpToK / (k + 1);

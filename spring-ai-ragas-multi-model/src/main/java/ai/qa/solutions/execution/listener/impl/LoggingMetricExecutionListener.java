@@ -107,105 +107,15 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
     }
 
     @Override
-    public void beforeStep(StepContext context) {
-        if (showStepDetails) {
-            log.info(
-                    "[{}] Step [{}/{}]: {} ...",
-                    currentMetricName,
-                    context.getStepIndex() + 1,
-                    context.getTotalSteps(),
-                    context.getStepName());
-        }
-    }
-
-    @Override
-    public void afterStep(StepResults results) {
-        allStepResults.add(results);
-
-        // Track LLM model durations
-        for (ModelResult<?> result : results.getResults()) {
-            if (result.duration() != null) {
-                modelTotalDurations.merge(result.modelId(), result.duration(), Duration::plus);
-            }
-        }
-
-        // Track embedding model durations separately (use max for parallel execution)
-        if (results.getStepType() == StepType.EMBEDDING && results.getEmbeddingModelResults() != null) {
-            for (ModelResult<?> embResult : results.getEmbeddingModelResults()) {
-                if (embResult.duration() != null) {
-                    // Use max instead of sum since embeddings run in parallel
-                    embeddingModelDurations.merge(
-                            embResult.modelId(),
-                            embResult.duration(),
-                            (old, neu) -> old.compareTo(neu) > 0 ? old : neu);
-                }
-            }
-        }
-
-        if (showStepDetails) {
-            final int ok = results.getSuccessCount();
-            final int fail = results.getFailCount();
-            final long ms = results.getTotalDuration().toMillis();
-
-            // For embedding steps, show embedding-specific stats
-            if (results.getStepType() == StepType.EMBEDDING
-                    && !results.getEmbeddingModelResults().isEmpty()) {
-                final int embOk = results.getEmbeddingSuccessCount();
-                final int embFail = results.getEmbeddingFailCount();
-                final long embMs = results.getEmbeddingDuration().toMillis();
-
-                if (embFail == 0) {
-                    log.info(
-                            "[{}] Step [{}]: {} models OK in {}ms (embedding: {} models, {}ms)",
-                            currentMetricName,
-                            results.getStepName(),
-                            ok,
-                            ms,
-                            embOk,
-                            embMs);
-                } else {
-                    log.warn(
-                            "[{}] Step [{}]: {} OK, {} FAILED in {}ms (embedding: {} OK, {} FAILED, {}ms)",
-                            currentMetricName,
-                            results.getStepName(),
-                            ok,
-                            fail,
-                            ms,
-                            embOk,
-                            embFail,
-                            embMs);
-                }
-            } else {
-                if (fail == 0) {
-                    log.info("[{}] Step [{}]: {} models OK in {}ms", currentMetricName, results.getStepName(), ok, ms);
-                } else {
-                    log.warn(
-                            "[{}] Step [{}]: {} OK, {} FAILED in {}ms",
-                            currentMetricName,
-                            results.getStepName(),
-                            ok,
-                            fail,
-                            ms);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onModelExcluded(ModelExclusionEvent event) {
-        final String shortReason = extractShortReason(event);
-        excludedModelReasons.put(event.getModelId(), shortReason);
-
-        log.warn(
-                "[{}] EXCLUDED: {} at step '{}' - {}",
-                currentMetricName,
-                event.getModelId(),
-                event.getFailedStepName(),
-                shortReason);
-    }
-
-    @Override
     public void afterMetricEvaluation(MetricEvaluationResult result) {
+        // Process accumulated steps and exclusions from enriched result
+        for (final StepResults stepResults : result.getSteps()) {
+            processStepResults(stepResults);
+        }
+        for (final ModelExclusionEvent event : result.getExclusions()) {
+            processModelExcluded(event);
+        }
+
         final StringBuilder sb = new StringBuilder();
 
         // Header
@@ -217,7 +127,11 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
         } else {
             sb.append(" = N/A");
         }
-        sb.append(" (").append(result.getTotalDuration().toMillis()).append("ms)\n");
+        if (result.getTotalDuration() != null) {
+            sb.append(" (").append(result.getTotalDuration().toMillis()).append("ms)\n");
+        } else {
+            sb.append("\n");
+        }
 
         // Steps section with individual timelines
         if (!allStepResults.isEmpty()) {
@@ -352,6 +266,102 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
     }
 
     /**
+     * Processes step results from the enriched {@link MetricEvaluationResult}.
+     * <p>
+     * Accumulates step results and tracks model durations for the final report.
+     *
+     * @param results the step results to process
+     */
+    private void processStepResults(final StepResults results) {
+        allStepResults.add(results);
+
+        // Track LLM model durations
+        for (final ModelResult<?> result : results.getResults()) {
+            if (result.duration() != null) {
+                modelTotalDurations.merge(result.modelId(), result.duration(), Duration::plus);
+            }
+        }
+
+        // Track embedding model durations separately (use max for parallel execution)
+        if (results.getStepType() == StepType.EMBEDDING && results.getEmbeddingModelResults() != null) {
+            for (final ModelResult<?> embResult : results.getEmbeddingModelResults()) {
+                if (embResult.duration() != null) {
+                    // Use max instead of sum since embeddings run in parallel
+                    embeddingModelDurations.merge(
+                            embResult.modelId(),
+                            embResult.duration(),
+                            (old, neu) -> old.compareTo(neu) > 0 ? old : neu);
+                }
+            }
+        }
+
+        if (showStepDetails) {
+            final int ok = results.getSuccessCount();
+            final int fail = results.getFailCount();
+            final long ms = results.getTotalDuration().toMillis();
+
+            // For embedding steps, show embedding-specific stats
+            if (results.getStepType() == StepType.EMBEDDING
+                    && !results.getEmbeddingModelResults().isEmpty()) {
+                final int embOk = results.getEmbeddingSuccessCount();
+                final int embFail = results.getEmbeddingFailCount();
+                final long embMs = results.getEmbeddingDuration().toMillis();
+
+                if (embFail == 0) {
+                    log.info(
+                            "[{}] Step [{}]: {} models OK in {}ms (embedding: {} models, {}ms)",
+                            currentMetricName,
+                            results.getStepName(),
+                            ok,
+                            ms,
+                            embOk,
+                            embMs);
+                } else {
+                    log.warn(
+                            "[{}] Step [{}]: {} OK, {} FAILED in {}ms (embedding: {} OK, {} FAILED, {}ms)",
+                            currentMetricName,
+                            results.getStepName(),
+                            ok,
+                            fail,
+                            ms,
+                            embOk,
+                            embFail,
+                            embMs);
+                }
+            } else {
+                if (fail == 0) {
+                    log.info("[{}] Step [{}]: {} models OK in {}ms", currentMetricName, results.getStepName(), ok, ms);
+                } else {
+                    log.warn(
+                            "[{}] Step [{}]: {} OK, {} FAILED in {}ms",
+                            currentMetricName,
+                            results.getStepName(),
+                            ok,
+                            fail,
+                            ms);
+                }
+            }
+        }
+    }
+
+    /**
+     * Processes a model exclusion event from the enriched {@link MetricEvaluationResult}.
+     *
+     * @param event the model exclusion event to process
+     */
+    private void processModelExcluded(final ModelExclusionEvent event) {
+        final String shortReason = extractShortReason(event);
+        excludedModelReasons.put(event.getModelId(), shortReason);
+
+        log.warn(
+                "[{}] EXCLUDED: {} at step '{}' - {}",
+                currentMetricName,
+                event.getModelId(),
+                event.getFailedStepName(),
+                shortReason);
+    }
+
+    /**
      * Appends a section header line: ╠═══ NAME (value) ═══...═══╣
      *
      * @param sb    StringBuilder to append to
@@ -461,8 +471,8 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
         // Constants for chart layout
         final int labelWidth = 35;
         final int barWidth = CONTENT_WIDTH - labelWidth - 8; // 8 for " 0.0000" suffix
-        final char barChar = '█';
-        final char emptyChar = '░';
+        final char barChar = '\u2588';
+        final char emptyChar = '\u2591';
 
         // Sort models alphabetically and calculate statistics
         final List<Map.Entry<String, Double>> sorted = modelScores.entrySet().stream()
@@ -501,12 +511,12 @@ public class LoggingMetricExecutionListener implements MetricExecutionListener {
 
         // Scale line
         sb.append("║ ").append(" ".repeat(labelWidth));
-        sb.append("├");
+        sb.append("\u251c");
         for (int i = 0; i < midPoints; i++) {
-            sb.append("─".repeat(barWidth / (midPoints + 1) - 1)).append("┼");
+            sb.append("\u2500".repeat(barWidth / (midPoints + 1) - 1)).append("\u253c");
         }
-        sb.append("─".repeat(barWidth - (barWidth / (midPoints + 1)) * midPoints - 1))
-                .append("┤\n");
+        sb.append("\u2500".repeat(barWidth - (barWidth / (midPoints + 1)) * midPoints - 1))
+                .append("\u2524\n");
 
         // Render each model bar
         for (final Map.Entry<String, Double> entry : sorted) {

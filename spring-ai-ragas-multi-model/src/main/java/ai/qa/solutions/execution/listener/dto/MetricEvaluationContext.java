@@ -3,7 +3,6 @@ package ai.qa.solutions.execution.listener.dto;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.sample.Sample;
 import java.util.List;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Value;
 
@@ -75,12 +74,4 @@ public class MetricEvaluationContext {
      * For multi-step metrics (e.g., Faithfulness), this is the number of LLM calls + compute steps.
      */
     int totalSteps;
-
-    /**
-     * Additional metadata provided by the metric.
-     * <p>
-     * May include custom data specific to the metric implementation.
-     */
-    @Builder.Default
-    Map<String, Object> metadata = Map.of();
 }

@@ -6,7 +6,10 @@ import ai.qa.solutions.execution.ScoreAggregator;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.AspectCriticMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -83,17 +86,21 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(1)
-                .metadata(Map.of("sample", sample, "config", config, "iterations", iterations))
                 .build());
 
         return executor.runAsync(() -> {
-            // ========== Step 1: Evaluate with strictness iterations per model ==========
-            notifier.beforeStep("Evaluate", 0, 1);
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
+            // ========== Step 1: Evaluate with strictness iterations per model ==========
             final String prompt = renderPrompt(config, sample);
             final Map<String, Double> modelScores = new HashMap<>();
             final List<String> excludedModels = new ArrayList<>();
             final List<ModelResult<Response>> allResults = new ArrayList<>();
+
+            // Collect per-model verdicts and reasonings for metadata
+            final Map<String, List<Boolean>> modelVerdicts = new HashMap<>();
+            final Map<String, List<String>> modelReasonings = new HashMap<>();
 
             // Launch ALL iterations for ALL models in parallel
             final Map<String, List<CompletableFuture<ModelResult<Response>>>> allFutures = new HashMap<>();
@@ -113,11 +120,20 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
             // Process results for each model and apply majority voting
             for (final String modelId : modelIds) {
                 final List<Double> iterationScores = new ArrayList<>();
+                final List<Boolean> verdicts = new ArrayList<>();
+                final List<String> reasonings = new ArrayList<>();
+
                 for (final CompletableFuture<ModelResult<Response>> future : allFutures.get(modelId)) {
                     final ModelResult<Response> result = future.join();
                     allResults.add(result);
                     if (result.isSuccess()) {
                         iterationScores.add(result.result().getScore());
+                        verdicts.add(result.result().verdict() != null
+                                && result.result().verdict());
+                        reasonings.add(
+                                result.result().reasoning() != null
+                                        ? result.result().reasoning()
+                                        : "");
                     }
                 }
 
@@ -125,19 +141,29 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
                     // Apply majority voting to iterations of this model
                     final double modelScore = ScoreAggregator.MAJORITY_VOTING.aggregate(iterationScores);
                     modelScores.put(modelId, modelScore);
+                    modelVerdicts.put(modelId, verdicts);
+                    modelReasonings.put(modelId, reasonings);
                 } else {
                     // All iterations failed for this model
                     excludedModels.add(modelId);
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(modelId)
                             .failedStepName("Evaluate")
                             .failedStepIndex(0)
                             .cause(new IllegalStateException("All " + iterations + " iterations failed"))
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
-            notifier.afterLlmStep("Evaluate", 0, 1, prompt, allResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("Evaluate")
+                    .stepIndex(0)
+                    .totalSteps(1)
+                    .stepType(StepType.LLM)
+                    .request(prompt)
+                    .results(List.copyOf(allResults))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed for metric: " + getName());
@@ -151,11 +177,16 @@ public class AspectCriticMetric extends AbstractMultiModelMetric<AspectCriticMet
 
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config, "iterations", iterations))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new AspectCriticMetadata(config.definition, iterations, modelVerdicts, modelReasonings))
                     .build());
 
             return aggregatedScore;

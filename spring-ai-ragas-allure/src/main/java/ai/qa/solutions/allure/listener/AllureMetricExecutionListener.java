@@ -2,13 +2,14 @@ package ai.qa.solutions.allure.listener;
 
 import ai.qa.solutions.allure.config.AllureRagasProperties;
 import ai.qa.solutions.allure.explanation.ScoreExplanation;
-import ai.qa.solutions.allure.explanation.ScoreExplanationExtractor;
+import ai.qa.solutions.allure.explanation.ScoreExplanationFactory;
 import ai.qa.solutions.allure.methodology.MethodologyLoader;
 import ai.qa.solutions.allure.model.*;
 import ai.qa.solutions.allure.template.FreemarkerTemplateEngine;
 import ai.qa.solutions.allure.util.AllureJsonUtils;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.*;
+import ai.qa.solutions.sample.Sample;
 import ai.qa.solutions.sample.message.AIMessage;
 import ai.qa.solutions.sample.message.BaseMessage;
 import ai.qa.solutions.sample.message.HumanMessage;
@@ -35,9 +36,9 @@ import lombok.extern.slf4j.Slf4j;
  * This listener collects data during metric evaluation and generates
  * HTML and Markdown attachments for Allure reports.
  * <p>
- * <b>Important:</b> This listener is stateful and accumulates data between
- * lifecycle events. The {@link #forEvaluation()} method returns a new instance
- * for each evaluation to ensure thread safety in parallel execution.
+ * <b>Important:</b> This listener is stateful and captures context in
+ * {@link #beforeMetricEvaluation}. The {@link #forEvaluation()} method returns
+ * a new instance for each evaluation to ensure thread safety in parallel execution.
  *
  * <h3>Usage:</h3>
  * <pre>{@code
@@ -56,18 +57,12 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
     private final FreemarkerTemplateEngine templateEngine;
     private final AllureAttachmentWriter attachmentWriter;
     private final MethodologyLoader methodologyLoader;
-    private final ScoreExplanationExtractor explanationExtractor;
+    private final ScoreExplanationFactory explanationFactory;
     private final AllureLifecycle lifecycle;
 
     // Mutable state (reset per evaluation via forEvaluation())
     private MetricEvaluationContext evaluationContext;
-    private final List<StepExecutionData> steps = new ArrayList<>();
-    private final List<ModelExclusionEvent> exclusionEvents = new ArrayList<>();
     private Instant startTime;
-
-    // Timeline tracking
-    private final List<ChartData.TimelineEntry> timelineEntries = new ArrayList<>();
-    private long currentStepStartOffset = 0;
 
     // Allure context captured from main thread for async execution
     private String parentUuid;
@@ -108,7 +103,7 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         this.templateEngine = templateEngine;
         this.attachmentWriter = attachmentWriter;
         this.methodologyLoader = methodologyLoader;
-        this.explanationExtractor = new ScoreExplanationExtractor();
+        this.explanationFactory = new ScoreExplanationFactory();
         this.lifecycle = lifecycle;
     }
 
@@ -141,39 +136,6 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
                 "Allure listener: Starting evaluation of metric '{}' with {} models",
                 context.getMetricName(),
                 context.getModelIds().size());
-    }
-
-    @Override
-    public void beforeStep(final StepContext context) {
-        // Track step start time for timeline
-        if (startTime != null) {
-            currentStepStartOffset = Duration.between(startTime, Instant.now()).toMillis();
-        }
-    }
-
-    @Override
-    public void afterStep(final StepResults results) {
-        final StepExecutionData stepData = StepExecutionData.from(results);
-        steps.add(stepData);
-
-        // Build timeline entries for this step
-        buildTimelineEntries(results, stepData);
-
-        log.debug(
-                "Allure listener: Step '{}' completed - {} successful, {} failed",
-                results.getStepName(),
-                results.getSuccessCount(),
-                results.getFailCount());
-    }
-
-    @Override
-    public void onModelExcluded(final ModelExclusionEvent event) {
-        exclusionEvents.add(event);
-        log.debug(
-                "Allure listener: Model '{}' excluded at step '{}': {}",
-                event.getModelId(),
-                event.getFailedStepName(),
-                event.getCause() != null ? event.getCause().getMessage() : "unknown");
     }
 
     @Override
@@ -240,37 +202,48 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         final String methodologyHtml = methodologyLoader.loadMethodologyHtml(metricName);
         final String methodologyMarkdown = methodologyLoader.loadMethodologyMarkdown(metricName);
 
-        final ChartData chartData = buildChartData(result);
+        // Use result fields, falling back to evaluationContext where needed
+        final Sample sample = result.getSample() != null ? result.getSample() : evaluationContext.getSample();
+        final Object config = result.getConfig() != null ? result.getConfig() : evaluationContext.getConfig();
+        final List<String> modelIds =
+                result.getModelIds() != null && !result.getModelIds().isEmpty()
+                        ? result.getModelIds()
+                        : evaluationContext.getModelIds();
 
-        // Extract score explanation (pass config and metadata for metric-specific data)
-        final Optional<ScoreExplanation> explanationOpt = explanationExtractor.extract(
-                metricName,
-                new ArrayList<>(steps),
-                result.getAggregatedScore(),
-                properties.getLanguage(),
-                evaluationContext.getConfig(),
-                result.getMetadata());
+        // Convert StepResults to StepExecutionData for template compatibility
+        final List<StepExecutionData> stepData = result.getSteps() != null
+                ? result.getSteps().stream().map(StepExecutionData::from).toList()
+                : List.of();
+
+        // Build exclusion data from result
+        final List<ModelExclusionData> exclusionData = result.getExclusions() != null
+                ? result.getExclusions().stream().map(ModelExclusionData::from).toList()
+                : List.of();
+
+        // Build timeline from result steps
+        final List<ChartData.TimelineEntry> timelineEntries = buildTimelineFromSteps(result.getSteps());
+
+        final ChartData chartData = buildChartData(result, timelineEntries);
+
+        // Extract score explanation from typed metadata via factory
+        final Optional<ScoreExplanation> explanationOpt = explanationFactory.create(result, properties.getLanguage());
 
         // Format conversation messages for agent metrics
-        final List<FormattedMessage> conversationMessages =
-                formatConversationMessages(evaluationContext.getSample().getUserInputMessages());
+        final List<FormattedMessage> conversationMessages = formatConversationMessages(sample.getUserInputMessages());
 
         return EvaluationReportData.builder()
                 .metricName(metricName)
-                .userInput(evaluationContext.getSample().getUserInput())
-                .response(evaluationContext.getSample().getResponse())
-                .reference(evaluationContext.getSample().getReference())
-                .retrievedContexts(
-                        evaluationContext.getSample().getRetrievedContexts() != null
-                                ? evaluationContext.getSample().getRetrievedContexts()
-                                : List.of())
+                .userInput(sample.getUserInput())
+                .response(sample.getResponse())
+                .reference(sample.getReference())
+                .retrievedContexts(sample.getRetrievedContexts() != null ? sample.getRetrievedContexts() : List.of())
                 .conversationMessages(conversationMessages)
-                .config(evaluationContext.getConfig())
-                .configJson(EvaluationReportData.configToJson(evaluationContext.getConfig()))
+                .config(config)
+                .configJson(EvaluationReportData.configToJson(config))
                 .startTime(startTime)
                 .endTime(endTime)
                 .totalDuration(totalDuration)
-                .modelIds(evaluationContext.getModelIds())
+                .modelIds(modelIds)
                 .embeddingModelIds(
                         evaluationContext.getEmbeddingModelIds() != null
                                 ? evaluationContext.getEmbeddingModelIds()
@@ -278,8 +251,8 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
                 .excludedModels(result.getExcludedModels() != null ? result.getExcludedModels() : List.of())
                 .aggregatedScore(result.getAggregatedScore())
                 .modelScores(result.getModelScores() != null ? result.getModelScores() : Map.of())
-                .steps(new ArrayList<>(steps))
-                .exclusions(buildExclusionData())
+                .steps(new ArrayList<>(stepData))
+                .exclusions(exclusionData)
                 .methodologyHtml(methodologyHtml)
                 .methodologyMarkdown(methodologyMarkdown)
                 .chartData(chartData)
@@ -340,13 +313,66 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         }
     }
 
-    private List<ModelExclusionData> buildExclusionData() {
-        return exclusionEvents.stream().map(ModelExclusionData::from).toList();
+    private List<ChartData.TimelineEntry> buildTimelineFromSteps(final List<StepResults> steps) {
+        if (steps == null || steps.isEmpty()) {
+            return List.of();
+        }
+
+        final List<ChartData.TimelineEntry> entries = new ArrayList<>();
+        long currentStepStartOffset = 0;
+
+        for (final StepResults stepResults : steps) {
+            final String stepType = stepResults.getStepType() != null
+                    ? stepResults.getStepType().name()
+                    : "LLM";
+
+            // Track iteration count per model to add "(iter N)" suffix for strictness iterations
+            final Map<String, Integer> modelIterationCount = new HashMap<>();
+
+            // Add entries for each model result
+            for (final var modelResult : stepResults.getResults()) {
+                final String baseModelId = modelResult.modelId();
+                final int iteration = modelIterationCount.merge(baseModelId, 1, Integer::sum);
+                final boolean hasMultiple = hasMultipleIterations(stepResults, baseModelId);
+
+                // Add iteration suffix if this model appears multiple times (strictness > 1)
+                final String displayModelId =
+                        iteration > 1 || hasMultiple ? baseModelId + " (iter " + iteration + ")" : baseModelId;
+
+                entries.add(ChartData.TimelineEntry.builder()
+                        .modelId(displayModelId)
+                        .stepName(stepResults.getStepName())
+                        .stepType(stepType)
+                        .startOffsetMs(currentStepStartOffset)
+                        .durationMs(
+                                modelResult.duration() != null
+                                        ? modelResult.duration().toMillis()
+                                        : 0)
+                        .success(modelResult.isSuccess())
+                        .build());
+            }
+
+            // Advance offset by this step's total duration
+            currentStepStartOffset += stepResults.getTotalDuration().toMillis();
+        }
+
+        return entries;
     }
 
-    private ChartData buildChartData(final MetricEvaluationResult result) {
+    private boolean hasMultipleIterations(final StepResults results, final String modelId) {
+        return results.getResults().stream()
+                        .filter(r -> r.modelId().equals(modelId))
+                        .count()
+                > 1;
+    }
+
+    private ChartData buildChartData(
+            final MetricEvaluationResult result, final List<ChartData.TimelineEntry> timelineEntries) {
         final List<ChartData.ScoreEntry> scoreEntries = buildScoreEntries(result);
-        final long maxDuration = calculateMaxDuration();
+        final long maxDuration = timelineEntries.stream()
+                .mapToLong(e -> e.getStartOffsetMs() + e.getDurationMs())
+                .max()
+                .orElse(0);
 
         return ChartData.builder()
                 .scoreEntries(scoreEntries)
@@ -384,50 +410,5 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         }
 
         return entries;
-    }
-
-    private void buildTimelineEntries(final StepResults results, final StepExecutionData stepData) {
-        final String stepType =
-                results.getStepType() != null ? results.getStepType().name() : "LLM";
-
-        // Track iteration count per model to add "(iter N)" suffix for strictness iterations
-        final Map<String, Integer> modelIterationCount = new HashMap<>();
-
-        // Add entries for each model result
-        results.getResults().forEach(modelResult -> {
-            final String baseModelId = modelResult.modelId();
-            final int iteration = modelIterationCount.merge(baseModelId, 1, Integer::sum);
-            final boolean hasMultiple = hasMultipleIterations(results, baseModelId);
-
-            // Add iteration suffix if this model appears multiple times (strictness > 1)
-            final String displayModelId =
-                    iteration > 1 || hasMultiple ? baseModelId + " (iter " + iteration + ")" : baseModelId;
-
-            timelineEntries.add(ChartData.TimelineEntry.builder()
-                    .modelId(displayModelId)
-                    .stepName(results.getStepName())
-                    .stepType(stepType)
-                    .startOffsetMs(currentStepStartOffset)
-                    .durationMs(
-                            modelResult.duration() != null
-                                    ? modelResult.duration().toMillis()
-                                    : 0)
-                    .success(modelResult.isSuccess())
-                    .build());
-        });
-    }
-
-    private boolean hasMultipleIterations(final StepResults results, final String modelId) {
-        return results.getResults().stream()
-                        .filter(r -> r.modelId().equals(modelId))
-                        .count()
-                > 1;
-    }
-
-    private long calculateMaxDuration() {
-        return timelineEntries.stream()
-                .mapToLong(e -> e.getStartOffsetMs() + e.getDurationMs())
-                .max()
-                .orElse(0);
     }
 }

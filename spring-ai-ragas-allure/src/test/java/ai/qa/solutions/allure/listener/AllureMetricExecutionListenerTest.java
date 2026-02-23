@@ -132,16 +132,12 @@ class AllureMetricExecutionListenerTest {
                     .aggregatedScore(0.85)
                     .modelScores(Map.of("model-1", 0.9, "model-2", 0.8))
                     .totalDuration(Duration.ofMillis(500))
+                    .sample(sample)
+                    .steps(List.of(stepResults))
                     .build();
 
             // Execute lifecycle
             listener.beforeMetricEvaluation(context);
-            listener.beforeStep(StepContext.builder()
-                    .stepName("GenerateStatements")
-                    .stepIndex(0)
-                    .totalSteps(2)
-                    .build());
-            listener.afterStep(stepResults);
             listener.afterMetricEvaluation(result);
 
             // Verify step was created and attachments were written
@@ -160,7 +156,7 @@ class AllureMetricExecutionListenerTest {
         }
 
         @Test
-        @DisplayName("should track model exclusions")
+        @DisplayName("should track model exclusions from enriched result")
         void shouldTrackModelExclusions() {
             when(methodologyLoader.loadMethodologyHtml(any())).thenReturn("<p>Methodology</p>");
             when(methodologyLoader.loadMethodologyMarkdown(any())).thenReturn("# Methodology");
@@ -185,10 +181,11 @@ class AllureMetricExecutionListenerTest {
                     .metricName("TestMetric")
                     .excludedModels(List.of("model-1"))
                     .totalDuration(Duration.ofMillis(100))
+                    .sample(sample)
+                    .exclusions(List.of(exclusion))
                     .build();
 
             listener.beforeMetricEvaluation(context);
-            listener.onModelExcluded(exclusion);
             listener.afterMetricEvaluation(result);
 
             final ArgumentCaptor<EvaluationReportData> captor = ArgumentCaptor.forClass(EvaluationReportData.class);
@@ -226,6 +223,7 @@ class AllureMetricExecutionListenerTest {
                     .metricName("TestMetric")
                     .aggregatedScore(0.5)
                     .totalDuration(Duration.ofMillis(100))
+                    .sample(sample)
                     .build();
 
             listener.beforeMetricEvaluation(context);

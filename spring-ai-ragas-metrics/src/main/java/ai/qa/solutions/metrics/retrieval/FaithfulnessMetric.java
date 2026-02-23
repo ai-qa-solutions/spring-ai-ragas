@@ -5,11 +5,15 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.FaithfulnessMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,23 +160,31 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(3) // Generate statements -> Evaluate faithfulness -> Compute score
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing faithfulness evaluation with explicit flow");
 
+            // Local accumulators for steps and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
+
             // Track excluded models across all steps
-            final List<String> excludedModels = new java.util.ArrayList<>();
+            final List<String> excludedModels = new ArrayList<>();
 
             // ========== Step 1: Generate statements ==========
-            notifier.beforeStep("GenerateStatements", 0, 3);
-
             final String generatePrompt = renderGenerateStatementsPrompt(sample);
             final List<ModelResult<StatementsResponse>> step1Results =
                     executor.executeLlm(modelIds, generatePrompt, StatementsResponse.class);
 
-            notifier.afterLlmStep("GenerateStatements", 0, 3, generatePrompt, step1Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("GenerateStatements")
+                    .stepIndex(0)
+                    .totalSteps(3)
+                    .stepType(StepType.LLM)
+                    .request(generatePrompt)
+                    .results(new ArrayList<>(step1Results))
+                    .build());
 
             // Collect successful results from step 1
             final Map<String, StatementsResponse> step1Successful = new HashMap<>();
@@ -181,7 +193,7 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
                     step1Successful.put(result.modelId(), result.result());
                 } else {
                     excludedModels.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("GenerateStatements")
                             .failedStepIndex(0)
@@ -196,12 +208,10 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
             }
 
             // ========== Step 2: Evaluate faithfulness ==========
-            notifier.beforeStep("EvaluateFaithfulness", 1, 3);
-
             final String context = String.join("\n", sample.getRetrievedContexts());
 
             // Execute in parallel for all models that succeeded in step 1
-            final List<String> step1ModelIds = new java.util.ArrayList<>(step1Successful.keySet());
+            final List<String> step1ModelIds = new ArrayList<>(step1Successful.keySet());
             final List<CompletableFuture<ModelResult<VerdictsResponse>>> step2Futures = step1ModelIds.stream()
                     .map(modelId -> {
                         final String statementsFormatted =
@@ -222,7 +232,15 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
                             context,
                             formatStatements(
                                     step1Successful.values().iterator().next().statements()));
-            notifier.afterLlmStep("EvaluateFaithfulness", 1, 3, exampleEvaluatePrompt, step2Results);
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("EvaluateFaithfulness")
+                    .stepIndex(1)
+                    .totalSteps(3)
+                    .stepType(StepType.LLM)
+                    .request(exampleEvaluatePrompt)
+                    .results(new ArrayList<>(step2Results))
+                    .build());
 
             // Collect successful results from step 2
             final Map<String, VerdictsResponse> step2Successful = new HashMap<>();
@@ -231,7 +249,7 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
                     step2Successful.put(result.modelId(), result.result());
                 } else {
                     excludedModels.add(result.modelId());
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    accumulatedExclusions.add(ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("EvaluateFaithfulness")
                             .failedStepIndex(1)
@@ -246,32 +264,70 @@ public class FaithfulnessMetric extends AbstractMultiModelMetric<FaithfulnessMet
             }
 
             // ========== Step 3: Compute score ==========
-            notifier.beforeStep("ComputeScore", 2, 3);
-
             final Map<String, Double> modelScores = new HashMap<>();
             for (final Map.Entry<String, VerdictsResponse> entry : step2Successful.entrySet()) {
                 final double score = calculateFaithfulness(entry.getValue());
                 modelScores.put(entry.getKey(), score);
             }
 
-            // Create synthetic results for notification
+            // Create synthetic results for compute step
             final List<ModelResult<Double>> step3Results = modelScores.entrySet().stream()
                     .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
                     .toList();
 
-            notifier.afterComputeStep("ComputeScore", 2, 3, step3Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeScore")
+                    .stepIndex(2)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(new ArrayList<>(step3Results))
+                    .build());
 
             final double aggregatedScore = aggregate(modelScores);
+
+            // Build metadata for Allure reports
+            final Map<String, List<String>> extractedStatements = new HashMap<>();
+            for (final Map.Entry<String, StatementsResponse> entry : step1Successful.entrySet()) {
+                extractedStatements.put(entry.getKey(), entry.getValue().statements());
+            }
+
+            final Map<String, List<FaithfulnessMetadata.StatementVerdictSummary>> verdictsSummary = new HashMap<>();
+            long faithfulCount = 0;
+            long totalCount = 0;
+            for (final Map.Entry<String, VerdictsResponse> entry : step2Successful.entrySet()) {
+                final List<FaithfulnessMetadata.StatementVerdictSummary> summaries = new ArrayList<>();
+                if (entry.getValue().verdicts() != null) {
+                    for (final StatementVerdict v : entry.getValue().verdicts()) {
+                        summaries.add(new FaithfulnessMetadata.StatementVerdictSummary(
+                                v.statement(), v.reason(), v.verdict() != null ? v.verdict() : 0));
+                    }
+                }
+                verdictsSummary.put(entry.getKey(), summaries);
+            }
+            // Use first successful model's data for aggregate counts
+            final VerdictsResponse firstVerdicts =
+                    step2Successful.values().iterator().next();
+            if (firstVerdicts.verdicts() != null) {
+                totalCount = firstVerdicts.verdicts().size();
+                faithfulCount = firstVerdicts.verdicts().stream()
+                        .filter(v -> v.verdict() != null && v.verdict() == 1)
+                        .count();
+            }
 
             // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new FaithfulnessMetadata(extractedStatements, verdictsSummary, faithfulCount, totalCount))
                     .build());
 
             return aggregatedScore;

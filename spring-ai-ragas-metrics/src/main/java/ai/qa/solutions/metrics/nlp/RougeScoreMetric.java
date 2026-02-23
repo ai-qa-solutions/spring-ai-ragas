@@ -1,6 +1,10 @@
 package ai.qa.solutions.metrics.nlp;
 
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.metric.AbstractMetric;
 import ai.qa.solutions.metric.Metric;
+import ai.qa.solutions.metric.metadata.RougeScoreMetadata;
 import ai.qa.solutions.sample.Sample;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  */
 @Slf4j
-public class RougeScoreMetric implements Metric<RougeScoreMetric.RougeScoreConfig> {
+public class RougeScoreMetric extends AbstractMetric<RougeScoreMetric.RougeScoreConfig> {
 
     /**
      * Computes the ROUGE score for a single sample.
@@ -49,33 +53,56 @@ public class RougeScoreMetric implements Metric<RougeScoreMetric.RougeScoreConfi
      */
     @Override
     public Double singleTurnScore(final RougeScoreConfig config, final Sample sample) {
-        // Validate input
-        if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
-            log.warn("No response provided for ROUGE score evaluation");
-            return null;
+        final EvaluationNotifier notifier = createEvaluationNotifier();
+        notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
+                .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(List.of())
+                .totalSteps(0)
+                .build());
+
+        Double score = null;
+        try {
+            // Validate input
+            if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
+                log.warn("No response provided for ROUGE score evaluation");
+                return null;
+            }
+
+            if (sample.getReference() == null || sample.getReference().isEmpty()) {
+                log.warn("No reference provided for ROUGE score evaluation");
+                return null;
+            }
+
+            final List<String> responseTokens = tokenize(sample.getResponse());
+            final List<String> referenceTokens = tokenize(sample.getReference());
+
+            if (responseTokens.isEmpty() || referenceTokens.isEmpty()) {
+                log.warn("Empty tokens after tokenization");
+                score = 0.0;
+                return score;
+            }
+
+            final RougeType rougeType = config.getRougeType();
+            final Mode mode = config.getMode();
+
+            score = switch (rougeType) {
+                case ROUGE_1 -> computeRougeN(responseTokens, referenceTokens, 1, mode);
+                case ROUGE_2 -> computeRougeN(responseTokens, referenceTokens, 2, mode);
+                case ROUGE_L -> computeRougeL(responseTokens, referenceTokens, mode);};
+            return score;
+        } finally {
+            notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
+                    .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(List.of())
+                    .aggregatedScore(score)
+                    .metadata(new RougeScoreMetadata(
+                            config.getRougeType().name(), config.getMode().name()))
+                    .build());
         }
-
-        if (sample.getReference() == null || sample.getReference().isEmpty()) {
-            log.warn("No reference provided for ROUGE score evaluation");
-            return null;
-        }
-
-        final List<String> responseTokens = tokenize(sample.getResponse());
-        final List<String> referenceTokens = tokenize(sample.getReference());
-
-        if (responseTokens.isEmpty() || referenceTokens.isEmpty()) {
-            log.warn("Empty tokens after tokenization");
-            return 0.0;
-        }
-
-        final RougeType rougeType = config.getRougeType();
-        final Mode mode = config.getMode();
-
-        return switch (rougeType) {
-            case ROUGE_1 -> computeRougeN(responseTokens, referenceTokens, 1, mode);
-            case ROUGE_2 -> computeRougeN(responseTokens, referenceTokens, 2, mode);
-            case ROUGE_L -> computeRougeL(responseTokens, referenceTokens, mode);
-        };
     }
 
     /**

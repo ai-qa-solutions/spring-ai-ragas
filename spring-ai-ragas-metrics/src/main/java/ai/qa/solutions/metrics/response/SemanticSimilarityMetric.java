@@ -4,7 +4,11 @@ import ai.qa.solutions.execution.ModelResult;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.SemanticSimilarityMetadata;
 import ai.qa.solutions.sample.Sample;
 import java.time.Duration;
 import java.time.Instant;
@@ -117,18 +121,19 @@ public class SemanticSimilarityMetric
                 .modelIds(List.of())
                 .embeddingModelIds(embeddingModelIds)
                 .totalSteps(2) // ComputeEmbeddings -> ComputeCosineSimilarity
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing semantic similarity evaluation with explicit flow");
 
+            // Local accumulators for step results and exclusions
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
+
             // Track excluded models across all steps
             final List<String> excludedModels = new ArrayList<>();
 
             // ========== Step 1: Compute embeddings ==========
-            notifier.beforeStep("ComputeEmbeddings", 0, 2);
-
             // Prepare texts for embedding: [response, reference]
             final List<String> textsToEmbed = List.of(
                     response.trim().isEmpty() ? " " : response, // Handle empty strings
@@ -140,8 +145,8 @@ public class SemanticSimilarityMetric
 
             final List<ModelResult<List<float[]>>> embeddingResults = embeddingsFuture.join();
 
-            // Convert to step results for notification
-            final List<ModelResult<EmbeddingsResult>> step1Results = new ArrayList<>();
+            // Convert to step results for accumulation
+            final List<ModelResult<?>> step1LlmResults = new ArrayList<>();
             final Map<String, EmbeddingsResult> step1Successful = new HashMap<>();
 
             for (final ModelResult<List<float[]>> result : embeddingResults) {
@@ -153,11 +158,18 @@ public class SemanticSimilarityMetric
 
                         final EmbeddingsResult embResult = new EmbeddingsResult(responseEmbedding, referenceEmbedding);
                         step1Successful.put(result.modelId(), embResult);
-                        step1Results.add(
+                        step1LlmResults.add(
                                 ModelResult.success(result.modelId(), embResult, result.duration(), result.request()));
                     } else {
                         log.warn("Insufficient embeddings returned from model {}", result.modelId());
                         excludedModels.add(result.modelId());
+                        final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
+                                .modelId(result.modelId())
+                                .failedStepName("ComputeEmbeddings")
+                                .failedStepIndex(0)
+                                .cause(new IllegalStateException("Insufficient embeddings returned"))
+                                .build();
+                        accumulatedExclusions.add(exclusion);
                     }
                 } else {
                     excludedModels.add(result.modelId());
@@ -165,11 +177,28 @@ public class SemanticSimilarityMetric
                             "Embedding model {} failed: {}",
                             result.modelId(),
                             result.error() != null ? result.error().getMessage() : "unknown error");
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
+                            .modelId(result.modelId())
+                            .failedStepName("ComputeEmbeddings")
+                            .failedStepIndex(0)
+                            .cause(result.error())
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
-            notifier.afterEmbeddingStep(
-                    "ComputeEmbeddings", 0, 2, "response + reference", step1Results, embeddingResults);
+            // Build embedding model results for the step
+            final List<ModelResult<?>> embeddingModelResultsList = new ArrayList<ModelResult<?>>(embeddingResults);
+
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeEmbeddings")
+                    .stepIndex(0)
+                    .totalSteps(2)
+                    .stepType(StepType.EMBEDDING)
+                    .request("response + reference")
+                    .results(step1LlmResults)
+                    .embeddingModelResults(embeddingModelResultsList)
+                    .build());
 
             if (step1Successful.isEmpty()) {
                 throw new IllegalStateException(
@@ -177,8 +206,6 @@ public class SemanticSimilarityMetric
             }
 
             // ========== Step 2: Compute cosine similarity ==========
-            notifier.beforeStep("ComputeCosineSimilarity", 1, 2);
-
             final Map<String, Double> modelScores = new HashMap<>();
 
             for (final Map.Entry<String, EmbeddingsResult> entry : step1Successful.entrySet()) {
@@ -203,15 +230,29 @@ public class SemanticSimilarityMetric
                 } catch (final Exception e) {
                     log.warn("Failed to calculate similarity for model {}: {}", modelId, e.getMessage());
                     excludedModels.add(modelId);
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
+                            .modelId(modelId)
+                            .failedStepName("ComputeCosineSimilarity")
+                            .failedStepIndex(1)
+                            .cause(e)
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
-            // Create synthetic results for notification
-            final List<ModelResult<Double>> step2Results = modelScores.entrySet().stream()
-                    .map(e -> ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"))
-                    .toList();
+            // Create synthetic results for step accumulation
+            final List<ModelResult<?>> step2Results = new ArrayList<>();
+            for (final Map.Entry<String, Double> e : modelScores.entrySet()) {
+                step2Results.add(ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"));
+            }
 
-            notifier.afterComputeStep("ComputeCosineSimilarity", 1, 2, step2Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeCosineSimilarity")
+                    .stepIndex(1)
+                    .totalSteps(2)
+                    .stepType(StepType.COMPUTE)
+                    .results(step2Results)
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed to compute similarity for metric: " + getName());
@@ -223,11 +264,16 @@ public class SemanticSimilarityMetric
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .embeddingModelIds(embeddingModelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(modelScores)
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new SemanticSimilarityMetadata(new HashMap<>(modelScores), config.getThreshold()))
                     .build());
 
             return aggregatedScore;

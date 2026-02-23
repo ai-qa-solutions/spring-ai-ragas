@@ -3,7 +3,6 @@ package ai.qa.solutions.metrics.nlp.en;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.qa.solutions.allure.nlp.AllureNlpMetricHelper;
 import ai.qa.solutions.metrics.nlp.BleuScoreMetric;
 import ai.qa.solutions.metrics.nlp.BleuScoreMetric.BleuScoreConfig;
 import ai.qa.solutions.sample.Sample;
@@ -57,14 +56,6 @@ class EnBleuScoreIntegrationIT {
             log.info("Reference: {}", sample.getReference());
             log.info("BLEU Score: {}", String.format("%.4f", score));
 
-            AllureNlpMetricHelper.attachBleuScore(
-                    score,
-                    sample.getResponse(),
-                    sample.getReference(),
-                    config.getMaxNgram(),
-                    config.isSmoothing(),
-                    "en");
-
             assertNotNull(score);
             assertTrue(score >= 0.95, "Identical texts should have near-perfect BLEU score. Received: " + score);
         }
@@ -85,14 +76,6 @@ class EnBleuScoreIntegrationIT {
 
             log.info("BLEU Score: {}", String.format("%.4f", score));
 
-            AllureNlpMetricHelper.attachBleuScore(
-                    score,
-                    sample.getResponse(),
-                    sample.getReference(),
-                    config.getMaxNgram(),
-                    config.isSmoothing(),
-                    "en");
-
             assertNotNull(score);
             assertTrue(score >= 0.5, "Similar texts should have decent BLEU score. Received: " + score);
         }
@@ -112,14 +95,6 @@ class EnBleuScoreIntegrationIT {
             final Double score = bleuScoreMetric.singleTurnScore(config, sample);
 
             log.info("BLEU Score: {}", String.format("%.4f", score));
-
-            AllureNlpMetricHelper.attachBleuScore(
-                    score,
-                    sample.getResponse(),
-                    sample.getReference(),
-                    config.getMaxNgram(),
-                    config.isSmoothing(),
-                    "en");
 
             assertNotNull(score);
             assertTrue(score <= 0.3, "Different texts should have low BLEU score. Received: " + score);

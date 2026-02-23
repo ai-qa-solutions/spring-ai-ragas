@@ -1,7 +1,6 @@
 package ai.qa.solutions.execution.listener.dto;
 
 import ai.qa.solutions.execution.ModelResult;
-import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +11,8 @@ import lombok.Value;
 /**
  * Results of a step execution across all models.
  * <p>
- * This class is passed to {@link MetricExecutionListener#afterStep(StepResults)}
- * after each step completes for all models.
+ * Accumulated by the metric during evaluation and delivered as part of
+ * {@link MetricEvaluationResult#getSteps()}.
  * <p>
  * Contains:
  * <ul>
@@ -24,16 +23,12 @@ import lombok.Value;
  *
  * <h3>Usage Example:</h3>
  * <pre>{@code
- * public void afterStep(StepResults results) {
- *     log.info("Step {} completed: {} successful, {} failed",
- *         results.getStepName(),
- *         results.getSuccessful().size(),
- *         results.getFailed().size());
- *
- *     for (ModelResult<?> failure : results.getFailed()) {
- *         log.warn("Model {} failed: {}",
- *             failure.modelId(),
- *             failure.error().getMessage());
+ * public void afterMetricEvaluation(MetricEvaluationResult result) {
+ *     for (StepResults step : result.getSteps()) {
+ *         log.info("Step {} completed: {} successful, {} failed",
+ *             step.getStepName(),
+ *             step.getSuccessful().size(),
+ *             step.getFailed().size());
  *     }
  * }
  * }</pre>

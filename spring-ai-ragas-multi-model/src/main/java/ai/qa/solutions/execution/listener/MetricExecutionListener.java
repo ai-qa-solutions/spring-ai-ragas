@@ -5,27 +5,17 @@ import ai.qa.solutions.execution.listener.dto.*;
 /**
  * Listener interface for observing metric execution lifecycle events.
  * <p>
- * This listener provides full visibility into metric evaluation:
- * <ul>
- *   <li>All execution steps in multi-step metrics</li>
- *   <li>Results from all models for each step</li>
- *   <li>Model exclusion events when failures occur</li>
- *   <li>Complete metadata and error information</li>
- * </ul>
- * <p>
- * Listeners are registered directly on metric instances, allowing for metric-specific
- * observation patterns and custom logging/monitoring strategies.
+ * This listener provides visibility into metric evaluation start and completion.
+ * All intermediate step data (step results, model exclusions) is accumulated by the metric
+ * and delivered in the enriched {@link MetricEvaluationResult}.
  *
  * <h3>Lifecycle Events:</h3>
  * <pre>{@code
  * beforeMetricEvaluation()  // Once before evaluation starts
  *   ↓
- * [For each step]
- *   beforeStep()            // Before step executes on all models
- *   afterStep()             // After step completes on all models
- *   onModelExcluded()       // For each model that failed (if any)
+ * [Metric executes all steps internally, accumulating results]
  *   ↓
- * afterMetricEvaluation()   // Once after all steps complete
+ * afterMetricEvaluation()   // Once after all steps complete (with enriched result)
  * }</pre>
  *
  * <h3>Usage Example:</h3>
@@ -33,36 +23,16 @@ import ai.qa.solutions.execution.listener.dto.*;
  * FaithfulnessMetric metric = ...;
  * metric.addListener(new MetricExecutionListener() {
  *     @Override
- *     public void beforeStep(StepContext context) {
- *         log.info("Starting step {}/{}: {}",
- *             context.getStepIndex() + 1,
- *             context.getTotalSteps(),
- *             context.getStepName());
- *     }
- *
- *     @Override
- *     public void afterStep(StepResults results) {
- *         log.info("Step {} completed: {} successful, {} failed in {}ms",
- *             results.getStepName(),
- *             results.getSuccessCount(),
- *             results.getFailCount(),
- *             results.getTotalDuration().toMillis());
- *     }
- *
- *     @Override
- *     public void onModelExcluded(ModelExclusionEvent event) {
- *         log.warn("Model {} excluded after step {}: {}",
- *             event.getModelId(),
- *             event.getFailedStepName(),
- *             event.getCause().getMessage());
+ *     public void afterMetricEvaluation(MetricEvaluationResult result) {
+ *         log.info("=== {} Evaluation Complete ===", result.getMetricName());
+ *         log.info("Final Score: {}", result.getAggregatedScore());
+ *         log.info("Steps: {}", result.getSteps().size());
+ *         log.info("Exclusions: {}", result.getExclusions().size());
  *     }
  * });
  * }</pre>
  *
  * @see MetricEvaluationContext
- * @see StepContext
- * @see StepResults
- * @see ModelExclusionEvent
  * @see MetricEvaluationResult
  */
 public interface MetricExecutionListener {
@@ -77,39 +47,10 @@ public interface MetricExecutionListener {
     default void beforeMetricEvaluation(MetricEvaluationContext context) {}
 
     /**
-     * Called before a step executes on all models.
-     * <p>
-     * Provides step metadata including name, index, and total steps.
-     *
-     * @param context the step context containing step metadata
-     */
-    default void beforeStep(StepContext context) {}
-
-    /**
-     * Called after a step completes on all models.
-     * <p>
-     * Provides results from all models that executed this step,
-     * including both successful and failed results.
-     *
-     * @param results the step results containing all model results
-     */
-    default void afterStep(StepResults results) {}
-
-    /**
-     * Called when a model is excluded from further steps due to a failure.
-     * <p>
-     * Once a model fails a step, it is excluded from all subsequent steps.
-     * This method provides visibility into which models were excluded and why.
-     *
-     * @param event the exclusion event with model ID, failed step, and cause
-     */
-    default void onModelExcluded(ModelExclusionEvent event) {}
-
-    /**
      * Called once after metric evaluation completes.
      * <p>
-     * Provides the final aggregated result along with per-model scores
-     * and total duration.
+     * Provides the final aggregated result along with per-model scores,
+     * all step results, model exclusion events, and total duration.
      *
      * @param result the complete evaluation result with all execution metadata
      */

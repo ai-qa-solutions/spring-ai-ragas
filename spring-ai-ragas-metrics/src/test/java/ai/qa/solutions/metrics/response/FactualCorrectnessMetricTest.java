@@ -11,9 +11,6 @@ import ai.qa.solutions.execution.StubMultiModelExecutor;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
-import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
-import ai.qa.solutions.execution.listener.dto.StepContext;
-import ai.qa.solutions.execution.listener.dto.StepResults;
 import ai.qa.solutions.sample.Sample;
 import java.util.List;
 import java.util.Map;
@@ -424,16 +421,11 @@ class FactualCorrectnessMetricTest {
 
             assertThat(listener.beforeMetricCalled).isTrue();
             assertThat(listener.afterMetricCalled).isTrue();
-            // 4 steps: DecomposeResponseClaims, DecomposeReferenceClaims, VerifyClaimsNLI, ComputeScore
-            assertThat(listener.beforeStepCount).isEqualTo(4);
-            assertThat(listener.afterStepCount).isEqualTo(4);
         }
 
         static class RecordingListener implements MetricExecutionListener {
             boolean beforeMetricCalled = false;
             boolean afterMetricCalled = false;
-            int beforeStepCount = 0;
-            int afterStepCount = 0;
 
             @Override
             public void beforeMetricEvaluation(MetricEvaluationContext context) {
@@ -444,19 +436,6 @@ class FactualCorrectnessMetricTest {
             public void afterMetricEvaluation(MetricEvaluationResult result) {
                 afterMetricCalled = true;
             }
-
-            @Override
-            public void beforeStep(StepContext context) {
-                beforeStepCount++;
-            }
-
-            @Override
-            public void afterStep(StepResults results) {
-                afterStepCount++;
-            }
-
-            @Override
-            public void onModelExcluded(ModelExclusionEvent event) {}
 
             @Override
             public MetricExecutionListener forEvaluation() {

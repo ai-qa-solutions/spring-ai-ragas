@@ -3,7 +3,6 @@ package ai.qa.solutions.metrics.nlp.ru;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.qa.solutions.allure.nlp.AllureNlpMetricHelper;
 import ai.qa.solutions.metrics.nlp.ChrfScoreMetric;
 import ai.qa.solutions.metrics.nlp.ChrfScoreMetric.ChrfScoreConfig;
 import ai.qa.solutions.sample.Sample;
@@ -53,15 +52,6 @@ class RuChrfScoreIntegrationIT {
             final Double score = chrfScoreMetric.singleTurnScore(config, sample);
 
             log.info("chrF Score: {}", String.format("%.4f", score));
-
-            AllureNlpMetricHelper.attachChrfScore(
-                    score,
-                    sample.getResponse(),
-                    sample.getReference(),
-                    config.getCharNgramOrder(),
-                    config.getWordNgramOrder(),
-                    config.getBeta(),
-                    "ru");
 
             assertNotNull(score);
             assertTrue(score >= 0.99, "Идентичные тексты должны иметь идеальный chrF. Получено: " + score);

@@ -146,8 +146,8 @@ class LoggingMetricExecutionListenerTest {
         }
 
         @Test
-        @DisplayName("beforeStep should not throw")
-        void beforeStepShouldNotThrow() {
+        @DisplayName("afterMetricEvaluation should process steps from enriched result")
+        void afterMetricEvaluationShouldProcessSteps() {
             // Given
             final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
             listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
@@ -156,28 +156,7 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(1)
                     .build());
 
-            final StepContext context = StepContext.builder()
-                    .stepName("GenerateStatements")
-                    .stepIndex(0)
-                    .totalSteps(2)
-                    .build();
-
-            // When/Then - should not throw
-            listener.beforeStep(context);
-        }
-
-        @Test
-        @DisplayName("afterStep should accumulate durations")
-        void afterStepShouldAccumulateDurations() {
-            // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
-            final StepResults results = StepResults.builder()
+            final StepResults stepResults = StepResults.builder()
                     .stepName("Step1")
                     .stepIndex(0)
                     .totalSteps(1)
@@ -185,13 +164,22 @@ class LoggingMetricExecutionListenerTest {
                     .results(List.of(ModelResult.success("model-1", "ok", Duration.ofMillis(100), "request")))
                     .build();
 
+            final MetricEvaluationResult result = MetricEvaluationResult.builder()
+                    .metricName("Test")
+                    .aggregatedScore(0.85)
+                    .modelScores(Map.of("model-1", 0.85))
+                    .excludedModels(List.of())
+                    .totalDuration(Duration.ofMillis(100))
+                    .steps(List.of(stepResults))
+                    .build();
+
             // When/Then - should not throw
-            listener.afterStep(results);
+            listener.afterMetricEvaluation(result);
         }
 
         @Test
-        @DisplayName("afterStep should handle embedding results")
-        void afterStepShouldHandleEmbeddingResults() {
+        @DisplayName("afterMetricEvaluation should handle embedding results in steps")
+        void afterMetricEvaluationShouldHandleEmbeddingResults() {
             // Given
             final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
             listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
@@ -200,7 +188,7 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(1)
                     .build());
 
-            final StepResults results = StepResults.builder()
+            final StepResults stepResults = StepResults.builder()
                     .stepName("Embed")
                     .stepIndex(0)
                     .totalSteps(1)
@@ -211,13 +199,22 @@ class LoggingMetricExecutionListenerTest {
                             ModelResult.success("embed-2", new float[] {0.2f}, Duration.ofMillis(150), "text")))
                     .build();
 
+            final MetricEvaluationResult result = MetricEvaluationResult.builder()
+                    .metricName("Test")
+                    .aggregatedScore(0.8)
+                    .modelScores(Map.of("llm-1", 0.8))
+                    .excludedModels(List.of())
+                    .totalDuration(Duration.ofMillis(150))
+                    .steps(List.of(stepResults))
+                    .build();
+
             // When/Then - should not throw
-            listener.afterStep(results);
+            listener.afterMetricEvaluation(result);
         }
 
         @Test
-        @DisplayName("onModelExcluded should not throw")
-        void onModelExcludedShouldNotThrow() {
+        @DisplayName("afterMetricEvaluation should process exclusions from enriched result")
+        void afterMetricEvaluationShouldProcessExclusions() {
             // Given
             final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
             listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
@@ -233,12 +230,21 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("Parse error"))
                     .build();
 
+            final MetricEvaluationResult result = MetricEvaluationResult.builder()
+                    .metricName("Test")
+                    .aggregatedScore(null)
+                    .modelScores(Map.of())
+                    .excludedModels(List.of("model-1"))
+                    .totalDuration(Duration.ofMillis(100))
+                    .exclusions(List.of(event))
+                    .build();
+
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(result);
         }
 
         @Test
-        @DisplayName("afterMetricEvaluation should not throw")
+        @DisplayName("afterMetricEvaluation should not throw with empty steps and exclusions")
         void afterMetricEvaluationShouldNotThrow() {
             // Given
             final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
@@ -288,17 +294,32 @@ class LoggingMetricExecutionListenerTest {
     @DisplayName("Error Reason Extraction")
     class ErrorReasonExtraction {
 
-        @Test
-        @DisplayName("Should handle null cause")
-        void shouldHandleNullCause() {
-            // Given
+        private MetricEvaluationResult buildResultWithExclusion(final ModelExclusionEvent event) {
+            return MetricEvaluationResult.builder()
+                    .metricName("Test")
+                    .aggregatedScore(null)
+                    .modelScores(Map.of())
+                    .excludedModels(List.of(event.getModelId()))
+                    .totalDuration(Duration.ofMillis(100))
+                    .exclusions(List.of(event))
+                    .build();
+        }
+
+        private LoggingMetricExecutionListener createInitializedListener() {
             final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
             listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
                     .metricName("Test")
                     .modelIds(List.of("m1"))
                     .totalSteps(1)
                     .build());
+            return listener;
+        }
 
+        @Test
+        @DisplayName("Should handle null cause")
+        void shouldHandleNullCause() {
+            // Given
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -307,20 +328,14 @@ class LoggingMetricExecutionListenerTest {
                     .build();
 
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should handle exception with null message")
         void shouldHandleExceptionWithNullMessage() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -329,20 +344,14 @@ class LoggingMetricExecutionListenerTest {
                     .build();
 
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should handle empty exception message")
         void shouldHandleEmptyExceptionMessage() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -351,20 +360,14 @@ class LoggingMetricExecutionListenerTest {
                     .build();
 
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract timeout errors")
         void shouldExtractTimeoutErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -373,20 +376,14 @@ class LoggingMetricExecutionListenerTest {
                     .build();
 
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract rate limit errors")
         void shouldExtractRateLimitErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -395,20 +392,14 @@ class LoggingMetricExecutionListenerTest {
                     .build();
 
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract parse errors")
         void shouldExtractParseErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -417,20 +408,14 @@ class LoggingMetricExecutionListenerTest {
                     .build();
 
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should handle very long error messages")
         void shouldHandleVeryLongErrorMessages() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final String longMessage = "A".repeat(200);
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
@@ -440,20 +425,14 @@ class LoggingMetricExecutionListenerTest {
                     .build();
 
             // When/Then - should not throw
-            listener.onModelExcluded(event);
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract empty response errors")
         void shouldExtractEmptyResponseErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -461,20 +440,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("Response is empty"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract end-of-input errors")
         void shouldExtractEndOfInputErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -482,20 +456,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("Unexpected end-of-input"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract markdown in response errors")
         void shouldExtractMarkdownErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -503,20 +472,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("Found ```json in response"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract unrecognized token errors")
         void shouldExtractUnrecognizedTokenErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -524,20 +488,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("Unrecognized token 'Sure'"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract truncated JSON errors")
         void shouldExtractTruncatedJsonErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -545,20 +504,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("Missing closing quote"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract duplicate key errors")
         void shouldExtractDuplicateKeyErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -566,20 +520,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("duplicate key found"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract auth errors")
         void shouldExtractAuthErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -587,20 +536,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("401 Unauthorized"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should extract server errors")
         void shouldExtractServerErrors() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -608,20 +552,15 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("500 Internal Server Error"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
 
         @Test
         @DisplayName("Should handle short error message without truncation")
         void shouldHandleShortErrorMessage() {
             // Given
-            final LoggingMetricExecutionListener listener = new LoggingMetricExecutionListener();
-            listener.beforeMetricEvaluation(MetricEvaluationContext.builder()
-                    .metricName("Test")
-                    .modelIds(List.of("m1"))
-                    .totalSteps(1)
-                    .build());
-
+            final LoggingMetricExecutionListener listener = createInitializedListener();
             final ModelExclusionEvent event = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
@@ -629,7 +568,8 @@ class LoggingMetricExecutionListenerTest {
                     .cause(new RuntimeException("Short error"))
                     .build();
 
-            listener.onModelExcluded(event);
+            // When/Then - should not throw
+            listener.afterMetricEvaluation(buildResultWithExclusion(event));
         }
     }
 
@@ -650,13 +590,8 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(3)
                     .build());
 
-            // Step 1
-            listener.beforeStep(StepContext.builder()
-                    .stepName("GenerateStatements")
-                    .stepIndex(0)
-                    .totalSteps(3)
-                    .build());
-            listener.afterStep(StepResults.builder()
+            // Build steps
+            final StepResults step1 = StepResults.builder()
                     .stepName("GenerateStatements")
                     .stepIndex(0)
                     .totalSteps(3)
@@ -665,15 +600,9 @@ class LoggingMetricExecutionListenerTest {
                             ModelResult.success("gpt-4", "statements", Duration.ofMillis(500), "prompt"),
                             ModelResult.success("claude-3", "statements", Duration.ofMillis(400), "prompt")))
                     .request("Generate statements...")
-                    .build());
+                    .build();
 
-            // Step 2 with failure
-            listener.beforeStep(StepContext.builder()
-                    .stepName("EvaluateFaithfulness")
-                    .stepIndex(1)
-                    .totalSteps(3)
-                    .build());
-            listener.afterStep(StepResults.builder()
+            final StepResults step2 = StepResults.builder()
                     .stepName("EvaluateFaithfulness")
                     .stepIndex(1)
                     .totalSteps(3)
@@ -682,35 +611,32 @@ class LoggingMetricExecutionListenerTest {
                             ModelResult.success("gpt-4", "verdict", Duration.ofMillis(300), "prompt"),
                             ModelResult.failure(
                                     "claude-3", Duration.ofMillis(200), "prompt", new RuntimeException("Parse error"))))
-                    .build());
-            listener.onModelExcluded(ModelExclusionEvent.builder()
+                    .build();
+
+            final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                     .modelId("claude-3")
                     .failedStepName("EvaluateFaithfulness")
                     .failedStepIndex(1)
                     .cause(new RuntimeException("Parse error"))
-                    .build());
+                    .build();
 
-            // Step 3
-            listener.beforeStep(StepContext.builder()
-                    .stepName("ComputeScore")
-                    .stepIndex(2)
-                    .totalSteps(3)
-                    .build());
-            listener.afterStep(StepResults.builder()
+            final StepResults step3 = StepResults.builder()
                     .stepName("ComputeScore")
                     .stepIndex(2)
                     .totalSteps(3)
                     .stepType(StepType.COMPUTE)
                     .results(List.of(ModelResult.success("gpt-4", 0.85, Duration.ofMillis(10), null)))
-                    .build());
+                    .build();
 
-            // Final result
+            // Final result with enriched data
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("Faithfulness")
                     .aggregatedScore(0.85)
                     .modelScores(Map.of("gpt-4", 0.85))
                     .excludedModels(List.of("claude-3"))
                     .totalDuration(Duration.ofMillis(1410))
+                    .steps(List.of(step1, step2, step3))
+                    .exclusions(List.of(exclusion))
                     .build());
 
             // Then - should complete without errors
@@ -729,25 +655,21 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(1)
                     .build());
 
-            listener.beforeStep(StepContext.builder()
-                    .stepName("Step1")
-                    .stepIndex(0)
-                    .totalSteps(1)
-                    .build());
-            listener.afterStep(StepResults.builder()
+            final StepResults step = StepResults.builder()
                     .stepName("Step1")
                     .stepIndex(0)
                     .totalSteps(1)
                     .stepType(StepType.LLM)
                     .results(List.of(ModelResult.failure(
                             "model-1", Duration.ofMillis(100), "prompt", new RuntimeException("Error"))))
-                    .build());
-            listener.onModelExcluded(ModelExclusionEvent.builder()
+                    .build();
+
+            final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                     .modelId("model-1")
                     .failedStepName("Step1")
                     .failedStepIndex(0)
                     .cause(new RuntimeException("Error"))
-                    .build());
+                    .build();
 
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("FailingMetric")
@@ -755,6 +677,8 @@ class LoggingMetricExecutionListenerTest {
                     .modelScores(Map.of())
                     .excludedModels(List.of("model-1"))
                     .totalDuration(Duration.ofMillis(100))
+                    .steps(List.of(step))
+                    .exclusions(List.of(exclusion))
                     .build());
 
             // Then - should complete without errors
@@ -779,13 +703,6 @@ class LoggingMetricExecutionListenerTest {
                     .modelIds(List.of("m1"))
                     .totalSteps(1)
                     .build());
-            instance1.afterStep(StepResults.builder()
-                    .stepName("Step")
-                    .stepIndex(0)
-                    .totalSteps(1)
-                    .stepType(StepType.LLM)
-                    .results(List.of(ModelResult.success("m1", "ok", Duration.ofSeconds(1), "req")))
-                    .build());
 
             // Then - other instance should not be affected
             instance2.beforeMetricEvaluation(MetricEvaluationContext.builder()
@@ -794,6 +711,14 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(1)
                     .build());
 
+            final StepResults step = StepResults.builder()
+                    .stepName("Step")
+                    .stepIndex(0)
+                    .totalSteps(1)
+                    .stepType(StepType.LLM)
+                    .results(List.of(ModelResult.success("m1", "ok", Duration.ofSeconds(1), "req")))
+                    .build();
+
             // Both should complete their lifecycle independently
             instance1.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("Metric1")
@@ -801,6 +726,7 @@ class LoggingMetricExecutionListenerTest {
                     .modelScores(Map.of("m1", 0.8))
                     .excludedModels(List.of())
                     .totalDuration(Duration.ofSeconds(1))
+                    .steps(List.of(step))
                     .build());
 
             instance2.afterMetricEvaluation(MetricEvaluationResult.builder()
@@ -831,7 +757,7 @@ class LoggingMetricExecutionListenerTest {
                     .build());
 
             // Embedding step with multiple embedding models
-            listener.afterStep(StepResults.builder()
+            final StepResults embeddingStep = StepResults.builder()
                     .stepName("ComputeEmbeddings")
                     .stepIndex(0)
                     .totalSteps(2)
@@ -841,16 +767,16 @@ class LoggingMetricExecutionListenerTest {
                             ModelResult.success("embed-1", new float[] {0.1f}, Duration.ofMillis(100), "text"),
                             ModelResult.success("embed-2", new float[] {0.2f}, Duration.ofMillis(150), "text")))
                     .request("Text to embed")
-                    .build());
+                    .build();
 
             // Final step
-            listener.afterStep(StepResults.builder()
+            final StepResults computeStep = StepResults.builder()
                     .stepName("ComputeScore")
                     .stepIndex(1)
                     .totalSteps(2)
                     .stepType(StepType.COMPUTE)
                     .results(List.of(ModelResult.success("llm-1", 0.85, Duration.ofMillis(10), null)))
-                    .build());
+                    .build();
 
             // Final result - should include embedding timeline
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
@@ -859,6 +785,7 @@ class LoggingMetricExecutionListenerTest {
                     .modelScores(Map.of("llm-1", 0.85))
                     .excludedModels(List.of())
                     .totalDuration(Duration.ofMillis(210))
+                    .steps(List.of(embeddingStep, computeStep))
                     .build());
         }
 
@@ -876,7 +803,7 @@ class LoggingMetricExecutionListenerTest {
                     .build());
 
             // Embedding step with one failure
-            listener.afterStep(StepResults.builder()
+            final StepResults embeddingStep = StepResults.builder()
                     .stepName("Embed")
                     .stepIndex(0)
                     .totalSteps(1)
@@ -886,7 +813,7 @@ class LoggingMetricExecutionListenerTest {
                             ModelResult.success("embed-1", new float[] {0.1f}, Duration.ofMillis(100), "text"),
                             ModelResult.failure(
                                     "embed-2", Duration.ofMillis(50), "text", new RuntimeException("Embed error"))))
-                    .build());
+                    .build();
 
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("Test")
@@ -894,6 +821,7 @@ class LoggingMetricExecutionListenerTest {
                     .modelScores(Map.of("llm-1", 0.8))
                     .excludedModels(List.of())
                     .totalDuration(Duration.ofMillis(150))
+                    .steps(List.of(embeddingStep))
                     .build());
         }
     }
@@ -914,14 +842,13 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(1)
                     .build());
 
-            // Result with zero duration
-            listener.afterStep(StepResults.builder()
+            final StepResults step = StepResults.builder()
                     .stepName("Step1")
                     .stepIndex(0)
                     .totalSteps(1)
                     .stepType(StepType.LLM)
                     .results(List.of(ModelResult.success("m1", "result", Duration.ZERO, "request")))
-                    .build());
+                    .build();
 
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("Test")
@@ -929,6 +856,7 @@ class LoggingMetricExecutionListenerTest {
                     .modelScores(Map.of("m1", 0.8))
                     .excludedModels(List.of())
                     .totalDuration(Duration.ofMillis(100))
+                    .steps(List.of(step))
                     .build());
         }
 
@@ -944,19 +872,13 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(1)
                     .build());
 
-            listener.beforeStep(StepContext.builder()
-                    .stepName("Step1")
-                    .stepIndex(0)
-                    .totalSteps(1)
-                    .build());
-
-            listener.afterStep(StepResults.builder()
+            final StepResults step = StepResults.builder()
                     .stepName("Step1")
                     .stepIndex(0)
                     .totalSteps(1)
                     .stepType(StepType.LLM)
                     .results(List.of(ModelResult.success("m1", "ok", Duration.ofMillis(100), "req")))
-                    .build());
+                    .build();
 
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("Test")
@@ -964,6 +886,7 @@ class LoggingMetricExecutionListenerTest {
                     .modelScores(Map.of("m1", 0.8))
                     .excludedModels(List.of())
                     .totalDuration(Duration.ofMillis(100))
+                    .steps(List.of(step))
                     .build());
         }
 
@@ -979,15 +902,14 @@ class LoggingMetricExecutionListenerTest {
                     .totalSteps(1)
                     .build());
 
-            // Single model - no timeline chart needed
-            listener.afterStep(StepResults.builder()
+            final StepResults step = StepResults.builder()
                     .stepName("Step1")
                     .stepIndex(0)
                     .totalSteps(1)
                     .stepType(StepType.LLM)
                     .results(List.of(ModelResult.success("single-model", "ok", Duration.ofMillis(100), "prompt")))
                     .request("Test prompt")
-                    .build());
+                    .build();
 
             listener.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName("Test")
@@ -995,6 +917,7 @@ class LoggingMetricExecutionListenerTest {
                     .modelScores(Map.of("single-model", 0.9))
                     .excludedModels(List.of())
                     .totalDuration(Duration.ofMillis(100))
+                    .steps(List.of(step))
                     .build());
         }
 

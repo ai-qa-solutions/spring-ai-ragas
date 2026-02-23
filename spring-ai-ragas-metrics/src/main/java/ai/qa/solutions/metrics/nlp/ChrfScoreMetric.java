@@ -1,6 +1,10 @@
 package ai.qa.solutions.metrics.nlp;
 
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.metric.AbstractMetric;
 import ai.qa.solutions.metric.Metric;
+import ai.qa.solutions.metric.metadata.ChrfScoreMetadata;
 import ai.qa.solutions.sample.Sample;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  */
 @Slf4j
-public class ChrfScoreMetric implements Metric<ChrfScoreMetric.ChrfScoreConfig> {
+public class ChrfScoreMetric extends AbstractMetric<ChrfScoreMetric.ChrfScoreConfig> {
 
     /**
      * Computes the chrF score for a single sample.
@@ -47,57 +51,81 @@ public class ChrfScoreMetric implements Metric<ChrfScoreMetric.ChrfScoreConfig> 
      */
     @Override
     public Double singleTurnScore(final ChrfScoreConfig config, final Sample sample) {
-        // Validate input
-        if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
-            log.warn("No response provided for chrF score evaluation");
-            return null;
-        }
+        final EvaluationNotifier notifier = createEvaluationNotifier();
+        notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
+                .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(List.of())
+                .totalSteps(0)
+                .build());
 
-        if (sample.getReference() == null || sample.getReference().isEmpty()) {
-            log.warn("No reference provided for chrF score evaluation");
-            return null;
-        }
-
-        final String response = sample.getResponse().toLowerCase();
-        final String reference = sample.getReference().toLowerCase();
-
-        final int charNgramOrder = config.getCharNgramOrder();
-        final int wordNgramOrder = config.getWordNgramOrder();
-        final double beta = config.getBeta();
-
-        // Compute character n-gram F-score
-        double charFScore = 0.0;
-        int charNgramCount = 0;
-        for (int n = 1; n <= charNgramOrder; n++) {
-            final double fscore = computeCharNgramFScore(response, reference, n, beta);
-            charFScore += fscore;
-            charNgramCount++;
-        }
-        if (charNgramCount > 0) {
-            charFScore /= charNgramCount;
-        }
-
-        // If wordNgramOrder > 0, compute word n-gram F-score (chrF++ mode)
-        if (wordNgramOrder > 0) {
-            final List<String> responseTokens = tokenize(response);
-            final List<String> referenceTokens = tokenize(reference);
-
-            double wordFScore = 0.0;
-            int wordNgramCount = 0;
-            for (int n = 1; n <= wordNgramOrder; n++) {
-                final double fscore = computeWordNgramFScore(responseTokens, referenceTokens, n, beta);
-                wordFScore += fscore;
-                wordNgramCount++;
-            }
-            if (wordNgramCount > 0) {
-                wordFScore /= wordNgramCount;
+        Double score = null;
+        try {
+            // Validate input
+            if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
+                log.warn("No response provided for chrF score evaluation");
+                return null;
             }
 
-            // Combine character and word F-scores (equal weight)
-            return (charFScore + wordFScore) / 2.0;
-        }
+            if (sample.getReference() == null || sample.getReference().isEmpty()) {
+                log.warn("No reference provided for chrF score evaluation");
+                return null;
+            }
 
-        return charFScore;
+            final String response = sample.getResponse().toLowerCase();
+            final String reference = sample.getReference().toLowerCase();
+
+            final int charNgramOrder = config.getCharNgramOrder();
+            final int wordNgramOrder = config.getWordNgramOrder();
+            final double beta = config.getBeta();
+
+            // Compute character n-gram F-score
+            double charFScore = 0.0;
+            int charNgramCount = 0;
+            for (int n = 1; n <= charNgramOrder; n++) {
+                final double fscore = computeCharNgramFScore(response, reference, n, beta);
+                charFScore += fscore;
+                charNgramCount++;
+            }
+            if (charNgramCount > 0) {
+                charFScore /= charNgramCount;
+            }
+
+            // If wordNgramOrder > 0, compute word n-gram F-score (chrF++ mode)
+            if (wordNgramOrder > 0) {
+                final List<String> responseTokens = tokenize(response);
+                final List<String> referenceTokens = tokenize(reference);
+
+                double wordFScore = 0.0;
+                int wordNgramCount = 0;
+                for (int n = 1; n <= wordNgramOrder; n++) {
+                    final double fscore = computeWordNgramFScore(responseTokens, referenceTokens, n, beta);
+                    wordFScore += fscore;
+                    wordNgramCount++;
+                }
+                if (wordNgramCount > 0) {
+                    wordFScore /= wordNgramCount;
+                }
+
+                // Combine character and word F-scores (equal weight)
+                score = (charFScore + wordFScore) / 2.0;
+                return score;
+            }
+
+            score = charFScore;
+            return score;
+        } finally {
+            notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
+                    .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(List.of())
+                    .aggregatedScore(score)
+                    .metadata(new ChrfScoreMetadata(
+                            config.getCharNgramOrder(), config.getWordNgramOrder(), config.getBeta()))
+                    .build());
+        }
     }
 
     /**

@@ -4,10 +4,15 @@ import ai.qa.solutions.execution.ModelResult;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.AnswerCorrectnessMetadata;
 import ai.qa.solutions.sample.Sample;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,11 +139,13 @@ public class AnswerCorrectnessMetric extends AbstractMultiModelMetric<AnswerCorr
                 .modelIds(modelIds)
                 .embeddingModelIds(embeddingModelIds)
                 .totalSteps(3) // ComputeFactualCorrectness -> ComputeSemanticSimilarity -> CombineScores
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing answer correctness evaluation");
+
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
 
             // Validate weights
             final double factualWeight = config.getFactualWeight();
@@ -155,8 +162,6 @@ public class AnswerCorrectnessMetric extends AbstractMultiModelMetric<AnswerCorr
             final double normalizedSemanticWeight = semanticWeight / totalWeight;
 
             // ========== Step 1: Compute Factual Correctness ==========
-            notifier.beforeStep("ComputeFactualCorrectness", 0, 3);
-
             final FactualCorrectnessMetric.FactualCorrectnessConfig factualConfig =
                     FactualCorrectnessMetric.FactualCorrectnessConfig.builder()
                             .mode(FactualCorrectnessMetric.Mode.F1)
@@ -173,14 +178,18 @@ public class AnswerCorrectnessMetric extends AbstractMultiModelMetric<AnswerCorr
                 factualScore = 0.0;
             }
 
-            // Create result for notification
-            final List<ModelResult<Double>> step1Results =
+            // Create result for step accumulation
+            final List<ModelResult<?>> step1Results =
                     List.of(ModelResult.success("factual", factualScore, Duration.ZERO, "compute"));
-            notifier.afterComputeStep("ComputeFactualCorrectness", 0, 3, step1Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeFactualCorrectness")
+                    .stepIndex(0)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(step1Results)
+                    .build());
 
             // ========== Step 2: Compute Semantic Similarity ==========
-            notifier.beforeStep("ComputeSemanticSimilarity", 1, 3);
-
             final SemanticSimilarityMetric.SemanticSimilarityConfig semanticConfig =
                     SemanticSimilarityMetric.SemanticSimilarityConfig.builder().build();
 
@@ -195,14 +204,18 @@ public class AnswerCorrectnessMetric extends AbstractMultiModelMetric<AnswerCorr
                 semanticScore = 0.0;
             }
 
-            // Create result for notification
-            final List<ModelResult<Double>> step2Results =
+            // Create result for step accumulation
+            final List<ModelResult<?>> step2Results =
                     List.of(ModelResult.success("semantic", semanticScore, Duration.ZERO, "compute"));
-            notifier.afterComputeStep("ComputeSemanticSimilarity", 1, 3, step2Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("ComputeSemanticSimilarity")
+                    .stepIndex(1)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(step2Results)
+                    .build());
 
             // ========== Step 3: Combine Scores ==========
-            notifier.beforeStep("CombineScores", 2, 3);
-
             final double combinedScore =
                     (normalizedFactualWeight * factualScore) + (normalizedSemanticWeight * semanticScore);
 
@@ -214,10 +227,16 @@ public class AnswerCorrectnessMetric extends AbstractMultiModelMetric<AnswerCorr
                     normalizedSemanticWeight,
                     combinedScore);
 
-            // Create result for notification
-            final List<ModelResult<Double>> step3Results =
+            // Create result for step accumulation
+            final List<ModelResult<?>> step3Results =
                     List.of(ModelResult.success("combined", combinedScore, Duration.ZERO, "compute"));
-            notifier.afterComputeStep("CombineScores", 2, 3, step3Results);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("CombineScores")
+                    .stepIndex(2)
+                    .totalSteps(3)
+                    .stepType(StepType.COMPUTE)
+                    .results(step3Results)
+                    .build());
 
             // Build model scores map for result (use combined score for the "aggregated" entry)
             final Map<String, Double> modelScores = new HashMap<>();
@@ -229,22 +248,17 @@ public class AnswerCorrectnessMetric extends AbstractMultiModelMetric<AnswerCorr
             final Duration duration = Duration.between(startTime, Instant.now());
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
+                    .embeddingModelIds(embeddingModelIds)
                     .aggregatedScore(combinedScore)
                     .modelScores(modelScores)
                     .totalDuration(duration)
-                    .metadata(Map.of(
-                            "sample",
-                            sample,
-                            "config",
-                            config,
-                            "factualScore",
-                            factualScore,
-                            "semanticScore",
-                            semanticScore,
-                            "factualWeight",
-                            normalizedFactualWeight,
-                            "semanticWeight",
-                            normalizedSemanticWeight))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new AnswerCorrectnessMetadata(
+                            factualScore, semanticScore, normalizedFactualWeight, normalizedSemanticWeight))
                     .build());
 
             return combinedScore;

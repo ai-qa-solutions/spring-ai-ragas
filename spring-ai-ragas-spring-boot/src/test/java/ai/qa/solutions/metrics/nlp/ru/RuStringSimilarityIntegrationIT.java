@@ -3,7 +3,6 @@ package ai.qa.solutions.metrics.nlp.ru;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ai.qa.solutions.allure.nlp.AllureNlpMetricHelper;
 import ai.qa.solutions.metrics.nlp.StringSimilarityMetric;
 import ai.qa.solutions.metrics.nlp.StringSimilarityMetric.DistanceMeasure;
 import ai.qa.solutions.metrics.nlp.StringSimilarityMetric.StringSimilarityConfig;
@@ -53,14 +52,6 @@ class RuStringSimilarityIntegrationIT {
             final Double score = stringSimilarityMetric.singleTurnScore(config, sample);
 
             log.info("Jaro-Winkler Score: {}", String.format("%.4f", score));
-
-            AllureNlpMetricHelper.attachStringSimilarity(
-                    score,
-                    sample.getResponse(),
-                    sample.getReference(),
-                    config.getDistanceMeasure().name(),
-                    config.isCaseSensitive(),
-                    "ru");
 
             assertNotNull(score);
             assertTrue(score >= 0.99, "Идентичные строки должны иметь идеальный балл. Получено: " + score);

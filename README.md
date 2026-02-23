@@ -471,7 +471,6 @@ spring-ai-ragas/
 ├── spring-ai-ragas-allure/               # Allure reporting integration
 │   └── ai.qa.solutions.allure/
 │       ├── listener/                     # AllureMetricExecutionListener
-│       ├── nlp/                          # AllureNlpMetricHelper
 │       ├── explanation/                  # Score explanation classes
 │       ├── methodology/                  # Metric methodology docs (en/ru)
 │       └── template/                     # Freemarker report templates

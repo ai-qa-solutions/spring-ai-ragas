@@ -1,6 +1,10 @@
 package ai.qa.solutions.metrics.nlp;
 
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
+import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.metric.AbstractMetric;
 import ai.qa.solutions.metric.Metric;
+import ai.qa.solutions.metric.metadata.BleuScoreMetadata;
 import ai.qa.solutions.sample.Sample;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  */
 @Slf4j
-public class BleuScoreMetric implements Metric<BleuScoreMetric.BleuScoreConfig> {
+public class BleuScoreMetric extends AbstractMetric<BleuScoreMetric.BleuScoreConfig> {
 
     /**
      * Computes the BLEU score for a single sample.
@@ -49,62 +53,87 @@ public class BleuScoreMetric implements Metric<BleuScoreMetric.BleuScoreConfig> 
      */
     @Override
     public Double singleTurnScore(final BleuScoreConfig config, final Sample sample) {
-        // Validate input
-        if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
-            log.warn("No response provided for BLEU score evaluation");
-            return null;
-        }
+        final EvaluationNotifier notifier = createEvaluationNotifier();
+        notifier.beforeMetricEvaluation(MetricEvaluationContext.builder()
+                .metricName(getName())
+                .sample(sample)
+                .config(config)
+                .modelIds(List.of())
+                .totalSteps(0)
+                .build());
 
-        if (sample.getReference() == null || sample.getReference().isEmpty()) {
-            log.warn("No reference provided for BLEU score evaluation");
-            return null;
-        }
-
-        final List<String> responseTokens = tokenize(sample.getResponse());
-        final List<String> referenceTokens = tokenize(sample.getReference());
-
-        if (responseTokens.isEmpty() || referenceTokens.isEmpty()) {
-            log.warn("Empty tokens after tokenization");
-            return 0.0;
-        }
-
-        final int maxNgram = config.getMaxNgram();
-        final boolean smoothing = config.isSmoothing();
-
-        // Compute modified n-gram precisions
-        final List<Double> precisions = new ArrayList<>();
-        for (int n = 1; n <= maxNgram; n++) {
-            final double precision = computeModifiedPrecision(responseTokens, referenceTokens, n, smoothing);
-            precisions.add(precision);
-        }
-
-        // Check if all precisions are zero (would result in BLEU = 0)
-        final boolean allZero = precisions.stream().allMatch(p -> p <= 0.0);
-        if (allZero) {
-            return 0.0;
-        }
-
-        // Compute brevity penalty
-        final double brevityPenalty = computeBrevityPenalty(responseTokens.size(), referenceTokens.size());
-
-        // Compute BLEU score as geometric mean of precisions × brevity penalty
-        double logSum = 0.0;
-        int validCount = 0;
-        for (final double precision : precisions) {
-            if (precision > 0) {
-                logSum += Math.log(precision);
-                validCount++;
+        Double score = null;
+        try {
+            // Validate input
+            if (sample.getResponse() == null || sample.getResponse().isEmpty()) {
+                log.warn("No response provided for BLEU score evaluation");
+                return null;
             }
+
+            if (sample.getReference() == null || sample.getReference().isEmpty()) {
+                log.warn("No reference provided for BLEU score evaluation");
+                return null;
+            }
+
+            final List<String> responseTokens = tokenize(sample.getResponse());
+            final List<String> referenceTokens = tokenize(sample.getReference());
+
+            if (responseTokens.isEmpty() || referenceTokens.isEmpty()) {
+                log.warn("Empty tokens after tokenization");
+                score = 0.0;
+                return score;
+            }
+
+            final int maxNgram = config.getMaxNgram();
+            final boolean smoothing = config.isSmoothing();
+
+            // Compute modified n-gram precisions
+            final List<Double> precisions = new ArrayList<>();
+            for (int n = 1; n <= maxNgram; n++) {
+                final double precision = computeModifiedPrecision(responseTokens, referenceTokens, n, smoothing);
+                precisions.add(precision);
+            }
+
+            // Check if all precisions are zero (would result in BLEU = 0)
+            final boolean allZero = precisions.stream().allMatch(p -> p <= 0.0);
+            if (allZero) {
+                score = 0.0;
+                return score;
+            }
+
+            // Compute brevity penalty
+            final double brevityPenalty = computeBrevityPenalty(responseTokens.size(), referenceTokens.size());
+
+            // Compute BLEU score as geometric mean of precisions x brevity penalty
+            double logSum = 0.0;
+            int validCount = 0;
+            for (final double precision : precisions) {
+                if (precision > 0) {
+                    logSum += Math.log(precision);
+                    validCount++;
+                }
+            }
+
+            if (validCount == 0) {
+                score = 0.0;
+                return score;
+            }
+
+            final double geometricMean = Math.exp(logSum / maxNgram);
+            final double bleuScore = brevityPenalty * geometricMean;
+
+            score = Math.min(1.0, Math.max(0.0, bleuScore));
+            return score;
+        } finally {
+            notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
+                    .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(List.of())
+                    .aggregatedScore(score)
+                    .metadata(new BleuScoreMetadata(config.getMaxNgram(), config.isSmoothing()))
+                    .build());
         }
-
-        if (validCount == 0) {
-            return 0.0;
-        }
-
-        final double geometricMean = Math.exp(logSum / maxNgram);
-        final double bleuScore = brevityPenalty * geometricMean;
-
-        return Math.min(1.0, Math.max(0.0, bleuScore));
     }
 
     /**

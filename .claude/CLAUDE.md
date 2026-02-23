@@ -118,11 +118,7 @@ public class BleuScoreMetric implements Metric<BleuScoreConfig> {
 }
 ```
 
-For Allure reporting, use `AllureNlpMetricHelper`:
-
-```java
-AllureNlpMetricHelper.attachBleuScore(score, response, reference, maxNgram, smoothing, "en");
-```
+NLP metrics use the same unified `AllureMetricExecutionListener` as LLM metrics. Their metadata records (e.g. `BleuScoreMetadata`) implement `MetricMetadata` and do NOT duplicate `response`/`reference` — those are sourced from `MetricEvaluationResult.getSample()`.
 
 ## Available Metrics
 
@@ -339,7 +335,6 @@ spring-ai-ragas-allure/
 ├── listener/        # AllureMetricExecutionListener
 ├── methodology/     # Markdown methodology files
 ├── model/           # Report data models
-├── nlp/             # AllureNlpMetricHelper for NLP metrics
 └── template/        # Freemarker HTML templates
 ```
 
@@ -354,27 +349,14 @@ Each Allure attachment includes:
 
 ### Usage in Tests
 
-For LLM metrics, use `AllureMetricExecutionListener` (auto-registered).
-
-For NLP metrics, manually attach reports:
-
-```java
-@Test
-void testBleuScore() {
-    Double score = bleuScoreMetric.singleTurnScore(config, sample);
-
-    AllureNlpMetricHelper.attachBleuScore(
-        score, sample.getResponse(), sample.getReference(),
-        config.getMaxNgram(), config.isSmoothing(), "en");
-}
-```
+All metrics (both LLM and NLP) use `AllureMetricExecutionListener` (auto-registered). No manual attachment is needed.
 
 ### Adding New Metric Reports
 
 1. Create `YourMetricExplanation` class in `explanation/`
 2. Add methodology markdown in `methodology/en/` and `methodology/ru/`
 3. Add i18n messages in `ExplanationMessages.java`
-4. Update `ScoreExplanationExtractor` to handle new metric type
+4. Update `ScoreExplanationFactory` to handle new metric type
 
 ## Post-Change Validation (MANDATORY)
 
@@ -421,6 +403,6 @@ Each step in Score Explanation must answer:
 - After fixing metric bugs (like ToolCallAccuracy typed messages)
 - After adding new metrics
 - After modifying Allure templates
-- After changes to ScoreExplanationExtractor
+- After changes to ScoreExplanationFactory
 - After changes to explanation classes
 

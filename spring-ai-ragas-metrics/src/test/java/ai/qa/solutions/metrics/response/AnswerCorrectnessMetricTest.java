@@ -6,9 +6,6 @@ import ai.qa.solutions.execution.StubMultiModelExecutor;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
-import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
-import ai.qa.solutions.execution.listener.dto.StepContext;
-import ai.qa.solutions.execution.listener.dto.StepResults;
 import ai.qa.solutions.metrics.response.AnswerCorrectnessMetric.AnswerCorrectnessConfig;
 import ai.qa.solutions.metrics.response.FactualCorrectnessMetric.ClaimsResponse;
 import ai.qa.solutions.metrics.response.FactualCorrectnessMetric.NliResponse;
@@ -361,7 +358,6 @@ class AnswerCorrectnessMetricTest {
 
             final AtomicInteger beforeCount = new AtomicInteger(0);
             final AtomicInteger afterCount = new AtomicInteger(0);
-            final AtomicInteger stepCount = new AtomicInteger(0);
 
             final MetricExecutionListener testListener = new MetricExecutionListener() {
                 @Override
@@ -373,17 +369,6 @@ class AnswerCorrectnessMetricTest {
                 public void afterMetricEvaluation(final MetricEvaluationResult result) {
                     afterCount.incrementAndGet();
                 }
-
-                @Override
-                public void beforeStep(final StepContext context) {
-                    stepCount.incrementAndGet();
-                }
-
-                @Override
-                public void afterStep(final StepResults results) {}
-
-                @Override
-                public void onModelExcluded(final ModelExclusionEvent event) {}
 
                 @Override
                 public MetricExecutionListener forEvaluation() {
@@ -405,7 +390,6 @@ class AnswerCorrectnessMetricTest {
 
             assertThat(beforeCount.get()).isEqualTo(1);
             assertThat(afterCount.get()).isEqualTo(1);
-            assertThat(stepCount.get()).isGreaterThanOrEqualTo(3); // At least 3 steps
         }
     }
 

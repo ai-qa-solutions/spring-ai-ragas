@@ -246,22 +246,22 @@ public class RagasMetricsAutoconfiguration {
     // ==================== NLP Metrics (Non-LLM) ====================
 
     @Bean
-    public BleuScoreMetric bleuScoreMetric() {
-        return new BleuScoreMetric();
+    public BleuScoreMetric bleuScoreMetric(final List<MetricExecutionListener> listeners) {
+        return new BleuScoreMetric().withListeners(listeners);
     }
 
     @Bean
-    public RougeScoreMetric rougeScoreMetric() {
-        return new RougeScoreMetric();
+    public RougeScoreMetric rougeScoreMetric(final List<MetricExecutionListener> listeners) {
+        return new RougeScoreMetric().withListeners(listeners);
     }
 
     @Bean
-    public ChrfScoreMetric chrfScoreMetric() {
-        return new ChrfScoreMetric();
+    public ChrfScoreMetric chrfScoreMetric(final List<MetricExecutionListener> listeners) {
+        return new ChrfScoreMetric().withListeners(listeners);
     }
 
     @Bean
-    public StringSimilarityMetric stringSimilarityMetric() {
-        return new StringSimilarityMetric();
+    public StringSimilarityMetric stringSimilarityMetric(final List<MetricExecutionListener> listeners) {
+        return new StringSimilarityMetric().withListeners(listeners);
     }
 }

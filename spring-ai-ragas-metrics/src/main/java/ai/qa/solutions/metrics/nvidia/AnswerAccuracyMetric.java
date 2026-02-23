@@ -5,7 +5,10 @@ import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.execution.listener.dto.ModelExclusionEvent;
+import ai.qa.solutions.execution.listener.dto.StepResults;
+import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
+import ai.qa.solutions.metric.metadata.AnswerAccuracyMetadata;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -139,50 +142,66 @@ public class AnswerAccuracyMetric extends AbstractMultiModelMetric<AnswerAccurac
                 .config(config)
                 .modelIds(modelIds)
                 .totalSteps(totalSteps)
-                .metadata(Map.of("sample", sample, "config", config))
                 .build());
 
         return executor.runAsync(() -> {
             final String response = sample.getResponse();
             final String reference = sample.getReference();
+
+            final List<StepResults> accumulatedSteps = new ArrayList<>();
+            final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
             final List<String> excludedModels = new ArrayList<>();
 
             // Step 1: Initial judgment
-            notifier.beforeStep("InitialJudgment", 0, totalSteps);
-
             final String initialPrompt = renderInitialJudgmentPrompt(response, reference);
             final Map<String, AccuracyEvaluationResponse> initialResponses = new HashMap<>();
             final Map<String, Double> modelScores = new HashMap<>();
             final List<ModelResult<AccuracyEvaluationResponse>> initialResults =
                     executor.executeLlm(modelIds, initialPrompt, AccuracyEvaluationResponse.class);
 
+            // Build metadata for initial judgments
+            final Map<String, AnswerAccuracyMetadata.JudgmentSummary> initialJudgments = new HashMap<>();
+
             for (final ModelResult<AccuracyEvaluationResponse> result : initialResults) {
                 if (result.isSuccess() && result.result().score() != null) {
                     final double normalizedScore = result.result().score() / 2.0;
                     modelScores.put(result.modelId(), Math.min(1.0, Math.max(0.0, normalizedScore)));
                     initialResponses.put(result.modelId(), result.result());
+                    initialJudgments.put(
+                            result.modelId(),
+                            new AnswerAccuracyMetadata.JudgmentSummary(
+                                    result.result().score(), result.result().reasoning()));
                 } else if (!result.isSuccess()) {
                     if (!excludedModels.contains(result.modelId())) {
                         excludedModels.add(result.modelId());
                     }
-                    notifier.onModelExcluded(ModelExclusionEvent.builder()
+                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                             .modelId(result.modelId())
                             .failedStepName("InitialJudgment")
                             .failedStepIndex(0)
                             .cause(result.error())
-                            .build());
+                            .build();
+                    accumulatedExclusions.add(exclusion);
                 }
             }
 
-            notifier.afterLlmStep("InitialJudgment", 0, totalSteps, initialPrompt, initialResults);
+            accumulatedSteps.add(StepResults.builder()
+                    .stepName("InitialJudgment")
+                    .stepIndex(0)
+                    .totalSteps(totalSteps)
+                    .stepType(StepType.LLM)
+                    .request(initialPrompt)
+                    .results(new ArrayList<ModelResult<?>>(initialResults))
+                    .build());
 
             if (modelScores.isEmpty()) {
                 throw new IllegalStateException("All models failed in metric: " + getName());
             }
 
             // Step 2: Confirmation judgment (if enabled)
+            Map<String, AnswerAccuracyMetadata.JudgmentSummary> confirmedJudgments = null;
             if (config.useDualJudge && !initialResponses.isEmpty()) {
-                notifier.beforeStep("ConfirmJudgment", 1, totalSteps);
+                confirmedJudgments = new HashMap<>();
 
                 // Use average initial score and reasoning for confirmation
                 final double avgInitialScore = modelScores.values().stream()
@@ -205,20 +224,32 @@ public class AnswerAccuracyMetric extends AbstractMultiModelMetric<AnswerAccurac
                     if (result.isSuccess() && result.result().score() != null) {
                         final double normalizedScore = result.result().score() / 2.0;
                         confirmedScores.put(result.modelId(), Math.min(1.0, Math.max(0.0, normalizedScore)));
+                        confirmedJudgments.put(
+                                result.modelId(),
+                                new AnswerAccuracyMetadata.JudgmentSummary(
+                                        result.result().score(), result.result().reasoning()));
                     } else if (!result.isSuccess()) {
                         if (!excludedModels.contains(result.modelId())) {
                             excludedModels.add(result.modelId());
                         }
-                        notifier.onModelExcluded(ModelExclusionEvent.builder()
+                        final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
                                 .modelId(result.modelId())
                                 .failedStepName("ConfirmJudgment")
                                 .failedStepIndex(1)
                                 .cause(result.error())
-                                .build());
+                                .build();
+                        accumulatedExclusions.add(exclusion);
                     }
                 }
 
-                notifier.afterLlmStep("ConfirmJudgment", 1, totalSteps, confirmPrompt, confirmResults);
+                accumulatedSteps.add(StepResults.builder()
+                        .stepName("ConfirmJudgment")
+                        .stepIndex(1)
+                        .totalSteps(totalSteps)
+                        .stepType(StepType.LLM)
+                        .request(confirmPrompt)
+                        .results(new ArrayList<ModelResult<?>>(confirmResults))
+                        .build());
 
                 // Use confirmed scores if available
                 if (!confirmedScores.isEmpty()) {
@@ -237,11 +268,16 @@ public class AnswerAccuracyMetric extends AbstractMultiModelMetric<AnswerAccurac
 
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
+                    .sample(sample)
+                    .config(config)
+                    .modelIds(modelIds)
                     .aggregatedScore(aggregatedScore)
                     .modelScores(new HashMap<>(modelScores))
                     .excludedModels(excludedModels)
                     .totalDuration(duration)
-                    .metadata(Map.of("sample", sample, "config", config))
+                    .steps(accumulatedSteps)
+                    .exclusions(accumulatedExclusions)
+                    .metadata(new AnswerAccuracyMetadata(initialJudgments, confirmedJudgments, config.useDualJudge))
                     .build());
 
             return aggregatedScore;
