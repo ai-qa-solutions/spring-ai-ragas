@@ -10,6 +10,7 @@ import ai.qa.solutions.execution.listener.dto.StepResults;
 import ai.qa.solutions.execution.listener.dto.StepType;
 import ai.qa.solutions.metric.AbstractMultiModelMetric;
 import ai.qa.solutions.metric.metadata.SimpleCriteriaMetadata;
+import ai.qa.solutions.metric.prompt.PromptTemplateResolver;
 import ai.qa.solutions.sample.Sample;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.time.Duration;
@@ -66,7 +67,7 @@ public class SimpleCriteriaScoreMetric
     @Builder(toBuilder = true)
     protected SimpleCriteriaScoreMetric(final MultiModelExecutor executor, final String promptTemplate) {
         super(executor);
-        this.promptTemplate = promptTemplate != null ? promptTemplate : DEFAULT_PROMPT_TEMPLATE;
+        this.promptTemplate = promptTemplate; // null means "use resolution chain"
     }
 
     @Override
@@ -211,8 +212,9 @@ public class SimpleCriteriaScoreMetric
     }
 
     private String renderPrompt(final SimpleCriteriaConfig config, final Sample sample) {
+        final String template = resolveTemplate(config);
         return PromptTemplate.builder()
-                .template(this.promptTemplate)
+                .template(template)
                 .variables(Map.of(
                         "definition", config.definition,
                         "min_score", config.minScore.toString(),
@@ -222,6 +224,19 @@ public class SimpleCriteriaScoreMetric
                         "reference", sample.getReference() != null ? sample.getReference() : ""))
                 .build()
                 .render();
+    }
+
+    private String resolveTemplate(final SimpleCriteriaConfig config) {
+        // 1. Config-level override (per-evaluation)
+        if (config.getPromptTemplate() != null) {
+            return config.getPromptTemplate();
+        }
+        // 2. Constructor/Spring property override (metric-level)
+        if (this.promptTemplate != null) {
+            return this.promptTemplate;
+        }
+        // 3. Language-based classpath resource, falling back to DEFAULT
+        return PromptTemplateResolver.resolve("simple-criteria-score", config.getLanguage(), DEFAULT_PROMPT_TEMPLATE);
     }
 
     /**
@@ -271,6 +286,12 @@ public class SimpleCriteriaScoreMetric
 
         @NonNull
         private String definition;
+
+        /**
+         * Custom prompt template for this evaluation.
+         * Overrides both metric-level and classpath-based prompts when set.
+         */
+        private String promptTemplate;
 
         @Builder.Default
         private Double minScore = 0.0;
