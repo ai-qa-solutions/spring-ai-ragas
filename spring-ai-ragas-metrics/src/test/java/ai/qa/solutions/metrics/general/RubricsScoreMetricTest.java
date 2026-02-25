@@ -8,6 +8,7 @@ import ai.qa.solutions.chatclient.ChatClientStore;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.StubMultiModelExecutor;
 import ai.qa.solutions.sample.Sample;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -312,6 +313,113 @@ class RubricsScoreMetricTest {
             Double score = metric.singleTurnScore(config, sample);
 
             assertThat(score).isEqualTo(5.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Prompt Resolution")
+    class PromptResolutionTests {
+
+        @Test
+        @DisplayName("Should use config promptTemplate when provided")
+        void shouldUseConfigPromptTemplateWhenProvided() {
+            final String customPrompt = "CUSTOM: {user_input} | {response} | {reference} | {rubrics}";
+            final List<String> capturedPrompts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponseProvider(RubricsScoreMetric.Response.class, prompt -> {
+                        capturedPrompts.add(prompt);
+                        return new RubricsScoreMetric.Response(3, "score3_description", "average");
+                    });
+
+            final RubricsScoreMetric metric =
+                    RubricsScoreMetric.builder().executor(stubExecutor).build();
+
+            final Sample sample = Sample.builder()
+                    .userInput("question")
+                    .response("answer")
+                    .reference("ref")
+                    .build();
+
+            final RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                    .rubric("score1_description", "Poor")
+                    .rubric("score3_description", "Average")
+                    .promptTemplate(customPrompt)
+                    .build();
+
+            final Double score = metric.singleTurnScore(config, sample);
+            assertThat(score).isNotNull();
+
+            assertThat(capturedPrompts).hasSize(1);
+            assertThat(capturedPrompts.get(0)).startsWith("CUSTOM:");
+            assertThat(capturedPrompts.get(0)).contains("question");
+            assertThat(capturedPrompts.get(0)).contains("answer");
+        }
+
+        @Test
+        @DisplayName("Should use constructor promptTemplate when no config override")
+        void shouldUseConstructorPromptTemplateWhenNoConfigOverride() {
+            final String constructorPrompt = "CONSTRUCTOR: {user_input} | {response} | {reference} | {rubrics}";
+            final List<String> capturedPrompts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponseProvider(RubricsScoreMetric.Response.class, prompt -> {
+                        capturedPrompts.add(prompt);
+                        return new RubricsScoreMetric.Response(3, "score3_description", "average");
+                    });
+
+            final RubricsScoreMetric metric = RubricsScoreMetric.builder()
+                    .executor(stubExecutor)
+                    .promptTemplate(constructorPrompt)
+                    .build();
+
+            final Sample sample =
+                    Sample.builder().userInput("question").response("answer").build();
+
+            final RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                    .rubric("score1_description", "Poor")
+                    .rubric("score3_description", "Average")
+                    .build();
+
+            final Double score = metric.singleTurnScore(config, sample);
+            assertThat(score).isNotNull();
+
+            assertThat(capturedPrompts).hasSize(1);
+            assertThat(capturedPrompts.get(0)).startsWith("CONSTRUCTOR:");
+            assertThat(capturedPrompts.get(0)).contains("question");
+        }
+
+        @Test
+        @DisplayName("Should resolve Russian prompt when language is ru and no overrides")
+        void shouldResolveRussianPromptWhenLanguageIsRu() {
+            final List<String> capturedPrompts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponseProvider(RubricsScoreMetric.Response.class, prompt -> {
+                        capturedPrompts.add(prompt);
+                        return new RubricsScoreMetric.Response(3, "score3_description", "average");
+                    });
+
+            final RubricsScoreMetric metric =
+                    RubricsScoreMetric.builder().executor(stubExecutor).build();
+
+            final Sample sample =
+                    Sample.builder().userInput("question").response("answer").build();
+
+            final RubricsScoreMetric.RubricsConfig config = RubricsScoreMetric.RubricsConfig.builder()
+                    .rubric("score1_description", "Poor")
+                    .rubric("score3_description", "Average")
+                    .language("ru")
+                    .build();
+
+            final Double score = metric.singleTurnScore(config, sample);
+            assertThat(score).isNotNull();
+
+            assertThat(capturedPrompts).hasSize(1);
+            // Russian prompt should NOT start with the English default text
+            assertThat(capturedPrompts.get(0)).doesNotStartWith("Evaluate the AI response using");
+            // Russian prompt should contain the substituted values
+            assertThat(capturedPrompts.get(0)).contains("question");
         }
     }
 }
