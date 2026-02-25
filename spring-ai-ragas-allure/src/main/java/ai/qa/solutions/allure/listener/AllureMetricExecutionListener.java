@@ -113,29 +113,22 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         this.evaluationContext = context;
 
         // Capture parent context from main thread (before async execution)
+        // Do NOT call startStep here — it would push to main thread's ThreadLocal
+        // and stopStep would remove from storage, breaking UUID-based operations
         this.parentUuid = lifecycle.getCurrentTestCaseOrStep().orElse(null);
         this.metricStepUuid = UUID.randomUUID().toString();
 
-        // Create Allure step for this metric evaluation (in main thread where context exists)
-        if (parentUuid != null) {
-            final StepResult stepResult =
-                    new StepResult().setName(context.getMetricName()).setStatus(Status.PASSED);
-            lifecycle.startStep(parentUuid, metricStepUuid, stepResult);
-            log.debug(
-                    "Allure listener: Created step '{}' under parent '{}' for metric '{}'",
-                    metricStepUuid,
-                    parentUuid,
-                    context.getMetricName());
-        } else {
+        if (parentUuid == null) {
             log.warn(
                     "Allure listener: No parent context found for metric '{}', attachments may not be linked",
                     context.getMetricName());
         }
 
         log.debug(
-                "Allure listener: Starting evaluation of metric '{}' with {} models",
+                "Allure listener: Starting evaluation of metric '{}' with {} models, parent='{}'",
                 context.getMetricName(),
-                context.getModelIds().size());
+                context.getModelIds().size(),
+                parentUuid);
     }
 
     @Override
@@ -143,33 +136,36 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         try {
             final EvaluationReportData reportData = buildReportData(result);
 
-            if (metricStepUuid != null) {
-                // Use UUID-based methods to bypass ThreadLocal (safe from async threads)
+            if (parentUuid != null && metricStepUuid != null) {
+                // Create Allure step on THIS thread (async) — avoids main thread ThreadLocal corruption
+                final Status status = result.getAggregatedScore() != null ? Status.PASSED : Status.BROKEN;
+                final StepResult stepResult =
+                        new StepResult().setName(result.getMetricName()).setStatus(status);
+                lifecycle.startStep(parentUuid, metricStepUuid, stepResult);
+
+                // Write attachments — step is in storage, UUID-based methods work
                 attachmentWriter.writeHtmlAttachmentToStep(metricStepUuid, reportData);
                 attachmentWriter.writeMarkdownAttachmentToStep(metricStepUuid, reportData);
 
-                // Update step status and stop it
-                final Status status = result.getAggregatedScore() != null ? Status.PASSED : Status.BROKEN;
-                lifecycle.updateStep(metricStepUuid, step -> step.setStatus(status));
+                // Finalize step — sets stop time, removes from storage, pops from THIS thread's ThreadLocal
                 lifecycle.stopStep(metricStepUuid);
 
                 log.debug(
-                        "Allure listener: Generated attachments and closed step '{}' for metric '{}' with score {}",
+                        "Allure listener: Created step '{}' with attachments for metric '{}', score {}",
                         metricStepUuid,
                         result.getMetricName(),
                         result.getAggregatedScore());
             } else {
-                // Fallback to ThreadLocal-based methods (may not work from async threads)
+                // Fallback to ThreadLocal-based methods
                 attachmentWriter.writeHtmlAttachment(reportData);
                 attachmentWriter.writeMarkdownAttachment(reportData);
                 log.debug(
-                        "Allure listener: Generated attachments for metric '{}' with score {} (no step UUID)",
+                        "Allure listener: Generated attachments for metric '{}' with score {} (no parent context)",
                         result.getMetricName(),
                         result.getAggregatedScore());
             }
         } catch (final Exception e) {
             log.error("Allure listener: Failed to generate attachments for metric '{}'", result.getMetricName(), e);
-            // Try to stop step even on error
             if (metricStepUuid != null) {
                 try {
                     lifecycle.updateStep(metricStepUuid, step -> step.setStatus(Status.BROKEN));
