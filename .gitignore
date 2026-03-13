@@ -35,3 +35,9 @@ target/
 
 # Specs
 specs/
+
+# Claude Code
+.claude/
+
+# Logs
+logs/

@@ -58,6 +58,7 @@
         <allure-bom.version>2.29.0</allure-bom.version>
         <aspectj.version>1.9.24</aspectj.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <pmd-plugin.version>3.26.0</pmd-plugin.version>
         <jacoco.coverage.minimum>0.80</jacoco.coverage.minimum>
         <commonmark.version>0.24.0</commonmark.version>
         <bucket4j.version>8.10.1</bucket4j.version>
@@ -288,6 +289,27 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${pmd-plugin.version}</version>
+                    <configuration>
+                        <rulesets>
+                            <ruleset>configs/pmd-ruleset.xml</ruleset>
+                        </rulesets>
+                        <failOnViolation>true</failOnViolation>
+                        <printFailingErrors>true</printFailingErrors>
+                        <linkXRef>false</linkXRef>
+                        <targetJdk>${java.version}</targetJdk>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -320,6 +342,11 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
             </plugin>
 
             <plugin>
