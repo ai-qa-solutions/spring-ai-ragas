@@ -536,6 +536,10 @@ public class ScoreExplanationFactory {
                 .reference("")
                 .modelResults(modelResults)
                 .threshold(ssm.threshold())
+                .chunkingApplied(ssm.chunkingApplied())
+                .responseChunkCount(ssm.responseChunkCount())
+                .referenceChunkCount(ssm.referenceChunkCount())
+                .longTextStrategy(ssm.longTextStrategy())
                 .build();
     }
 

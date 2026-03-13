@@ -384,8 +384,8 @@ class ScoreExplanationFactoryTest {
         @Test
         @DisplayName("Should create SemanticSimilarityExplanation from SemanticSimilarityMetadata")
         void shouldCreateSemanticSimilarityExplanation() {
-            final SemanticSimilarityMetadata metadata =
-                    new SemanticSimilarityMetadata(Map.of("embed-1", 0.92, "embed-2", 0.88), 0.8);
+            final SemanticSimilarityMetadata metadata = new SemanticSimilarityMetadata(
+                    Map.of("embed-1", 0.92, "embed-2", 0.88), 0.8, false, 1, 1, "FAIL_FAST");
 
             final Optional<ScoreExplanation> result = factory.create(resultWith(0.9, metadata), "en");
 
@@ -396,7 +396,8 @@ class ScoreExplanationFactoryTest {
         @Test
         @DisplayName("Should handle null embedding scores")
         void shouldHandleNullEmbeddingScores() {
-            final SemanticSimilarityMetadata metadata = new SemanticSimilarityMetadata(null, null);
+            final SemanticSimilarityMetadata metadata =
+                    new SemanticSimilarityMetadata(null, null, false, 1, 1, "FAIL_FAST");
 
             final Optional<ScoreExplanation> result = factory.create(resultWith(0.0, metadata), "en");
 

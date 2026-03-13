@@ -11,9 +11,11 @@ import ai.qa.solutions.execution.StubMultiModelExecutor;
 import ai.qa.solutions.execution.listener.MetricExecutionListener;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
+import ai.qa.solutions.metric.metadata.SemanticSimilarityMetadata;
 import ai.qa.solutions.sample.Sample;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -440,6 +442,83 @@ class SemanticSimilarityMetricTest {
             public MetricExecutionListener forEvaluation() {
                 return this;
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("Chunking")
+    class ChunkingTests {
+
+        @Test
+        @DisplayName("Should use CHUNK strategy by default")
+        void shouldUseChunkStrategyByDefault() {
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.defaultConfig();
+
+            assertThat(config.getLongTextStrategy())
+                    .isEqualTo(SemanticSimilarityMetric.SemanticSimilarityConfig.LongTextStrategy.CHUNK);
+        }
+
+        @Test
+        @DisplayName("Should have maxTokensPerChunk default of 512")
+        void shouldHaveMaxTokensPerChunkDefault512() {
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.defaultConfig();
+
+            assertThat(config.getMaxTokensPerChunk()).isEqualTo(512);
+        }
+
+        @Test
+        @DisplayName("Should include chunking info in metadata when long text triggers chunking")
+        void shouldIncludeChunkingInfoInMetadata() {
+            // Create text long enough to trigger chunking (> 512 tokens = > 1536 chars)
+            final String longResponse = "This is a sentence about response. ".repeat(60); // ~2100 chars = ~700 tokens
+            final String longReference = "This is a sentence about reference. ".repeat(60);
+
+            final float[] embedding = {0.1f, 0.2f, 0.3f};
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(
+                            List.of("model-1"), List.of("embedding-1"))
+                    .withEmbeddings(texts -> texts.stream().map(t -> embedding).toList());
+
+            final AtomicReference<MetricEvaluationResult> capturedResult = new AtomicReference<>();
+
+            final MetricExecutionListener capturingListener = new MetricExecutionListener() {
+                @Override
+                public void beforeMetricEvaluation(final MetricEvaluationContext context) {}
+
+                @Override
+                public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                    capturedResult.set(result);
+                }
+
+                @Override
+                public MetricExecutionListener forEvaluation() {
+                    return this;
+                }
+            };
+
+            final SemanticSimilarityMetric metric = SemanticSimilarityMetric.builder()
+                    .executor(stubExecutor)
+                    .build()
+                    .withListeners(List.of(capturingListener));
+
+            final Sample sample = Sample.builder()
+                    .response(longResponse)
+                    .reference(longReference)
+                    .build();
+
+            metric.singleTurnScore(sample);
+
+            assertThat(capturedResult.get()).isNotNull();
+            final Object metadata = capturedResult.get().getMetadata();
+            assertThat(metadata).isInstanceOf(SemanticSimilarityMetadata.class);
+
+            final SemanticSimilarityMetadata semMetadata = (SemanticSimilarityMetadata) metadata;
+            assertThat(semMetadata.chunkingApplied()).isTrue();
+            assertThat(semMetadata.responseChunkCount()).isGreaterThan(1);
+            assertThat(semMetadata.referenceChunkCount()).isGreaterThan(1);
+            assertThat(semMetadata.longTextStrategy()).isEqualTo("CHUNK");
         }
     }
 }
