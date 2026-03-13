@@ -20,6 +20,10 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
     private final String reference;
     private final List<ModelSimilarityResult> modelResults;
     private final Double threshold;
+    private final boolean chunkingApplied;
+    private final int responseChunkCount;
+    private final int referenceChunkCount;
+    private final String longTextStrategy;
 
     @Builder
     public SemanticSimilarityExplanation(
@@ -28,12 +32,20 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
             final String response,
             final String reference,
             final List<ModelSimilarityResult> modelResults,
-            final Double threshold) {
+            final Double threshold,
+            final boolean chunkingApplied,
+            final int responseChunkCount,
+            final int referenceChunkCount,
+            final String longTextStrategy) {
         super(score, language);
         this.response = response != null ? response : "";
         this.reference = reference != null ? reference : "";
         this.modelResults = modelResults != null ? modelResults : List.of();
         this.threshold = threshold;
+        this.chunkingApplied = chunkingApplied;
+        this.responseChunkCount = responseChunkCount;
+        this.referenceChunkCount = referenceChunkCount;
+        this.longTextStrategy = longTextStrategy != null ? longTextStrategy : "";
         buildSteps();
         buildInterpretation();
     }
@@ -49,10 +61,12 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
     }
 
     private void buildSteps() {
+        int stepNumber = 1;
+
         // Step 1: Show response and reference
         steps.add(StepExplanation.builder()
                 .stepName("InputTexts")
-                .stepNumber(1)
+                .stepNumber(stepNumber++)
                 .title(messages.get("semanticSimilarity.step1.title"))
                 .description(messages.get("semanticSimilarity.step1.desc"))
                 .inputData(String.format(
@@ -65,10 +79,29 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
                 .agreementPercent(100.0)
                 .build());
 
-        // Step 2: Compute embeddings
+        // Optional chunking step: show chunking info when applied
+        if (chunkingApplied) {
+            final String chunkingDescription = messages.get("semanticSimilarity.chunking_applied");
+            final String chunkingOutput = String.format(
+                    "%s\n%s",
+                    messages.get("semanticSimilarity.chunking_strategy", longTextStrategy),
+                    messages.get("semanticSimilarity.chunk_count", responseChunkCount, referenceChunkCount));
+
+            steps.add(StepExplanation.builder()
+                    .stepName("TextChunking")
+                    .stepNumber(stepNumber++)
+                    .title(messages.get("semanticSimilarity.chunking_applied"))
+                    .description(chunkingDescription)
+                    .outputSummary(chunkingOutput)
+                    .hasModelDisagreement(false)
+                    .agreementPercent(100.0)
+                    .build());
+        }
+
+        // Compute embeddings step
         steps.add(StepExplanation.builder()
                 .stepName("ComputeEmbeddings")
-                .stepNumber(2)
+                .stepNumber(stepNumber++)
                 .title(messages.get("semanticSimilarity.step2.title"))
                 .description(messages.get("semanticSimilarity.step2.desc"))
                 .outputSummary(messages.get("semanticSimilarity.step2.output", modelResults.size()))
@@ -76,7 +109,7 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
                 .agreementPercent(100.0)
                 .build());
 
-        // Step 3: Calculate cosine similarity - show per-model results
+        // Calculate cosine similarity - show per-model results
         final List<ModelStepResult> stepModelResults = modelResults.stream()
                 .map(m -> ModelStepResult.builder()
                         .modelId(m.modelId)
@@ -94,7 +127,7 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
 
         steps.add(StepExplanation.builder()
                 .stepName("ComputeCosineSimilarity")
-                .stepNumber(3)
+                .stepNumber(stepNumber)
                 .title(messages.get("semanticSimilarity.step3.title"))
                 .description(messages.get("semanticSimilarity.step3.desc"))
                 .outputSummary(outputSummary)

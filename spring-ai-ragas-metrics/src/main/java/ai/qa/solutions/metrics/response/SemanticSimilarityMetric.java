@@ -134,10 +134,51 @@ public class SemanticSimilarityMetric
             final List<String> excludedModels = new ArrayList<>();
 
             // ========== Step 1: Compute embeddings ==========
-            // Prepare texts for embedding: [response, reference]
-            final List<String> textsToEmbed = List.of(
-                    response.trim().isEmpty() ? " " : response, // Handle empty strings
-                    reference.trim().isEmpty() ? " " : reference);
+            // Determine strategy and prepare texts
+            final SemanticSimilarityConfig.LongTextStrategy strategy = config.getLongTextStrategy();
+            final int maxTokens = config.getMaxTokensPerChunk();
+
+            // Track chunking metadata
+            int finalResponseChunkCount = 1;
+            int finalReferenceChunkCount = 1;
+            boolean chunkingApplied = false;
+
+            final boolean useChunkStrategy = strategy == SemanticSimilarityConfig.LongTextStrategy.CHUNK;
+
+            // Prepare texts for embedding based on strategy
+            final List<String> textsToEmbed;
+            final int responseChunkCount;
+
+            if (useChunkStrategy) {
+                final List<String> responseChunks =
+                        TextChunker.splitIntoChunks(response.trim().isEmpty() ? " " : response, maxTokens);
+                final List<String> referenceChunks =
+                        TextChunker.splitIntoChunks(reference.trim().isEmpty() ? " " : reference, maxTokens);
+
+                finalResponseChunkCount = responseChunks.size();
+                finalReferenceChunkCount = referenceChunks.size();
+                chunkingApplied = finalResponseChunkCount > 1 || finalReferenceChunkCount > 1;
+                responseChunkCount = responseChunks.size();
+
+                final List<String> allChunks = new ArrayList<>(responseChunks);
+                allChunks.addAll(referenceChunks);
+                textsToEmbed = allChunks;
+            } else if (strategy == SemanticSimilarityConfig.LongTextStrategy.TRUNCATE) {
+                final String processedResponse =
+                        TextChunker.truncateToTokenLimit(response.trim().isEmpty() ? " " : response, maxTokens);
+                final String processedReference =
+                        TextChunker.truncateToTokenLimit(reference.trim().isEmpty() ? " " : reference, maxTokens);
+                textsToEmbed = List.of(processedResponse, processedReference);
+                responseChunkCount = 1;
+            } else {
+                // FAIL_FAST — pass as-is
+                textsToEmbed = List.of(
+                        response.trim().isEmpty() ? " " : response,
+                        reference.trim().isEmpty() ? " " : reference);
+                responseChunkCount = 1;
+            }
+
+            final int expectedMinEmbeddings = useChunkStrategy ? textsToEmbed.size() : 2;
 
             // Execute embeddings asynchronously
             final CompletableFuture<List<ModelResult<List<float[]>>>> embeddingsFuture =
@@ -152,9 +193,28 @@ public class SemanticSimilarityMetric
             for (final ModelResult<List<float[]>> result : embeddingResults) {
                 if (result.isSuccess()) {
                     final List<float[]> embeddings = result.result();
-                    if (embeddings != null && embeddings.size() >= 2) {
-                        final double[] responseEmbedding = convertToDoubleArray(embeddings.get(0));
-                        final double[] referenceEmbedding = convertToDoubleArray(embeddings.get(1));
+                    if (embeddings != null && embeddings.size() >= expectedMinEmbeddings) {
+                        final double[] responseEmbedding;
+                        final double[] referenceEmbedding;
+
+                        if (useChunkStrategy && textsToEmbed.size() > 2) {
+                            // Average response chunk embeddings
+                            final List<double[]> responseEmbeddings = new ArrayList<>();
+                            for (int i = 0; i < responseChunkCount; i++) {
+                                responseEmbeddings.add(convertToDoubleArray(embeddings.get(i)));
+                            }
+                            responseEmbedding = TextChunker.averageEmbeddings(responseEmbeddings);
+
+                            // Average reference chunk embeddings
+                            final List<double[]> referenceEmbeddings = new ArrayList<>();
+                            for (int i = responseChunkCount; i < embeddings.size(); i++) {
+                                referenceEmbeddings.add(convertToDoubleArray(embeddings.get(i)));
+                            }
+                            referenceEmbedding = TextChunker.averageEmbeddings(referenceEmbeddings);
+                        } else {
+                            responseEmbedding = convertToDoubleArray(embeddings.get(0));
+                            referenceEmbedding = convertToDoubleArray(embeddings.get(1));
+                        }
 
                         final EmbeddingsResult embResult = new EmbeddingsResult(responseEmbedding, referenceEmbedding);
                         step1Successful.put(result.modelId(), embResult);
@@ -273,7 +333,13 @@ public class SemanticSimilarityMetric
                     .totalDuration(duration)
                     .steps(accumulatedSteps)
                     .exclusions(accumulatedExclusions)
-                    .metadata(new SemanticSimilarityMetadata(new HashMap<>(modelScores), config.getThreshold()))
+                    .metadata(new SemanticSimilarityMetadata(
+                            new HashMap<>(modelScores),
+                            config.getThreshold(),
+                            chunkingApplied,
+                            finalResponseChunkCount,
+                            finalReferenceChunkCount,
+                            config.getLongTextStrategy().name()))
                     .build());
 
             return aggregatedScore;
@@ -344,6 +410,18 @@ public class SemanticSimilarityMetric
     public static class SemanticSimilarityConfig implements MetricConfiguration {
 
         /**
+         * Strategy for handling texts that exceed the embedding model's token limit.
+         */
+        public enum LongTextStrategy {
+            /** Split into chunks, embed each, average vectors. */
+            CHUNK,
+            /** Truncate to token limit. */
+            TRUNCATE,
+            /** Current behavior — pass as-is (fails on long texts). */
+            FAIL_FAST
+        }
+
+        /**
          * Optional threshold for binary pass/fail classification.
          * If set, scores above threshold return 1.0, below return 0.0.
          * If null or 0, returns the raw cosine similarity score.
@@ -360,6 +438,20 @@ public class SemanticSimilarityMetric
 
         @Builder.Default
         private String language = "en";
+
+        /**
+         * Strategy for handling long texts that may exceed the embedding model's token limit.
+         * Default is CHUNK — split into chunks, embed each, average vectors.
+         */
+        @Builder.Default
+        private LongTextStrategy longTextStrategy = LongTextStrategy.CHUNK;
+
+        /**
+         * Maximum tokens per chunk when using CHUNK or TRUNCATE strategy.
+         * Default is 512, matching common embedding model limits.
+         */
+        @Builder.Default
+        private int maxTokensPerChunk = 512;
 
         /**
          * Creates a default configuration instance.

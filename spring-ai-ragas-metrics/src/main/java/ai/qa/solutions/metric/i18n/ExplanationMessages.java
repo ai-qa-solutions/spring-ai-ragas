@@ -341,6 +341,9 @@ public final class ExplanationMessages {
                 Map.entry("semanticSimilarity.scale.good", "Similar meaning"),
                 Map.entry("semanticSimilarity.scale.moderate", "Somewhat related"),
                 Map.entry("semanticSimilarity.scale.poor", "Different meanings"),
+                Map.entry("semanticSimilarity.chunking_applied", "Text chunking was applied to handle long texts"),
+                Map.entry("semanticSimilarity.chunking_strategy", "Long text strategy: %s"),
+                Map.entry("semanticSimilarity.chunk_count", "Response: %d chunks, Reference: %d chunks"),
 
                 // FactualCorrectness
                 Map.entry(
@@ -1027,6 +1030,11 @@ public final class ExplanationMessages {
                 Map.entry("semanticSimilarity.scale.good", "Схожий смысл"),
                 Map.entry("semanticSimilarity.scale.moderate", "Частично связаны"),
                 Map.entry("semanticSimilarity.scale.poor", "Разный смысл"),
+                Map.entry(
+                        "semanticSimilarity.chunking_applied",
+                        "Применено разбиение текста на чанки для обработки длинных текстов"),
+                Map.entry("semanticSimilarity.chunking_strategy", "Стратегия длинных текстов: %s"),
+                Map.entry("semanticSimilarity.chunk_count", "Ответ: %d чанков, Эталон: %d чанков"),
 
                 // FactualCorrectness
                 Map.entry(
