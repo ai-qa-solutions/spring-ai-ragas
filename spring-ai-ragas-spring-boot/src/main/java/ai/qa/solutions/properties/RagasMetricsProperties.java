@@ -35,6 +35,12 @@ public class RagasMetricsProperties {
      */
     private Logging logging = new Logging();
 
+    /**
+     * Custom prompt templates for metric evaluation.
+     * Overrides default and classpath-based prompts.
+     */
+    private Prompts prompts = new Prompts();
+
     @Getter
     @Setter
     public static class Logging {
@@ -80,5 +86,19 @@ public class RagasMetricsProperties {
              */
             VERBOSE
         }
+    }
+
+    @Getter
+    @Setter
+    public static class Prompts {
+
+        /** Custom prompt template for AspectCriticMetric. */
+        private String aspectCritic;
+
+        /** Custom prompt template for SimpleCriteriaScoreMetric. */
+        private String simpleCriteriaScore;
+
+        /** Custom prompt template for RubricsScoreMetric. */
+        private String rubricsScore;
     }
 }

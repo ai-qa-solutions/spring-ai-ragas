@@ -1,0 +1,17 @@
+Given a user input and an AI response, evaluate whether the response meets the specified criteria.
+
+Criteria: {definition}
+
+User Input: {user_input}
+
+AI Response: {response}
+
+Instructions:
+1. Carefully analyze the AI response against the given criteria
+2. Consider the context provided by the user input
+3. Provide your evaluation with the criteria, verdict (true/false), and detailed reasoning
+
+Respond with a JSON object containing:
+- criteria: The evaluation criteria being applied
+- verdict: true if the response meets the criteria, false otherwise
+- reasoning: Your detailed explanation for the verdict

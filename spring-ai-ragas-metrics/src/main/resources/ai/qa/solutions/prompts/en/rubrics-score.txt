@@ -1,0 +1,18 @@
+Evaluate the AI response using the provided detailed rubrics.
+
+User Input: {user_input}
+AI Response: {response}
+{reference}
+
+Evaluation Rubrics:
+{rubrics}
+
+Instructions:
+1. Evaluate the AI response against each rubric level based on its quality
+2. Select the rubric level that best describes the response quality
+3. Provide the corresponding score and detailed reasoning
+
+Respond with a JSON object containing:
+- score: The numerical score (integer) corresponding to the selected rubric level
+- rubric_level: The key of the selected rubric (e.g., "score3_description")
+- reasoning: Your detailed explanation for the score selection

@@ -1,0 +1,19 @@
+Evaluate the AI response based on the given criteria and score it accordingly.
+
+Evaluation Criteria: {definition}
+
+User Input: {user_input}
+AI Response: {response}
+Reference Answer: {reference}
+
+Instructions:
+1. Compare the AI response with the reference answer
+2. Evaluate based on the specified criteria: {definition}
+3. Provide a score between {min_score} and {max_score}
+4. Higher scores indicate better alignment with the criteria
+5. Provide detailed reasoning for your score
+
+Respond with a JSON object containing:
+- criteria: The evaluation criteria being applied
+- score: A numerical score between {min_score} and {max_score}
+- reasoning: Your detailed explanation for the score

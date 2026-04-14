@@ -8,6 +8,7 @@ import ai.qa.solutions.chatclient.ChatClientStore;
 import ai.qa.solutions.execution.MultiModelExecutor;
 import ai.qa.solutions.execution.StubMultiModelExecutor;
 import ai.qa.solutions.sample.Sample;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -387,6 +388,142 @@ class AspectCriticMetricTest {
             Double score = metric.singleTurnScore(config, sample);
 
             assertThat(score).isEqualTo(0.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Prompt Resolution")
+    class PromptResolutionTests {
+
+        @Test
+        @DisplayName("Should use config promptTemplate when provided")
+        void shouldUseConfigPromptTemplateWhenProvided() {
+            final String customPrompt = "CUSTOM: {definition} | {user_input} | {response}";
+            final List<String> capturedPrompts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponseProvider(AspectCriticMetric.Response.class, prompt -> {
+                        capturedPrompts.add(prompt);
+                        return new AspectCriticMetric.Response("test", true, "good");
+                    });
+
+            final AspectCriticMetric metric =
+                    AspectCriticMetric.builder().executor(stubExecutor).build();
+
+            final Sample sample =
+                    Sample.builder().userInput("question").response("answer").build();
+
+            final AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                    .definition("test def")
+                    .promptTemplate(customPrompt)
+                    .build();
+
+            final Double score = metric.singleTurnScore(config, sample);
+            assertThat(score).isNotNull();
+
+            assertThat(capturedPrompts).hasSize(1);
+            assertThat(capturedPrompts.get(0)).startsWith("CUSTOM:");
+            assertThat(capturedPrompts.get(0)).contains("test def");
+            assertThat(capturedPrompts.get(0)).contains("question");
+            assertThat(capturedPrompts.get(0)).contains("answer");
+        }
+
+        @Test
+        @DisplayName("Should use constructor promptTemplate when no config override")
+        void shouldUseConstructorPromptTemplateWhenNoConfigOverride() {
+            final String constructorPrompt = "CONSTRUCTOR: {definition} | {user_input} | {response}";
+            final List<String> capturedPrompts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponseProvider(AspectCriticMetric.Response.class, prompt -> {
+                        capturedPrompts.add(prompt);
+                        return new AspectCriticMetric.Response("test", true, "good");
+                    });
+
+            final AspectCriticMetric metric = AspectCriticMetric.builder()
+                    .executor(stubExecutor)
+                    .promptTemplate(constructorPrompt)
+                    .build();
+
+            final Sample sample =
+                    Sample.builder().userInput("question").response("answer").build();
+
+            final AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                    .definition("test def")
+                    .build();
+
+            final Double score = metric.singleTurnScore(config, sample);
+            assertThat(score).isNotNull();
+
+            assertThat(capturedPrompts).hasSize(1);
+            assertThat(capturedPrompts.get(0)).startsWith("CONSTRUCTOR:");
+            assertThat(capturedPrompts.get(0)).contains("test def");
+        }
+
+        @Test
+        @DisplayName("Should resolve Russian prompt when language is ru and no overrides")
+        void shouldResolveRussianPromptWhenLanguageIsRu() {
+            final List<String> capturedPrompts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponseProvider(AspectCriticMetric.Response.class, prompt -> {
+                        capturedPrompts.add(prompt);
+                        return new AspectCriticMetric.Response("test", true, "good");
+                    });
+
+            final AspectCriticMetric metric =
+                    AspectCriticMetric.builder().executor(stubExecutor).build();
+
+            final Sample sample =
+                    Sample.builder().userInput("question").response("answer").build();
+
+            final AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                    .definition("test def")
+                    .language("ru")
+                    .build();
+
+            final Double score = metric.singleTurnScore(config, sample);
+            assertThat(score).isNotNull();
+
+            assertThat(capturedPrompts).hasSize(1);
+            // Russian prompt should NOT start with the English default text
+            assertThat(capturedPrompts.get(0)).doesNotStartWith("Given a user input and an AI response");
+            // Russian prompt should contain Cyrillic text from the classpath resource
+            assertThat(capturedPrompts.get(0)).contains("test def");
+        }
+
+        @Test
+        @DisplayName("Config promptTemplate should take priority over constructor promptTemplate")
+        void configPromptTemplateShouldTakePriorityOverConstructor() {
+            final String constructorPrompt = "CONSTRUCTOR: {definition} | {user_input} | {response}";
+            final String configPrompt = "CONFIG: {definition} | {user_input} | {response}";
+            final List<String> capturedPrompts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(List.of("model-1"))
+                    .withResponseProvider(AspectCriticMetric.Response.class, prompt -> {
+                        capturedPrompts.add(prompt);
+                        return new AspectCriticMetric.Response("test", true, "good");
+                    });
+
+            final AspectCriticMetric metric = AspectCriticMetric.builder()
+                    .executor(stubExecutor)
+                    .promptTemplate(constructorPrompt)
+                    .build();
+
+            final Sample sample =
+                    Sample.builder().userInput("question").response("answer").build();
+
+            final AspectCriticMetric.AspectCriticConfig config = AspectCriticMetric.AspectCriticConfig.builder()
+                    .definition("test def")
+                    .promptTemplate(configPrompt)
+                    .build();
+
+            final Double score = metric.singleTurnScore(config, sample);
+            assertThat(score).isNotNull();
+
+            assertThat(capturedPrompts).hasSize(1);
+            assertThat(capturedPrompts.get(0)).startsWith("CONFIG:");
+            assertThat(capturedPrompts.get(0)).doesNotContain("CONSTRUCTOR:");
         }
     }
 }
