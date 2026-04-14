@@ -66,15 +66,16 @@ class Bucket4jProviderRateLimiterRegistryTest {
             // When - exhaust the bucket
             registry.acquire("model-a");
 
-            // Then - next acquire should throw within approximately 50ms
+            // Then - next acquire should throw quickly: bucket4j fast-fails when the required
+            // wait time exceeds the configured timeout, so elapsed time can be near-zero.
             final long startMs = System.currentTimeMillis();
             assertThatThrownBy(() -> registry.acquire("model-a"))
                     .isInstanceOf(RateLimitExceededException.class)
                     .hasMessageContaining("timeout");
             final long elapsedMs = System.currentTimeMillis() - startMs;
 
-            // Should have waited some time (bucket4j timer resolution is platform-dependent)
-            assertThat(elapsedMs).isGreaterThanOrEqualTo(10);
+            // Upper bound only — lower bound is unreliable under CI load and depends on
+            // bucket4j internals (fast-fail path vs actual parking).
             assertThat(elapsedMs).isLessThan(500);
         }
 

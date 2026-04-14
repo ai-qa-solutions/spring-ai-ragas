@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.Builder;
 import lombok.Data;
@@ -56,6 +57,32 @@ import lombok.extern.slf4j.Slf4j;
 public class SemanticSimilarityMetric
         extends AbstractMultiModelMetric<SemanticSimilarityMetric.SemanticSimilarityConfig> {
 
+    /** Имя первого шага — вычисление эмбеддингов. */
+    private static final String STEP_COMPUTE_EMBEDDINGS = "ComputeEmbeddings";
+
+    /** Имя второго шага — вычисление косинусной близости. */
+    private static final String STEP_COMPUTE_COSINE_SIMILARITY = "ComputeCosineSimilarity";
+
+    /** Общее количество шагов evaluation pipeline. */
+    private static final int TOTAL_STEPS = 2;
+
+    /** Индекс шага ComputeEmbeddings. */
+    private static final int STEP_INDEX_EMBEDDINGS = 0;
+
+    /** Индекс шага ComputeCosineSimilarity. */
+    private static final int STEP_INDEX_COSINE = 1;
+
+    /** Метка запроса для шага эмбеддингов в аллюр-отчёте. */
+    private static final String EMBEDDINGS_REQUEST_LABEL = "response + reference";
+
+    /** Метка запроса для шага вычисления косинусной близости. */
+    private static final String COMPUTE_REQUEST_LABEL = "compute";
+
+    /**
+     * Создаёт метрику с указанным multi-model исполнителем.
+     *
+     * @param executor исполнитель, предоставляющий доступ к embedding-моделям
+     */
     @Builder(toBuilder = true)
     protected SemanticSimilarityMetric(final MultiModelExecutor executor) {
         super(executor);
@@ -91,13 +118,13 @@ public class SemanticSimilarityMetric
 
         // Validate required inputs
         final String response = sample.getResponse();
-        if (response == null || response.trim().isEmpty()) {
+        if (response == null || response.isBlank()) {
             log.warn("No response provided for Semantic Similarity evaluation");
             return CompletableFuture.completedFuture(0.0);
         }
 
         final String reference = sample.getReference();
-        if (reference == null || reference.trim().isEmpty()) {
+        if (reference == null || reference.isBlank()) {
             log.warn("No reference provided for Semantic Similarity evaluation");
             return CompletableFuture.completedFuture(0.0);
         }
@@ -120,82 +147,33 @@ public class SemanticSimilarityMetric
                 .config(config)
                 .modelIds(List.of())
                 .embeddingModelIds(embeddingModelIds)
-                .totalSteps(2) // ComputeEmbeddings -> ComputeCosineSimilarity
+                .totalSteps(TOTAL_STEPS)
                 .build());
 
         return executor.runAsync(() -> {
             log.debug("Computing semantic similarity evaluation with explicit flow");
 
-            // Local accumulators for step results and exclusions
             final List<StepResults> accumulatedSteps = new ArrayList<>();
             final List<ModelExclusionEvent> accumulatedExclusions = new ArrayList<>();
-
-            // Track excluded models across all steps
             final List<String> excludedModels = new ArrayList<>();
 
             // ========== Step 1: Compute embeddings ==========
-            // Prepare texts for embedding: [response, reference]
-            final List<String> textsToEmbed = List.of(
-                    response.trim().isEmpty() ? " " : response, // Handle empty strings
-                    reference.trim().isEmpty() ? " " : reference);
+            final EmbeddingTexts texts = prepareTextsForStrategy(config, response, reference);
 
-            // Execute embeddings asynchronously
-            final CompletableFuture<List<ModelResult<List<float[]>>>> embeddingsFuture =
-                    executor.executeEmbeddingsAsync(textsToEmbed);
+            final List<ModelResult<List<float[]>>> embeddingResults =
+                    executor.executeEmbeddingsAsync(texts.textsToEmbed()).join();
 
-            final List<ModelResult<List<float[]>>> embeddingResults = embeddingsFuture.join();
-
-            // Convert to step results for accumulation
             final List<ModelResult<?>> step1LlmResults = new ArrayList<>();
-            final Map<String, EmbeddingsResult> step1Successful = new HashMap<>();
+            final Map<String, EmbeddingsResult> step1Successful = processEmbeddingResults(
+                    embeddingResults, texts, step1LlmResults, accumulatedExclusions, excludedModels);
 
-            for (final ModelResult<List<float[]>> result : embeddingResults) {
-                if (result.isSuccess()) {
-                    final List<float[]> embeddings = result.result();
-                    if (embeddings != null && embeddings.size() >= 2) {
-                        final double[] responseEmbedding = convertToDoubleArray(embeddings.get(0));
-                        final double[] referenceEmbedding = convertToDoubleArray(embeddings.get(1));
-
-                        final EmbeddingsResult embResult = new EmbeddingsResult(responseEmbedding, referenceEmbedding);
-                        step1Successful.put(result.modelId(), embResult);
-                        step1LlmResults.add(
-                                ModelResult.success(result.modelId(), embResult, result.duration(), result.request()));
-                    } else {
-                        log.warn("Insufficient embeddings returned from model {}", result.modelId());
-                        excludedModels.add(result.modelId());
-                        final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
-                                .modelId(result.modelId())
-                                .failedStepName("ComputeEmbeddings")
-                                .failedStepIndex(0)
-                                .cause(new IllegalStateException("Insufficient embeddings returned"))
-                                .build();
-                        accumulatedExclusions.add(exclusion);
-                    }
-                } else {
-                    excludedModels.add(result.modelId());
-                    log.warn(
-                            "Embedding model {} failed: {}",
-                            result.modelId(),
-                            result.error() != null ? result.error().getMessage() : "unknown error");
-                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
-                            .modelId(result.modelId())
-                            .failedStepName("ComputeEmbeddings")
-                            .failedStepIndex(0)
-                            .cause(result.error())
-                            .build();
-                    accumulatedExclusions.add(exclusion);
-                }
-            }
-
-            // Build embedding model results for the step
-            final List<ModelResult<?>> embeddingModelResultsList = new ArrayList<ModelResult<?>>(embeddingResults);
-
+            final List<ModelResult<?>> embeddingModelResultsList = new ArrayList<>(embeddingResults);
             accumulatedSteps.add(StepResults.builder()
-                    .stepName("ComputeEmbeddings")
-                    .stepIndex(0)
-                    .totalSteps(2)
+                    .stepName(STEP_COMPUTE_EMBEDDINGS)
+                    .stepIndex(STEP_INDEX_EMBEDDINGS)
+                    .totalSteps(TOTAL_STEPS)
                     .stepType(StepType.EMBEDDING)
-                    .request("response + reference")
+                    .request(EMBEDDINGS_REQUEST_LABEL)
                     .results(step1LlmResults)
                     .embeddingModelResults(embeddingModelResultsList)
                     .build());
@@ -206,50 +184,17 @@ public class SemanticSimilarityMetric
             }
 
             // ========== Step 2: Compute cosine similarity ==========
-            final Map<String, Double> modelScores = new HashMap<>();
+            final Map<String, Double> modelScores =
+                    computeAllSimilarities(step1Successful, config, accumulatedExclusions, excludedModels);
 
-            for (final Map.Entry<String, EmbeddingsResult> entry : step1Successful.entrySet()) {
-                final String modelId = entry.getKey();
-                final EmbeddingsResult embResult = entry.getValue();
-
-                try {
-                    final double similarity =
-                            cosineSimilarity(embResult.responseEmbedding(), embResult.referenceEmbedding());
-
-                    // Apply threshold if configured
-                    final double finalScore;
-                    if (config.getThreshold() != null && config.getThreshold() > 0) {
-                        finalScore = similarity >= config.getThreshold() ? 1.0 : 0.0;
-                    } else {
-                        finalScore = similarity;
-                    }
-
-                    modelScores.put(modelId, finalScore);
-                    log.debug("Semantic similarity for model {}: {} (raw: {})", modelId, finalScore, similarity);
-
-                } catch (final Exception e) {
-                    log.warn("Failed to calculate similarity for model {}: {}", modelId, e.getMessage());
-                    excludedModels.add(modelId);
-                    final ModelExclusionEvent exclusion = ModelExclusionEvent.builder()
-                            .modelId(modelId)
-                            .failedStepName("ComputeCosineSimilarity")
-                            .failedStepIndex(1)
-                            .cause(e)
-                            .build();
-                    accumulatedExclusions.add(exclusion);
-                }
-            }
-
-            // Create synthetic results for step accumulation
             final List<ModelResult<?>> step2Results = new ArrayList<>();
             for (final Map.Entry<String, Double> e : modelScores.entrySet()) {
-                step2Results.add(ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, "compute"));
+                step2Results.add(ModelResult.success(e.getKey(), e.getValue(), Duration.ZERO, COMPUTE_REQUEST_LABEL));
             }
-
             accumulatedSteps.add(StepResults.builder()
-                    .stepName("ComputeCosineSimilarity")
-                    .stepIndex(1)
-                    .totalSteps(2)
+                    .stepName(STEP_COMPUTE_COSINE_SIMILARITY)
+                    .stepIndex(STEP_INDEX_COSINE)
+                    .totalSteps(TOTAL_STEPS)
                     .stepType(StepType.COMPUTE)
                     .results(step2Results)
                     .build());
@@ -259,9 +204,8 @@ public class SemanticSimilarityMetric
             }
 
             final double aggregatedScore = aggregate(modelScores);
-
-            // Notify with full results
             final Duration duration = Duration.between(startTime, Instant.now());
+
             notifier.afterMetricEvaluation(MetricEvaluationResult.builder()
                     .metricName(getName())
                     .sample(sample)
@@ -273,11 +217,214 @@ public class SemanticSimilarityMetric
                     .totalDuration(duration)
                     .steps(accumulatedSteps)
                     .exclusions(accumulatedExclusions)
-                    .metadata(new SemanticSimilarityMetadata(new HashMap<>(modelScores), config.getThreshold()))
+                    .metadata(new SemanticSimilarityMetadata(
+                            new HashMap<>(modelScores),
+                            config.getThreshold(),
+                            texts.chunkingApplied(),
+                            texts.responseChunkCount(),
+                            texts.referenceChunkCount(),
+                            config.getLongTextStrategy().name()))
                     .build());
 
             return aggregatedScore;
         });
+    }
+
+    /**
+     * Готовит список текстов для embedding-вызова согласно выбранной стратегии
+     * обработки длинных текстов.
+     */
+    private EmbeddingTexts prepareTextsForStrategy(
+            final SemanticSimilarityConfig config, final String response, final String reference) {
+        final SemanticSimilarityConfig.LongTextStrategy strategy = config.getLongTextStrategy();
+        final int maxTokens = config.getMaxTokensPerChunk();
+        final double charsPerToken = config.getCharsPerToken();
+        return switch (strategy) {
+            case CHUNK -> prepareChunked(response, reference, maxTokens, charsPerToken);
+            case TRUNCATE -> prepareTruncated(response, reference, maxTokens, charsPerToken);
+            case FAIL_FAST -> prepareAsIs(response, reference);
+        };
+    }
+
+    /**
+     * Разбивает оба текста на чанки через {@link TextChunker}, объединяет их в один список
+     * и фиксирует метаданные чанкинга.
+     */
+    private EmbeddingTexts prepareChunked(
+            final String response, final String reference, final int maxTokens, final double charsPerToken) {
+        final List<String> responseChunks = TextChunker.splitIntoChunks(response, maxTokens, charsPerToken);
+        final List<String> referenceChunks = TextChunker.splitIntoChunks(reference, maxTokens, charsPerToken);
+
+        final int responseChunkCount = responseChunks.size();
+        final int referenceChunkCount = referenceChunks.size();
+        final boolean chunkingApplied = responseChunkCount > 1 || referenceChunkCount > 1;
+
+        final List<String> allChunks = new ArrayList<>(responseChunkCount + referenceChunkCount);
+        allChunks.addAll(responseChunks);
+        allChunks.addAll(referenceChunks);
+
+        return new EmbeddingTexts(allChunks, responseChunkCount, referenceChunkCount, chunkingApplied);
+    }
+
+    /**
+     * Усекает оба текста до лимита токенов через {@link TextChunker#truncateToTokenLimit}.
+     */
+    private EmbeddingTexts prepareTruncated(
+            final String response, final String reference, final int maxTokens, final double charsPerToken) {
+        final String processedResponse = TextChunker.truncateToTokenLimit(response, maxTokens, charsPerToken);
+        final String processedReference = TextChunker.truncateToTokenLimit(reference, maxTokens, charsPerToken);
+        return new EmbeddingTexts(List.of(processedResponse, processedReference), 1, 1, false);
+    }
+
+    /**
+     * Передаёт тексты в embedding-модель как есть — стратегия {@code FAIL_FAST}.
+     */
+    private EmbeddingTexts prepareAsIs(final String response, final String reference) {
+        return new EmbeddingTexts(List.of(response, reference), 1, 1, false);
+    }
+
+    /**
+     * Обрабатывает результаты вызова embedding-моделей: для каждой модели либо собирает
+     * успешный {@link EmbeddingsResult}, либо добавляет запись об исключении модели.
+     */
+    private Map<String, EmbeddingsResult> processEmbeddingResults(
+            final List<ModelResult<List<float[]>>> embeddingResults,
+            final EmbeddingTexts texts,
+            final List<ModelResult<?>> step1LlmResults,
+            final List<ModelExclusionEvent> accumulatedExclusions,
+            final List<String> excludedModels) {
+        final Map<String, EmbeddingsResult> step1Successful = new HashMap<>();
+        for (final ModelResult<List<float[]>> result : embeddingResults) {
+            final Optional<EmbeddingsResult> maybeEmbResult = tryBuildEmbeddingsResult(result, texts);
+            if (maybeEmbResult.isPresent()) {
+                final EmbeddingsResult embResult = maybeEmbResult.get();
+                step1Successful.put(result.modelId(), embResult);
+                step1LlmResults.add(
+                        ModelResult.success(result.modelId(), embResult, result.duration(), result.request()));
+            } else {
+                excludedModels.add(result.modelId());
+                accumulatedExclusions.add(buildEmbeddingExclusion(result));
+            }
+        }
+        return step1Successful;
+    }
+
+    /**
+     * Пытается собрать {@link EmbeddingsResult} из ответа одной embedding-модели.
+     * Возвращает пустой {@link Optional}, если модель упала или вернула недостаточно векторов.
+     */
+    private Optional<EmbeddingsResult> tryBuildEmbeddingsResult(
+            final ModelResult<List<float[]>> result, final EmbeddingTexts texts) {
+        if (!result.isSuccess()) {
+            log.warn(
+                    "Embedding model {} failed: {}",
+                    result.modelId(),
+                    result.error() != null ? result.error().getMessage() : "unknown error");
+            return Optional.empty();
+        }
+
+        final List<float[]> embeddings = result.result();
+        final int expectedMinEmbeddings = texts.textsToEmbed().size();
+        if (embeddings == null || embeddings.size() < expectedMinEmbeddings) {
+            log.warn("Insufficient embeddings returned from model {}", result.modelId());
+            return Optional.empty();
+        }
+
+        final double[] responseEmbedding;
+        final double[] referenceEmbedding;
+        if (texts.chunkingApplied()) {
+            final int responseChunkCount = texts.responseChunkCount();
+            responseEmbedding = aggregateChunkEmbeddings(embeddings, 0, responseChunkCount);
+            referenceEmbedding = aggregateChunkEmbeddings(embeddings, responseChunkCount, embeddings.size());
+        } else {
+            responseEmbedding = convertToDoubleArray(embeddings.get(0));
+            referenceEmbedding = convertToDoubleArray(embeddings.get(1));
+        }
+        return Optional.of(new EmbeddingsResult(responseEmbedding, referenceEmbedding));
+    }
+
+    /**
+     * Строит событие исключения модели из шага ComputeEmbeddings — используется
+     * как для {@code !isSuccess()}, так и для случая «недостаточно эмбеддингов».
+     */
+    private ModelExclusionEvent buildEmbeddingExclusion(final ModelResult<List<float[]>> result) {
+        final Throwable cause =
+                result.isSuccess() ? new IllegalStateException("Insufficient embeddings returned") : result.error();
+        return ModelExclusionEvent.builder()
+                .modelId(result.modelId())
+                .failedStepName(STEP_COMPUTE_EMBEDDINGS)
+                .failedStepIndex(STEP_INDEX_EMBEDDINGS)
+                .cause(cause)
+                .build();
+    }
+
+    /**
+     * Усредняет подмассив чанк-эмбеддингов {@code [fromIndex; toIndex)} в один double-вектор
+     * через {@link TextChunker#averageEmbeddings}.
+     */
+    private double[] aggregateChunkEmbeddings(final List<float[]> embeddings, final int fromIndex, final int toIndex) {
+        final List<double[]> doubleVectors = new ArrayList<>(toIndex - fromIndex);
+        for (int i = fromIndex; i < toIndex; i++) {
+            doubleVectors.add(convertToDoubleArray(embeddings.get(i)));
+        }
+        return TextChunker.averageEmbeddings(doubleVectors);
+    }
+
+    /**
+     * Вычисляет косинусную близость для каждой embedding-модели, применяет threshold
+     * и собирает события исключений для моделей, упавших на вычислении.
+     */
+    private Map<String, Double> computeAllSimilarities(
+            final Map<String, EmbeddingsResult> step1Successful,
+            final SemanticSimilarityConfig config,
+            final List<ModelExclusionEvent> accumulatedExclusions,
+            final List<String> excludedModels) {
+        final Map<String, Double> modelScores = new HashMap<>();
+        for (final Map.Entry<String, EmbeddingsResult> entry : step1Successful.entrySet()) {
+            computeSingleSimilarity(entry, config, accumulatedExclusions, excludedModels)
+                    .ifPresent(score -> modelScores.put(entry.getKey(), score));
+        }
+        return modelScores;
+    }
+
+    /**
+     * Вычисляет косинусную близость для одной модели и применяет threshold.
+     * Возвращает пустой {@link Optional}, если вычисление упало; в этом случае
+     * также дописывает запись об исключении модели.
+     */
+    private Optional<Double> computeSingleSimilarity(
+            final Map.Entry<String, EmbeddingsResult> entry,
+            final SemanticSimilarityConfig config,
+            final List<ModelExclusionEvent> accumulatedExclusions,
+            final List<String> excludedModels) {
+        final String modelId = entry.getKey();
+        final EmbeddingsResult embResult = entry.getValue();
+        try {
+            final double similarity = cosineSimilarity(embResult.responseEmbedding(), embResult.referenceEmbedding());
+            final double finalScore = applyThreshold(similarity, config.getThreshold());
+            log.debug("Semantic similarity for model {}: {} (raw: {})", modelId, finalScore, similarity);
+            return Optional.of(finalScore);
+        } catch (final Exception e) {
+            log.warn("Failed to calculate similarity for model {}: {}", modelId, e.getMessage());
+            excludedModels.add(modelId);
+            accumulatedExclusions.add(ModelExclusionEvent.builder()
+                    .modelId(modelId)
+                    .failedStepName(STEP_COMPUTE_COSINE_SIMILARITY)
+                    .failedStepIndex(STEP_INDEX_COSINE)
+                    .cause(e)
+                    .build());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Применяет бинарный threshold к сырому similarity, если он задан и положителен.
+     */
+    private double applyThreshold(final double similarity, final Double threshold) {
+        if (threshold == null || threshold <= 0) {
+            return similarity;
+        }
+        return similarity >= threshold ? 1.0 : 0.0;
     }
 
     /**
@@ -336,12 +483,28 @@ public class SemanticSimilarityMetric
      */
     public record EmbeddingsResult(double[] responseEmbedding, double[] referenceEmbedding) {}
 
+    /** Тексты, подготовленные под выбранную стратегию для embedding-вызова. */
+    private record EmbeddingTexts(
+            List<String> textsToEmbed, int responseChunkCount, int referenceChunkCount, boolean chunkingApplied) {}
+
     /**
      * Configuration class for Semantic Similarity metric parameters.
      */
     @Data
     @Builder
     public static class SemanticSimilarityConfig implements MetricConfiguration {
+
+        /**
+         * Strategy for handling texts that exceed the embedding model's token limit.
+         */
+        public enum LongTextStrategy {
+            /** Split into chunks, embed each, average vectors. */
+            CHUNK,
+            /** Truncate to token limit. */
+            TRUNCATE,
+            /** Legacy behavior — pass texts as-is; embedding model rejects if over token limit. */
+            FAIL_FAST
+        }
 
         /**
          * Optional threshold for binary pass/fail classification.
@@ -358,8 +521,31 @@ public class SemanticSimilarityMetric
         @Singular
         private List<String> models;
 
+        /** Языковая метка (ISO-639) для будущей i18n-поддержки в объяснениях. */
         @Builder.Default
         private String language = "en";
+
+        /**
+         * Strategy for handling long texts that may exceed the embedding model's token limit.
+         * Default is CHUNK — split into chunks, embed each, average vectors.
+         */
+        @Builder.Default
+        private LongTextStrategy longTextStrategy = LongTextStrategy.CHUNK;
+
+        /**
+         * Maximum tokens per chunk when using CHUNK or TRUNCATE strategy.
+         * Default is 512, matching common embedding model limits.
+         */
+        @Builder.Default
+        private int maxTokensPerChunk = 512;
+
+        /**
+         * Эвристика chars-per-token для оценки длины текста перед эмбеддингом.
+         * Default 3.0 (английский). Для русского рекомендуется 2.5,
+         * для длинных английских текстов можно 3.5. Меньшее значение → больше чанков.
+         */
+        @Builder.Default
+        private double charsPerToken = 3.0;
 
         /**
          * Creates a default configuration instance.

@@ -14,13 +14,34 @@ import lombok.Getter;
 @Getter
 public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
 
+    /** Тип метрики, используется в сериализации и идентификации explanation. */
     private static final String METRIC_TYPE = "semantic-similarity";
 
+    /** Текст ответа AI системы. */
     private final String response;
+
+    /** Эталонный текст для сравнения. */
     private final String reference;
+
+    /** Результаты от каждой embedding-модели. */
     private final List<ModelSimilarityResult> modelResults;
+
+    /** Порог для бинарной классификации pass/fail (nullable). */
     private final Double threshold;
 
+    /** Флаг, было ли применено чанкование. */
+    private final boolean chunkingApplied;
+
+    /** Количество чанков для response. */
+    private final int responseChunkCount;
+
+    /** Количество чанков для reference. */
+    private final int referenceChunkCount;
+
+    /** Название стратегии обработки длинных текстов (CHUNK / TRUNCATE / FAIL_FAST). */
+    private final String longTextStrategy;
+
+    /** Создаёт explanation для SemanticSimilarityMetric со всеми параметрами расчёта. */
     @Builder
     public SemanticSimilarityExplanation(
             final Double score,
@@ -28,12 +49,20 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
             final String response,
             final String reference,
             final List<ModelSimilarityResult> modelResults,
-            final Double threshold) {
+            final Double threshold,
+            final boolean chunkingApplied,
+            final int responseChunkCount,
+            final int referenceChunkCount,
+            final String longTextStrategy) {
         super(score, language);
         this.response = response != null ? response : "";
         this.reference = reference != null ? reference : "";
         this.modelResults = modelResults != null ? modelResults : List.of();
         this.threshold = threshold;
+        this.chunkingApplied = chunkingApplied;
+        this.responseChunkCount = responseChunkCount;
+        this.referenceChunkCount = referenceChunkCount;
+        this.longTextStrategy = longTextStrategy != null ? longTextStrategy : "";
         buildSteps();
         buildInterpretation();
     }
@@ -49,10 +78,12 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
     }
 
     private void buildSteps() {
+        int stepNumber = 1;
+
         // Step 1: Show response and reference
         steps.add(StepExplanation.builder()
                 .stepName("InputTexts")
-                .stepNumber(1)
+                .stepNumber(stepNumber++)
                 .title(messages.get("semanticSimilarity.step1.title"))
                 .description(messages.get("semanticSimilarity.step1.desc"))
                 .inputData(String.format(
@@ -65,10 +96,29 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
                 .agreementPercent(100.0)
                 .build());
 
-        // Step 2: Compute embeddings
+        // Optional chunking step: show chunking info when applied
+        if (chunkingApplied) {
+            final String chunkingDescription = messages.get("semanticSimilarity.chunking_applied");
+            final String chunkingOutput = String.format(
+                    "%s\n%s",
+                    messages.get("semanticSimilarity.chunking_strategy", longTextStrategy),
+                    messages.get("semanticSimilarity.chunk_count", responseChunkCount, referenceChunkCount));
+
+            steps.add(StepExplanation.builder()
+                    .stepName("TextChunking")
+                    .stepNumber(stepNumber++)
+                    .title(messages.get("semanticSimilarity.chunking_applied"))
+                    .description(chunkingDescription)
+                    .outputSummary(chunkingOutput)
+                    .hasModelDisagreement(false)
+                    .agreementPercent(100.0)
+                    .build());
+        }
+
+        // Compute embeddings step
         steps.add(StepExplanation.builder()
                 .stepName("ComputeEmbeddings")
-                .stepNumber(2)
+                .stepNumber(stepNumber++)
                 .title(messages.get("semanticSimilarity.step2.title"))
                 .description(messages.get("semanticSimilarity.step2.desc"))
                 .outputSummary(messages.get("semanticSimilarity.step2.output", modelResults.size()))
@@ -76,7 +126,7 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
                 .agreementPercent(100.0)
                 .build());
 
-        // Step 3: Calculate cosine similarity - show per-model results
+        // Calculate cosine similarity - show per-model results
         final List<ModelStepResult> stepModelResults = modelResults.stream()
                 .map(m -> ModelStepResult.builder()
                         .modelId(m.modelId)
@@ -94,7 +144,7 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
 
         steps.add(StepExplanation.builder()
                 .stepName("ComputeCosineSimilarity")
-                .stepNumber(3)
+                .stepNumber(stepNumber)
                 .title(messages.get("semanticSimilarity.step3.title"))
                 .description(messages.get("semanticSimilarity.step3.desc"))
                 .outputSummary(outputSummary)
@@ -184,7 +234,10 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
     @Builder
     @Getter
     public static class ModelSimilarityResult {
+        /** Идентификатор embedding-модели. */
         private final String modelId;
+
+        /** Значение косинусного сходства, полученное от модели. */
         private final double similarity;
     }
 }
