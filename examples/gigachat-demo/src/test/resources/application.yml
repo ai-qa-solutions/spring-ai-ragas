@@ -1,0 +1,46 @@
+spring:
+  main:
+    web-application-type: none
+  ai:
+    retry:
+      on-http-codes: [ 429 ]
+      on-client-errors: true
+      backoff:
+        initial-interval: 2000ms
+        max-interval: 30000ms
+        multiplier: 2
+
+    # GigaChat config
+    gigachat:
+      auth:
+        bearer:
+          api-key: ${GIGACHAT_API_KEY}
+        scope: ${GIGACHAT_API_SCOPE:GIGACHAT_API_PERS}
+        unsafe-ssl: true
+      chat:
+        options:
+          model: GigaChat-2-Max
+          temperature: 0.0
+          max-tokens: 2000
+      embedding:
+        options:
+          model: EmbeddingsGigaR
+
+    # RAGAS auto-detects GigaChat beans
+    ragas:
+      providers:
+        auto-detect-beans: true
+        default-provider:
+          enabled: false
+        default-options:
+          temperature: 0.0
+          max-tokens: 2000
+      allure:
+        enabled: true
+        language: ru
+
+logging:
+  level:
+    ai.qa.solutions: DEBUG
+    chat.giga: INFO
+    org.springframework.ai: WARN
