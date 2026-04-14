@@ -14,17 +14,34 @@ import lombok.Getter;
 @Getter
 public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
 
+    /** Тип метрики, используется в сериализации и идентификации explanation. */
     private static final String METRIC_TYPE = "semantic-similarity";
 
+    /** Текст ответа AI системы. */
     private final String response;
+
+    /** Эталонный текст для сравнения. */
     private final String reference;
+
+    /** Результаты от каждой embedding-модели. */
     private final List<ModelSimilarityResult> modelResults;
+
+    /** Порог для бинарной классификации pass/fail (nullable). */
     private final Double threshold;
+
+    /** Флаг, было ли применено чанкование. */
     private final boolean chunkingApplied;
+
+    /** Количество чанков для response. */
     private final int responseChunkCount;
+
+    /** Количество чанков для reference. */
     private final int referenceChunkCount;
+
+    /** Название стратегии обработки длинных текстов (CHUNK / TRUNCATE / FAIL_FAST). */
     private final String longTextStrategy;
 
+    /** Создаёт explanation для SemanticSimilarityMetric со всеми параметрами расчёта. */
     @Builder
     public SemanticSimilarityExplanation(
             final Double score,
@@ -217,7 +234,10 @@ public class SemanticSimilarityExplanation extends AbstractScoreExplanation {
     @Builder
     @Getter
     public static class ModelSimilarityResult {
+        /** Идентификатор embedding-модели. */
         private final String modelId;
+
+        /** Значение косинусного сходства, полученное от модели. */
         private final double similarity;
     }
 }

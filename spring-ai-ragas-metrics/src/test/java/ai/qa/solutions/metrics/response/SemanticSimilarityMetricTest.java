@@ -13,6 +13,11 @@ import ai.qa.solutions.execution.listener.dto.MetricEvaluationContext;
 import ai.qa.solutions.execution.listener.dto.MetricEvaluationResult;
 import ai.qa.solutions.metric.metadata.SemanticSimilarityMetadata;
 import ai.qa.solutions.sample.Sample;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,6 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
+@Epic("Metrics")
+@Feature("SemanticSimilarity")
 @DisplayName("SemanticSimilarityMetric Tests")
 class SemanticSimilarityMetricTest {
 
@@ -143,6 +150,30 @@ class SemanticSimilarityMetricTest {
 
             assertThat(config).isNotNull();
             assertThat(config.getThreshold()).isNull();
+        }
+
+        @Test
+        @DisplayName("Should have default charsPerToken of 3.0")
+        void shouldHaveDefaultCharsPerToken3() {
+            // given + when
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder().build();
+
+            // then
+            assertThat(config.getCharsPerToken()).isEqualTo(3.0);
+        }
+
+        @Test
+        @DisplayName("Should allow custom charsPerToken")
+        void shouldAllowCustomCharsPerToken() {
+            // given + when
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder()
+                            .charsPerToken(2.5)
+                            .build();
+
+            // then
+            assertThat(config.getCharsPerToken()).isEqualTo(2.5);
         }
     }
 
@@ -519,6 +550,361 @@ class SemanticSimilarityMetricTest {
             assertThat(semMetadata.responseChunkCount()).isGreaterThan(1);
             assertThat(semMetadata.referenceChunkCount()).isGreaterThan(1);
             assertThat(semMetadata.longTextStrategy()).isEqualTo("CHUNK");
+        }
+
+        @Test
+        @Story("Стратегия TRUNCATE")
+        @Description("Длинный текст при стратегии TRUNCATE усекается до лимита и флаг chunkingApplied=false")
+        void truncateStrategy_longText_truncatesAndChunkingAppliedFalse() {
+            // given
+            final String longResponse = "This is a sentence about response. ".repeat(60); // ~2100 chars
+            final String longReference = "This is a sentence about reference. ".repeat(60);
+
+            final float[] embedding = {0.1f, 0.2f, 0.3f};
+            final List<List<String>> capturedTexts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(
+                            List.of("model-1"), List.of("embedding-1"))
+                    .withEmbeddings(texts -> {
+                        capturedTexts.add(new ArrayList<>(texts));
+                        return texts.stream().map(t -> embedding).toList();
+                    });
+
+            final AtomicReference<MetricEvaluationResult> capturedResult = new AtomicReference<>();
+            final MetricExecutionListener capturingListener = new MetricExecutionListener() {
+                @Override
+                public void beforeMetricEvaluation(final MetricEvaluationContext context) {}
+
+                @Override
+                public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                    capturedResult.set(result);
+                }
+
+                @Override
+                public MetricExecutionListener forEvaluation() {
+                    return this;
+                }
+            };
+
+            final SemanticSimilarityMetric metric = SemanticSimilarityMetric.builder()
+                    .executor(stubExecutor)
+                    .build()
+                    .withListeners(List.of(capturingListener));
+
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder()
+                            .longTextStrategy(
+                                    SemanticSimilarityMetric.SemanticSimilarityConfig.LongTextStrategy.TRUNCATE)
+                            .maxTokensPerChunk(512)
+                            .build();
+
+            final Sample sample = Sample.builder()
+                    .response(longResponse)
+                    .reference(longReference)
+                    .build();
+
+            // when
+            metric.singleTurnScore(config, sample);
+
+            // then
+            assertThat(capturedTexts).hasSize(1);
+            assertThat(capturedTexts.get(0)).hasSize(2);
+            assertThat(capturedTexts.get(0).get(0).length()).isLessThan(longResponse.length());
+            assertThat(capturedTexts.get(0).get(1).length()).isLessThan(longReference.length());
+
+            assertThat(capturedResult.get()).isNotNull();
+            final Object metadata = capturedResult.get().getMetadata();
+            assertThat(metadata).isInstanceOf(SemanticSimilarityMetadata.class);
+            final SemanticSimilarityMetadata semMetadata = (SemanticSimilarityMetadata) metadata;
+            assertThat(semMetadata.chunkingApplied()).isFalse();
+            assertThat(semMetadata.responseChunkCount()).isEqualTo(1);
+            assertThat(semMetadata.referenceChunkCount()).isEqualTo(1);
+            assertThat(semMetadata.longTextStrategy()).isEqualTo("TRUNCATE");
+        }
+
+        @Test
+        @Story("Стратегия FAIL_FAST")
+        @Description("Длинный текст при стратегии FAIL_FAST передаётся как есть без усечения и без чанкинга")
+        void failFastStrategy_longText_passesAsIsAndChunkingAppliedFalse() {
+            // given
+            final String longResponse = "This is a sentence about response. ".repeat(60); // ~2100 chars
+            final String longReference = "This is a sentence about reference. ".repeat(60);
+
+            final float[] embedding = {0.1f, 0.2f, 0.3f};
+            final List<List<String>> capturedTexts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(
+                            List.of("model-1"), List.of("embedding-1"))
+                    .withEmbeddings(texts -> {
+                        capturedTexts.add(new ArrayList<>(texts));
+                        return texts.stream().map(t -> embedding).toList();
+                    });
+
+            final AtomicReference<MetricEvaluationResult> capturedResult = new AtomicReference<>();
+            final MetricExecutionListener capturingListener = new MetricExecutionListener() {
+                @Override
+                public void beforeMetricEvaluation(final MetricEvaluationContext context) {}
+
+                @Override
+                public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                    capturedResult.set(result);
+                }
+
+                @Override
+                public MetricExecutionListener forEvaluation() {
+                    return this;
+                }
+            };
+
+            final SemanticSimilarityMetric metric = SemanticSimilarityMetric.builder()
+                    .executor(stubExecutor)
+                    .build()
+                    .withListeners(List.of(capturingListener));
+
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder()
+                            .longTextStrategy(
+                                    SemanticSimilarityMetric.SemanticSimilarityConfig.LongTextStrategy.FAIL_FAST)
+                            .build();
+
+            final Sample sample = Sample.builder()
+                    .response(longResponse)
+                    .reference(longReference)
+                    .build();
+
+            // when
+            metric.singleTurnScore(config, sample);
+
+            // then
+            assertThat(capturedTexts).hasSize(1);
+            assertThat(capturedTexts.get(0)).hasSize(2);
+            assertThat(capturedTexts.get(0).get(0)).isEqualTo(longResponse);
+            assertThat(capturedTexts.get(0).get(1)).isEqualTo(longReference);
+
+            assertThat(capturedResult.get()).isNotNull();
+            final Object metadata = capturedResult.get().getMetadata();
+            assertThat(metadata).isInstanceOf(SemanticSimilarityMetadata.class);
+            final SemanticSimilarityMetadata semMetadata = (SemanticSimilarityMetadata) metadata;
+            assertThat(semMetadata.chunkingApplied()).isFalse();
+            assertThat(semMetadata.responseChunkCount()).isEqualTo(1);
+            assertThat(semMetadata.referenceChunkCount()).isEqualTo(1);
+            assertThat(semMetadata.longTextStrategy()).isEqualTo("FAIL_FAST");
+        }
+
+        @Test
+        @Story("Ассиметричные тексты: длинный response, короткий reference")
+        @Description(
+                "При чанкинге ассиметричных текстов длинный response разбивается, короткий reference остаётся одним чанком")
+        void chunkStrategy_asymmetricTexts_responseChunkedReferenceShort() {
+            // given
+            final String longResponse = "Long sentence. ".repeat(200); // ~3000 chars
+            final String shortReference = "Short ref.";
+
+            final float[] embedding = {0.1f, 0.2f, 0.3f};
+            final List<List<String>> capturedTexts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(
+                            List.of("model-1"), List.of("embedding-1"))
+                    .withEmbeddings(texts -> {
+                        capturedTexts.add(new ArrayList<>(texts));
+                        return texts.stream().map(t -> embedding).toList();
+                    });
+
+            final AtomicReference<MetricEvaluationResult> capturedResult = new AtomicReference<>();
+            final MetricExecutionListener capturingListener = new MetricExecutionListener() {
+                @Override
+                public void beforeMetricEvaluation(final MetricEvaluationContext context) {}
+
+                @Override
+                public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                    capturedResult.set(result);
+                }
+
+                @Override
+                public MetricExecutionListener forEvaluation() {
+                    return this;
+                }
+            };
+
+            final SemanticSimilarityMetric metric = SemanticSimilarityMetric.builder()
+                    .executor(stubExecutor)
+                    .build()
+                    .withListeners(List.of(capturingListener));
+
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder()
+                            .maxTokensPerChunk(50)
+                            .build();
+
+            final Sample sample = Sample.builder()
+                    .response(longResponse)
+                    .reference(shortReference)
+                    .build();
+
+            // when
+            metric.singleTurnScore(config, sample);
+
+            // then
+            assertThat(capturedResult.get()).isNotNull();
+            final Object metadata = capturedResult.get().getMetadata();
+            assertThat(metadata).isInstanceOf(SemanticSimilarityMetadata.class);
+            final SemanticSimilarityMetadata semMetadata = (SemanticSimilarityMetadata) metadata;
+            assertThat(semMetadata.responseChunkCount()).isGreaterThan(1);
+            assertThat(semMetadata.referenceChunkCount()).isEqualTo(1);
+            assertThat(semMetadata.chunkingApplied()).isTrue();
+            assertThat(capturedTexts).hasSize(1);
+            assertThat(capturedTexts.get(0)).hasSize(semMetadata.responseChunkCount() + 1);
+        }
+
+        @Test
+        @Story("Ассиметричные тексты: короткий response, длинный reference")
+        @Description(
+                "При чанкинге ассиметричных текстов длинный reference разбивается, короткий response остаётся одним чанком")
+        void chunkStrategy_asymmetricTexts_referenceChunkedResponseShort() {
+            // given
+            final String shortResponse = "Short resp.";
+            final String longReference = "Long sentence. ".repeat(200); // ~3000 chars
+
+            final float[] embedding = {0.1f, 0.2f, 0.3f};
+            final List<List<String>> capturedTexts = new ArrayList<>();
+
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(
+                            List.of("model-1"), List.of("embedding-1"))
+                    .withEmbeddings(texts -> {
+                        capturedTexts.add(new ArrayList<>(texts));
+                        return texts.stream().map(t -> embedding).toList();
+                    });
+
+            final AtomicReference<MetricEvaluationResult> capturedResult = new AtomicReference<>();
+            final MetricExecutionListener capturingListener = new MetricExecutionListener() {
+                @Override
+                public void beforeMetricEvaluation(final MetricEvaluationContext context) {}
+
+                @Override
+                public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                    capturedResult.set(result);
+                }
+
+                @Override
+                public MetricExecutionListener forEvaluation() {
+                    return this;
+                }
+            };
+
+            final SemanticSimilarityMetric metric = SemanticSimilarityMetric.builder()
+                    .executor(stubExecutor)
+                    .build()
+                    .withListeners(List.of(capturingListener));
+
+            final SemanticSimilarityMetric.SemanticSimilarityConfig config =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder()
+                            .maxTokensPerChunk(50)
+                            .build();
+
+            final Sample sample = Sample.builder()
+                    .response(shortResponse)
+                    .reference(longReference)
+                    .build();
+
+            // when
+            metric.singleTurnScore(config, sample);
+
+            // then
+            assertThat(capturedResult.get()).isNotNull();
+            final Object metadata = capturedResult.get().getMetadata();
+            assertThat(metadata).isInstanceOf(SemanticSimilarityMetadata.class);
+            final SemanticSimilarityMetadata semMetadata = (SemanticSimilarityMetadata) metadata;
+            assertThat(semMetadata.responseChunkCount()).isEqualTo(1);
+            assertThat(semMetadata.referenceChunkCount()).isGreaterThan(1);
+            assertThat(semMetadata.chunkingApplied()).isTrue();
+            assertThat(capturedTexts).hasSize(1);
+            assertThat(capturedTexts.get(0)).hasSize(1 + semMetadata.referenceChunkCount());
+        }
+
+        @Test
+        @Story("Кастомный charsPerToken")
+        @Description("Для кириллического текста charsPerToken=2.5 даёт больше чанков, чем значение по умолчанию 3.0")
+        void chunkStrategy_customCharsPerToken_cyrillicProducesMoreChunks() {
+            // given
+            // 66 chars * 4 = 264 chars: at default 3.0 → 88 tokens (<=100, one chunk),
+            // at 2.5 → 106 tokens (>100, triggers chunking into 2+ chunks, maxChars=250)
+            final String cyrillicText =
+                    "Это длинное предложение на русском языке для проверки чанкования. ".repeat(4); // ~264 chars
+
+            final float[] embedding = {0.1f, 0.2f, 0.3f};
+            final StubMultiModelExecutor stubExecutor = new StubMultiModelExecutor(
+                            List.of("model-1"), List.of("embedding-1"))
+                    .withEmbeddings(texts -> texts.stream().map(t -> embedding).toList());
+
+            final AtomicReference<MetricEvaluationResult> capturedDefault = new AtomicReference<>();
+            final AtomicReference<MetricEvaluationResult> capturedCustom = new AtomicReference<>();
+
+            final MetricExecutionListener defaultListener = new MetricExecutionListener() {
+                @Override
+                public void beforeMetricEvaluation(final MetricEvaluationContext context) {}
+
+                @Override
+                public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                    capturedDefault.set(result);
+                }
+
+                @Override
+                public MetricExecutionListener forEvaluation() {
+                    return this;
+                }
+            };
+            final MetricExecutionListener customListener = new MetricExecutionListener() {
+                @Override
+                public void beforeMetricEvaluation(final MetricEvaluationContext context) {}
+
+                @Override
+                public void afterMetricEvaluation(final MetricEvaluationResult result) {
+                    capturedCustom.set(result);
+                }
+
+                @Override
+                public MetricExecutionListener forEvaluation() {
+                    return this;
+                }
+            };
+
+            final SemanticSimilarityMetric metricDefault = SemanticSimilarityMetric.builder()
+                    .executor(stubExecutor)
+                    .build()
+                    .withListeners(List.of(defaultListener));
+            final SemanticSimilarityMetric metricCustom = SemanticSimilarityMetric.builder()
+                    .executor(stubExecutor)
+                    .build()
+                    .withListeners(List.of(customListener));
+
+            final SemanticSimilarityMetric.SemanticSimilarityConfig defaultConfig =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder()
+                            .maxTokensPerChunk(100)
+                            .build();
+            final SemanticSimilarityMetric.SemanticSimilarityConfig customConfig =
+                    SemanticSimilarityMetric.SemanticSimilarityConfig.builder()
+                            .maxTokensPerChunk(100)
+                            .charsPerToken(2.5)
+                            .build();
+
+            final Sample sample = Sample.builder()
+                    .response(cyrillicText)
+                    .reference(cyrillicText)
+                    .build();
+
+            // when
+            metricDefault.singleTurnScore(defaultConfig, sample);
+            metricCustom.singleTurnScore(customConfig, sample);
+
+            // then
+            final SemanticSimilarityMetadata defaultMetadata =
+                    (SemanticSimilarityMetadata) capturedDefault.get().getMetadata();
+            final SemanticSimilarityMetadata customMetadata =
+                    (SemanticSimilarityMetadata) capturedCustom.get().getMetadata();
+
+            assertThat(defaultMetadata.responseChunkCount()).isEqualTo(1);
+            assertThat(customMetadata.responseChunkCount()).isGreaterThan(1);
+            assertThat(customMetadata.responseChunkCount()).isGreaterThan(defaultMetadata.responseChunkCount());
         }
     }
 }

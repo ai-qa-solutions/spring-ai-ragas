@@ -75,7 +75,7 @@ class TextChunkerTest {
         @DisplayName("Should handle null text")
         void shouldHandleNullText() {
             assertThatThrownBy(() -> TextChunker.splitIntoChunks(null, 512))
-                    .isInstanceOf(NullPointerException.class)
+                    .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("text must not be null");
         }
 
@@ -123,6 +123,43 @@ class TextChunkerTest {
             assertThat(chunks).hasSizeGreaterThan(1);
             for (final String chunk : chunks) {
                 assertThat(TextChunker.estimateTokens(chunk)).isLessThanOrEqualTo(maxTokens);
+            }
+        }
+
+        @Test
+        @DisplayName("splitIntoChunks with custom charsPerToken should produce more chunks for Cyrillic")
+        void splitIntoChunks_withCustomCharsPerToken_producesMoreChunksForCyrillic() {
+            // given
+            final String cyrillicText = "Это предложение на русском языке. ".repeat(18); // ~612 chars
+            final int maxTokens = 100;
+
+            // when
+            final List<String> withDefault = TextChunker.splitIntoChunks(cyrillicText, maxTokens);
+            final List<String> withCustom = TextChunker.splitIntoChunks(cyrillicText, maxTokens, 2.0);
+
+            // then
+            assertThat(withCustom.size()).isGreaterThan(withDefault.size());
+        }
+
+        @Test
+        @DisplayName("splitIntoChunks with custom charsPerToken should respect the token limit")
+        void splitIntoChunks_withCustomCharsPerToken_respectsLimit() {
+            // given
+            final String text = "First sentence here. Second sentence here. Third sentence here. "
+                    + "Fourth sentence here. Fifth sentence here. Sixth sentence here.";
+            final int maxTokens = 50;
+            final double charsPerToken = 2.0;
+
+            // when
+            final List<String> chunks = TextChunker.splitIntoChunks(text, maxTokens, charsPerToken);
+
+            // then
+            assertThat(chunks).isNotEmpty();
+            for (final String chunk : chunks) {
+                // With charsPerToken=2.0, each token = 2 chars, so maxChars = 100
+                assertThat(chunk.length())
+                        .as("Chunk '%s' should respect token limit with charsPerToken=%s", chunk, charsPerToken)
+                        .isLessThanOrEqualTo((int) Math.ceil(maxTokens * charsPerToken));
             }
         }
     }
@@ -193,6 +230,23 @@ class TextChunkerTest {
             final String result = TextChunker.truncateToTokenLimit(null, 512);
 
             assertThat(result).isNull();
+        }
+
+        @Test
+        @DisplayName("truncateToTokenLimit with custom charsPerToken should truncate shorter")
+        void truncateToTokenLimit_withCustomCharsPerToken_truncatesShorter() {
+            // given
+            final String longText = "a".repeat(300);
+            final int maxTokens = 10;
+
+            // when
+            final String withDefault = TextChunker.truncateToTokenLimit(longText, maxTokens);
+            final String withCustom = TextChunker.truncateToTokenLimit(longText, maxTokens, 2.0);
+
+            // then
+            assertThat(withCustom.length()).isLessThanOrEqualTo(withDefault.length());
+            assertThat(withDefault).hasSize(30);
+            assertThat(withCustom).hasSize(20);
         }
     }
 
