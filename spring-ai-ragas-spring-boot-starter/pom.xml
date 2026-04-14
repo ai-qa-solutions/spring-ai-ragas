@@ -15,4 +15,18 @@
     <description>Spring Boot starter for RAGAS metrics evaluation</description>
     <url>https://github.com/ai-qa-solutions/spring-ai-ragas</url>
 
+    <dependencies>
+        <!--
+             Pulls in the autoconfiguration module, which transitively brings
+             spring-ai-ragas-metrics, spring-ai-ragas-multi-model, bucket4j-core
+             and Spring Boot autoconfigure support. Adding this starter alone
+             must be enough to use any RAGAS metric in a Spring Boot project.
+             Version is managed by the parent pom's dependencyManagement.
+        -->
+        <dependency>
+            <groupId>io.github.ai-qa-solutions</groupId>
+            <artifactId>spring-ai-ragas-spring-boot</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -316,7 +316,7 @@ public class GigaChatService {
 
 #### Поддерживаемые внешние стартеры
 
-| Стартер   | Артефакт                                     | ChatModel                                                            | EmbeddingModel              |
+|  Стартер  |                   Артефакт                   |                              ChatModel                               |       EmbeddingModel        |
 |-----------|----------------------------------------------|----------------------------------------------------------------------|-----------------------------|
 | GigaChat  | `chat.giga:spring-ai-starter-model-gigachat` | GigaChat, GigaChat-Pro, GigaChat-Max, GigaChat-2-Pro, GigaChat-2-Max | Embeddings, EmbeddingsGigaR |
 | Anthropic | `spring-ai-starter-model-anthropic`          | Claude                                                               | -                           |
@@ -357,7 +357,7 @@ LLM-as-judge даёт нестабильные оценки, если крите
 
 Метрики возвращают значения в разных диапазонах — пороги надо подбирать с учётом этого:
 
-| Метрика                                                                  | Диапазон                                 | Рекомендуемый порог                        |
+|                                 Метрика                                  |                 Диапазон                 |            Рекомендуемый порог             |
 |--------------------------------------------------------------------------|------------------------------------------|--------------------------------------------|
 | `AspectCriticMetric`, `ToolCallAccuracyMetric`                           | бинарный 0 / 1                           | `isEqualTo(1.0)`                           |
 | `SimpleCriteriaScoreMetric`                                              | [0..1] (нормализуется из raw)            | `>= 0.75` (raw 4/5) или `== 1.0` (raw 5/5) |
