@@ -1,50 +1,43 @@
-# Spring AI RAGAS - Project Overview
+# Spring AI RAGAS — Project Overview
 
-## Purpose
+Java port of Python RAGAS framework. LLM agent evaluation library on Spring Boot + Spring AI.
 
-Java library for evaluating LLM-based AI agents, inspired by the Python RAGAS framework.
-Provides objective, automated quality assessment for AI systems using Spring Boot and Spring AI SDK.
+## Coordinates
 
-## Tech Stack
+- Group: `io.github.ai-qa-solutions`
+- Artifact: `spring-ai-ragas` (parent pom, packaging=pom)
+- Version: `0.3.1`
+- Java: 17
+- Spring Boot: 3.5.11
+- Spring AI: 1.1.2
+- License: MIT
+- Maven Central: published via central-publishing-maven-plugin
+- Repo: github.com/ai-qa-solutions/spring-ai-ragas
 
-- **Java 17+**
-- **Spring Boot 3.5.9**
-- **Spring AI 1.1.2**
-- **Build:** Maven multi-module
-- **Testing:** JUnit 5, AssertJ, Mockito
-- **Coverage:** JaCoCo (80% min line/branch)
-- **Formatting:** Spotless with Palantir Java Format
-- **Reporting:** Allure
+## Multi-module layout
 
-## Module Structure
+- `spring-ai-ragas-metrics` — pure metric implementations (no Spring Boot deps). Packages: `ai.qa.solutions.metric` (core: EvaluationResult, explanations) + `ai.qa.solutions.metrics` (impls per category)
+- `spring-ai-ragas-spring-boot` — autoconfig + properties (`config/`, `properties/`). Wires beans via `RagasMetricsAutoconfiguration`, `MultiProviderAutoConfiguration`, `MultiModelExecutorAutoconfiguration`
+- `spring-ai-ragas-spring-boot-starter` — empty starter aggregator
+- `spring-ai-ragas-multi-model` — multi-LLM execution. Packages: `chatclient/`, `embedding/`, `execution/`, `sample/`. Aggregation strategies, per-provider rate limiting (Bucket4j WAIT/REJECT)
+- `spring-ai-ragas-allure` — Allure reporting integration (optional). Has `example/` subdir
 
-```
-spring-ai-ragas/
-├── spring-ai-ragas-multi-model/     # Core execution engine (MultiModelExecutor, listeners, Sample, messages)
-├── spring-ai-ragas-metrics/         # 20+ metrics (extends AbstractMultiModelMetric)
-├── spring-ai-ragas-allure/          # Allure reporting (listener, explanations, templates)
-├── spring-ai-ragas-spring-boot/     # Spring Boot autoconfiguration
-└── spring-ai-ragas-spring-boot-starter/  # Convenience starter POM
-```
+## Metric categories (in spring-ai-ragas-metrics)
 
-### Module Dependencies
+- `general/` — AspectCritic, SimpleCriteriaScore, RubricsScore
+- `retrieval/` — ContextEntityRecall, ContextPrecision, ContextRecall, Faithfulness, NoiseSensitivity, ResponseRelevancy
+- `agent/` — AgentGoalAccuracy, ToolCallAccuracy, TopicAdherence
+- `response/` — AnswerCorrectness, FactualCorrectness, SemanticSimilarity, Hallucination + TextChunker helper
+- `nvidia/` — AnswerAccuracy, ContextRelevance, ResponseGroundedness
+- `nlp/` — BleuScore, RougeScore, ChrfScore, StringSimilarity (non-LLM, direct text similarity)
 
-```
-spring-boot-starter → spring-boot → metrics → multi-model
-                                  ↘ allure
-```
+## Pipelines
 
-## Key Packages
+1. **With references** — POC tests, synthetic monitoring (~8 LLM calls)
+2. **Without references** — sampling/analyzing live prod traffic
 
-- `ai.qa.solutions.execution` - MultiModelExecutor, ModelResult, ScoreAggregator
-- `ai.qa.solutions.execution.listener` - MetricExecutionListener, DTOs
-- `ai.qa.solutions.execution.listener.dto` - MetricEvaluationResult, MetricEvaluationContext, MetricMetadata (marker interface)
-- `ai.qa.solutions.metric.metadata` - 23 typed metadata records (all implement MetricMetadata)
-- `ai.qa.solutions.metric` - Metric interface, AbstractMultiModelMetric, AbstractMultiTurnMetric
-- `ai.qa.solutions.metrics.*` - Concrete metrics (general, retrieval, agent, response, nvidia, nlp)
-- `ai.qa.solutions.sample` - Sample, BaseMessage hierarchy
-- `ai.qa.solutions.metric.explanation` - Score explanation classes (moved from allure module)
-- `ai.qa.solutions.metric.i18n` - Explanation i18n messages (moved from allure module)
-- `ai.qa.solutions.allure.*` - Allure reporting (listener, methodology, template, model)
-- `ai.qa.solutions.config` - Spring Boot autoconfiguration
+## Recent work (git)
+
+- branch: `feat/chunked-embedding-support`
+- Recent: chunked embedding for SemanticSimilarityMetric (#5), PMD added, ThreadLocal Allure fix, version 0.3.1 / Spring Boot 3.5.11 bump
 
