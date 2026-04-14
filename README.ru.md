@@ -254,7 +254,7 @@ spring:
 <dependency>
     <groupId>chat.giga</groupId>
     <artifactId>spring-ai-starter-model-gigachat</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 
@@ -268,18 +268,33 @@ spring:
       auth:
         bearer:
           api-key: ${GIGACHAT_API_KEY}
+        # По умолчанию GIGACHAT_API_PERS. Для корпоративных ключей укажите GIGACHAT_API_CORP или GIGACHAT_API_B2B.
+        scope: ${GIGACHAT_API_SCOPE:GIGACHAT_API_PERS}
+        # dev-only: GigaChat использует сертификат от Минцифры.
+        # Для прод-окружений настройте ssl-bundle с доверенным CA вместо unsafe-ssl.
+        unsafe-ssl: true
       chat:
         options:
-          model: GigaChat
-          temperature: 0.5
+          # Для evaluation рекомендуется max-версия: lite-модель (`GigaChat`) периодически
+          # обрывает JSON-ответы в сложных метриках (например ResponseRelevancyMetric).
+          model: GigaChat-2-Max
+          # Детерминизм LLM-судьи — температура строго 0.0.
+          temperature: 0.0
+          # ResponseRelevancyMetric генерирует несколько вопросов в JSON-массиве,
+          # при значении 1000 GigaChat может обрезать вывод. Рекомендуется >= 1500.
+          max-tokens: 2000
       embedding:
         options:
-          model: Embeddings
+          # Актуальная модель эмбеддингов — EmbeddingsGigaR.
+          model: EmbeddingsGigaR
 
     # RAGAS автоматически обнаружит модели GigaChat
     ragas:
       providers:
         auto-detect-beans: true  # Включено по умолчанию
+        default-options:
+          temperature: 0.0
+          max-tokens: 2000
 ```
 
 **3. Используйте модели GigaChat:**
@@ -291,8 +306,9 @@ public class GigaChatService {
     private final ChatClientStore chatClientStore;
 
     public String chat(String message) {
-        // GigaChat автоматически обнаружен и доступен по ID модели
-        ChatClient client = chatClientStore.get("GigaChat");
+        // ID модели должен совпадать со значением spring.ai.gigachat.chat.options.model.
+        // В конфиге выше указано GigaChat-2-Max — именно этот ID и используем здесь.
+        ChatClient client = chatClientStore.get("GigaChat-2-Max");
         return client.prompt().user(message).call().content();
     }
 }
@@ -300,15 +316,55 @@ public class GigaChatService {
 
 #### Поддерживаемые внешние стартеры
 
-|  Стартер  |                   Артефакт                   | ChatModel | EmbeddingModel |
-|-----------|----------------------------------------------|-----------|----------------|
-| GigaChat  | `chat.giga:spring-ai-starter-model-gigachat` | GigaChat  | Embeddings     |
-| Anthropic | `spring-ai-starter-model-anthropic`          | Claude    | -              |
-| Ollama    | `spring-ai-starter-model-ollama`             | *         | *              |
-| Mistral   | `spring-ai-starter-model-mistral-ai`         | *         | *              |
-| Vertex AI | `spring-ai-starter-model-vertex-ai`          | *         | *              |
+| Стартер   | Артефакт                                     | ChatModel                                                            | EmbeddingModel              |
+|-----------|----------------------------------------------|----------------------------------------------------------------------|-----------------------------|
+| GigaChat  | `chat.giga:spring-ai-starter-model-gigachat` | GigaChat, GigaChat-Pro, GigaChat-Max, GigaChat-2-Pro, GigaChat-2-Max | Embeddings, EmbeddingsGigaR |
+| Anthropic | `spring-ai-starter-model-anthropic`          | Claude                                                               | -                           |
+| Ollama    | `spring-ai-starter-model-ollama`             | *                                                                    | *                           |
+| Mistral   | `spring-ai-starter-model-mistral-ai`         | *                                                                    | *                           |
+| Vertex AI | `spring-ai-starter-model-vertex-ai`          | *                                                                    | *                           |
 
 \* ID модели зависит от конфигурации
+
+> **Заметка про модели GigaChat.** Для LLM-as-judge рекомендуется `GigaChat-2-Max` (или `GigaChat-Max` / `GigaChat-2-Pro`): lite-модель `GigaChat` периодически отдаёт невалидный JSON в метриках, которые генерируют массивы (`ResponseRelevancyMetric`, `ContextPrecisionMetric` и др.). Для эмбеддингов используйте `EmbeddingsGigaR` — он точнее и быстрее legacy-модели `Embeddings`.
+
+## Как писать критерии: best practices
+
+LLM-as-judge даёт нестабильные оценки, если критерий расплывчатый. Следующие правила
+применяются ко всем примерам ниже:
+
+- **AspectCritic — только атомарные бинарные факты.** Один тезис = один проверяемый
+  признак. Не объединяйте несколько условий через «и». Не используйте слова «примерно»,
+  «более-менее», «профессионально», «качественно».
+  - ✓ `"AI Response содержит точную сумму '5500' с указанием валюты ('руб.' или '₽')?"`
+  - ✗ `"Ответ напрямую решает проблему пользователя и предоставляет чёткое решение"`
+  - ✗ `"Агент ответил профессионально?"`
+- **SimpleCriteriaScore — одна измеряемая шкала, один аспект.** Каждый уровень шкалы
+  описан явным наблюдаемым признаком.
+  - ✓ `"Оцени от 1 до 5, насколько конкретно агент указал сумму возврата"`
+  - ✗ `"Оцени от 1 до 5, насколько ответ был полезным, вежливым и точным"`
+- **AgentGoalAccuracy reference — конкретный оцифрованный результат.** С номерами,
+  суммами, датами, названиями инструментов.
+  - ✓ `"Оформить возврат 5500 руб. за заказ 12345 и сообщить срок поступления средств в днях"`
+  - ✗ `"Решить проблему клиента через возврат средств"`
+- **RubricsScore — 5 уровней, каждый добавляет РОВНО 1 наблюдаемый признак одного flow.**
+  Все уровни — про один и тот же аспект работы агента.
+  - ✓ `1: не идентифицировал → 2: +идентифицировал → 3: +предложил решение → 4: +выполнил действие → 5: +сообщил срок`
+  - ✗ `"Плохой / ниже среднего / средний / хороший / отличный"`
+  - ✗ Разные аспекты в разных уровнях: «уровень 1 — про даты, уровень 3 — про вежливость»
+
+### Диапазоны значений метрик и пороги в assertions
+
+Метрики возвращают значения в разных диапазонах — пороги надо подбирать с учётом этого:
+
+| Метрика                                                                  | Диапазон                                 | Рекомендуемый порог                        |
+|--------------------------------------------------------------------------|------------------------------------------|--------------------------------------------|
+| `AspectCriticMetric`, `ToolCallAccuracyMetric`                           | бинарный 0 / 1                           | `isEqualTo(1.0)`                           |
+| `SimpleCriteriaScoreMetric`                                              | [0..1] (нормализуется из raw)            | `>= 0.75` (raw 4/5) или `== 1.0` (raw 5/5) |
+| `RubricsScoreMetric`                                                     | raw integer [1..5], **без нормализации** | `>= 4.0` или `== 5.0`                      |
+| `ResponseRelevancyMetric`, `TopicAdherenceMetric`, `ContextRecallMetric` | [0..1]                                   | `>= 0.5` / `>= 0.75` по задаче             |
+
+Порог `>= 0.6` для `RubricsScoreMetric` бессмыслен — любой валидный результат (1..5) его проходит.
 
 ## Пример использования
 
@@ -318,7 +374,7 @@ public class GigaChatService {
 - **Бизнес-регрессия**: Валидация ответов агента против заранее определённых ожиданий
 - **Синтетический мониторинг**: Сервис-наблюдатель по крону отправляет запросы с известными правильными исходами
 
-Референсы = эталонные данные для ожидаемых ответов и вызовов инструментов (~8 LLM-вызовов).
+Референсы = эталонные данные для ожидаемых ответов и вызовов инструментов (~10–15 LLM-вызовов в зависимости от детализации критериев).
 
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
@@ -344,12 +400,12 @@ class AgentEvaluationWithReferencesTest {
     @Autowired private TopicAdherenceMetric topicAdherence;
     @Autowired private AspectCriticMetric aspectCritic;
     @Autowired private RubricsScoreMetric rubricsScore;
+    @Autowired private SimpleCriteriaScoreMetric simpleCriteriaScore;
     @Autowired private ContextRecallMetric contextRecall;
 
     @Test
     @DisplayName("Поддержка клиентов: недоставленный заказ → возврат")
     void evaluateCustomerSupport() {
-        // Сценарий поддержки клиентов: недоставленный заказ → возврат
         Sample sample = Sample.builder()
             .userInput("Заказ 12345 не доставлен, жду уже 2 недели!")
             .response("Готово! Возврат на сумму 5500 руб. оформлен. " +
@@ -366,71 +422,106 @@ class AgentEvaluationWithReferencesTest {
                 new ToolMessage("{\"refund_id\": \"RF-789\", \"status\": \"INITIATED\"}"),
                 new AIMessage("Готово! Возврат на сумму 5500 руб. оформлен. " +
                     "Средства поступят в течение 3-5 рабочих дней.", List.of())))
-            // Эталонные данные
-            .reference("Решить проблему клиента с недоставленным заказом через возврат средств")
+            // Reference — КОНКРЕТНЫЙ оцифрованный результат с номером заказа, суммой и явным действием
+            .reference("Проверить статус заказа 12345, подтвердить статус УТЕРЯН, " +
+                "оформить полный возврат на сумму 5500 руб. и сообщить клиенту " +
+                "срок поступления средств в днях")
             .referenceToolCalls(List.of(
                 new Sample.ToolCall("get_order_status", Map.of("order_id", "12345")),
                 new Sample.ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500))))
-            .referenceTopics(List.of("статус заказа", "возврат", "доставка"))
-            // RAG-контексты из телеметрии
+            .referenceTopics(List.of("статус заказа", "возврат средств", "сроки поступления"))
             .retrievedContexts(List.of(
                 "Заказ 12345: отправлен 10 января, отмечен как УТЕРЯН 20 января. Сумма заказа: 5500 руб.",
                 "Политика возврата: полный возврат за утерянные заказы в течение 30 дней."))
             .build();
 
         // 1. Точность вызовов инструментов (0 LLM-вызовов)
-        ToolCallAccuracyMetric.ToolCallAccuracyConfig toolConfig =
-            ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder().build();
-        Double toolScore = toolCallAccuracy.multiTurnScore(toolConfig, sample);
+        Double toolScore = toolCallAccuracy.multiTurnScore(
+            ToolCallAccuracyMetric.ToolCallAccuracyConfig.builder().build(), sample);
 
-        // 2. Достижение цели (1 LLM-вызов)
-        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig goalConfig =
+        // 2. Достижение конкретной оцифрованной цели (1 LLM-вызов)
+        Double goalScore = goalAccuracy.multiTurnScore(
             AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
-                .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE).build();
-        Double goalScore = goalAccuracy.multiTurnScore(goalConfig, sample);
+                .mode(AgentGoalAccuracyMetric.Mode.WITH_REFERENCE).build(), sample);
 
-        // 3. Защитный барьер безопасности (1 LLM-вызов) - 1.0 = безопасно, 0.0 = небезопасно
-        AspectCriticMetric.AspectCriticConfig safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Ответ не содержит оскорблений, угроз, дискриминации или иного токсичного контента").build();
-        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
+        // 3. AspectCritic — атомарные факты, по одному на тезис.
+        //    НЕ объединяйте критерии. НЕ используйте расплывчатые слова.
+        Double noProfanityScore = aspectCritic.singleTurnScore(
+            AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("AI Response не содержит мата, оскорблений или обвинений в адрес пользователя?")
+                .build(), sample);
 
-        // 4. Рубрика полноты ответа (1 LLM-вызов)
-        RubricsScoreMetric.RubricsConfig rubricsConfig = RubricsScoreMetric.RubricsConfig.builder()
-            .rubric("score1_description", "Нет приветствия, проблема не решена")
-            .rubric("score3_description", "Поприветствовал, диагностировал проблему, предложил решение")
-            .rubric("score5_description", "Поприветствовал, извинился, диагностировал, решил, подтвердил, предложил дальнейшую помощь")
-            .build();
-        Double completenessScore = rubricsScore.singleTurnScore(rubricsConfig, sample);
+        Double refundAmountScore = aspectCritic.singleTurnScore(
+            AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("AI Response содержит точную сумму возврата '5500' с указанием валюты " +
+                    "('руб.', '₽' или эквивалент)?")
+                .build(), sample);
 
-        // 5. Соответствие теме (2 LLM-вызова)
-        TopicAdherenceMetric.TopicAdherenceConfig topicConfig =
-            TopicAdherenceMetric.TopicAdherenceConfig.builder().build();
-        Double topicScore = topicAdherence.multiTurnScore(topicConfig, sample);
+        Double timelineStatedScore = aspectCritic.singleTurnScore(
+            AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("AI Response содержит конкретный срок поступления средств в днях " +
+                    "(например '3-5 рабочих дней')?")
+                .build(), sample);
 
-        // 6. Проверка полезности (1 LLM-вызов)
-        AspectCriticMetric.AspectCriticConfig helpfulConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Ответ напрямую решает проблему пользователя и предоставляет чёткое решение").build();
-        Double helpfulScore = aspectCritic.singleTurnScore(helpfulConfig, sample);
+        // 4. SimpleCriteriaScore — одна измеряемая шкала, один аспект.
+        //    Каждый уровень описан явным наблюдаемым признаком.
+        Double amountDetailScore = simpleCriteriaScore.singleTurnScore(
+            SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                .definition("Оцени от 1 до 5, насколько конкретно агент указал сумму возврата. " +
+                    "1 = сумма не названа; " +
+                    "2 = сумма упомянута общими словами ('полный возврат'); " +
+                    "3 = назван порядок суммы без точного значения; " +
+                    "4 = названа точная сумма без валюты ('5500'); " +
+                    "5 = названа точная сумма с валютой ('5500 руб.' или '5500 ₽').")
+                .minScore(1.0).maxScore(5.0)
+                .build(), sample);
 
-        // 7. Полнота контекста (1 LLM-вызов)
-        ContextRecallMetric.ContextRecallConfig recallConfig =
-            ContextRecallMetric.ContextRecallConfig.builder().build();
-        Double recallScore = contextRecall.singleTurnScore(recallConfig, sample);
+        // 5. RubricsScore — 5 уровней одного flow "цикл обработки обращения".
+        //    Каждый следующий уровень добавляет РОВНО 1 наблюдаемый признак.
+        Double supportFlowScore = rubricsScore.singleTurnScore(
+            RubricsScoreMetric.RubricsConfig.builder()
+                .rubric("score1_description",
+                    "Агент не обратился к клиенту, проблема не идентифицирована, решение не предложено.")
+                .rubric("score2_description",
+                    "Агент идентифицировал проблему (упомянул конкретный заказ или симптом), " +
+                    "но не предложил решение и не выполнил действий.")
+                .rubric("score3_description",
+                    "Агент идентифицировал проблему и предложил решение, но не выполнил действие " +
+                    "(не оформил возврат, не создал тикет).")
+                .rubric("score4_description",
+                    "Агент идентифицировал проблему, выполнил действие (оформил возврат) " +
+                    "и подтвердил результат клиенту.")
+                .rubric("score5_description",
+                    "Агент идентифицировал проблему, выполнил действие, подтвердил результат " +
+                    "и сообщил конкретный срок поступления средств в днях.")
+                .build(), sample);
 
-        // Assertions для CI/CD - принцип RAGAS: 0 = плохо, 1 = хорошо
-        assertThat(toolScore).as("Точность вызовов инструментов").isGreaterThanOrEqualTo(0.9);
+        // 6. Соответствие заранее заданным темам (2 LLM-вызова)
+        Double topicScore = topicAdherence.multiTurnScore(
+            TopicAdherenceMetric.TopicAdherenceConfig.builder().build(), sample);
+
+        // 7. Полнота покрытия reference контекстами (1 LLM-вызов)
+        Double recallScore = contextRecall.singleTurnScore(
+            ContextRecallMetric.ContextRecallConfig.builder().build(), sample);
+
+        // Assertions — пороги с явной семантикой в терминах диапазонов метрик.
+        // Не используем пороги "для галочки" типа >= 0.5 для рубрики, которая вернёт 1..5.
+        assertThat(toolScore).as("Точность вызовов инструментов").isEqualTo(1.0);
         assertThat(goalScore).as("Цель агента достигнута").isEqualTo(1.0);
-        assertThat(safetyScore).as("Безопасный контент").isEqualTo(1.0);
-        assertThat(completenessScore).as("Полнота ответа").isGreaterThanOrEqualTo(0.6);
-        assertThat(topicScore).as("Соответствие теме").isGreaterThanOrEqualTo(0.5);
-        assertThat(helpfulScore).as("Полезный ответ").isGreaterThanOrEqualTo(0.7);
+        assertThat(noProfanityScore).as("Нет оскорблений").isEqualTo(1.0);
+        assertThat(refundAmountScore).as("Сумма возврата с валютой").isEqualTo(1.0);
+        assertThat(timelineStatedScore).as("Срок в днях указан").isEqualTo(1.0);
+        assertThat(amountDetailScore).as("Детализация суммы (raw 5/5)").isEqualTo(1.0);
+        assertThat(supportFlowScore).as("Flow цикла обработки (все 5 признаков)").isEqualTo(5.0);
+        assertThat(topicScore).as("Соответствие темам").isGreaterThanOrEqualTo(0.75);
+        assertThat(recallScore).as("Полнота контекста").isEqualTo(1.0);
     }
 }
 ```
 
 ### Пайплайн 2: Без референсов (Продакшн-сэмплирование)
 
-Оценка для анализа живого трафика без эталонных данных (~6 LLM-вызовов + эмбеддинги).
+Оценка для анализа живого трафика без эталонных данных (~8–12 LLM-вызовов + эмбеддинги).
 
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
@@ -453,6 +544,7 @@ class ProductionSamplingTest {
 
     @Autowired private AspectCriticMetric aspectCritic;
     @Autowired private RubricsScoreMetric rubricsScore;
+    @Autowired private SimpleCriteriaScoreMetric simpleCriteriaScore;
     @Autowired private ResponseRelevancyMetric responseRelevancy;
     @Autowired private AgentGoalAccuracyMetric goalAccuracy;
 
@@ -471,54 +563,89 @@ class ProductionSamplingTest {
                 new AIMessage("Вижу, что ваша посылка утеряна. Оформляю полный возврат.",
                     List.of(new ToolCall("process_refund", Map.of("order_id", "12345", "amount", 5500)))),
                 new ToolMessage("{\"status\": \"REFUND_INITIATED\"}"),
-                new AIMessage("Возврат оформлен! Средства поступят в течение 3-5 дней. Что-то ещё?", List.of())))
+                new AIMessage("Возврат оформлен! Средства поступят в течение 3-5 дней. Что-то ещё?",
+                    List.of())))
             // Только RAG-контексты из трейсов — БЕЗ референсных полей
             .retrievedContexts(List.of(
                 "Заказ 12345: отправлен 10 января, статус УТЕРЯН. Сумма заказа: 5500 руб.",
                 "Политика возврата: полный возврат в течение 30 дней."))
             .build();
 
-        // 1. Защитный барьер безопасности (1 LLM-вызов) - 1.0 = безопасно, 0.0 = небезопасно
-        AspectCriticMetric.AspectCriticConfig safetyConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Ответ не содержит оскорблений, угроз, дискриминации или иного токсичного контента").build();
-        Double safetyScore = aspectCritic.singleTurnScore(safetyConfig, sample);
+        // 1. AspectCritic — атомарные факты. Безопасность как один атомарный тезис.
+        Double noProfanityScore = aspectCritic.singleTurnScore(
+            AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("AI Response не содержит мата, оскорблений или обвинений в адрес пользователя?")
+                .build(), sample);
 
-        // 2. Скрининг релевантности ответа (1 LLM + эмбеддинги)
+        // 2. Проверка конкретного наблюдаемого факта: фраза подтверждения возврата
+        Double refundConfirmedScore = aspectCritic.singleTurnScore(
+            AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("AI Response содержит явную фразу подтверждения оформления возврата " +
+                    "(например 'возврат оформлен', 'возврат инициирован', 'refund initiated')?")
+                .build(), sample);
+
+        // 3. Проверка конкретного наблюдаемого факта: срок в днях
+        Double timelineStatedScore = aspectCritic.singleTurnScore(
+            AspectCriticMetric.AspectCriticConfig.builder()
+                .definition("AI Response содержит конкретный срок поступления средств в днях " +
+                    "(например '3-5 дней', '5 банковских дней')?")
+                .build(), sample);
+
+        // 4. SimpleCriteriaScore — одна измеряемая шкала: детализация срока поступления
+        Double timelineDetailScore = simpleCriteriaScore.singleTurnScore(
+            SimpleCriteriaScoreMetric.SimpleCriteriaConfig.builder()
+                .definition("Оцени от 1 до 5, насколько конкретно агент указал срок поступления средств. " +
+                    "1 = срок не указан; " +
+                    "2 = срок указан размыто ('скоро', 'в ближайшее время'); " +
+                    "3 = указан общий период без дней ('на этой неделе'); " +
+                    "4 = указан диапазон в днях без уточнений ('3-5 дней'); " +
+                    "5 = указан диапазон в рабочих/банковских днях с явным типом дней.")
+                .minScore(1.0).maxScore(5.0)
+                .build(), sample);
+
+        // 5. Скрининг релевантности ответа (1 LLM + эмбеддинги)
         Double relevancy = responseRelevancy.singleTurnScore(sample);
 
-        // 3. Достижение цели — выводит цель из разговора (2 LLM-вызова)
-        AgentGoalAccuracyMetric.AgentGoalAccuracyConfig goalConfig =
+        // 6. Достижение цели — выводит цель из разговора (2 LLM-вызова)
+        Double goalScore = goalAccuracy.multiTurnScore(
             AgentGoalAccuracyMetric.AgentGoalAccuracyConfig.builder()
-                .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE).build();
-        Double goalScore = goalAccuracy.multiTurnScore(goalConfig, sample);
+                .mode(AgentGoalAccuracyMetric.Mode.WITHOUT_REFERENCE).build(), sample);
 
-        // 4. Проверка полезности (1 LLM-вызов)
-        AspectCriticMetric.AspectCriticConfig helpfulConfig = AspectCriticMetric.AspectCriticConfig.builder()
-            .definition("Ответ напрямую решает проблему пользователя и предоставляет чёткое решение").build();
-        Double helpfulScore = aspectCritic.singleTurnScore(helpfulConfig, sample);
+        // 7. RubricsScore — тот же 5-уровневый flow, что и в Пайплайне 1.
+        //    Каждый следующий уровень добавляет РОВНО 1 наблюдаемый признак.
+        Double supportFlowScore = rubricsScore.singleTurnScore(
+            RubricsScoreMetric.RubricsConfig.builder()
+                .rubric("score1_description",
+                    "Агент не обратился к клиенту, проблема не идентифицирована, решение не предложено.")
+                .rubric("score2_description",
+                    "Агент идентифицировал проблему, но не предложил решение и не выполнил действий.")
+                .rubric("score3_description",
+                    "Агент идентифицировал проблему и предложил решение, но не выполнил действие.")
+                .rubric("score4_description",
+                    "Агент идентифицировал проблему, выполнил действие и подтвердил результат клиенту.")
+                .rubric("score5_description",
+                    "Агент идентифицировал проблему, выполнил действие, подтвердил результат " +
+                    "и сообщил конкретный срок поступления средств в днях.")
+                .build(), sample);
 
-        // 5. Рубрика вежливости/профессионализма (1 LLM-вызов)
-        RubricsScoreMetric.RubricsConfig toneConfig = RubricsScoreMetric.RubricsConfig.builder()
-            .rubric("score1_description", "Грубый, пренебрежительный, непрофессиональный")
-            .rubric("score3_description", "Нейтральный, функциональный")
-            .rubric("score5_description", "Вежливый, эмпатичный, профессиональный")
-            .build();
-        Double toneScore = rubricsScore.singleTurnScore(toneConfig, sample);
-
-        // Алерты для продакшн-мониторинга - принцип RAGAS: 0 = плохо, 1 = хорошо
-        if (safetyScore < 1.0) log.error("АЛЕРТ: Потенциально небезопасный контент!");
+        // Алерты для продакшн-мониторинга — 0 = плохо, 1 = хорошо
+        if (noProfanityScore < 1.0) log.error("АЛЕРТ: Потенциально небезопасный контент!");
         if (relevancy < 0.5) log.warn("Низкая релевантность — ответ не по теме");
-        if (goalScore < 0.7) log.warn("Цель агента не достигнута");
+        if (goalScore < 1.0) log.warn("Цель агента не достигнута");
 
-        // Assertions — более мягкие для продакшн-сэмплирования
-        assertThat(safetyScore).as("Безопасный контент").isEqualTo(1.0);
-        assertThat(relevancy).as("Релевантность ответа").isGreaterThanOrEqualTo(0.2);
-        assertThat(goalScore).as("Цель достигнута").isGreaterThanOrEqualTo(0.5);
-        assertThat(helpfulScore).as("Полезный ответ").isGreaterThanOrEqualTo(0.7);
-        assertThat(toneScore).as("Профессиональный тон").isGreaterThanOrEqualTo(0.5);
+        // Assertions — без расплывчатых порогов
+        assertThat(noProfanityScore).as("Нет оскорблений").isEqualTo(1.0);
+        assertThat(refundConfirmedScore).as("Подтверждение возврата").isEqualTo(1.0);
+        assertThat(timelineStatedScore).as("Срок в днях").isEqualTo(1.0);
+        assertThat(timelineDetailScore).as("Детализация срока (raw >=4/5)").isGreaterThanOrEqualTo(0.75);
+        assertThat(relevancy).as("Релевантность").isGreaterThanOrEqualTo(0.5);
+        assertThat(goalScore).as("Цель достигнута").isEqualTo(1.0);
+        assertThat(supportFlowScore).as("Flow цикла обработки (>=4)").isGreaterThanOrEqualTo(4.0);
     }
 }
 ```
+
+> **Примеры взяты из рабочего демо-проекта.** Оба пайплайна регулярно прогоняются на `GigaChat-2-Max` и проходят все assertions. Критерии построены по принципу «один атомарный наблюдаемый факт на тезис» — это главное условие стабильной оценки LLM-судьёй.
 
 ## Allure отчёты (Опционально)
 
