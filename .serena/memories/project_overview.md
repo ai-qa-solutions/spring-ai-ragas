@@ -6,9 +6,9 @@ Java port of Python RAGAS framework. LLM agent evaluation library on Spring Boot
 
 - Group: `io.github.ai-qa-solutions`
 - Artifact: `spring-ai-ragas` (parent pom, packaging=pom)
-- Version: `0.3.1`
+- Version: `0.3.2`
 - Java: 17
-- Spring Boot: 3.5.11
+- Spring Boot: 3.5.13
 - Spring AI: 1.1.2
 - License: MIT
 - Maven Central: published via central-publishing-maven-plugin
@@ -18,7 +18,7 @@ Java port of Python RAGAS framework. LLM agent evaluation library on Spring Boot
 
 - `spring-ai-ragas-metrics` — pure metric implementations (no Spring Boot deps). Packages: `ai.qa.solutions.metric` (core: EvaluationResult, explanations) + `ai.qa.solutions.metrics` (impls per category)
 - `spring-ai-ragas-spring-boot` — autoconfig + properties (`config/`, `properties/`). Wires beans via `RagasMetricsAutoconfiguration`, `MultiProviderAutoConfiguration`, `MultiModelExecutorAutoconfiguration`
-- `spring-ai-ragas-spring-boot-starter` — empty starter aggregator
+- `spring-ai-ragas-spring-boot-starter` — starter aggregator that transitively pulls in `spring-ai-ragas-spring-boot` (and via it: metrics, multi-model, bucket4j, autoconfigure)
 - `spring-ai-ragas-multi-model` — multi-LLM execution. Packages: `chatclient/`, `embedding/`, `execution/`, `sample/`. Aggregation strategies, per-provider rate limiting (Bucket4j WAIT/REJECT)
 - `spring-ai-ragas-allure` — Allure reporting integration (optional). Has `example/` subdir
 
@@ -38,6 +38,6 @@ Java port of Python RAGAS framework. LLM agent evaluation library on Spring Boot
 
 ## Recent work (git)
 
-- branch: `feat/chunked-embedding-support`
-- Recent: chunked embedding for SemanticSimilarityMetric (#5), PMD added, ThreadLocal Allure fix, version 0.3.1 / Spring Boot 3.5.11 bump
+- branch: `main`
+- Recent: release 0.3.2 — starter POM fix (#9, closes #7), README GigaChat best-practices rewrite (#8), Spring Boot bump 3.5.11 → 3.5.13 (#10); earlier: chunked embedding (#5), PMD, ThreadLocal Allure fix (#3)
 
