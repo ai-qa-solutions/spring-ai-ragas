@@ -26,7 +26,9 @@ import ai.qa.solutions.metrics.retrieval.FaithfulnessMetric;
 import ai.qa.solutions.metrics.retrieval.NoiseSensitivityMetric;
 import ai.qa.solutions.metrics.retrieval.ResponseRelevancyMetric;
 import ai.qa.solutions.properties.RagasMetricsProperties;
+import java.io.InputStream;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -127,20 +129,38 @@ public class RagasMetricsAutoconfiguration {
 
     @Bean
     public AspectCriticMetric aspectCriticMetric(
-            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return AspectCriticMetric.builder().executor(executor).build().withListeners(listeners);
+            final MultiModelExecutor executor,
+            final List<MetricExecutionListener> listeners,
+            final RagasMetricsProperties properties) {
+        return AspectCriticMetric.builder()
+                .executor(executor)
+                .promptTemplate(resolvePropertyPrompt(properties.getPrompts().getAspectCritic()))
+                .build()
+                .withListeners(listeners);
     }
 
     @Bean
     public SimpleCriteriaScoreMetric simpleCriteriaScoreMetric(
-            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return SimpleCriteriaScoreMetric.builder().executor(executor).build().withListeners(listeners);
+            final MultiModelExecutor executor,
+            final List<MetricExecutionListener> listeners,
+            final RagasMetricsProperties properties) {
+        return SimpleCriteriaScoreMetric.builder()
+                .executor(executor)
+                .promptTemplate(resolvePropertyPrompt(properties.getPrompts().getSimpleCriteriaScore()))
+                .build()
+                .withListeners(listeners);
     }
 
     @Bean
     public RubricsScoreMetric rubricsScoreMetric(
-            final MultiModelExecutor executor, final List<MetricExecutionListener> listeners) {
-        return RubricsScoreMetric.builder().executor(executor).build().withListeners(listeners);
+            final MultiModelExecutor executor,
+            final List<MetricExecutionListener> listeners,
+            final RagasMetricsProperties properties) {
+        return RubricsScoreMetric.builder()
+                .executor(executor)
+                .promptTemplate(resolvePropertyPrompt(properties.getPrompts().getRubricsScore()))
+                .build()
+                .withListeners(listeners);
     }
 
     @Bean
@@ -263,5 +283,26 @@ public class RagasMetricsAutoconfiguration {
     @Bean
     public StringSimilarityMetric stringSimilarityMetric(final List<MetricExecutionListener> listeners) {
         return new StringSimilarityMetric().withListeners(listeners);
+    }
+
+    // ==================== Helper Methods ====================
+
+    private String resolvePropertyPrompt(final String prompt) {
+        if (prompt == null || prompt.isBlank()) {
+            return null;
+        }
+        if (prompt.startsWith("classpath:")) {
+            final String path = prompt.substring("classpath:".length());
+            try (final InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
+                if (is != null) {
+                    return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                }
+                log.warn("Prompt resource not found: {}", path);
+            } catch (final Exception e) {
+                log.warn("Failed to load prompt resource '{}': {}", path, e.getMessage());
+            }
+            return null;
+        }
+        return prompt;
     }
 }
