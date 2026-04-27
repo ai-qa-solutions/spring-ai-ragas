@@ -21,7 +21,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <spring-ai.version>1.1.2</spring-ai.version>
-        <spring-ai-ragas.version>0.3.2</spring-ai-ragas.version>
+        <spring-ai-ragas.version>0.3.3</spring-ai-ragas.version>
         <gigachat.version>1.1.2</gigachat.version>
         <allure-bom.version>2.29.0</allure-bom.version>
         <aspectj.version>1.9.24</aspectj.version>

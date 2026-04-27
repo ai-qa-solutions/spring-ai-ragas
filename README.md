@@ -35,7 +35,7 @@ Comprehensive quality analysis of agent systems in two scenarios:
 
 | Spring AI RAGAS | RAGAS (Python) | Spring Boot | Spring AI |
 |-----------------|----------------|-------------|-----------|
-| 0.3.2           | 0.3.x          | 3.5.x       | 1.1.x     |
+| 0.3.3           | 0.3.x          | 3.5.x       | 1.1.x     |
 
 ## Supported Metrics
 
@@ -121,7 +121,7 @@ Full documentation: [NLP Metrics Guide](docs/en/nlp_metrics_en.md)
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-spring-boot-starter</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.3</version>
     <scope>test</scope>
 </dependency>
 <!-- Add any required starters from spring-ai ecosystem -->
@@ -136,7 +136,7 @@ Full documentation: [NLP Metrics Guide](docs/en/nlp_metrics_en.md)
 #### Gradle
 
 ```groovy
-testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:0.3.2'
+testImplementation 'io.github.ai-qa-solutions:spring-ai-ragas-spring-boot-starter:0.3.3'
 testImplementation 'org.springframework.ai:spring-ai-starter-model-openai:1.1.2'
 ```
 
@@ -432,7 +432,7 @@ See [pom.xml](pom.xml) for a complete setup example.
 <dependency>
     <groupId>io.github.ai-qa-solutions</groupId>
     <artifactId>spring-ai-ragas-allure</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.3</version>
     <scope>test</scope>
 </dependency>
 ```

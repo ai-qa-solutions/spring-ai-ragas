@@ -6,7 +6,7 @@ Java port of Python RAGAS framework. LLM agent evaluation library on Spring Boot
 
 - Group: `io.github.ai-qa-solutions`
 - Artifact: `spring-ai-ragas` (parent pom, packaging=pom)
-- Version: `0.3.2`
+- Version: `0.3.3`
 - Java: 17
 - Spring Boot: 3.5.13
 - Spring AI: 1.1.2
@@ -39,5 +39,5 @@ Java port of Python RAGAS framework. LLM agent evaluation library on Spring Boot
 ## Recent work (git)
 
 - branch: `main`
-- Recent: release 0.3.2 — starter POM fix (#9, closes #7), README GigaChat best-practices rewrite (#8), Spring Boot bump 3.5.11 → 3.5.13 (#10); earlier: chunked embedding (#5), PMD, ThreadLocal Allure fix (#3)
+- Recent: release 0.3.3 — Allure listener builder API with step/attachment/section toggles (#14, closes #13); earlier 0.3.2: starter POM fix (#9, closes #7), README GigaChat best-practices rewrite (#8), Spring Boot bump 3.5.11 → 3.5.13 (#10), chunked embedding (#5), PMD, ThreadLocal Allure fix (#3)
 
