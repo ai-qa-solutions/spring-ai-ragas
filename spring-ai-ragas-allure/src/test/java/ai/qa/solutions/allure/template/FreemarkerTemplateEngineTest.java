@@ -3,6 +3,7 @@ package ai.qa.solutions.allure.template;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import ai.qa.solutions.allure.listener.RenderConfig;
 import ai.qa.solutions.allure.model.ChartData;
 import ai.qa.solutions.allure.model.EvaluationReportData;
 import java.time.Duration;
@@ -54,11 +55,12 @@ class FreemarkerTemplateEngineTest {
         }
 
         @Test
-        @DisplayName("should include methodology")
+        @DisplayName("should include methodology when methodology section is enabled explicitly")
         void shouldIncludeMethodology() {
             final EvaluationReportData data = createTestData();
+            final RenderConfig methodologyOn = new RenderConfig(true, true, true, true, true, true, true);
 
-            final String html = engine.renderHtml(data);
+            final String html = engine.renderHtml(data, methodologyOn);
 
             assertThat(html).contains("Test methodology");
         }
@@ -107,7 +109,222 @@ class FreemarkerTemplateEngineTest {
         }
     }
 
+    @Nested
+    @DisplayName("section toggles — HTML")
+    class HtmlSectionToggles {
+
+        @Test
+        @DisplayName("withSummary=false should omit summary section but keep others")
+        void withSummaryFalseShouldOmitSummary() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, false, true, true, true, true);
+
+            final String html = engine.renderHtml(data, config);
+
+            assertThat(html).doesNotContain("id=\"block-summary\"");
+            assertThat(html).contains("id=\"block-methodology\"");
+            assertThat(html).contains("id=\"block-execution\"");
+        }
+
+        @Test
+        @DisplayName("withExplanation=false should omit explanation section but keep others")
+        void withExplanationFalseShouldOmitExplanation() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, true, false, true, true, true);
+
+            final String html = engine.renderHtml(data, config);
+
+            assertThat(html).doesNotContain("id=\"block-explanation\"");
+            assertThat(html).contains("id=\"block-summary\"");
+            assertThat(html).contains("id=\"block-methodology\"");
+            assertThat(html).contains("id=\"block-execution\"");
+        }
+
+        @Test
+        @DisplayName("withMethodology=false should omit methodology section but keep others")
+        void withMethodologyFalseShouldOmitMethodology() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, true, true, false, true, true);
+
+            final String html = engine.renderHtml(data, config);
+
+            assertThat(html).doesNotContain("id=\"block-methodology\"");
+            assertThat(html).doesNotContain("Test methodology");
+            assertThat(html).contains("id=\"block-summary\"");
+            assertThat(html).contains("id=\"block-execution\"");
+        }
+
+        @Test
+        @DisplayName("withExecutionLog=false should omit execution log section but keep others")
+        void withExecutionLogFalseShouldOmitExecutionLog() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, true, true, true, false, true);
+
+            final String html = engine.renderHtml(data, config);
+
+            assertThat(html).doesNotContain("id=\"block-execution\"");
+            assertThat(html).contains("id=\"block-summary\"");
+            assertThat(html).contains("id=\"block-methodology\"");
+        }
+
+        @Test
+        @DisplayName("withExcludedModels=false should NOT affect HTML output (no excluded-models block in HTML)")
+        void withExcludedModelsFalseShouldNotAffectHtml() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig configOn = new RenderConfig(true, true, true, true, true, true, true);
+            final RenderConfig configOff = new RenderConfig(true, true, true, true, true, true, false);
+
+            final String htmlOn = engine.renderHtml(data, configOn);
+            final String htmlOff = engine.renderHtml(data, configOff);
+
+            assertThat(htmlOn).isEqualTo(htmlOff);
+        }
+    }
+
+    @Nested
+    @DisplayName("section toggles — Markdown")
+    class MarkdownSectionToggles {
+
+        @Test
+        @DisplayName("withSummary=false should omit summary section but keep others")
+        void withSummaryFalseShouldOmitSummary() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, false, true, true, true, true);
+
+            final String md = engine.renderMarkdown(data, config);
+
+            assertThat(md).doesNotContain("## Summary");
+            assertThat(md).contains("## Methodology");
+            assertThat(md).contains("## Execution Log");
+        }
+
+        @Test
+        @DisplayName("withExplanation=false should omit explanation section but keep others")
+        void withExplanationFalseShouldOmitExplanation() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, true, false, true, true, true);
+
+            final String md = engine.renderMarkdown(data, config);
+
+            assertThat(md).doesNotContain("## Score Explanation");
+            assertThat(md).contains("## Summary");
+            assertThat(md).contains("## Methodology");
+            assertThat(md).contains("## Execution Log");
+        }
+
+        @Test
+        @DisplayName("withMethodology=false should omit methodology section but keep others")
+        void withMethodologyFalseShouldOmitMethodology() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, true, true, false, true, true);
+
+            final String md = engine.renderMarkdown(data, config);
+
+            assertThat(md).doesNotContain("## Methodology");
+            assertThat(md).doesNotContain("# Test methodology");
+            assertThat(md).contains("## Summary");
+            assertThat(md).contains("## Execution Log");
+        }
+
+        @Test
+        @DisplayName("withExecutionLog=false should omit execution log section but keep others")
+        void withExecutionLogFalseShouldOmitExecutionLog() {
+            final EvaluationReportData data = createTestData();
+            final RenderConfig config = new RenderConfig(true, true, true, true, true, false, true);
+
+            final String md = engine.renderMarkdown(data, config);
+
+            assertThat(md).doesNotContain("## Execution Log");
+            assertThat(md).contains("## Summary");
+            assertThat(md).contains("## Methodology");
+        }
+
+        @Test
+        @DisplayName("withExcludedModels=false should omit excluded-models section but keep others")
+        void withExcludedModelsFalseShouldOmitExcludedModels() {
+            final EvaluationReportData data = createTestDataWithExclusions();
+            final RenderConfig config = new RenderConfig(true, true, true, true, true, true, false);
+
+            final String md = engine.renderMarkdown(data, config);
+
+            assertThat(md).doesNotContain("## Excluded Models");
+            assertThat(md).contains("## Summary");
+            assertThat(md).contains("## Methodology");
+            assertThat(md).contains("## Execution Log");
+        }
+    }
+
+    @Nested
+    @DisplayName("default RenderConfig (methodology=false)")
+    class DefaultRenderConfig {
+
+        @Test
+        @DisplayName("renderHtml with default config should omit methodology section (regression for breaking change)")
+        void renderHtmlShouldOmitMethodologyByDefault() {
+            final EvaluationReportData data = createTestData();
+
+            final String html = engine.renderHtml(data, RenderConfig.defaults());
+
+            assertThat(html).doesNotContain("id=\"block-methodology\"");
+            assertThat(html).doesNotContain("Test methodology");
+            // Other sections still rendered
+            assertThat(html).contains("id=\"block-summary\"");
+            assertThat(html).contains("id=\"block-execution\"");
+        }
+
+        @Test
+        @DisplayName(
+                "renderMarkdown with default config should omit methodology section (regression for breaking change)")
+        void renderMarkdownShouldOmitMethodologyByDefault() {
+            final EvaluationReportData data = createTestData();
+
+            final String md = engine.renderMarkdown(data, RenderConfig.defaults());
+
+            assertThat(md).doesNotContain("## Methodology");
+            assertThat(md).doesNotContain("# Test methodology");
+            assertThat(md).contains("## Summary");
+            assertThat(md).contains("## Execution Log");
+        }
+
+        @Test
+        @DisplayName("no-arg renderHtml should also omit methodology by default")
+        void noArgRenderHtmlShouldOmitMethodology() {
+            final EvaluationReportData data = createTestData();
+
+            final String html = engine.renderHtml(data);
+
+            assertThat(html).doesNotContain("id=\"block-methodology\"");
+            assertThat(html).doesNotContain("Test methodology");
+        }
+
+        @Test
+        @DisplayName("no-arg renderMarkdown should also omit methodology by default")
+        void noArgRenderMarkdownShouldOmitMethodology() {
+            final EvaluationReportData data = createTestData();
+
+            final String md = engine.renderMarkdown(data);
+
+            assertThat(md).doesNotContain("## Methodology");
+            assertThat(md).doesNotContain("# Test methodology");
+        }
+    }
+
     private EvaluationReportData createTestData() {
+        return baseBuilder().build();
+    }
+
+    private EvaluationReportData createTestDataWithExclusions() {
+        return baseBuilder()
+                .exclusions(List.of(ai.qa.solutions.allure.model.ModelExclusionData.builder()
+                        .modelId("model-3")
+                        .failedStepName("InvokeLlm")
+                        .errorMessage("rate limited")
+                        .stackTrace("at com.example.Foo.bar(Foo.java:1)")
+                        .build()))
+                .build();
+    }
+
+    private EvaluationReportData.EvaluationReportDataBuilder baseBuilder() {
         return EvaluationReportData.builder()
                 .metricName("Faithfulness")
                 .metricDescription("Measures factual consistency")
@@ -145,7 +362,6 @@ class FreemarkerTemplateEngineTest {
                         .heatmapRowLabels(List.of())
                         .heatmapColLabels(List.of())
                         .heatmapValues(List.of())
-                        .build())
-                .build();
+                        .build());
     }
 }

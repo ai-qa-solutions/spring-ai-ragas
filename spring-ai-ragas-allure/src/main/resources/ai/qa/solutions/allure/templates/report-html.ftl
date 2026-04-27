@@ -1631,6 +1631,7 @@
         </header>
 
         <#-- Block 1: Summary (expanded by default) -->
+        <#if renderConfig.summary()>
         <section class="report-block" id="block-summary">
             <div class="block-header" onclick="toggleBlock('block-summary')">
                 <h2>${i18n["block.summary"]}</h2>
@@ -1640,8 +1641,10 @@
                 <#include "blocks/summary-block.ftl">
             </div>
         </section>
+        </#if>
 
         <#-- Block 2: Score Explanation (expanded by default if available) -->
+        <#if renderConfig.explanation()>
         <#if data.hasScoreExplanation()>
         <section class="report-block" id="block-explanation">
             <div class="block-header" onclick="toggleBlock('block-explanation')">
@@ -1653,8 +1656,10 @@
             </div>
         </section>
         </#if>
+        </#if>
 
         <#-- Block 3: Methodology (collapsed by default) -->
+        <#if renderConfig.methodology()>
         <section class="report-block collapsed" id="block-methodology">
             <div class="block-header" onclick="toggleBlock('block-methodology')">
                 <h2>${i18n["block.methodology"]}</h2>
@@ -1664,8 +1669,10 @@
                 <#include "blocks/methodology-block.ftl">
             </div>
         </section>
+        </#if>
 
         <#-- Block 3: Execution Log (collapsed by default) -->
+        <#if renderConfig.executionLog()>
         <section class="report-block collapsed" id="block-execution">
             <div class="block-header" onclick="toggleBlock('block-execution')">
                 <h2>${i18n["block.execution"]}</h2>
@@ -1675,6 +1682,7 @@
                 <#include "blocks/execution-log-block.ftl">
             </div>
         </section>
+        </#if>
     </div>
 
     <script>

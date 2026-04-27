@@ -38,7 +38,7 @@ public class AllureAttachmentWriter {
     }
 
     /**
-     * Writes an HTML attachment for the evaluation report.
+     * Writes an HTML attachment for the evaluation report using {@link RenderConfig#defaults()}.
      *
      * @param data the evaluation report data
      */
@@ -54,7 +54,24 @@ public class AllureAttachmentWriter {
     }
 
     /**
-     * Writes a Markdown attachment for the evaluation report.
+     * Writes an HTML attachment for the evaluation report with the given render configuration.
+     *
+     * @param data the evaluation report data
+     * @param renderConfig the render configuration controlling which sections to emit
+     */
+    public void writeHtmlAttachment(final EvaluationReportData data, final RenderConfig renderConfig) {
+        try {
+            final String html = templateEngine.renderHtml(data, renderConfig);
+            final String name = buildAttachmentName(data, "Report");
+            lifecycle.addAttachment(name, HTML_CONTENT_TYPE, HTML_EXTENSION, html.getBytes(StandardCharsets.UTF_8));
+            log.debug("Added HTML attachment '{}' for metric '{}'", name, data.getMetricName());
+        } catch (final Exception e) {
+            log.error("Failed to write HTML attachment for metric '{}'", data.getMetricName(), e);
+        }
+    }
+
+    /**
+     * Writes a Markdown attachment for the evaluation report using {@link RenderConfig#defaults()}.
      *
      * @param data the evaluation report data
      */
@@ -71,7 +88,26 @@ public class AllureAttachmentWriter {
     }
 
     /**
-     * Writes an HTML attachment for the evaluation report to a specific step by UUID.
+     * Writes a Markdown attachment for the evaluation report with the given render configuration.
+     *
+     * @param data the evaluation report data
+     * @param renderConfig the render configuration controlling which sections to emit
+     */
+    public void writeMarkdownAttachment(final EvaluationReportData data, final RenderConfig renderConfig) {
+        try {
+            final String markdown = templateEngine.renderMarkdown(data, renderConfig);
+            final String name = buildAttachmentName(data, "MD");
+            lifecycle.addAttachment(
+                    name, MARKDOWN_CONTENT_TYPE, MARKDOWN_EXTENSION, markdown.getBytes(StandardCharsets.UTF_8));
+            log.debug("Added Markdown attachment '{}' for metric '{}'", name, data.getMetricName());
+        } catch (final Exception e) {
+            log.error("Failed to write Markdown attachment for metric '{}'", data.getMetricName(), e);
+        }
+    }
+
+    /**
+     * Writes an HTML attachment for the evaluation report to a specific step by UUID using
+     * {@link RenderConfig#defaults()}.
      * <p>
      * This method bypasses ThreadLocal context and directly attaches to the specified step,
      * making it safe to use from async threads.
@@ -92,7 +128,32 @@ public class AllureAttachmentWriter {
     }
 
     /**
-     * Writes a Markdown attachment for the evaluation report to a specific step by UUID.
+     * Writes an HTML attachment for the evaluation report to a specific step by UUID with the
+     * given render configuration.
+     * <p>
+     * This method bypasses ThreadLocal context and directly attaches to the specified step,
+     * making it safe to use from async threads.
+     *
+     * @param stepUuid the UUID of the step to attach to
+     * @param data the evaluation report data
+     * @param renderConfig the render configuration controlling which sections to emit
+     */
+    public void writeHtmlAttachmentToStep(
+            final String stepUuid, final EvaluationReportData data, final RenderConfig renderConfig) {
+        try {
+            final String html = templateEngine.renderHtml(data, renderConfig);
+            final String name = buildAttachmentName(data, "Report");
+            addAttachmentToStep(
+                    stepUuid, name, HTML_CONTENT_TYPE, HTML_EXTENSION, html.getBytes(StandardCharsets.UTF_8));
+            log.debug("Added HTML attachment '{}' to step '{}' for metric '{}'", name, stepUuid, data.getMetricName());
+        } catch (final Exception e) {
+            log.error("Failed to write HTML attachment for metric '{}'", data.getMetricName(), e);
+        }
+    }
+
+    /**
+     * Writes a Markdown attachment for the evaluation report to a specific step by UUID using
+     * {@link RenderConfig#defaults()}.
      * <p>
      * This method bypasses ThreadLocal context and directly attaches to the specified step,
      * making it safe to use from async threads.
@@ -103,6 +164,38 @@ public class AllureAttachmentWriter {
     public void writeMarkdownAttachmentToStep(final String stepUuid, final EvaluationReportData data) {
         try {
             final String markdown = templateEngine.renderMarkdown(data);
+            final String name = buildAttachmentName(data, "MD");
+            addAttachmentToStep(
+                    stepUuid,
+                    name,
+                    MARKDOWN_CONTENT_TYPE,
+                    MARKDOWN_EXTENSION,
+                    markdown.getBytes(StandardCharsets.UTF_8));
+            log.debug(
+                    "Added Markdown attachment '{}' to step '{}' for metric '{}'",
+                    name,
+                    stepUuid,
+                    data.getMetricName());
+        } catch (final Exception e) {
+            log.error("Failed to write Markdown attachment for metric '{}'", data.getMetricName(), e);
+        }
+    }
+
+    /**
+     * Writes a Markdown attachment for the evaluation report to a specific step by UUID with the
+     * given render configuration.
+     * <p>
+     * This method bypasses ThreadLocal context and directly attaches to the specified step,
+     * making it safe to use from async threads.
+     *
+     * @param stepUuid the UUID of the step to attach to
+     * @param data the evaluation report data
+     * @param renderConfig the render configuration controlling which sections to emit
+     */
+    public void writeMarkdownAttachmentToStep(
+            final String stepUuid, final EvaluationReportData data, final RenderConfig renderConfig) {
+        try {
+            final String markdown = templateEngine.renderMarkdown(data, renderConfig);
             final String name = buildAttachmentName(data, "MD");
             addAttachmentToStep(
                     stepUuid,

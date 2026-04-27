@@ -99,6 +99,82 @@ class AllureAttachmentWriterTest {
         }
     }
 
+    @Nested
+    @DisplayName("RenderConfig overloads")
+    class RenderConfigOverloads {
+
+        @Test
+        @DisplayName("writeHtmlAttachmentToStep with RenderConfig should propagate config to template engine")
+        void writeHtmlAttachmentToStepWithRenderConfigShouldPropagateConfig() {
+            final EvaluationReportData data = createTestData(0.85);
+            final RenderConfig customConfig = new RenderConfig(true, true, true, true, true, true, true);
+            when(templateEngine.renderHtml(eq(data), eq(customConfig))).thenReturn("<html>cfg</html>");
+
+            writer.writeHtmlAttachmentToStep("step-uuid", data, customConfig);
+
+            verify(templateEngine).renderHtml(eq(data), eq(customConfig));
+        }
+
+        @Test
+        @DisplayName("writeMarkdownAttachmentToStep with RenderConfig should propagate config to template engine")
+        void writeMarkdownAttachmentToStepWithRenderConfigShouldPropagateConfig() {
+            final EvaluationReportData data = createTestData(0.85);
+            final RenderConfig customConfig = new RenderConfig(true, true, true, true, true, true, true);
+            when(templateEngine.renderMarkdown(eq(data), eq(customConfig))).thenReturn("# cfg");
+
+            writer.writeMarkdownAttachmentToStep("step-uuid", data, customConfig);
+
+            verify(templateEngine).renderMarkdown(eq(data), eq(customConfig));
+        }
+
+        @Test
+        @DisplayName("writeHtmlAttachment with RenderConfig should propagate config to template engine")
+        void writeHtmlAttachmentWithRenderConfigShouldPropagateConfig() {
+            final EvaluationReportData data = createTestData(0.85);
+            final RenderConfig customConfig = new RenderConfig(true, true, false, true, true, true, true);
+            when(templateEngine.renderHtml(eq(data), eq(customConfig))).thenReturn("<html>cfg</html>");
+
+            writer.writeHtmlAttachment(data, customConfig);
+
+            verify(templateEngine).renderHtml(eq(data), eq(customConfig));
+        }
+
+        @Test
+        @DisplayName("writeMarkdownAttachment with RenderConfig should propagate config to template engine")
+        void writeMarkdownAttachmentWithRenderConfigShouldPropagateConfig() {
+            final EvaluationReportData data = createTestData(0.85);
+            final RenderConfig customConfig = new RenderConfig(true, true, true, false, true, true, true);
+            when(templateEngine.renderMarkdown(eq(data), eq(customConfig))).thenReturn("# cfg");
+
+            writer.writeMarkdownAttachment(data, customConfig);
+
+            verify(templateEngine).renderMarkdown(eq(data), eq(customConfig));
+        }
+
+        @Test
+        @DisplayName("legacy 2-arg writeHtmlAttachmentToStep should call template engine without explicit RenderConfig")
+        void legacyTwoArgWriteHtmlAttachmentToStepShouldUseEngineDefaults() {
+            final EvaluationReportData data = createTestData(0.85);
+            when(templateEngine.renderHtml(eq(data))).thenReturn("<html>legacy</html>");
+
+            writer.writeHtmlAttachmentToStep("step-uuid", data);
+
+            verify(templateEngine).renderHtml(eq(data));
+        }
+
+        @Test
+        @DisplayName(
+                "legacy 2-arg writeMarkdownAttachmentToStep should call template engine without explicit RenderConfig")
+        void legacyTwoArgWriteMarkdownAttachmentToStepShouldUseEngineDefaults() {
+            final EvaluationReportData data = createTestData(0.85);
+            when(templateEngine.renderMarkdown(eq(data))).thenReturn("# legacy");
+
+            writer.writeMarkdownAttachmentToStep("step-uuid", data);
+
+            verify(templateEngine).renderMarkdown(eq(data));
+        }
+    }
+
     private EvaluationReportData createTestData(final Double score) {
         return EvaluationReportData.builder()
                 .metricName("TestMetric")
