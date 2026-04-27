@@ -7,6 +7,7 @@
 
 ---
 
+<#if renderConfig.summary()>
 ## ${i18n["block.summary"]}
 
 ### ${i18n["summary.modelScores"]}
@@ -71,6 +72,8 @@ ${configJson}
 
 ---
 
+</#if>
+<#if renderConfig.explanation()>
 <#if data.hasScoreExplanation()>
 ## ${i18n["block.explanation"]}
 
@@ -138,12 +141,16 @@ ${step.inputData}
 ---
 
 </#if>
+</#if>
+<#if renderConfig.methodology()>
 ## ${i18n["block.methodology"]}
 
 ${methodologyMarkdown!'Methodology documentation not available.'}
 
 ---
 
+</#if>
+<#if renderConfig.executionLog()>
 ## ${i18n["block.execution"]}
 
 <#list steps as step>
@@ -193,6 +200,8 @@ ${modelResult.stackTrace}
 
 </#list>
 
+</#if>
+<#if renderConfig.excludedModels()>
 <#if exclusions?has_content>
 ---
 
@@ -215,4 +224,5 @@ ${excl.stackTrace}
 </details>
 </#if>
 </#list>
+</#if>
 </#if>

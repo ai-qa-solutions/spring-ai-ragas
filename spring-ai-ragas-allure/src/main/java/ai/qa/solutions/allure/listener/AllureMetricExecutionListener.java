@@ -45,10 +45,65 @@ import lombok.extern.slf4j.Slf4j;
  * // Automatic (via Spring Boot autoconfiguration)
  * spring.ai.ragas.allure.enabled=true
  *
- * // Manual
- * AllureMetricExecutionListener listener = new AllureMetricExecutionListener(...);
+ * // Manual via builder (recommended)
+ * AllureMetricExecutionListener listener = AllureMetricExecutionListener.builder()
+ *         .properties(properties)
+ *         .templateEngine(templateEngine)
+ *         .attachmentWriter(attachmentWriter)
+ *         .methodologyLoader(methodologyLoader)
+ *         .withStep(false)                  // optional, default true
+ *         .withHtmlAttachment(true)         // optional, default true
+ *         .withMarkdownAttachment(false)    // optional, default true
+ *         .withSummary(true)                // optional, default true
+ *         .withExplanation(true)            // optional, default true
+ *         .withMethodology(true)            // optional, default FALSE (see migration note below)
+ *         .withExecutionLog(true)           // optional, default true
+ *         .withExcludedModels(true)         // optional, default true
+ *         .build();
  * metric.addListener(listener);
  * }</pre>
+ *
+ * <h3>{@code withStep} flag</h3>
+ * <p>
+ * Controls whether the listener wraps each metric evaluation in its own Allure
+ * step (named after the metric). Default is {@code true}.
+ * <ul>
+ *   <li>{@code withStep=true} (default): the listener calls
+ *       {@link AllureLifecycle#startStep(String, String, StepResult) startStep} /
+ *       {@link AllureLifecycle#stopStep(String) stopStep} around the HTML/Markdown
+ *       attachments. If no Allure parent context is found, the listener falls back
+ *       to {@link io.qameta.allure.Allure}'s ThreadLocal-based attachment methods.</li>
+ *   <li>{@code withStep=false}: the listener skips {@code startStep}/{@code stopStep}
+ *       and writes attachments directly to the captured parent UUID. If no Allure
+ *       parent context is found, the listener logs a warning and skips the
+ *       attachments entirely (no ThreadLocal fallback).</li>
+ * </ul>
+ * Use {@code withStep=false} when the host test framework already wraps each
+ * metric call in its own outer Allure step and the inner step from this listener
+ * would be a redundant nesting level.
+ *
+ * <h3>Attachment and section toggles</h3>
+ * <p>
+ * The builder exposes seven additional flags that control which attachments are
+ * written and which sections appear inside each rendered report. Two of them
+ * gate the Allure attachments themselves ({@code withHtmlAttachment},
+ * {@code withMarkdownAttachment}); the other five toggle individual sections
+ * within the HTML and Markdown templates ({@code withSummary},
+ * {@code withExplanation}, {@code withMethodology}, {@code withExecutionLog},
+ * {@code withExcludedModels}). All defaults are {@code true} <b>except
+ * {@code withMethodology}, which defaults to {@code false}</b>.
+ * <p>
+ * If both attachment toggles are {@code false}, no Allure step is created even
+ * when {@code withStep=true} (the listener performs an early return).
+ *
+ * <h3>Breaking change: methodology section default</h3>
+ * <p>
+ * Earlier versions of this listener always rendered the methodology section in
+ * both attachments. Starting with the {@link RenderConfig}-aware build, the
+ * methodology section is omitted by default to keep attachments compact.
+ * <p>
+ * Migration: callers that need the methodology section must opt in explicitly
+ * via {@code .withMethodology(true)} on the builder.
  */
 @Slf4j
 public class AllureMetricExecutionListener implements MetricExecutionListener {
@@ -59,6 +114,8 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
     private final MethodologyLoader methodologyLoader;
     private final ScoreExplanationFactory explanationFactory;
     private final AllureLifecycle lifecycle;
+    private final boolean withStep;
+    private final RenderConfig renderConfig;
 
     // Mutable state (reset per evaluation via forEvaluation())
     private MetricEvaluationContext evaluationContext;
@@ -75,17 +132,22 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
      * @param templateEngine the Freemarker template engine
      * @param attachmentWriter the Allure attachment writer
      * @param methodologyLoader the methodology documentation loader
+     * @deprecated since 0.4.0. Use {@link #builder()} instead. This constructor is retained
+     *     for backward compatibility and delegates to the builder defaults
+     *     ({@code lifecycle = Allure.getLifecycle()}, {@code withStep = true}).
      */
+    @Deprecated(since = "0.4.0", forRemoval = false)
     public AllureMetricExecutionListener(
             final AllureRagasProperties properties,
             final FreemarkerTemplateEngine templateEngine,
             final AllureAttachmentWriter attachmentWriter,
             final MethodologyLoader methodologyLoader) {
-        this(properties, templateEngine, attachmentWriter, methodologyLoader, Allure.getLifecycle());
+        this(properties, templateEngine, attachmentWriter, methodologyLoader, Allure.getLifecycle(), true);
     }
 
     /**
      * Creates an AllureMetricExecutionListener with explicit lifecycle (for testing).
+     * Delegates to the 6-arg constructor with {@code withStep = true} (default behaviour).
      *
      * @param properties the configuration properties
      * @param templateEngine the Freemarker template engine
@@ -99,12 +161,78 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
             final AllureAttachmentWriter attachmentWriter,
             final MethodologyLoader methodologyLoader,
             final AllureLifecycle lifecycle) {
+        this(properties, templateEngine, attachmentWriter, methodologyLoader, lifecycle, true);
+    }
+
+    /**
+     * Creates an AllureMetricExecutionListener with explicit lifecycle and step toggle.
+     * Package-private — production code should use {@link #builder()}.
+     * Delegates to the 7-arg constructor with {@link RenderConfig#defaults()}.
+     *
+     * @param properties the configuration properties
+     * @param templateEngine the Freemarker template engine
+     * @param attachmentWriter the Allure attachment writer
+     * @param methodologyLoader the methodology documentation loader
+     * @param lifecycle the Allure lifecycle instance
+     * @param withStep whether to wrap metric evaluation in an Allure step (see class javadoc
+     *     for the no-parent-context asymmetry between {@code withStep=true} and {@code false})
+     */
+    AllureMetricExecutionListener(
+            final AllureRagasProperties properties,
+            final FreemarkerTemplateEngine templateEngine,
+            final AllureAttachmentWriter attachmentWriter,
+            final MethodologyLoader methodologyLoader,
+            final AllureLifecycle lifecycle,
+            final boolean withStep) {
+        this(
+                properties,
+                templateEngine,
+                attachmentWriter,
+                methodologyLoader,
+                lifecycle,
+                withStep,
+                RenderConfig.defaults());
+    }
+
+    /**
+     * Creates an AllureMetricExecutionListener with explicit lifecycle, step toggle, and
+     * render configuration. Package-private — production code should use {@link #builder()}.
+     *
+     * @param properties the configuration properties
+     * @param templateEngine the Freemarker template engine
+     * @param attachmentWriter the Allure attachment writer
+     * @param methodologyLoader the methodology documentation loader
+     * @param lifecycle the Allure lifecycle instance
+     * @param withStep whether to wrap metric evaluation in an Allure step (see class javadoc
+     *     for the no-parent-context asymmetry between {@code withStep=true} and {@code false})
+     * @param renderConfig the attachment/section render configuration (see {@link RenderConfig})
+     */
+    AllureMetricExecutionListener(
+            final AllureRagasProperties properties,
+            final FreemarkerTemplateEngine templateEngine,
+            final AllureAttachmentWriter attachmentWriter,
+            final MethodologyLoader methodologyLoader,
+            final AllureLifecycle lifecycle,
+            final boolean withStep,
+            final RenderConfig renderConfig) {
         this.properties = properties;
         this.templateEngine = templateEngine;
         this.attachmentWriter = attachmentWriter;
         this.methodologyLoader = methodologyLoader;
         this.explanationFactory = new ScoreExplanationFactory();
         this.lifecycle = lifecycle;
+        this.withStep = withStep;
+        this.renderConfig = renderConfig;
+    }
+
+    /**
+     * Creates a new {@link Builder} for configuring an {@code AllureMetricExecutionListener}.
+     *
+     * @return a fresh builder instance with default {@code lifecycle = Allure.getLifecycle()}
+     *     and {@code withStep = true}
+     */
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -116,7 +244,10 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         // Do NOT call startStep here — it would push to main thread's ThreadLocal
         // and stopStep would remove from storage, breaking UUID-based operations
         this.parentUuid = lifecycle.getCurrentTestCaseOrStep().orElse(null);
-        this.metricStepUuid = UUID.randomUUID().toString();
+        // metricStepUuid is only relevant when withStep=true; leave null otherwise so the
+        // catch-block cleanup (lifecycle.updateStep / stopStep) naturally no-ops via the
+        // existing `if (metricStepUuid != null)` guard.
+        this.metricStepUuid = withStep ? UUID.randomUUID().toString() : null;
 
         if (parentUuid == null) {
             log.warn(
@@ -133,34 +264,78 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
 
     @Override
     public void afterMetricEvaluation(final MetricEvaluationResult result) {
+        if (!renderConfig.anyAttachmentEnabled()) {
+            log.warn(
+                    "Allure listener: both HTML and Markdown attachments disabled for metric '{}', skipping",
+                    result.getMetricName());
+            return;
+        }
+        if (!renderConfig.anySectionEnabled()) {
+            log.warn(
+                    "Allure listener: all report sections disabled for metric '{}', skipping attachments",
+                    result.getMetricName());
+            return;
+        }
         try {
-            final EvaluationReportData reportData = buildReportData(result);
+            if (withStep) {
+                final EvaluationReportData reportData = buildReportData(result);
 
-            if (parentUuid != null && metricStepUuid != null) {
-                // Create Allure step on THIS thread (async) — avoids main thread ThreadLocal corruption
-                final Status status = result.getAggregatedScore() != null ? Status.PASSED : Status.BROKEN;
-                final StepResult stepResult =
-                        new StepResult().setName(result.getMetricName()).setStatus(status);
-                lifecycle.startStep(parentUuid, metricStepUuid, stepResult);
+                if (parentUuid != null && metricStepUuid != null) {
+                    // Create Allure step on THIS thread (async) — avoids main thread ThreadLocal corruption
+                    final Status status = result.getAggregatedScore() != null ? Status.PASSED : Status.BROKEN;
+                    final StepResult stepResult =
+                            new StepResult().setName(result.getMetricName()).setStatus(status);
+                    lifecycle.startStep(parentUuid, metricStepUuid, stepResult);
 
-                // Write attachments — step is in storage, UUID-based methods work
-                attachmentWriter.writeHtmlAttachmentToStep(metricStepUuid, reportData);
-                attachmentWriter.writeMarkdownAttachmentToStep(metricStepUuid, reportData);
+                    // Write attachments — step is in storage, UUID-based methods work
+                    if (renderConfig.htmlAttachment()) {
+                        attachmentWriter.writeHtmlAttachmentToStep(metricStepUuid, reportData, renderConfig);
+                    }
+                    if (renderConfig.markdownAttachment()) {
+                        attachmentWriter.writeMarkdownAttachmentToStep(metricStepUuid, reportData, renderConfig);
+                    }
 
-                // Finalize step — sets stop time, removes from storage, pops from THIS thread's ThreadLocal
-                lifecycle.stopStep(metricStepUuid);
+                    // Finalize step — sets stop time, removes from storage, pops from THIS thread's ThreadLocal
+                    lifecycle.stopStep(metricStepUuid);
 
-                log.debug(
-                        "Allure listener: Created step '{}' with attachments for metric '{}', score {}",
-                        metricStepUuid,
-                        result.getMetricName(),
-                        result.getAggregatedScore());
+                    log.debug(
+                            "Allure listener: Created step '{}' with attachments for metric '{}', score {}",
+                            metricStepUuid,
+                            result.getMetricName(),
+                            result.getAggregatedScore());
+                } else {
+                    // Fallback to ThreadLocal-based methods
+                    if (renderConfig.htmlAttachment()) {
+                        attachmentWriter.writeHtmlAttachment(reportData, renderConfig);
+                    }
+                    if (renderConfig.markdownAttachment()) {
+                        attachmentWriter.writeMarkdownAttachment(reportData, renderConfig);
+                    }
+                    log.debug(
+                            "Allure listener: Generated attachments for metric '{}' with score {} (no parent context)",
+                            result.getMetricName(),
+                            result.getAggregatedScore());
+                }
             } else {
-                // Fallback to ThreadLocal-based methods
-                attachmentWriter.writeHtmlAttachment(reportData);
-                attachmentWriter.writeMarkdownAttachment(reportData);
+                // withStep == false — write attachments directly to parent UUID without wrapping step
+                if (parentUuid == null) {
+                    log.warn(
+                            "Allure listener: withStep=false but no parent context for metric '{}', skipping attachments",
+                            result.getMetricName());
+                    return;
+                }
+
+                final EvaluationReportData reportData = buildReportData(result);
+                if (renderConfig.htmlAttachment()) {
+                    attachmentWriter.writeHtmlAttachmentToStep(parentUuid, reportData, renderConfig);
+                }
+                if (renderConfig.markdownAttachment()) {
+                    attachmentWriter.writeMarkdownAttachmentToStep(parentUuid, reportData, renderConfig);
+                }
+
                 log.debug(
-                        "Allure listener: Generated attachments for metric '{}' with score {} (no parent context)",
+                        "Allure listener: Attached HTML/Markdown reports directly to parent '{}' for metric '{}', score {} (withStep=false)",
+                        parentUuid,
                         result.getMetricName(),
                         result.getAggregatedScore());
             }
@@ -181,7 +356,7 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
     public MetricExecutionListener forEvaluation() {
         // CRITICAL: Return new instance for thread safety
         return new AllureMetricExecutionListener(
-                properties, templateEngine, attachmentWriter, methodologyLoader, lifecycle);
+                properties, templateEngine, attachmentWriter, methodologyLoader, lifecycle, withStep, renderConfig);
     }
 
     @Override
@@ -411,5 +586,236 @@ public class AllureMetricExecutionListener implements MetricExecutionListener {
         }
 
         return entries;
+    }
+
+    /**
+     * Fluent builder for {@link AllureMetricExecutionListener}.
+     * <p>
+     * Required fields: {@code properties}, {@code templateEngine},
+     * {@code attachmentWriter}, {@code methodologyLoader}.
+     * <p>
+     * Optional fields: {@code lifecycle} (default {@link Allure#getLifecycle()}),
+     * {@code withStep} (default {@code true}). See class-level javadoc on
+     * {@link AllureMetricExecutionListener} for the no-parent-context asymmetry
+     * between {@code withStep=true} and {@code withStep=false}.
+     */
+    public static class Builder {
+        private AllureRagasProperties properties;
+        private FreemarkerTemplateEngine templateEngine;
+        private AllureAttachmentWriter attachmentWriter;
+        private MethodologyLoader methodologyLoader;
+        private AllureLifecycle lifecycle = Allure.getLifecycle();
+        private boolean withStep = true;
+
+        private boolean withHtmlAttachment = true;
+        private boolean withMarkdownAttachment = true;
+        private boolean withSummary = true;
+        private boolean withExplanation = true;
+        private boolean withMethodology = false;
+        private boolean withExecutionLog = true;
+        private boolean withExcludedModels = true;
+
+        /**
+         * Sets the Ragas Allure configuration properties (required).
+         *
+         * @param properties the configuration properties
+         * @return this builder
+         */
+        public Builder properties(final AllureRagasProperties properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        /**
+         * Sets the Freemarker template engine (required).
+         *
+         * @param templateEngine the template engine
+         * @return this builder
+         */
+        public Builder templateEngine(final FreemarkerTemplateEngine templateEngine) {
+            this.templateEngine = templateEngine;
+            return this;
+        }
+
+        /**
+         * Sets the Allure attachment writer (required).
+         *
+         * @param attachmentWriter the attachment writer
+         * @return this builder
+         */
+        public Builder attachmentWriter(final AllureAttachmentWriter attachmentWriter) {
+            this.attachmentWriter = attachmentWriter;
+            return this;
+        }
+
+        /**
+         * Sets the methodology documentation loader (required).
+         *
+         * @param methodologyLoader the methodology loader
+         * @return this builder
+         */
+        public Builder methodologyLoader(final MethodologyLoader methodologyLoader) {
+            this.methodologyLoader = methodologyLoader;
+            return this;
+        }
+
+        /**
+         * Sets the Allure lifecycle (optional, default {@link Allure#getLifecycle()}).
+         *
+         * @param lifecycle the lifecycle instance
+         * @return this builder
+         */
+        public Builder lifecycle(final AllureLifecycle lifecycle) {
+            this.lifecycle = lifecycle;
+            return this;
+        }
+
+        /**
+         * Sets whether the listener wraps each metric evaluation in its own Allure step
+         * (optional, default {@code true}).
+         * <p>
+         * When {@code true} (default), the listener calls
+         * {@link AllureLifecycle#startStep(String, String, StepResult) startStep} /
+         * {@link AllureLifecycle#stopStep(String) stopStep} around the HTML/Markdown
+         * attachments. If no Allure parent context is found, the listener falls back
+         * to {@link Allure}'s ThreadLocal-based attachment methods.
+         * <p>
+         * When {@code false}, the listener writes attachments directly to the captured
+         * parent UUID and skips {@code startStep}/{@code stopStep}. If no Allure parent
+         * context is found, the listener logs a warning and skips the attachments
+         * entirely (no ThreadLocal fallback). Use this when the host test framework
+         * already wraps each metric call in its own outer Allure step.
+         *
+         * @param withStep whether to wrap evaluation in an Allure step
+         * @return this builder
+         */
+        public Builder withStep(final boolean withStep) {
+            this.withStep = withStep;
+            return this;
+        }
+
+        /**
+         * Sets whether the rendered HTML report should be attached to the Allure step
+         * (optional, default {@code true}).
+         * <p>
+         * If both this flag and {@link #withMarkdownAttachment(boolean)} are disabled,
+         * no Allure step is created even when {@code withStep=true} (the listener
+         * performs an early return in {@code afterMetricEvaluation}).
+         *
+         * @param withHtmlAttachment whether to attach the HTML report
+         * @return this builder
+         */
+        public Builder withHtmlAttachment(final boolean withHtmlAttachment) {
+            this.withHtmlAttachment = withHtmlAttachment;
+            return this;
+        }
+
+        /**
+         * Sets whether the rendered Markdown report should be attached to the Allure
+         * step (optional, default {@code true}).
+         * <p>
+         * If both this flag and {@link #withHtmlAttachment(boolean)} are disabled,
+         * no Allure step is created even when {@code withStep=true} (the listener
+         * performs an early return in {@code afterMetricEvaluation}).
+         *
+         * @param withMarkdownAttachment whether to attach the Markdown report
+         * @return this builder
+         */
+        public Builder withMarkdownAttachment(final boolean withMarkdownAttachment) {
+            this.withMarkdownAttachment = withMarkdownAttachment;
+            return this;
+        }
+
+        /**
+         * Sets whether the summary section (scores, timing, models) is rendered in
+         * both attachments (optional, default {@code true}).
+         *
+         * @param withSummary whether to render the summary section
+         * @return this builder
+         */
+        public Builder withSummary(final boolean withSummary) {
+            this.withSummary = withSummary;
+            return this;
+        }
+
+        /**
+         * Sets whether the per-step / per-model explanation section is rendered in
+         * both attachments (optional, default {@code true}).
+         *
+         * @param withExplanation whether to render the explanation section
+         * @return this builder
+         */
+        public Builder withExplanation(final boolean withExplanation) {
+            this.withExplanation = withExplanation;
+            return this;
+        }
+
+        /**
+         * Sets whether the methodology section is rendered in both attachments
+         * (optional, default <b>{@code false}</b>).
+         * <p>
+         * <b>Breaking change:</b> earlier listener versions always rendered the
+         * methodology section. The default has been flipped to {@code false} to keep
+         * attachments compact.
+         * <p>
+         * Migration: callers that need the previous behavior must call
+         * {@code .withMethodology(true)} explicitly when configuring the builder.
+         *
+         * @param withMethodology whether to render the methodology section
+         * @return this builder
+         */
+        public Builder withMethodology(final boolean withMethodology) {
+            this.withMethodology = withMethodology;
+            return this;
+        }
+
+        /**
+         * Sets whether the execution log / steps timeline section is rendered in
+         * both attachments (optional, default {@code true}).
+         *
+         * @param withExecutionLog whether to render the execution log section
+         * @return this builder
+         */
+        public Builder withExecutionLog(final boolean withExecutionLog) {
+            this.withExecutionLog = withExecutionLog;
+            return this;
+        }
+
+        /**
+         * Sets whether the excluded models section is rendered in both attachments
+         * (optional, default {@code true}).
+         *
+         * @param withExcludedModels whether to render the excluded models section
+         * @return this builder
+         */
+        public Builder withExcludedModels(final boolean withExcludedModels) {
+            this.withExcludedModels = withExcludedModels;
+            return this;
+        }
+
+        /**
+         * Builds the {@link AllureMetricExecutionListener} instance.
+         *
+         * @return a new listener configured with the values set on this builder
+         * @throws NullPointerException if any required field ({@code properties},
+         *     {@code templateEngine}, {@code attachmentWriter}, {@code methodologyLoader})
+         *     is {@code null}. The exception message contains the missing field name.
+         */
+        public AllureMetricExecutionListener build() {
+            java.util.Objects.requireNonNull(properties, "properties must not be null");
+            java.util.Objects.requireNonNull(templateEngine, "templateEngine must not be null");
+            java.util.Objects.requireNonNull(attachmentWriter, "attachmentWriter must not be null");
+            java.util.Objects.requireNonNull(methodologyLoader, "methodologyLoader must not be null");
+            final RenderConfig renderConfig = new RenderConfig(
+                    withHtmlAttachment,
+                    withMarkdownAttachment,
+                    withSummary,
+                    withExplanation,
+                    withMethodology,
+                    withExecutionLog,
+                    withExcludedModels);
+            return new AllureMetricExecutionListener(
+                    properties, templateEngine, attachmentWriter, methodologyLoader, lifecycle, withStep, renderConfig);
+        }
     }
 }

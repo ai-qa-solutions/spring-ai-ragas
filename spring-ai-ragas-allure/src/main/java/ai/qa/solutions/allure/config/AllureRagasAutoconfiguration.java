@@ -106,6 +106,11 @@ public class AllureRagasAutoconfiguration {
                 properties.getLanguage(),
                 properties.isIncludePrompts(),
                 properties.isIncludeResponses());
-        return new AllureMetricExecutionListener(properties, templateEngine, attachmentWriter, methodologyLoader);
+        return AllureMetricExecutionListener.builder()
+                .properties(properties)
+                .templateEngine(templateEngine)
+                .attachmentWriter(attachmentWriter)
+                .methodologyLoader(methodologyLoader)
+                .build();
     }
 }

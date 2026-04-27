@@ -1,6 +1,7 @@
 package ai.qa.solutions.allure.template;
 
 import ai.qa.solutions.allure.i18n.ReportMessages;
+import ai.qa.solutions.allure.listener.RenderConfig;
 import ai.qa.solutions.allure.model.EvaluationReportData;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -35,29 +36,59 @@ public class FreemarkerTemplateEngine {
     }
 
     /**
-     * Renders the HTML report for the given evaluation data.
+     * Renders the HTML report for the given evaluation data using {@link RenderConfig#defaults()}.
      *
      * @param data the evaluation report data
      * @return rendered HTML content
      * @throws TemplateRenderException if rendering fails
      */
     public String renderHtml(final EvaluationReportData data) {
-        return render(HTML_TEMPLATE, data);
+        return renderHtml(data, RenderConfig.defaults());
     }
 
     /**
-     * Renders the Markdown report for the given evaluation data.
+     * Renders the HTML report for the given evaluation data and render configuration.
+     * <p>
+     * The provided {@code renderConfig} is exposed to the template under the key
+     * {@code "renderConfig"} so templates can selectively emit sections.
+     *
+     * @param data the evaluation report data
+     * @param renderConfig the render configuration controlling which sections to emit
+     * @return rendered HTML content
+     * @throws TemplateRenderException if rendering fails
+     */
+    public String renderHtml(final EvaluationReportData data, final RenderConfig renderConfig) {
+        return render(HTML_TEMPLATE, data, renderConfig);
+    }
+
+    /**
+     * Renders the Markdown report for the given evaluation data using {@link RenderConfig#defaults()}.
      *
      * @param data the evaluation report data
      * @return rendered Markdown content
      * @throws TemplateRenderException if rendering fails
      */
     public String renderMarkdown(final EvaluationReportData data) {
-        return render(MARKDOWN_TEMPLATE, data);
+        return renderMarkdown(data, RenderConfig.defaults());
     }
 
     /**
-     * Renders a template with the given data.
+     * Renders the Markdown report for the given evaluation data and render configuration.
+     * <p>
+     * The provided {@code renderConfig} is exposed to the template under the key
+     * {@code "renderConfig"} so templates can selectively emit sections.
+     *
+     * @param data the evaluation report data
+     * @param renderConfig the render configuration controlling which sections to emit
+     * @return rendered Markdown content
+     * @throws TemplateRenderException if rendering fails
+     */
+    public String renderMarkdown(final EvaluationReportData data, final RenderConfig renderConfig) {
+        return render(MARKDOWN_TEMPLATE, data, renderConfig);
+    }
+
+    /**
+     * Renders a template with the given data using {@link RenderConfig#defaults()}.
      *
      * @param templateName the template file name
      * @param data the evaluation report data
@@ -65,9 +96,23 @@ public class FreemarkerTemplateEngine {
      * @throws TemplateRenderException if rendering fails
      */
     public String render(final String templateName, final EvaluationReportData data) {
+        return render(templateName, data, RenderConfig.defaults());
+    }
+
+    /**
+     * Renders a template with the given data and render configuration.
+     *
+     * @param templateName the template file name
+     * @param data the evaluation report data
+     * @param renderConfig the render configuration controlling which sections to emit
+     * @return rendered content
+     * @throws TemplateRenderException if rendering fails
+     */
+    public String render(final String templateName, final EvaluationReportData data, final RenderConfig renderConfig) {
         try {
             final Template template = configuration.getTemplate(templateName);
             final Map<String, Object> model = createTemplateModel(data);
+            model.put("renderConfig", renderConfig);
 
             try (final StringWriter writer = new StringWriter()) {
                 template.process(model, writer);
